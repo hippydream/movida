@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="movida-xml-doc">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="persons">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="person">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element minOccurs="0" name="first-name" type="xs:string" />
+                    <xs:element name="last-name" type="xs:string" />
+                    <xs:element minOccurs="0" name="urls">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element maxOccurs="unbounded" name="id">
+                            <xs:complexType>
+                              <xs:simpleContent>
+                                <xs:extension base="xs:unsignedInt">
+                                  <xs:attribute name="hardcoded" type="xs:boolean" use="optional" />
+                                  <xs:attribute name="default" type="xs:boolean" use="optional" />
+                                </xs:extension>
+                              </xs:simpleContent>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="xs:unsignedByte" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="genres" type="itemlist">
+        </xs:element>
+        <xs:element name="tags" type="itemlist">
+        </xs:element>
+        <xs:element name="urls" type="itemlist">
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:unsignedShort" use="optional" />
+      <xs:attribute name="items" type="xs:unsignedInt" use="optional" />
+      <xs:attribute name="update" type="xs:dateTime" use="optional" />
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="itemlist">
+    <xs:sequence>
+      <xs:element name="item" type="item" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="item">
+    <xs:sequence>
+      <xs:element name="id" type="xs:unsignedInt"/>
+      <xs:element name="description" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="personlist">
+    <xs:sequence>
+      <xs:element name="person" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="person">
+    <xs:sequence>
+      <xs:element name="first-name" type="xs:string" />
+      <xs:element name="last-name" type="xs:string" />
+      <xs:element name="urls" type="idlist" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+  </xs:complexType>
+  <xs:complexType name="idlist">
+    <xs:sequence>
+      <xs:element name="id" type="id" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="id">
+    <xs:simpleContent>
+      <xs:extension base="xs:unsignedInt">
+        <xs:attribute name="default" type="xs:boolean"  use="optional" />
+        <xs:attribute name="hardcoded" type="xs:boolean" use="optional" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

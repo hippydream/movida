@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<movida-xml-doc version="1" items="1" update="2007-02-11T00:05:48">
+	<movie title="Paura e Delirio a Las Vegas">
+		<original-title>Fear and Loathing in Las Vegas</original-title>
+		<running-time>118</running-time>
+		<production-year>1998</production-year>
+		<release-year>1998</release-year>
+    <edition>Collector&apos;s Edition</edition>
+		<rating>4</rating>
+    <favorite>true</favorite>
+		<notes>QDialogButtonBox now sets the default button to the first button with   the Accept role if no other button has explicitly been set as the default when it is shown. This is to stop a regression where using thec autoDefault property with the Mac and Cleanlooks styles would set the Cancel button as the default.</notes>
+		<plot>QDialogButtonBox now sets the default button to the first button with   the Accept role if no other button has explicitly been set as the default when it is shown. This is to stop a regression where using thec autoDefault property with the Mac and Cleanlooks styles would set the Cancel button as the default.</plot>
+    <imdb-id>1234567</imdb-id>
+    <storage-id>BlueMovies #0001</storage-id>
+    <color-mode>color</color-mode>
+    <cast>
+      <person id="1">
+          <role>Ms. Katsuma</role>
+          <role>Hackr</role>
+      </person>
+      <person hardcoded="true" id="2147483652">
+          <role>The Boss</role>
+      </person>
+		</cast>
+		<crew>
+      <person id="14">
+        <role>Writer</role>
+      </person>
+      <person id="13">
+        <role>Co-producer</role>
+      </person>
+    </crew>
+    <directors>
+      <person id="21"/>
+    </directors>
+    <producers>
+      <person id="1"/>
+		</producers>
+		<genres>
+			<id hardcoded="true">2147483654</id>
+			<id hardcoded="true">2147483663</id>
+		</genres>
+		<countries>
+      <id>2</id>
+      <id>12</id>
+      <id hardcoded="true">2147483663</id>
+		</countries>
+		<languages>
+      <id>2</id>
+      <id>12</id>
+      <id hardcoded="true">2147483663</id>
+		</languages>
+		<tags>
+			<id>1</id>
+			<id>3</id>
+      <id hardcoded="true">2147483663</id>
+		</tags>
+		<urls>
+			<id hardcoded="true">2147483652</id>
+			<id hardcoded="true">2147483653</id>
+			<id default="true">1</id>
+			<id>2</id>
+		</urls>
+    <special-contents>
+      <item>Commentary by Terry Gilliam</item>
+      <item>Trivia</item>
+    </special-contents>
+	</movie>
+</movida-xml-doc>

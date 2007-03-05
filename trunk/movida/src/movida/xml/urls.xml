@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<movida-xml-doc version="1.0" update="2006-05-07T12:47:22" items="4">
+
+  <item id="0">http://www.kakka.it</item>
+  <item id="1" description="Test URL">http://www.koalla.it/item>
+  <item id="2">http://www.kunnnana.it</item>
+  <item id="3" description="Another URL">http://www.kajjo.it</item>
+  
+</movida-xml-doc>

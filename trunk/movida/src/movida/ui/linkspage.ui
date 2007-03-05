@@ -1,0 +1,147 @@
+<ui version="4.0" >
+ <class>MvdLinksPage</class>
+ <widget class="QWidget" name="MvdLinksPage" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>530</width>
+    <height>349</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Links</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="0" column="0" colspan="6" >
+    <widget class="MvdSDTreeWidget" name="linksWidget" />
+   </item>
+   <item row="2" column="5" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>251</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="4" >
+    <widget class="QPushButton" name="imdbButton" >
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
+     <property name="text" >
+      <string>Visit &amp;IMDb movie page</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>16</width>
+       <height>23</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="2" >
+    <widget class="QLineEdit" name="imdbInput" >
+     <property name="sizePolicy" >
+      <sizepolicy>
+       <hsizetype>0</hsizetype>
+       <vsizetype>0</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize" >
+      <size>
+       <width>60</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize" >
+      <size>
+       <width>60</width>
+       <height>32767</height>
+      </size>
+     </property>
+     <property name="inputMask" >
+      <string>0000000; </string>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+     <property name="cursorPosition" >
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>16</width>
+       <height>23</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QLabel" name="imdbLabel" >
+     <property name="text" >
+      <string>IMDb ID:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MvdSDTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>sdtreewidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

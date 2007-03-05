@@ -1,0 +1,63 @@
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>MovieInfoSpecialContents</class>
+ <widget class="QWidget" name="MovieInfoSpecialContents" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>612</width>
+    <height>374</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="1" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>491</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QPushButton" name="specialsRemove" >
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
+     <property name="text" >
+      <string>&amp;Remove item</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2" >
+    <widget class="QTreeWidget" name="specials" >
+     <property name="alternatingRowColors" >
+      <bool>true</bool>
+     </property>
+     <property name="rootIsDecorated" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <pixmapfunction></pixmapfunction>
+ <resources/>
+ <connections/>
+</ui>
