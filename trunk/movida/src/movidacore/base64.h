@@ -29,7 +29,7 @@ class QString;
 class QBitArray;
 class QByteArray;
 
-class MOVIDA_EXPORT MvdBase64
+class MVD_EXPORT MvdBase64
 {
 public:
 	enum EncodingOption { NoOptions = 0x00, BreakLongLines = 0x01 };

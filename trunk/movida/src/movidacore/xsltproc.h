@@ -26,7 +26,7 @@
 
 class MvdXsltProc_P;
 
-class MOVIDA_EXPORT MvdXsltProc
+class MVD_EXPORT MvdXsltProc
 {
 public:
 	MvdXsltProc();

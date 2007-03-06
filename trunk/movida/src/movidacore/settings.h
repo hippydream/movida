@@ -41,7 +41,7 @@ class QColor;
 
 class MvdSettings_P;
 
-class MOVIDA_EXPORT MvdSettings
+class MVD_EXPORT MvdSettings
 {
 public:
 	static const quint8 version = 1;
@@ -138,7 +138,7 @@ private:
 
 namespace Movida
 {
-	extern MOVIDA_EXPORT MvdSettings& settings();
+	extern MVD_EXPORT MvdSettings& settings();
 }
 
 #endif // MVD_SETTINGS_H

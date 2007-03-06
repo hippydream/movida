@@ -29,7 +29,7 @@
 
 class MvdLogger_P;
 
-class MOVIDA_EXPORT MvdLogger : public QObject
+class MVD_EXPORT MvdLogger : public QObject
 {
 	Q_OBJECT
 
@@ -68,9 +68,9 @@ private:
 
 namespace Movida
 {
-	MOVIDA_EXPORT extern MvdLogger& iLog();
-	MOVIDA_EXPORT extern MvdLogger& wLog();
-	MOVIDA_EXPORT extern MvdLogger& eLog();
+	MVD_EXPORT extern MvdLogger& iLog();
+	MVD_EXPORT extern MvdLogger& wLog();
+	MVD_EXPORT extern MvdLogger& eLog();
 }
 
 #endif // MVD_LOGGER_H

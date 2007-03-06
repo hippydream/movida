@@ -30,7 +30,7 @@
 
 class MvdMovie_P;
 
-class MOVIDA_EXPORT MvdMovie
+class MVD_EXPORT MvdMovie
 {
 public:
 	MvdMovie();

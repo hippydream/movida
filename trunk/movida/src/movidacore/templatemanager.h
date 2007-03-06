@@ -28,7 +28,7 @@ class MvdTemplateManager_P;
 #include "movie.h"
 #include "moviecollection.h"
 
-class MOVIDA_EXPORT MvdTemplateManager
+class MVD_EXPORT MvdTemplateManager
 {
 public:
 	static MvdTemplateManager& instance();
@@ -48,7 +48,7 @@ private:
 
 namespace Movida
 {
-	MOVIDA_EXPORT extern MvdTemplateManager& tmanager();
+	MVD_EXPORT extern MvdTemplateManager& tmanager();
 }
 
 #endif // MVD_TEMPLATEMANAGER_H

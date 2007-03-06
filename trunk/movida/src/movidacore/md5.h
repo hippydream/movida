@@ -28,7 +28,7 @@ class QByteArray;
 class QString;
 class QFile;
 
-class MOVIDA_EXPORT MvdMd5
+class MVD_EXPORT MvdMd5
 {
 public:
 	static QString hashData(const QByteArray& bytes);

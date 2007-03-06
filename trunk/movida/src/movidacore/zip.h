@@ -39,7 +39,7 @@ class QStringList;
 class QString;
 
 
-class MOVIDA_EXPORT MvdZip
+class MVD_EXPORT MvdZip
 {
 public:
 	enum ErrorCode

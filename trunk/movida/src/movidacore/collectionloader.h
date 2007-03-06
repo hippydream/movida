@@ -28,7 +28,7 @@
 
 class MvdMovieCollection;
 
-class MOVIDA_EXPORT MvdCollectionLoader
+class MVD_EXPORT MvdCollectionLoader
 {
 public:
 	enum ErrorCode

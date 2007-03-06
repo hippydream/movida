@@ -37,7 +37,7 @@ class QDir;
 class QStringList;
 class QObject;
 
-class MOVIDA_EXPORT MvdUnZip
+class MVD_EXPORT MvdUnZip
 {
 public:
 	enum ErrorCode

@@ -31,7 +31,7 @@ class QTextCodec;
 
 class MvdXmlWriter_P;
 
-class MOVIDA_EXPORT MvdXmlWriter
+class MVD_EXPORT MvdXmlWriter
 {
 public:
 	// Fix a bug with GCC not able to parse the template class default parameters

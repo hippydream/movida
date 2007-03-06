@@ -27,7 +27,7 @@
 
 class MvdCore_P;
 
-class MOVIDA_EXPORT MvdCore
+class MVD_EXPORT MvdCore
 {
 public:
 	static bool initCore();

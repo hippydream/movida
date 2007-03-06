@@ -36,7 +36,7 @@ class MvdSharedData_P;
 typedef QList<smdid> SmdIdList;
 typedef QList<movieid> MovieIdList;
 
-class MOVIDA_EXPORT MvdSharedData : public QObject
+class MVD_EXPORT MvdSharedData : public QObject
 {
 	Q_OBJECT
 
@@ -237,7 +237,7 @@ private:
 
 namespace Movida
  {
-	 MOVIDA_EXPORT extern MvdSharedData& globalSD();
+	 MVD_EXPORT extern MvdSharedData& globalSD();
  }
 
 #endif // MVD_SHAREDMOVIEDATA_H

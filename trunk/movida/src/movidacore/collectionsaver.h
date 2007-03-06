@@ -27,7 +27,7 @@
 
 #include <QObject>
 
-class MOVIDA_EXPORT MvdCollectionSaver
+class MVD_EXPORT MvdCollectionSaver
 {
 public:
 	enum ErrorCode

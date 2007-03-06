@@ -34,7 +34,7 @@ class MvdMovieCollection_P;
 class MvdMovie;
 class MvdLogger;
 
-class MOVIDA_EXPORT MvdMovieCollection : public QObject
+class MVD_EXPORT MvdMovieCollection : public QObject
 {
 	Q_OBJECT
 

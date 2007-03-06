@@ -24,16 +24,17 @@
 #include <QtGlobal>
 #include <QString>
 
-#  ifndef MOVIDA_EXPORT
-#  ifdef Q_OS_WIN
-#    define MOVIDA_EXPORT __declspec(dllexport)
-#  elif defined(QT_VISIBILITY_AVAILABLE)
-#    define MOVIDA_EXPORT __attribute__((visibility("default")))
-#  endif
-#  endif
-#  ifndef MOVIDA_EXPORT
-#    define MOVIDA_EXPORT
-#  endif
+#ifndef MVD_EXPORT
+# ifdef Q_OS_WIN
+#  if defined(MVD_BUILD_CORE_DLL)
+#   define MVD_EXPORT __declspec(dllexport)
+#  else
+#   define MVD_EXPORT __declspec(dllimport)
+#  endif // MVD_BUILD_CORE_DLL
+# else // Q_OS_WIN
+#  define MVD_EXPORT
+# endif
+#endif // MVD_EXPORT
 
 #define _APP_NAME_ "Movida"
 #define _COMPANY_ "BlueSoft"

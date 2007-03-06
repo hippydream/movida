@@ -18,6 +18,7 @@ win32 {
 TARGET = movidacore
 TEMPLATE = lib
 CONFIG += dll
+DEFINES += MVD_BUILD_CORE_DLL
 
 INCLUDEPATH += .
 

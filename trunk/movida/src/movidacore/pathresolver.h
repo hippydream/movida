@@ -29,7 +29,7 @@
 
 class MvdPathResolver_P;
 
-class MOVIDA_EXPORT MvdPathResolver
+class MVD_EXPORT MvdPathResolver
 {
 public:
 	static MvdPathResolver& instance();
@@ -57,7 +57,7 @@ private:
 
 namespace Movida
 {
-	MOVIDA_EXPORT extern MvdPathResolver& paths();
+	MVD_EXPORT extern MvdPathResolver& paths();
 }
 
 #endif // MVD_PATHRESOLVER_H
