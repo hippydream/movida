@@ -11,7 +11,7 @@ win32 {
 	message(Using lib directory \"$${ROOT}/lib/win32\")
 	LIBS += $${ROOT}/bin/movidacore.lib
 } else {
-	LIBS += -lmovidacore
+	LIBS += -L$${ROOT}/bin -lmovidacore -lxml2 -lxslt
 }
 
 win32 { TARGET = Movida }
