@@ -921,7 +921,7 @@ MvdCollectionLoader::ErrorCode MvdCollectionLoader::load(
 	if (
 	     (!uz.contains("movida-collection/")) || 
 	     (!uz.contains("movida-collection/metadata.xml")) ||
-		 (!uz.contains("movida-collection/collection->xml"))
+		 (!uz.contains("movida-collection/collection.xml"))
 	   )
 	{
 		eLog() << QString("CLoader: Missing Movida archive files: %1").arg(file);
