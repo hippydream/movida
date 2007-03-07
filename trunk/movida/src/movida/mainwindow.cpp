@@ -56,9 +56,6 @@
 #include <QListView>
 #include <QInputDialog>
 
-//! \todo replace with a MvdCore registered parameter
-#define MVD_DEFAULT_MAX_RECENT_FILES 5
-
 using namespace Movida;
 
 
@@ -229,35 +226,41 @@ MvdMainWindow::MvdMainWindow()
 	
 	// **************** LOAD AND APPLY STORED SETTINGS ****************
 	
+	// Set some GUI related constants
+	QHash<QString,QVariant> parameters;
+	parameters.insert("movida-maximum-recent-files", 10);
+	parameters.insert("movida-default-recent-files", 5);
+	MvdCore::registerParameters(parameters);
+
 	MvdSettings& p = Movida::settings();
 
 	// Set default settings
-	p.setInt("max_recent_files", MVD_DEFAULT_MAX_RECENT_FILES, "gui_general");
-	p.setBool("confirm_close_db", true, "gui_general");
-	p.setBool("confirm_remove_db", true, "gui_general");
-	p.setBool("use_last_archive", true, "directories");
-	p.setBool("initials", false, "movie_list");
-	p.setRect("main_window_rect", defaultWindowRect(), "gui_appearance");
+	p.setInt("maximum-recent-files", 5, "movida");
+	p.setBool("confirm-delete-movie", true, "movida");
 
-	// Load settings
-	MvdCore::initStatus();
+	p.setBool("use-last-collection", true, "movida-directories");
+	p.setBool("initials", false, "movida-movie-list");
+	p.setRect("main-window-rect", defaultWindowRect(), "movida-appearance");
 
-	QByteArray ba = p.getByteArray("main_window_state", "gui_appearance");
+	// Initialize core library
+	MvdCore::loadStatus();
+
+		QByteArray ba = p.getByteArray("main-window-state", "movida-appearance");
 	if (!ba.isEmpty())
 		restoreState(ba);
 
-	QRect rect = p.getRect("main_window_rect", "gui_appearance");
+	QRect rect = p.getRect("main-window-rect", "movida-appearance");
 	if (rect.isValid())
 		setGeometry(rect);
 
 	bool ok, bl;
 	
-	bl = p.getBool("start_maximized", "gui_appearance", &ok);
+	bl = p.getBool("start-maximized", "movida-appearance", &ok);
 	if (ok && bl)
 		setWindowState(Qt::WindowMaximized);
 
 	// setup recent files
-	mRecentFiles = p.getStringList("recent_files", "gui_general");
+	mRecentFiles = p.getStringList("recent-files", "movida");
 	refreshRecentFilesMenu();
 	
 	// a new empty collection is always open at startup
@@ -457,7 +460,7 @@ void MvdMainWindow::closeEvent(QCloseEvent* e)
 {
 	if (mCollection && mCollection->isModified())
 	{
-		if (!closeCollection(true))
+		if (!closeCollection())
 		{
 			e->ignore();
 			return;
@@ -465,11 +468,11 @@ void MvdMainWindow::closeEvent(QCloseEvent* e)
 	}
 
 	MvdSettings& p = Movida::settings();
-	p.setByteArray("main_window_state", saveState(), "gui_appearance");
-	p.setBool("start_maximized", isMaximized(), "gui_appearance");
-	p.setRect("main_window_rect", frameGeometry(), "gui_appearance");
+	p.setByteArray("main-window-state", saveState(), "movida-appearance");
+	p.setBool("start-maximized", isMaximized(), "movida-appearance");
+	p.setRect("main-window-rect", frameGeometry(), "movida-appearance");
 
-	p.setStringList("recent_files", mRecentFiles, "gui_general");
+	p.setStringList("recent-files", mRecentFiles, "movida");
 
 	MvdCore::storeStatus();
 }
@@ -482,7 +485,7 @@ void MvdMainWindow::openRecentFile(QAction* a)
 	if (a == 0)
 		return;
 	
-	if (!closeCollection(true))
+	if (!closeCollection())
 		return;
 	
 	QString file = a->data().toString();
@@ -534,11 +537,7 @@ void MvdMainWindow::refreshRecentFilesMenu()
 	mMN_FileMRU->setEnabled(!mRecentFiles.isEmpty());
 	mA_FileOpenLast->setEnabled(!mRecentFiles.isEmpty());
 	
-	bool ok;
-	int max = Movida::settings().getInt("max_recent_files", "gui_general", &ok);
-	if (!ok || max < 1)
-		max = MVD_DEFAULT_MAX_RECENT_FILES;
-
+	int max = Movida::settings().getInt("maximum-recent-files", "movida");
 	while (mRecentFiles.size() > max)
 		mRecentFiles.removeLast();
 }
@@ -587,10 +586,8 @@ void MvdMainWindow::updateCaption()
 /*!
 	Closes the current collection and initializes a new empty collection.
 	Returns false if the collection has not been closed.
-	User confirm required if \p confirm is true and the confirm is enabled
-	in the application preferences.
 */
-bool MvdMainWindow::closeCollection(bool confirm)
+bool MvdMainWindow::closeCollection()
 {
 	if (mCollection == 0)
 		return true;
@@ -618,13 +615,6 @@ bool MvdMainWindow::closeCollection(bool confirm)
 		}
 	}
 	
-	if (confirm && Movida::settings().getBool("confirm_close_db", "gui_general"))
-	{
-		if (QMessageBox::question(this, _CAPTION_, tr("Do you really want to close the collection?"),
-			QMessageBox::Yes, QMessageBox::No|QMessageBox::Escape) != QMessageBox::Yes)
-			return false;
-	}
-	
 	mMovieModel->setMovieCollection(0);
 
 	delete mCollection;
@@ -645,7 +635,7 @@ bool MvdMainWindow::closeCollection(bool confirm)
 */
 bool MvdMainWindow::loadCollection(const QString& file)
 {
-	if (!closeCollection(true))
+	if (!closeCollection())
 		return true;
 
 	/*! \todo add thread to load coll. and (_IMPORTANT_) lock gui! */
@@ -685,12 +675,12 @@ bool MvdMainWindow::loadCollection(const QString& file)
 */
 bool MvdMainWindow::loadCollectionDlg()
 {
-	if (!closeCollection(true))
+	if (!closeCollection())
 		return false;
 	
 	MvdSettings& p = Movida::settings();
 
-	QString lastDir = p.getString("last_archive", "directories");
+	QString lastDir = p.getString("last-collection", "movida-directories");
 
 	QString file = QFileDialog::getOpenFileName(
 		this, _CAPTION_, 
@@ -704,8 +694,8 @@ bool MvdMainWindow::loadCollectionDlg()
 	int sep = file.lastIndexOf("/");
 	if (sep > 0)
 	{
-		if (p.getBool("use_last_archive", "directories"))
-			p.setString("last_archive", file.left(sep), "directories");
+		if (p.getBool("use-last-collection", "movida-directories"))
+			p.setString("last-collection", file.left(sep), "movida-directories");
 	}
 	
 	addRecentFile(file);
@@ -722,7 +712,7 @@ bool MvdMainWindow::saveCollectionDlg()
 	Q_ASSERT(mCollection != 0);
 	Q_ASSERT(!mCollection->isEmpty());
 
-	QString lastDir = Movida::settings().getString("last_archive", "directories");
+	QString lastDir = Movida::settings().getString("last-collection", "movida-directories");
 
 	QString filename = QFileDialog::getSaveFileName(this, _CAPTION_, lastDir, "*.mmc");
 	if (filename.isEmpty())
@@ -731,8 +721,8 @@ bool MvdMainWindow::saveCollectionDlg()
 	int sep = filename.lastIndexOf("/");
 	if (sep > 0)
 	{
-		if (Movida::settings().getBool("use_last_archive", "directories"))
-			Movida::settings().setString("last_archive", filename.left(sep), "directories");
+		if (Movida::settings().getBool("use-last-collection", "movida-directories"))
+			Movida::settings().setString("last-collection", filename.left(sep), "movida-directories");
 	}
 
 	bool res = mCollection->save(filename);
@@ -910,7 +900,7 @@ void MvdMainWindow::newCollection()
 	if (mCollection == 0)
 		return;
 
-	if (closeCollection(true))
+	if (closeCollection())
 		mA_FileNew->setDisabled(true);
 }
 
@@ -1043,7 +1033,7 @@ void MvdMainWindow::removeMovie(const QModelIndex& index)
 	if (id == 0)
 		return;
 
-	bool confirm = Movida::settings().getBool("confirm_remove_db", "gui_general");
+	bool confirm = Movida::settings().getBool("confirm-delete-movie", "movida");
 	if (confirm)
 	{
 		int res = QMessageBox::question(this, _CAPTION_, tr("Are you sure you want to delete this movie?"),

@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>460</width>
-    <height>348</height>
+    <height>343</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -19,19 +19,6 @@
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item row="4" column="0" >
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" >
-      <size>
-       <width>442</width>
-       <height>16</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="0" column="0" >
     <widget class="QGroupBox" name="mGB_General" >
      <property name="title" >
@@ -47,7 +34,32 @@
       <item row="0" column="0" >
        <widget class="QCheckBox" name="mCB_SearchHistory" >
         <property name="text" >
-         <string>Remember searched strings</string>
+         <string>Remember searches</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QGroupBox" name="mGB_Confirm" >
+     <property name="title" >
+      <string>Ask for confirmation</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="0" >
+       <widget class="QCheckBox" name="mCHB_CDelMovie" >
+        <property name="text" >
+         <string>Before &amp;deleting a movie</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -57,7 +69,7 @@
    <item row="2" column="0" >
     <widget class="QGroupBox" name="mGB_MList" >
      <property name="title" >
-      <string>MvdMovie list</string>
+      <string>Movie list</string>
      </property>
      <layout class="QGridLayout" >
       <property name="margin" >
@@ -78,43 +90,14 @@
       </item>
       <item row="1" column="0" >
        <widget class="QCheckBox" name="mCHB_Initials" >
+        <property name="toolTip" >
+         <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal; text-decoration:none;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Shorten the first name by showing the initial only (i.e. Mike Brown is displayed as M. Brown)&lt;/p>&lt;/body>&lt;/html></string>
+        </property>
         <property name="text" >
          <string>Only show &amp;first letter for first names</string>
-        </property>
-        <property name="checked" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0" >
-    <widget class="QGroupBox" name="mGB_Confirm" >
-     <property name="title" >
-      <string>Ask for confirmation</string>
-     </property>
-     <layout class="QGridLayout" >
-      <property name="margin" >
-       <number>8</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item row="1" column="0" >
-       <widget class="QCheckBox" name="mCHB_CCloseArchive" >
-        <property name="text" >
-         <string>Before &amp;closing an archive</string>
-        </property>
-        <property name="checked" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" >
-       <widget class="QCheckBox" name="mCHB_CDelMovie" >
-        <property name="text" >
-         <string>Before &amp;deleting a movie</string>
         </property>
         <property name="checked" >
          <bool>true</bool>
@@ -127,15 +110,68 @@
    <item row="3" column="0" >
     <widget class="QGroupBox" name="mGB_MRU" >
      <property name="title" >
-      <string>Last used archives</string>
+      <string>Last used collections</string>
      </property>
      <layout class="QGridLayout" >
       <property name="margin" >
-       <number>8</number>
+       <number>9</number>
       </property>
       <property name="spacing" >
        <number>6</number>
       </property>
+      <item row="0" column="0" colspan="2" >
+       <widget class="QLabel" name="mL_MRUMax" >
+        <property name="text" >
+         <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal; text-decoration:none;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Sans Serif';">&lt;span style=" font-family:'MS Shell Dlg';">Maximum recent files:&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" >
+       <widget class="QSpinBox" name="maximumMRU" />
+      </item>
+      <item row="0" column="3" >
+       <widget class="QLabel" name="clearMRULabel" >
+        <property name="text" >
+         <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal; text-decoration:none;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">(&lt;a href="movida://clear/recentfiles">&lt;span style=" text-decoration: underline; color:#0000ff;">Clear&lt;/span>&lt;/a> the recent files list)&lt;/p>&lt;/body>&lt;/html></string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4" colspan="2" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>91</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" colspan="4" >
+       <widget class="QRadioButton" name="mRB_RemLastDir" >
+        <property name="text" >
+         <string>&amp;Remember the last used folder</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="4" >
+       <widget class="QRadioButton" name="mRB_FixedLastDir" >
+        <property name="text" >
+         <string>&amp;Always starts in this folder when opening a collection:</string>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="0" >
        <spacer>
         <property name="orientation" >
@@ -152,33 +188,10 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="3" >
-       <spacer>
-        <property name="orientation" >
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" >
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="0" colspan="2" >
-       <widget class="QLabel" name="mL_MRUMax" >
-        <property name="text" >
-         <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;/head>&lt;body style=" white-space: pre-wrap; font-family:Sans Serif; font-weight:400; font-style:normal; text-decoration:none;">&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-family:MS Shell Dlg;">Maximum recent files:&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2" >
-       <widget class="QSpinBox" name="mSB_MRUMax" />
-      </item>
-      <item row="0" column="4" colspan="2" >
-       <widget class="QPushButton" name="mPB_MRUClear" >
-        <property name="text" >
-         <string>&amp;Clear</string>
+      <item row="3" column="1" colspan="4" >
+       <widget class="QLineEdit" name="mLE_LLastDir" >
+        <property name="enabled" >
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -192,43 +205,30 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1" colspan="4" >
-       <widget class="QLineEdit" name="mLE_LLastDir" >
-        <property name="enabled" >
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="4" >
-       <widget class="QRadioButton" name="mRB_FixedLastDir" >
-        <property name="text" >
-         <string>&amp;Always starts in this folder when opening archives:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="4" >
-       <widget class="QRadioButton" name="mRB_RemLastDir" >
-        <property name="text" >
-         <string>&amp;Remember last used directory</string>
-        </property>
-        <property name="checked" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
+   </item>
+   <item row="4" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>442</width>
+       <height>16</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>mCB_SearchHistory</tabstop>
   <tabstop>mCHB_CDelMovie</tabstop>
-  <tabstop>mCHB_CCloseArchive</tabstop>
   <tabstop>mCHB_Truncate</tabstop>
   <tabstop>mCHB_Initials</tabstop>
-  <tabstop>mSB_MRUMax</tabstop>
-  <tabstop>mPB_MRUClear</tabstop>
+  <tabstop>maximumMRU</tabstop>
   <tabstop>mRB_RemLastDir</tabstop>
   <tabstop>mRB_FixedLastDir</tabstop>
   <tabstop>mLE_LLastDir</tabstop>

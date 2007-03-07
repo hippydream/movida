@@ -140,7 +140,7 @@ QString MvdCollectionModel_P::dataList(const QList<smdid>& list, Movida::SmdData
 	QString s;
 
 	//! \todo Some names may have a non trivial way to be transformed into initials: what if "De Niro" would be a name? Are the initials "D.N." or just "D."?
-	bool truncate = Movida::settings().getBool("initials", "movie_list");
+	bool truncate = Movida::settings().getBool("initials", "movida-movie-list");
 
 	for (int i = 0; i < list.size(); ++i)
 	{

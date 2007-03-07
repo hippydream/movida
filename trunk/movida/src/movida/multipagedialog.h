@@ -40,6 +40,10 @@ public:
 	virtual void showPage(MvdMPDialogPage* p);
 
 	virtual QDialogButtonBox* buttonBox() const;
+
+signals:
+	void externalActionTriggered(const QString& id, const QVariant& data, 
+		MvdMPDialogPage* source);
 };
 
 #endif // MVD_MULTIPAGEDIALOG_H

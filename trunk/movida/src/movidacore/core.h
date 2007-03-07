@@ -31,7 +31,7 @@ class MVD_EXPORT MvdCore
 {
 public:
 	static bool initCore();
-	static void initStatus();
+	static void loadStatus();
 	static void storeStatus();
 
 	static QVariant parameter(const QString& name);
@@ -42,6 +42,7 @@ public:
 
 private:
 	static MvdCore_P* d;
+	static bool MvdCoreInitialized;
 };
 
 #endif // MVD_CORE_H

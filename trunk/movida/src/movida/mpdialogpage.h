@@ -36,6 +36,9 @@ public:
 	virtual void reset() = 0;
 	virtual QString label() = 0;
 	virtual QIcon icon() = 0;
+
+signals:
+	void externalActionTriggered(const QString& id, const QVariant& data);
 };
 
 #endif // MVD_MPDIALOGPAGE_H

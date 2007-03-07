@@ -38,6 +38,9 @@ public:
 	void reset();
 	QString label();
 	QIcon icon();
+
+private slots:
+	void linkActivated(const QString& url);
 };
 
 #endif // MVD_MAINSETTINGSPAGE_H

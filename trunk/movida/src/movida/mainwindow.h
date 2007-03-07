@@ -125,7 +125,7 @@ private slots:
 	
 	void updateCaption();
 	
-	bool closeCollection(bool confirm);
+	bool closeCollection();
 	bool loadCollection(const QString& file);
 	void loadLastCollection();
 

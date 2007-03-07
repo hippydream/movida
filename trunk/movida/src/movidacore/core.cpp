@@ -226,20 +226,48 @@ void MvdCore_P::loadGlobalSmdData(const QString& baseDir, Movida::SmdDataRole ro
  MvdCore
 *************************************************************************/
 
+//! \internal
+bool MvdCore::MvdCoreInitialized = false;
+
 /*!
 	Call this possibly from the main routine. It will attempt to initialize
 	any required directories, files and libraries.
 	Exit if the method returns an error. Running Movida if some error occurs
 	may lead to an unpredictable behavior.
+	Subsequent calls to this method have no effect. they simply return the 
+	return value of the first initialization.
 */
 bool MvdCore::initCore()
 {
+	if (d != 0)
+		return MvdCoreInitialized;
+
 	// Pre-initialize MvdPathResolver to create missing application directories
 	if (!paths().isInitialized())
 		return false;
 
-	//! \todo check library versions
+	d = new MvdCore_P;
 
+	/*
+		Load global SD data.
+		User-files are in PREFERENCES_DIR/smd_XX where XX is a two char country code.
+		Search order: localized file, English file or embedded file.
+		If the embedded or English files are newer they will be loaded instead of the
+		localized file.
+	*/
+
+	QString prefDir = paths().preferencesDir();
+
+	d->loadGlobalSmdData(prefDir, Movida::PersonRole);
+	d->loadGlobalSmdData(prefDir, Movida::UrlRole);
+	d->loadGlobalSmdData(prefDir, Movida::TagRole);
+	d->loadGlobalSmdData(prefDir, Movida::GenreRole);
+	d->loadGlobalSmdData(prefDir, Movida::CountryRole);
+	d->loadGlobalSmdData(prefDir, Movida::LanguageRole);
+
+	//! \todo check library versions?
+
+	MvdCoreInitialized = true;
 	return true;
 }
 
@@ -251,13 +279,8 @@ bool MvdCore::initCore()
 	calling this method so that they can be possibly overwritten by user 
 	defined settings.
 */
-void MvdCore::initStatus()
+void MvdCore::loadStatus()
 {
-	if (d != 0)
-		return;
-
-	d = new MvdCore_P;
-
 	// Load application preferences. Set defaults and overwrite with user settings.
 	MvdSettings& s = settings();
 
@@ -265,31 +288,11 @@ void MvdCore::initStatus()
 	s.setBool("check_hash", false, "collection");
 	s.setBool("write_hash", true, "collection");
 
-	//! \todo check if zlib is compatible?
-
 	QString prefFile = paths().preferencesFile();
 	iLog() << QString("MvdCore: Loading preferences from %1").arg(prefFile);
 
 	if (!s.load(prefFile))
 		wLog() << QString("MvdCore: Unable to load preferences. Using default settings.");
-
-
-	/*
-	Load global SD data.
-	User-files are in PREFERENCES_DIR/smd_XX where XX is a two char country code.
-	Search order: localized file, English file or embedded file.
-	If the embedded or English files are newer they will be loaded instead of the
-	localized file.
-	*/
-
-	QString prefDir = paths().preferencesDir();
-
-	d->loadGlobalSmdData(prefDir, Movida::PersonRole);
-	d->loadGlobalSmdData(prefDir, Movida::UrlRole);
-	d->loadGlobalSmdData(prefDir, Movida::TagRole);
-	d->loadGlobalSmdData(prefDir, Movida::GenreRole);
-	d->loadGlobalSmdData(prefDir, Movida::CountryRole);
-	d->loadGlobalSmdData(prefDir, Movida::LanguageRole);
 }
 
 /*!
@@ -301,8 +304,7 @@ void MvdCore::initStatus()
 */
 void MvdCore::storeStatus()
 {
-	if (d == 0)
-		return;
+	Q_ASSERT(d);
 
 	QString prefFile = paths().preferencesFile();
 	iLog() << QString("MvdCore: Storing preferences to %1").arg(prefFile);
@@ -329,6 +331,8 @@ void MvdCore::storeStatus()
 */
 QVariant MvdCore::parameter(const QString& name)
 {
+	Q_ASSERT(d);
+
 	QHash<QString,QVariant>::ConstIterator it = d->parameters.find(name);
 	if (it != d->parameters.constEnd())
 		return it.value();
@@ -343,6 +347,8 @@ QVariant MvdCore::parameter(const QString& name)
 */
 void MvdCore::registerParameters(const QHash<QString,QVariant>& p)
 {
+	Q_ASSERT(d);
+
 	d->parameters.unite(p);
 }
 

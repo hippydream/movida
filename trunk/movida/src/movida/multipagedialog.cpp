@@ -54,7 +54,10 @@ int MvdMultiPageDialog::addPage(MvdMPDialogPage* p)
 
 	p->setContentsMargins(10, 10, 10, 10);
 	int id = contents->addTab(p, p->label());
-	
+
+	connect( p, SIGNAL(externalActionTriggered(const QString&, const QVariant&)),
+		this, SLOT(dispatchActionTriggered(const QString&, const QVariant&)) );
+
 	return id;
 }
 

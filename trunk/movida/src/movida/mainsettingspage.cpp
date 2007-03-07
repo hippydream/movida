@@ -19,9 +19,11 @@
 **
 **************************************************************************/
 
-#include <QIcon>
-
 #include "mainsettingspage.h"
+#include "core.h"
+#include "settings.h"
+
+#include <QIcon>
 
 /*!
 	\class MvdMainSettingsPage mainsettingspage.h
@@ -37,6 +39,11 @@ MvdMainSettingsPage::MvdMainSettingsPage(QWidget* parent)
 : MvdSettingsPage(parent)
 {
 	setupUi(this);
+	connect( clearMRULabel, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
+	int max = MvdCore::parameter("movida-maximum-recent-files").toInt();
+	int current = Movida::settings().getInt("maximum-recent-files", "movida");
+	maximumMRU->setMaximum(max);
+	maximumMRU->setValue(current);
 }
 
 /*!
@@ -67,4 +74,26 @@ QString MvdMainSettingsPage::label()
 QIcon MvdMainSettingsPage::icon()
 {
 	return QIcon(":/images/preferences/general.png");
+}
+
+//! \internal
+void MvdMainSettingsPage::linkActivated(const QString& url)
+{
+	if (!url.startsWith("movida://"))
+		return;
+
+	QRegExp rx("^movida://([^/]*)/?([^/]*)?$");
+	if (rx.indexIn(url) >= 0)
+	{
+		QString op = rx.cap(1);
+		QString param = rx.cap(2);
+
+		if (op == "clear")
+		{
+			if (param == "recentfiles")
+			{
+				//emit externalActionTriggered();
+			}
+		}
+	}
 }
