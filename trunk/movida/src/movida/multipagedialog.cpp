@@ -19,11 +19,11 @@
 **
 **************************************************************************/
 
-#include <QVariant>
-
 #include "multipagedialog.h"
 #include "mpdialogpage.h"
 #include "guiglobal.h"
+
+#include <QVariant>
 
 /*! 
 	\class MvdMultiPageDialog complexdlg.h
@@ -39,7 +39,6 @@ MvdMultiPageDialog::MvdMultiPageDialog(QWidget* parent)
 : QDialog(parent)
 {
 	setupUi(this);
-
 	MVD_WINDOW_ICON
 }
 
@@ -56,7 +55,7 @@ int MvdMultiPageDialog::addPage(MvdMPDialogPage* p)
 	int id = contents->addTab(p, p->label());
 
 	connect( p, SIGNAL(externalActionTriggered(const QString&, const QVariant&)),
-		this, SLOT(dispatchActionTriggered(const QString&, const QVariant&)) );
+		this, SIGNAL(externalActionTriggered(const QString&, const QVariant&)) );
 
 	return id;
 }

@@ -39,7 +39,12 @@ MvdMainSettingsPage::MvdMainSettingsPage(QWidget* parent)
 : MvdSettingsPage(parent)
 {
 	setupUi(this);
-	connect( clearMRULabel, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
+	connect( clearMRU, SIGNAL(clicked()), this, SLOT(clearMRUTriggered()) );
+
+	QStringList recentFiles = 
+		Movida::settings().getStringList("recent-files", "movida");
+	clearMRU->setDisabled(recentFiles.isEmpty());
+
 	int max = MvdCore::parameter("movida-maximum-recent-files").toInt();
 	int current = Movida::settings().getInt("maximum-recent-files", "movida");
 	maximumMRU->setMaximum(max);
@@ -77,23 +82,8 @@ QIcon MvdMainSettingsPage::icon()
 }
 
 //! \internal
-void MvdMainSettingsPage::linkActivated(const QString& url)
+void MvdMainSettingsPage::clearMRUTriggered()
 {
-	if (!url.startsWith("movida://"))
-		return;
-
-	QRegExp rx("^movida://([^/]*)/?([^/]*)?$");
-	if (rx.indexIn(url) >= 0)
-	{
-		QString op = rx.cap(1);
-		QString param = rx.cap(2);
-
-		if (op == "clear")
-		{
-			if (param == "recentfiles")
-			{
-				//emit externalActionTriggered();
-			}
-		}
-	}
+	emit externalActionTriggered("clear-mru");
+	clearMRU->setEnabled(false);
 }

@@ -40,7 +40,7 @@ public:
 	QIcon icon();
 
 private slots:
-	void linkActivated(const QString& url);
+	void clearMRUTriggered();
 };
 
 #endif // MVD_MAINSETTINGSPAGE_H

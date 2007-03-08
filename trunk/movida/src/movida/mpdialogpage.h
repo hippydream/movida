@@ -23,6 +23,7 @@
 #define MVD_MPDIALOGPAGE_H
 
 #include <QWidget>
+#include <QVariant>
 
 class QIcon;
 
@@ -38,7 +39,8 @@ public:
 	virtual QIcon icon() = 0;
 
 signals:
-	void externalActionTriggered(const QString& id, const QVariant& data);
+	void externalActionTriggered(const QString& id, const QVariant& data
+		= QVariant());
 };
 
 #endif // MVD_MPDIALOGPAGE_H

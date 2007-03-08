@@ -103,8 +103,6 @@ private:
 	MvdMovieCollection* mCollection;
 	MvdCollectionModel* mMovieModel;
 
-	QStringList mRecentFiles;
-
 	QPointer<MvdMovieEditor> mMovieEditor;
 
 	void retranslateUi();
@@ -120,8 +118,7 @@ private slots:
 	
 	void openRecentFile(QAction* a);
 	void addRecentFile(const QString& file);
-	void refreshRecentFilesMenu();
-	void fillRecentFilesMenu();
+	void updateRecentFilesMenu();
 	
 	void updateCaption();
 	
@@ -155,6 +152,7 @@ private slots:
 
 	void showMovieContextMenu(const QModelIndex& index);
 
+	void externalActionTriggered(const QString& id, const QVariant& data);
 
 	//! \todo DEBUG
 	void testSlot();

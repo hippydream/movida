@@ -242,10 +242,20 @@ MvdMainWindow::MvdMainWindow()
 	p.setBool("initials", false, "movida-movie-list");
 	p.setRect("main-window-rect", defaultWindowRect(), "movida-appearance");
 
-	// Initialize core library
+	// Initialize core library && load user settings
 	MvdCore::loadStatus();
 
-		QByteArray ba = p.getByteArray("main-window-state", "movida-appearance");
+	QStringList recentFiles = p.getStringList("recent-files", "movida");
+	int max = p.getInt("maximum-recent-files", "movida");
+	int recentFilesCount = recentFiles.size();
+	while (recentFiles.size() > max)
+		recentFiles.removeLast();
+	if (recentFilesCount != recentFiles.size())
+		p.setStringList("recent-files", recentFiles, "movida");
+
+	mA_FileOpenLast->setDisabled(recentFiles.isEmpty());
+
+	QByteArray ba = p.getByteArray("main-window-state", "movida-appearance");
 	if (!ba.isEmpty())
 		restoreState(ba);
 
@@ -258,10 +268,6 @@ MvdMainWindow::MvdMainWindow()
 	bl = p.getBool("start-maximized", "movida-appearance", &ok);
 	if (ok && bl)
 		setWindowState(Qt::WindowMaximized);
-
-	// setup recent files
-	mRecentFiles = p.getStringList("recent-files", "movida");
-	refreshRecentFilesMenu();
 	
 	// a new empty collection is always open at startup
 	mA_FileNew->setDisabled(true);
@@ -401,7 +407,7 @@ void MvdMainWindow::setupConnections()
 	connect ( mDetailsDock, SIGNAL( toggled(bool) ), this, SLOT ( dockViewsToggled() ) );
 	
 	connect ( mMN_FileMRU, SIGNAL(triggered(QAction*)), this, SLOT(openRecentFile(QAction*)) );
-	connect ( mMN_FileMRU, SIGNAL(aboutToShow()), this, SLOT(fillRecentFilesMenu()) );
+	connect ( mMN_File, SIGNAL(aboutToShow()), this, SLOT(updateRecentFilesMenu()) );
 
 	connect ( mA_CollAddMovie, SIGNAL( triggered() ), this, SLOT ( addMovie() ) );
 	connect ( mA_CollRemMovie, SIGNAL( triggered() ), this, SLOT ( removeCurrentMovie() ) );
@@ -420,6 +426,8 @@ void MvdMainWindow::setupConnections()
 void MvdMainWindow::showPreferences()
 {
 	MvdSettingsDialog sd(this);
+	connect(&sd, SIGNAL(externalActionTriggered(const QString&, const QVariant&)),
+		this, SLOT(externalActionTriggered(const QString&, const QVariant&)) );
 	sd.exec();
 }
 
@@ -472,8 +480,6 @@ void MvdMainWindow::closeEvent(QCloseEvent* e)
 	p.setBool("start-maximized", isMaximized(), "movida-appearance");
 	p.setRect("main-window-rect", frameGeometry(), "movida-appearance");
 
-	p.setStringList("recent-files", mRecentFiles, "movida");
-
 	MvdCore::storeStatus();
 }
 
@@ -492,8 +498,7 @@ void MvdMainWindow::openRecentFile(QAction* a)
 	
 	if (!loadCollection(file))
 	{
-		// remove evtl. missing files
-		refreshRecentFilesMenu();
+		//! \todo Remove files that could not be opened from MRU
 	}
 }
 
@@ -503,57 +508,55 @@ void MvdMainWindow::openRecentFile(QAction* a)
 void MvdMainWindow::addRecentFile(const QString& file)
 {
 	QFileInfo fi(file);
+	QStringList list = Movida::settings().getStringList("recent-files", "movida");
 
 	// avoid duplicate entries
-	for (int i = 0; i < mRecentFiles.size(); ++i)
+	for (int i = 0; i < list.size(); ++i)
 	{
-		if (fi == QFileInfo(mRecentFiles.at(i)))
+		if (fi == QFileInfo(list.at(i)))
 			return;
 	}
 	
-	mRecentFiles.append(file);	
-	refreshRecentFilesMenu();
+	list.append(file);
+	
+	int max = Movida::settings().getInt("maximum-recent-files", "movida");
+	while (list.size() > max)
+		list.removeLast();
+	
+	Movida::settings().setStringList("recent-files", list, "movida");
+
+	mA_FileOpenLast->setDisabled(list.isEmpty());
 }
 
 /*!
 	Refreshes the MRU files menu removing non existing files.
 */
-void MvdMainWindow::refreshRecentFilesMenu()
+void MvdMainWindow::updateRecentFilesMenu()
 {
-	if (mRecentFiles.isEmpty())
+	QStringList list = Movida::settings().getStringList("recent-files", "movida");
+	
+	// Remove missing files
+	bool updateList = false;
+	for (int i = 0; i < list.size(); ++i)
 	{
-		mMN_FileMRU->setEnabled(false);
-		mA_FileOpenLast->setEnabled(false);
-		return;
+		if (!QFile::exists(list.at(i)))
+		{
+			list.removeAt(i);
+			updateList = true;
+		}
 	}
-	
-	for (int i = 0; i < mRecentFiles.size(); ++i)
-	{
-		QFile f(mRecentFiles.at(i));
-		if (!f.exists())
-			mRecentFiles.removeAt(i);
-	}
-	
-	mMN_FileMRU->setEnabled(!mRecentFiles.isEmpty());
-	mA_FileOpenLast->setEnabled(!mRecentFiles.isEmpty());
-	
-	int max = Movida::settings().getInt("maximum-recent-files", "movida");
-	while (mRecentFiles.size() > max)
-		mRecentFiles.removeLast();
-}
 
-/*!
-	Fills the MRU files menu.
-*/
-void MvdMainWindow::fillRecentFilesMenu()
-{
+	if (updateList)
+		Movida::settings().setStringList("recent-files", list, "movida");
+
+	mMN_FileMRU->setDisabled(list.isEmpty());
 	mMN_FileMRU->clear();
 	
-	for (int i = 0; i < mRecentFiles.size(); ++i)
+	for (int i = 0; i < list.size(); ++i)
 	{
-		/*! \todo elide long filenames for action text */
-		QAction* a = mMN_FileMRU->addAction(QString("&%1 %2").arg(i).arg(mRecentFiles.at(i)));
-		a->setData(QVariant(mRecentFiles.at(i)));
+		//! \todo elide long filenames in MRU menu
+		QAction* a = mMN_FileMRU->addAction(QString("&%1 %2").arg(i).arg(list.at(i)));
+		a->setData(QVariant(list.at(i)));
 	}
 }
 
@@ -656,8 +659,7 @@ bool MvdMainWindow::loadCollection(const QString& file)
 		delete mCollection;
 		mCollection = 0;
 
-		//! \todo Remove the file from the recent files list?
-		QMessageBox::warning(this, _CAPTION_, tr("Failed to load the collection."));
+		QMessageBox::warning(this, _CAPTION_, tr("Failed to load collection."));
 
 		return false;
 	}
@@ -764,10 +766,13 @@ bool MvdMainWindow::saveCollection()
 */
 void MvdMainWindow::loadLastCollection()
 {
-	if (mRecentFiles.isEmpty())
+	QStringList recentFiles = 
+		Movida::settings().getStringList("recent-files", "movida");
+
+	if (recentFiles.isEmpty())
 		return;
 		
-	loadCollection(mRecentFiles.at(0));
+	loadCollection(recentFiles.at(0));
 }
 
 /*!
@@ -1105,8 +1110,18 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	QMenu menu;
 }
 
+//! \internal
+void MvdMainWindow::externalActionTriggered(const QString& id, const QVariant& data)
+{
+	Q_UNUSED(data);
 
-
+	if (id == "clear-mru")
+	{
+		Movida::settings().setStringList("recent-files", QStringList(), "movida");
+		mA_FileOpenLast->setEnabled(false);
+	}
+	else qDebug("Unregistered external action %s", id.toAscii().constData());
+}
 
 //! \todo DEBUG
 void MvdMainWindow::testSlot()
