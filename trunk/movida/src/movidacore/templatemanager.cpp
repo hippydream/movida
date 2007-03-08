@@ -250,8 +250,10 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 				MvdSharedData::isHardcoded(id) ? Movida::globalSD().person(id)
 				: collection.smd().person(id);
 			if (sd != 0)
+			{
 				xml.append(QString("\t\t<first-name>%1</first-name>\n").arg(sd->firstName));
 				xml.append(QString("\t\t<last-name>%1</last-name>\n").arg(sd->lastName));
+			}
 		}
 		xml.append("\t</directors>\n");
 	}
