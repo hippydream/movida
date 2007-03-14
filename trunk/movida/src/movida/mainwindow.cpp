@@ -1154,14 +1154,30 @@ void MvdMainWindow::loadPlugins()
 
 	// Load plugins
 	QDir pluginDir(QCoreApplication::applicationDirPath().append("/plugins"));
-	QFileInfoList list = pluginDir.entryInfoList(QStringList() << "*.mpi");
+
+#if defined(Q_WS_WIN)
+	QString ext = "*.dll";
+#elif defined(Q_WS_MAC)
+	QString ext = "*.dylib";
+#else
+	QString ext = "*.so";
+#endif
+
+	QFileInfoList list = pluginDir.entryInfoList(QStringList() << ext);
 	for (int i = 0; i < list.size(); ++i)
 	{
 		QLibrary myLib(list.at(i).absoluteFilePath());
 		if (!myLib.load())
+		{
 			qDebug("Failed to load %s (reason: %s)", list.at(i)
 			.absoluteFilePath().toAscii().constData(),
 			myLib.errorString().toAscii().constData());
+			continue;
+		}
+
+		qDebug("Checking plugin: %s", list.at(i)
+			.absoluteFilePath().toAscii().constData());
+
 		typedef MvdPluginInterface* (*PluginInterfaceF)(QObject*);
 		PluginInterfaceF pluginInterfaceF = (PluginInterfaceF) myLib.resolve("pluginInterface");
 		if (!pluginInterfaceF)

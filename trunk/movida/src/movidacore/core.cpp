@@ -24,7 +24,6 @@
 #include "pathresolver.h"
 #include "logger.h"
 #include "shareddata.h"
-#include "plugininterface.h"
 
 #include <QApplication>
 #include <QLocale>

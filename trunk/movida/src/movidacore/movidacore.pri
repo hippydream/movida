@@ -9,6 +9,7 @@ HEADERS += \
 	movie.h \
 	moviecollection.h \
 	pathresolver.h \
+	plugininterface.h \
 	settings.h \
 	shareddata.h \
 	templatemanager.h \
@@ -28,6 +29,7 @@ SOURCES += \
 	movie.cpp \
 	moviecollection.cpp \
 	pathresolver.cpp \
+	plugininterface.cpp \
 	settings.cpp \
 	shareddata.cpp \
 	templatemanager.cpp \
