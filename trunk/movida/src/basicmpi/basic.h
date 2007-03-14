@@ -75,6 +75,7 @@ private:
 	void retrieveImdbMovie(const QString& id);
 	void searchImdbMovie(const QString& name);
 	void initHttp();
+	void resetImportPage(bool success);
 
 	QHttp* http;
 	QPushButton* togglePageButton;

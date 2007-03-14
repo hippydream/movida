@@ -25,10 +25,13 @@ MvdwImportDialog::MvdwImportDialog(QWidget* parent)
 : QDialog(parent)
 {
 	setupUi(this);
+
 	QStringList frames;
 	for (int i = 1; i <= 8; ++i)
 		frames << QString(":/images/loading_p%1.png").arg(i);
 	new MvdwLabelAnimator(frames, loadingPixmapLabel, this);
+
+	resultsWidget->setHeaderLabels(QStringList() << tr("Matching movies"));
 }
 
 QDialogButtonBox* MvdwImportDialog::buttonBox()
@@ -54,4 +57,9 @@ void MvdwImportDialog::showPreviousPage()
 void MvdwImportDialog::setStatus(const QString& s)
 {
 	loadingLabel->setText(s);
+}
+
+void MvdwImportDialog::setBusyStatus(bool busy)
+{
+	loadingPixmapLabel->setVisible(busy);
 }

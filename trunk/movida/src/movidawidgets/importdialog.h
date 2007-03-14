@@ -35,4 +35,5 @@ public:
 public slots:
 	void showNextPage();
 	void showPreviousPage();
+	void setBusyStatus(bool busy);
 };

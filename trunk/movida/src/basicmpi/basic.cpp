@@ -133,6 +133,7 @@ void MvdBasicMpi::searchImdbMovie(const QString& name)
 	initHttp();
 
 	currentRequest = SearchMovieRequest;
+	importDialog->setBusyStatus(true);
 	importDialog->setStatus(tr("Searching for '%1'...").arg(name));
 
 	httpGetId = http->get(MvdCore::parameter("basicmpi-imdb-find-movie")
@@ -168,31 +169,46 @@ void MvdBasicMpi::readResponseHeader(const QHttpResponseHeader& responseHeader)
 {
 	if (responseHeader.statusCode() != 200)
 	{
-		QMessageBox::warning(0, "", "Error: " + responseHeader.reasonPhrase());
+		importDialog->setStatus(tr("Sorry, an error occurred (%1).\nPlease <a href='movida://httpget/search'>click here</a> to retry.").arg(responseHeader.reasonPhrase()));
 		http->abort();
+		resetImportPage(false);
 	}
 }
 
 //! Parses the result received from IMDb.
 void MvdBasicMpi::httpRequestFinished(int id, bool error)
 {
-	HttpRequest lastRequest = currentRequest;
-	currentRequest = NoRequest;
-
 	if (id != httpGetId)
 		return;
 
+	HttpRequest lastRequest = currentRequest;
+	currentRequest = NoRequest;
+
 	if (error)
 	{
-		QMessageBox::warning(0, "", "Error: " + http->errorString());
+		importDialog->setStatus(tr("Sorry, an error occurred (%1).\nPlease <a href='movida://httpget/search'>click here</a> to retry.").arg(http->errorString()));
+		resetImportPage(false);
 		return;
 	}
 
 	if (lastRequest == SearchMovieRequest)
 	{
-		QByteArray response = http->readAll();
-		QMessageBox::information(0, "", "Search finished.");
+		//QByteArray response = http->readAll();
+		importDialog->setStatus(tr("Please select one or more results and press the import button."));
+		resetImportPage(true);
 	}
+}
+
+void MvdBasicMpi::resetImportPage(bool success)
+{
+	importDialog->setBusyStatus(false);
+
+	importDialog->buttonBox()->removeButton(cancelButton);
+	cancelButton = importDialog->buttonBox()->addButton(QDialogButtonBox::Cancel);
+	connect( cancelButton, SIGNAL(clicked()), importDialog, SLOT(close()) );
+
+	importButton->setEnabled(success);
+	togglePageButton->setEnabled(true);
 }
 
 void MvdBasicMpi::validateQuery(const QString& query)
