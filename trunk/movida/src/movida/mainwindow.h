@@ -78,6 +78,7 @@ private:
 	QAction* mA_CollDupMovie;
 	QAction* mA_ToolPref;
 	QAction* mA_ToolLog;
+	QAction* mA_PluginLoad;
 	QAction* mA_HelpAbout;
 	QAction* mA_HelpContents;
 	QAction* mA_HelpIndex;
@@ -91,6 +92,7 @@ private:
 	QMenu* mMN_Coll;
 	QMenu* mMN_Tool;
 	QMenu* mMN_Help;
+	QMenu* mMN_Plugins;
 	
 	// Views
 	MvdTreeView* mMovieView;
@@ -153,6 +155,8 @@ private slots:
 	void showMovieContextMenu(const QModelIndex& index);
 
 	void externalActionTriggered(const QString& id, const QVariant& data);
+
+	void loadPlugins();
 
 	//! \todo DEBUG
 	void testSlot();

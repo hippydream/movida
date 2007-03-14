@@ -1,0 +1,337 @@
+<ui version="4.0" >
+ <class>MvdwImportDialog</class>
+ <widget class="QWidget" name="MvdwImportDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>523</width>
+    <height>387</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Import</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="0" column="0" >
+    <widget class="QStackedWidget" name="mainStack" >
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="startPage" />
+     <widget class="QWidget" name="importPage" >
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="0" column="1" >
+        <widget class="QGroupBox" name="detailsBox" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>5</hsizetype>
+           <vsizetype>5</vsizetype>
+           <horstretch>4</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title" >
+          <string>Details</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="0" >
+           <widget class="QStackedWidget" name="detailsStack" >
+            <property name="currentIndex" >
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="loadingPage" >
+             <layout class="QGridLayout" >
+              <property name="margin" >
+               <number>9</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item row="3" column="0" >
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="0" >
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="2" column="0" >
+               <widget class="QLabel" name="loadingLabel" >
+                <property name="text" >
+                 <string>Loading...</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="loadingPixmapLabel" >
+                <property name="text" >
+                 <string/>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="noDetailsPage" >
+             <layout class="QGridLayout" >
+              <property name="margin" >
+               <number>9</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item row="0" column="0" >
+               <widget class="QLabel" name="label" >
+                <property name="text" >
+                 <string>&lt;a href="movida://details/fetch">Click here&lt;/a> to retrieve more information for the selected movie.</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="wordWrap" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="detailsPage" >
+             <layout class="QGridLayout" >
+              <property name="margin" >
+               <number>9</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item row="0" column="1" >
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="produced" >
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="released" >
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="directors" >
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="producers" >
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="cast" >
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="genres" >
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="countries" >
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="0" >
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="producedLabel" >
+                  <property name="text" >
+                   <string>Production year:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="releasedLabel" >
+                  <property name="text" >
+                   <string>Release year:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="directorsLabel" >
+                  <property name="text" >
+                   <string>Directors:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="producersLabel" >
+                  <property name="text" >
+                   <string>Directors:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="castLabel" >
+                  <property name="text" >
+                   <string>Cast:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="genresLabel" >
+                  <property name="text" >
+                   <string>Genres:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="countriesLabel" >
+                  <property name="text" >
+                   <string>Countries:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0" >
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>20</width>
+                  <height>16</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0" >
+        <widget class="QGroupBox" name="resultsBox" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>5</hsizetype>
+           <vsizetype>5</vsizetype>
+           <horstretch>3</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title" >
+          <string>Search results</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="0" >
+           <widget class="QTreeWidget" name="resultsWidget" />
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::NoButton</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="Line" name="line" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

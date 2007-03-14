@@ -34,9 +34,11 @@
 #include "settings.h"
 #include "movie.h"
 #include "moviecollection.h"
+#include "plugininterface.h"
 
 #include <QList>
 #include <QFile>
+#include <QDir>
 #include <QFileInfo>
 #include <QGridLayout>
 #include <QIcon>
@@ -55,6 +57,8 @@
 #include <QtDebug>
 #include <QListView>
 #include <QInputDialog>
+#include <QLibrary>
+#include <QSignalMapper>
 
 using namespace Movida;
 
@@ -92,6 +96,8 @@ MvdMainWindow::MvdMainWindow()
 	addDockWidget(Qt::BottomDockWidgetArea, mDetailsDock);
 
 	mDetailsView = new QTextBrowser;
+	mDetailsView->setSearchPaths(QStringList() << 
+		Movida::paths().preferencesDir().append("/templates/movie/"));
 	mDetailsDock->setWidget(mDetailsView);
 
 	// Actions
@@ -124,6 +130,8 @@ MvdMainWindow::MvdMainWindow()
 	mA_ToolPref->setIcon(QIcon(":/images/32x32/configure"));
 	mA_ToolLog = new QAction(this);
 	mA_ToolLog->setIcon(QIcon(":/images/32x32/log"));
+
+	mA_PluginLoad = new QAction(this);
 
 	mA_HelpContents = new QAction(this);
 	mA_HelpContents->setIcon(QIcon(":/images/32x32/help"));
@@ -159,6 +167,9 @@ MvdMainWindow::MvdMainWindow()
 
 	mMN_Tool = new QMenu(this);
 	mMB_MenuBar->addMenu(mMN_Tool);
+
+	mMN_Plugins = new QMenu(this);
+	mMB_MenuBar->addMenu(mMN_Plugins);
 
 	mMN_Help = new QMenu(this);
 	mMB_MenuBar->addMenu(mMN_Help);
@@ -284,6 +295,10 @@ MvdMainWindow::MvdMainWindow()
 	/*QFile qss(":/qss/coffee.qss");
 	qss.open(QIODevice::ReadOnly);
 	qApp->setStyleSheet(QLatin1String(qss.readAll()));*/
+
+
+	// **************** LOAD PLUGINS ****************
+	loadPlugins();
 }
 
 /*!
@@ -358,6 +373,11 @@ void MvdMainWindow::retranslateUi()
 	mA_ToolLog->setWhatsThis( tr( "Shows the application log file" ) );
 	mA_ToolLog->setStatusTip( tr( "Shows the application log file" ) );
 
+	mA_PluginLoad->setText( tr( "&Reload plugins" ) );
+	mA_PluginLoad->setToolTip( tr( "Reloads all the available plugins" ) );
+	mA_PluginLoad->setWhatsThis( tr( "Reloads all the available plugins" ) );
+	mA_PluginLoad->setStatusTip( tr( "Reloads all the available plugins" ) );
+
 	mA_HelpContents->setText( tr( "&Contents" ) );
 	mA_HelpContents->setToolTip( tr( "Open the Movida user guide" ) );
 	mA_HelpContents->setWhatsThis( tr( "Open the Movida user guide" ) );
@@ -382,6 +402,7 @@ void MvdMainWindow::retranslateUi()
 	mMN_View->setTitle( tr( "&View" ) );
 	mMN_Coll->setTitle( tr( "&Collection" ) );
 	mMN_Tool->setTitle( tr( "&Tools" ) );
+	mMN_Plugins->setTitle( tr("&Plugins") );
 	mMN_Help->setTitle( tr( "&Help" ) );
 	
 	mDetailsDock->setWindowTitle( tr("Details") );
@@ -413,6 +434,8 @@ void MvdMainWindow::setupConnections()
 	connect ( mA_CollRemMovie, SIGNAL( triggered() ), this, SLOT ( removeCurrentMovie() ) );
 	connect ( mA_CollEdtMovie, SIGNAL( triggered() ), this, SLOT ( editCurrentMovie() ) );
 	connect ( mA_CollDupMovie, SIGNAL( triggered() ), this, SLOT ( duplicateCurrentMovie() ) );
+
+	connect ( mA_PluginLoad, SIGNAL( triggered() ), this, SLOT ( loadPlugins() ) );
 
 	connect ( mMovieView, SIGNAL( doubleClicked(const QModelIndex&) ), this, SLOT ( editMovie(const QModelIndex&) ) );
 	connect( mMovieView, SIGNAL( itemSelectionChanged() ), this, SLOT( movieViewSelectionChanged() ) );
@@ -1121,6 +1144,70 @@ void MvdMainWindow::externalActionTriggered(const QString& id, const QVariant& d
 		mA_FileOpenLast->setEnabled(false);
 	}
 	else qDebug("Unregistered external action %s", id.toAscii().constData());
+}
+
+//! \internal
+void MvdMainWindow::loadPlugins()
+{
+	// Clear old plugin menus if any
+	mMN_Plugins->clear();
+
+	// Load plugins
+	QDir pluginDir(QCoreApplication::applicationDirPath().append("/plugins"));
+	QFileInfoList list = pluginDir.entryInfoList(QStringList() << "*.mpi");
+	for (int i = 0; i < list.size(); ++i)
+	{
+		QLibrary myLib(list.at(i).absoluteFilePath());
+		if (!myLib.load())
+			qDebug("Failed to load %s (reason: %s)", list.at(i)
+			.absoluteFilePath().toAscii().constData(),
+			myLib.errorString().toAscii().constData());
+		typedef MvdPluginInterface* (*PluginInterfaceF)(QObject*);
+		PluginInterfaceF pluginInterfaceF = (PluginInterfaceF) myLib.resolve("pluginInterface");
+		if (!pluginInterfaceF)
+			continue;
+
+		MvdPluginInterface* iface = pluginInterfaceF(this);
+		if (!iface)
+			continue;
+
+		MvdPluginInterface::PluginInfo info = iface->info();
+		qDebug("'%s' plugin loaded.", info.name.toAscii().constData());
+
+		QList<MvdPluginInterface::PluginAction*> actions = iface->actions();
+
+		if (actions.isEmpty())
+			continue;
+
+		// Initialize plugin
+		iface->init();
+
+		//! \todo sort plugin names?
+		QMenu* pluginMenu = mMN_Plugins->addMenu(info.name);
+
+		QSignalMapper* signalMapper = new QSignalMapper(iface);
+
+		for (int j = 0; j < actions.size(); ++j)
+		{
+			MvdPluginInterface::PluginAction* a = actions.at(j);
+			QAction* qa = new QAction(this);
+			qa->setText(a->text);
+			qa->setStatusTip(a->helpText);
+
+			connect( qa, SIGNAL(triggered()), signalMapper, SLOT(map()) );
+			signalMapper->setMapping(qa, a->name);
+
+			pluginMenu->addAction(qa);
+		}
+
+		connect( signalMapper, SIGNAL(mapped(const QString&)), 
+			iface, SLOT(actionTriggered(const QString&)) );
+	}
+
+	// Add the RELOAD action
+	if (!mMN_Plugins->isEmpty())
+		mMN_Plugins->addSeparator();
+	mMN_Plugins->addAction(mA_PluginLoad);	
 }
 
 //! \todo DEBUG
