@@ -58,8 +58,10 @@ MvdwImportDialog::MvdwImportDialog(QWidget* parent)
 	connect( backButton, SIGNAL(clicked()), this, SIGNAL(showStartPageTriggered()) );
 	backButton->setEnabled(false);
 
-	connect( resultsWidget, SIGNAL(itemActivated(QTreeWidgetItem*, int)), 
-		this, SIGNAL(resultsSelectionChanged()) );
+	connect( resultsWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
+		this, SLOT(resultsStatusChanged()) );
+	connect( resultsWidget, SIGNAL(itemSelectionChanged()), 
+		this, SLOT(resultsSelectionChanged()) );
 }
 
 void MvdwImportDialog::setSearchButtonEnabled(bool enabled)
@@ -121,10 +123,46 @@ QUuid MvdwImportDialog::addSearchResult(const QString& displayString)
 void MvdwImportDialog::clearResults()
 {
 	resultsWidget->clear();
+	movies.clear();
 }
 
-//! Updates the UI after some result has been selected or deselected.
+//! Updates the UI after a selection change in the results list.
 void MvdwImportDialog::resultsSelectionChanged()
+{
+	bool detailsLoaded = false;
+
+	QList<QTreeWidgetItem*> list = resultsWidget->selectedItems();
+	for (int i = 0; i < list.size(); ++i)
+	{
+		QTreeWidgetItem* item = list.at(i);
+		QUuid id(item->data(0, ResultUuidRole).toString());
+		if (id.isNull())
+			continue;
+		QHash<QUuid,MvdMovie>::ConstIterator it = movies.constFind(id);
+		if (it == movies.constEnd())
+		{
+			emit movieRequired(id);
+			it = movies.constFind(id);
+			if (it == movies.constEnd())
+			{
+				setStatus("Failed to download movie details.");
+				return;
+			}
+		}
+
+		//! \todo A MvdMovie object is not good here. We need explicit data, no SD ids!
+		MvdMovie movie = it.value();
+		produced->setText(movie.productionYear());
+		released->setText(movie.releaseYear());
+
+		detailsStack->setCurrentWidget(detailsPage);
+		detailsLoaded = true;
+		break;
+	}
+}
+
+//! Updates the UI after some result has been checked or un-checked.
+void MvdwImportDialog::resultsStatusChanged()
 {
 	bool uiChecked = importButton->isEnabled();
 	for (int i = 0; i < resultsWidget->topLevelItemCount(); ++i)
@@ -138,4 +176,9 @@ void MvdwImportDialog::resultsSelectionChanged()
 			break;
 		}
 	}
+}
+
+void MvdwImportDialog::addMovie(const QUuid& id, const MvdMovie& movie)
+{
+	movies.insert(id, movie);
 }

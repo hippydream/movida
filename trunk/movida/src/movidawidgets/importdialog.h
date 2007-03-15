@@ -21,8 +21,11 @@
 #include "widgetsglobal.h"
 #include "ui_importdialog.h"
 
+#include <movidacore/movie.h>
+
 #include <QDialog>
 #include <QUuid>
+#include <QHash>
 
 class MvdwLabelAnimator;
 class QPushButton;
@@ -38,6 +41,7 @@ public:
 	void setStatus(const QString& s);
 
 	QUuid addSearchResult(const QString& displayString);
+	void addMovie(const QUuid& id, const MvdMovie& movie);
 
 public slots:
 	void showStartPage();
@@ -54,8 +58,10 @@ signals:
 	void searchTriggered();
 	void importTriggered();
 	void showStartPageTriggered();
+	void movieRequired(const QUuid& id);
 
 private slots:
+	void resultsStatusChanged();
 	void resultsSelectionChanged();
 
 private:
@@ -63,4 +69,5 @@ private:
 	QPushButton* backButton;
 	QPushButton* importButton;
 	MvdwLabelAnimator* labelAnimator;
+	QHash<QUuid,MvdMovie> movies;
 };

@@ -73,6 +73,7 @@ private slots:
 	void showStartPage();
 	void import();
 	void abortRequest();
+	void loadMovie(const QUuid& id);
 
 private:
 	enum HttpRequest

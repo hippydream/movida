@@ -11,9 +11,9 @@ win32 {
 	message(Using lib directory \"$${ROOT}/lib/win32\")
 	#LIBS += $${ROOT}/lib/win32/libxml2.lib
 	#LIBS += $${ROOT}/lib/win32/libxslt.lib
-	#LIBS += $${ROOT}/bin/movidacore.lib
+	LIBS += $${ROOT}/bin/movidacore.lib
 } else {
-	#LIBS += -L$${ROOT}/bin -lmovidacore -lxml2
+	LIBS += -L$${ROOT}/bin -lmovidacore
 }
 
 TARGET = movidawidgets

@@ -124,6 +124,8 @@ void MvdBasicMpi::imdbMovieImport()
 		this, SLOT(showStartPage()) );
 	connect( ui.input, SIGNAL(returnPressed()), 
 		this, SLOT(queryReturnPressed()) );
+	connect( importDialog, SIGNAL(movieRequired(const QUuid&)), 
+		this, SLOT(loadMovie(const QUuid&)) );
 
 	id.exec();
 
@@ -363,4 +365,35 @@ QString MvdBasicMpi::imdbMovieExtractTitle()
 	if (titleRx.indexIn(data) != -1)
 		return MvdCore::decodeXmlEntities(titleRx.cap(1));
 	return QString();
+}
+
+
+//! \todo Handle situations where the movie details need to be retrieved asynchronously.
+//! Parses an IMDb movie page and adds the movie to the import dialog.
+void MvdBasicMpi::loadMovie(const QUuid& id)
+{
+	QString path = downloadedMovies[id];
+	QFile file(path);
+	if (!file.open(QIODevice::ReadOnly))
+		return;
+
+	QByteArray data = file.readAll();
+	QString title, s;
+
+	// Title: <div id="tn15title">\n<h1>$TITLE$ <span>(<a href="/Sections/Years/$YEAR$">$YEAR$</a>)</span></h1>\n</div>
+	QRegExp rx("<div id=\"tn15title\">\n<h1>(.*) <span>\\(<a href=\"/Sections/Years/([0-9]{4})\">");
+	if (rx.indexIn(data) != -1)
+	{
+		title = MvdCore::decodeXmlEntities(rx.cap(1)).trimmed();
+		s = MvdCore::decodeXmlEntities(rx.cap(2)).trimmed();
+	}
+
+	if (title.isEmpty())
+		return;
+
+	MvdMovie movie;
+	movie.setOriginalTitle(title);
+	movie.setProductionYear(s);
+
+	importDialog->addMovie(id, movie);
 }
