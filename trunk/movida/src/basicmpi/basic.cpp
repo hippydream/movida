@@ -26,18 +26,30 @@
 #include <QMessageBox>
 #include <QRegExp>
 #include <QPushButton>
+#include <QUrl>
+#include <QDir>
+#include <QTemporaryFile>
+
+#include <math.h>
 
 MvdBasicMpi::MvdBasicMpi(QObject* parent)
-: MvdPluginInterface(parent), http(0), togglePageButton(0), importButton(0),
-cancelButton(0), importDialog(0), startPageUi(0), currentRequest(NoRequest),
-httpGetId(0)
+: MvdPluginInterface(parent), http(0),
+importDialog(0), startPageUi(0), currentRequest(NoRequest),
+httpGetId(0), currentTempFile(0)
+{	
+}
+
+MvdBasicMpi::~MvdBasicMpi()
 {
+	QList<QString> tempFiles = downloadedMovies.values();
+	for (int i = 0; i < tempFiles.size(); ++i)
+		QFile::remove(tempFiles.at(i));
 }
 
 bool MvdBasicMpi::init()
 {
 	QHash<QString, QVariant> parameters;
-	parameters.insert("basicmpi-imdb-host", "imdb.com");
+	parameters.insert("basicmpi-imdb-host", "akas.imdb.com");
 	parameters.insert("basicmpi-imdb-find-movie", "/find?s=tt&q=%1");
 	MvdCore::registerParameters(parameters);
 
@@ -100,26 +112,22 @@ void MvdBasicMpi::imdbMovieImport()
 	importDialog = &id;
 	startPageUi = &ui;
 
-	QDialogButtonBox* buttonBox = id.buttonBox();
-	togglePageButton = buttonBox->addButton(tr("Next"), QDialogButtonBox::ActionRole);
-	togglePageButton->setDisabled(true);
-	cancelButton = buttonBox->addButton(QDialogButtonBox::Cancel);
-	
-	ui.input->setFocus(Qt::OtherFocusReason);
+	startPageUi->input->setFocus(Qt::PopupFocusReason);
+	startPageUi->input->setText("Direktøren for det hele");
+	validateQuery("Direktøren for det hele");
 
 	connect( ui.input, SIGNAL(textChanged(const QString&)), 
 		this, SLOT(validateQuery(const QString&)) );
-	connect( togglePageButton, SIGNAL(clicked()), 
+	connect( importDialog, SIGNAL(searchTriggered()), 
 		this, SLOT(showImportPage()) );
-	connect( cancelButton, SIGNAL(clicked()), 
-		importDialog, SLOT(close()) );
+	connect( importDialog, SIGNAL(showStartPageTriggered()), 
+		this, SLOT(showStartPage()) );
+	connect( ui.input, SIGNAL(returnPressed()), 
+		this, SLOT(queryReturnPressed()) );
 
 	id.exec();
 
-	// Reset convenience pointers
-	togglePageButton = 0;
-	importButton = 0;
-	cancelButton = 0;
+	// Reset convenience pointers	
 	importDialog = 0;
 	startPageUi = 0;
 }
@@ -127,8 +135,19 @@ void MvdBasicMpi::imdbMovieImport()
 //! Sends a movie query to the IMDb website.
 void MvdBasicMpi::searchImdbMovie(const QString& name)
 {
-	if (!importDialog)
+	Q_ASSERT(importDialog);
+	Q_ASSERT(!currentTempFile);
+
+	currentTempFile = new QTemporaryFile(QDir::tempPath() + "/imdb-movie-page", this);
+	currentTempFile->setAutoRemove(false);
+	if (!currentTempFile->open())
+	{
+		importDialog->setStatus(tr("Sorry, but an error occurred.\n(Failed to create a temporary file)"));
+		resetImportPage(false);
+		delete currentTempFile;
+		currentTempFile = 0;
 		return;
+	}
 
 	initHttp();
 
@@ -136,8 +155,11 @@ void MvdBasicMpi::searchImdbMovie(const QString& name)
 	importDialog->setBusyStatus(true);
 	importDialog->setStatus(tr("Searching for '%1'...").arg(name));
 
-	httpGetId = http->get(MvdCore::parameter("basicmpi-imdb-find-movie")
-		.toString().arg(name));
+	QByteArray encodedName = MvdCore::toLatin1PercentEncoding(name);
+	QByteArray path = MvdCore::parameter("basicmpi-imdb-find-movie")
+		.toString().arg(QString::fromLatin1(encodedName)).toLatin1();
+
+	httpGetId = http->get(path, currentTempFile);
 }
 
 void MvdBasicMpi::retrieveImdbMovie(const QString& id)
@@ -159,6 +181,8 @@ void MvdBasicMpi::initHttp()
 			this, SLOT(httpRequestFinished(int, bool)));
 		connect(http, SIGNAL(responseHeaderReceived(const QHttpResponseHeader&)), 
 			this, SLOT(readResponseHeader(const QHttpResponseHeader&)));
+		connect(http, SIGNAL(dataReadProgress(int, int)), 
+			this, SLOT(httpDataReadProgress(int, int)));
 
 		//! \todo Handle proxy (best with Qt >= 4.3)
 		http->setHost(MvdCore::parameter("basicmpi-imdb-host").toString());
@@ -167,12 +191,45 @@ void MvdBasicMpi::initHttp()
 
 void MvdBasicMpi::readResponseHeader(const QHttpResponseHeader& responseHeader)
 {
-	if (responseHeader.statusCode() != 200)
+	int status = responseHeader.statusCode();
+	HttpStatusClass httpClass = (HttpStatusClass) int(floor(status / 100.0));
+
+	switch (httpClass)
 	{
-		importDialog->setStatus(tr("Sorry, an error occurred (%1).\nPlease <a href='movida://httpget/search'>click here</a> to retry.").arg(responseHeader.reasonPhrase()));
+	case RedirectionClass:
+		// Redirect! Location: http://akas.imdb.com/title/tt0469754/
+		{
+			QString location = responseHeader.value("Location");
+			QUrl locationUrl(location);
+			currentTempFile->seek(0);
+			location = locationUrl.path().append("?").append(locationUrl.encodedQuery());
+			httpGetId = http->get(location, currentTempFile);
+			importDialog->setStatus(tr("Single match, retrieving movie info."));
+			currentRequest = FetchMovieRequest;
+		}
+		break;
+	case SuccessClass:
+		break;
+	default:
+		importDialog->setStatus(tr("Sorry, an error occurred (Code %1: %2).\nPlease <a href='movida://httpget/search'>click here</a> to retry.")
+			.arg(responseHeader.statusCode()).arg(responseHeader.reasonPhrase()));
 		http->abort();
+
+		if (currentTempFile)
+		{
+			QFileInfo info(*currentTempFile);
+			delete currentTempFile;
+			currentTempFile = 0;
+			QFile::remove(info.absoluteFilePath());			
+		}
 		resetImportPage(false);
 	}
+}
+
+//!
+void MvdBasicMpi::httpDataReadProgress(int data, int total)
+{
+	qDebug("Downloaded %d bytes out of %d", data, total);
 }
 
 //! Parses the result received from IMDb.
@@ -192,55 +249,67 @@ void MvdBasicMpi::httpRequestFinished(int id, bool error)
 	}
 
 	if (lastRequest == SearchMovieRequest)
-	{
-		//QByteArray response = http->readAll();
-		importDialog->setStatus(tr("Please select one or more results and press the import button."));
+	{		
+		importDialog->setStatus(
+			tr("Please select one or more results and press the import button."));
 		resetImportPage(true);
+
+		QFileInfo info(*currentTempFile);
+		QFile::remove(info.absoluteFilePath());
+		delete currentTempFile;
+		currentTempFile = 0;
+	}
+	else if (lastRequest == FetchMovieRequest)
+	{
+		importDialog->setStatus(tr("Movie downloaded."));
+		QString title = imdbMovieExtractTitle();
+		QUuid id;
+		if (!title.isEmpty())
+			id = importDialog->addSearchResult(title);
+		resetImportPage(true);
+
+		Q_ASSERT(currentTempFile);
+		QFileInfo info(*currentTempFile);
+		QString tempFilePath = info.absoluteFilePath();
+		delete currentTempFile;
+		currentTempFile = 0;
+
+		// Store filename so we can parse the movie details as soon as necessary
+		if (id.isNull())
+			QFile::remove(tempFilePath);
+		else downloadedMovies.insert(id, tempFilePath);
 	}
 }
 
 void MvdBasicMpi::resetImportPage(bool success)
 {
+	Q_ASSERT(importDialog);
 	importDialog->setBusyStatus(false);
-
-	importDialog->buttonBox()->removeButton(cancelButton);
-	cancelButton = importDialog->buttonBox()->addButton(QDialogButtonBox::Cancel);
-	connect( cancelButton, SIGNAL(clicked()), importDialog, SLOT(close()) );
-
-	importButton->setEnabled(success);
-	togglePageButton->setEnabled(true);
+	importDialog->setBackButtonEnabled(true);
 }
 
-void MvdBasicMpi::validateQuery(const QString& query)
+bool MvdBasicMpi::validateQuery(const QString& query)
 {
-	if (!togglePageButton)
-		return;
+	Q_ASSERT(importDialog);
+	bool valid = !query.trimmed().isEmpty();
+	importDialog->setSearchButtonEnabled(valid);
+	return valid;
+}
 
-	togglePageButton->setDisabled(query.trimmed().isEmpty());
+void MvdBasicMpi::queryReturnPressed()
+{
+	Q_ASSERT(importDialog);
+	Q_ASSERT(startPageUi);
+	if (validateQuery(startPageUi->input->text()))
+		showImportPage();
 }
 
 //! Shows the import page and sends a search/download request to IMDb.
 void MvdBasicMpi::showImportPage()
 {
-	if (!importDialog)
-		return;
+	Q_ASSERT(importDialog);
 
-	importDialog->showNextPage();
-
-	importDialog->buttonBox()->removeButton(togglePageButton);
-	importDialog->buttonBox()->removeButton(cancelButton);
-
-	togglePageButton = importDialog->buttonBox()->addButton(tr("Previous"), 
-		QDialogButtonBox::ActionRole);
-	togglePageButton->setEnabled(false);
-	importButton = importDialog->buttonBox()->addButton(tr("Import"), 
-		QDialogButtonBox::ActionRole);
-	importButton->setEnabled(false);
-	cancelButton = importDialog->buttonBox()->addButton(QDialogButtonBox::Abort);
-	
-	connect( togglePageButton, SIGNAL(clicked()), this, SLOT(showStartPage()) );
-	connect( importButton, SIGNAL(clicked()), this, SLOT(import()) );
-	connect( cancelButton, SIGNAL(clicked()), this, SLOT(abortRequest()) );
+	importDialog->showImportPage();
 
 	// Send query to IMDb
 	QString query = startPageUi->input->text().trimmed();
@@ -255,27 +324,20 @@ void MvdBasicMpi::showImportPage()
 
 void MvdBasicMpi::showStartPage()
 {
-	if (!importDialog || !startPageUi)
-		return;
+	Q_ASSERT(importDialog);
+	Q_ASSERT(startPageUi);
 
-	importDialog->showPreviousPage();
+	downloadedMovies.clear();
+	importDialog->showStartPage();
 
-	// Reset button box
-	importDialog->buttonBox()->removeButton(togglePageButton);
-	importDialog->buttonBox()->removeButton(importButton);
-
-	togglePageButton = importDialog->buttonBox()->addButton(tr("Next"), 
-		QDialogButtonBox::ActionRole);
-
-	connect( togglePageButton, SIGNAL(clicked()), this, SLOT(showImportPage()) );
+	startPageUi->input->setFocus(Qt::PopupFocusReason);
 }
 
 //! Downloads (if necessary) and imports the selected movies.
 void MvdBasicMpi::import()
 {
-	if (!importDialog || !startPageUi)
-		return;
-	
+	Q_ASSERT(importDialog);
+	Q_ASSERT(startPageUi);	
 }
 
 //! Interrupts the current operation and closes the dialog.
@@ -289,4 +351,16 @@ void MvdBasicMpi::abortRequest()
 MvdPluginInterface* pluginInterface(QObject* parent)
 {
 	return new MvdBasicMpi(parent);
+}
+
+//! Parses a IMDb movie page and returns the movie title.
+QString MvdBasicMpi::imdbMovieExtractTitle()
+{
+	Q_ASSERT(currentTempFile);
+	currentTempFile->seek(0);
+	QByteArray data = currentTempFile->readAll();
+	QRegExp titleRx("<title>(.*)</title>");
+	if (titleRx.indexIn(data) != -1)
+		return MvdCore::decodeXmlEntities(titleRx.cap(1));
+	return QString();
 }

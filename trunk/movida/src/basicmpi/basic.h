@@ -26,6 +26,8 @@
 #include <movidacore/plugininterface.h>
 #include <QtGlobal>
 #include <QHttp>
+#include <QHash>
+#include <QUuid>
 
 #ifndef MVD_BASICMPI_EXPORT
 # ifdef Q_OS_WIN
@@ -43,6 +45,7 @@ class MvdwImportDialog;
 class Ui::MvdImdbImportStart;
 class QHttp;
 class QPushButton;
+class QTemporaryFile;
 
 class MvdBasicMpi : public MvdPluginInterface
 {
@@ -50,6 +53,7 @@ class MvdBasicMpi : public MvdPluginInterface
 
 public:
 	MvdBasicMpi(QObject* parent = 0);
+	virtual ~MvdBasicMpi();
 
 	bool init();
 	void unload();
@@ -61,30 +65,46 @@ public:
 
 private slots:
 	void readResponseHeader(const QHttpResponseHeader& responseHeader);
+	void httpDataReadProgress(int data, int total);
 	void httpRequestFinished(int id, bool error);
-	void validateQuery(const QString& query);
+	bool validateQuery(const QString& query);
+	void queryReturnPressed();
 	void showImportPage();
 	void showStartPage();
 	void import();
 	void abortRequest();
 
 private:
-	enum HttpRequest { NoRequest = 0, SearchMovieRequest };
+	enum HttpRequest
+	{
+		NoRequest = 0, 
+		SearchMovieRequest, 
+		FetchMovieRequest
+	};
+	enum HttpStatusClass
+	{
+		NoStatusClass = 0, 
+		InformationalClass = 1, 
+		SuccessClass = 2, 
+		RedirectionClass = 3, 
+		ClientErrorClass = 4, 
+		ServerErrorClass = 5
+	};
 
 	void imdbMovieImport();
 	void retrieveImdbMovie(const QString& id);
 	void searchImdbMovie(const QString& name);
 	void initHttp();
 	void resetImportPage(bool success);
+	QString imdbMovieExtractTitle();
 
 	QHttp* http;
-	QPushButton* togglePageButton;
-	QPushButton* importButton;
-	QPushButton* cancelButton;
 	MvdwImportDialog* importDialog;
 	Ui::MvdImdbImportStart* startPageUi;
 	HttpRequest currentRequest;
 	int httpGetId;
+	QTemporaryFile* currentTempFile;
+	QHash<QUuid,QString> downloadedMovies;
 };
 
 extern "C" MVD_BASICMPI_EXPORT 

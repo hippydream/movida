@@ -22,18 +22,45 @@
 #include "ui_importdialog.h"
 
 #include <QDialog>
+#include <QUuid>
+
+class MvdwLabelAnimator;
+class QPushButton;
 
 class MVDW_EXPORT MvdwImportDialog : public QDialog, private Ui::MvdwImportDialog
 {
+	Q_OBJECT
+
 public:
 	MvdwImportDialog(QWidget* parent = 0);
 	
-	QDialogButtonBox* buttonBox();
 	QWidget* startPage();
 	void setStatus(const QString& s);
 
+	QUuid addSearchResult(const QString& displayString);
+
 public slots:
-	void showNextPage();
-	void showPreviousPage();
+	void showStartPage();
+	void showImportPage();
+
 	void setBusyStatus(bool busy);
+	void setSearchButtonEnabled(bool enabled);
+	void setBackButtonEnabled(bool enabled);
+	void setImportButtonEnabled(bool enabled);
+
+	void clearResults();
+
+signals:
+	void searchTriggered();
+	void importTriggered();
+	void showStartPageTriggered();
+
+private slots:
+	void resultsSelectionChanged();
+
+private:
+	QPushButton* searchButton;
+	QPushButton* backButton;
+	QPushButton* importButton;
+	MvdwLabelAnimator* labelAnimator;
 };

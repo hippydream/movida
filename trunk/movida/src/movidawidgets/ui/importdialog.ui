@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>523</width>
-    <height>387</height>
+    <height>461</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -24,7 +24,36 @@
      <property name="currentIndex" >
       <number>0</number>
      </property>
-     <widget class="QWidget" name="startPage" />
+     <widget class="QWidget" name="startPage" >
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="0" column="0" >
+        <widget class="QFrame" name="startPageFrame" >
+         <property name="frameShape" >
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow" >
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QDialogButtonBox" name="startButtonBox" >
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="standardButtons" >
+          <set>QDialogButtonBox::NoButton</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="importPage" >
       <layout class="QGridLayout" >
        <property name="margin" >
@@ -33,6 +62,32 @@
        <property name="spacing" >
         <number>6</number>
        </property>
+       <item row="0" column="0" >
+        <widget class="QGroupBox" name="resultsBox" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>5</hsizetype>
+           <vsizetype>5</vsizetype>
+           <horstretch>3</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title" >
+          <string>Search results</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="0" >
+           <widget class="QTreeWidget" name="resultsWidget" />
+          </item>
+         </layout>
+        </widget>
+       </item>
        <item row="0" column="1" >
         <widget class="QGroupBox" name="detailsBox" >
          <property name="sizePolicy" >
@@ -66,7 +121,7 @@
               <property name="spacing" >
                <number>6</number>
               </property>
-              <item row="3" column="0" >
+              <item row="0" column="0" colspan="2" >
                <spacer>
                 <property name="orientation" >
                  <enum>Qt::Vertical</enum>
@@ -79,20 +134,22 @@
                 </property>
                </spacer>
               </item>
-              <item row="0" column="0" >
-               <spacer>
-                <property name="orientation" >
-                 <enum>Qt::Vertical</enum>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="loadingIconLabel" >
+                <property name="sizePolicy" >
+                 <sizepolicy>
+                  <hsizetype>1</hsizetype>
+                  <vsizetype>5</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="sizeHint" >
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
+                <property name="text" >
+                 <string/>
                 </property>
-               </spacer>
+               </widget>
               </item>
-              <item row="2" column="0" >
+              <item row="1" column="1" >
                <widget class="QLabel" name="loadingLabel" >
                 <property name="text" >
                  <string>Loading...</string>
@@ -105,15 +162,18 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0" >
-               <widget class="QLabel" name="loadingPixmapLabel" >
-                <property name="text" >
-                 <string/>
+              <item row="2" column="0" colspan="2" >
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Vertical</enum>
                 </property>
-                <property name="alignment" >
-                 <set>Qt::AlignCenter</set>
+                <property name="sizeHint" >
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
                 </property>
-               </widget>
+               </spacer>
               </item>
              </layout>
             </widget>
@@ -286,51 +346,18 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="0" >
-        <widget class="QGroupBox" name="resultsBox" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>5</hsizetype>
-           <vsizetype>5</vsizetype>
-           <horstretch>3</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="1" column="0" colspan="2" >
+        <widget class="QDialogButtonBox" name="importButtonBox" >
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
          </property>
-         <property name="title" >
-          <string>Search results</string>
+         <property name="standardButtons" >
+          <set>QDialogButtonBox::NoButton</set>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="0" >
-           <widget class="QTreeWidget" name="resultsWidget" />
-          </item>
-         </layout>
         </widget>
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="2" column="0" >
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons" >
-      <set>QDialogButtonBox::NoButton</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" >
-    <widget class="Line" name="line" >
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
     </widget>
    </item>
   </layout>

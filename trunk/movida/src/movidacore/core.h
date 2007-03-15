@@ -39,6 +39,10 @@ public:
 
 	static quint32 atoui32(const char* c);
 	static QString replaceNewLine(QString text);
+	static QByteArray toLatin1PercentEncoding(const QString& input, 
+		const QByteArray& exclude = QByteArray(), 
+		const QByteArray& include = QByteArray());
+	static QString decodeXmlEntities(QString s);
 
 private:
 	static MvdCore_P* d;

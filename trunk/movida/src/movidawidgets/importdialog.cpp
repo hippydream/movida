@@ -21,6 +21,12 @@
 #include "importdialog.h"
 #include "labelanimator.h"
 
+#include <QPushButton>
+
+namespace {
+	static const int ResultUuidRole = Qt::UserRole + 1;
+}
+
 MvdwImportDialog::MvdwImportDialog(QWidget* parent)
 : QDialog(parent)
 {
@@ -29,29 +35,63 @@ MvdwImportDialog::MvdwImportDialog(QWidget* parent)
 	QStringList frames;
 	for (int i = 1; i <= 8; ++i)
 		frames << QString(":/images/loading_p%1.png").arg(i);
-	new MvdwLabelAnimator(frames, loadingPixmapLabel, this);
+	labelAnimator = new MvdwLabelAnimator(frames, loadingIconLabel, this);
 
 	resultsWidget->setHeaderLabels(QStringList() << tr("Matching movies"));
+
+	// Setup buttons
+	QPushButton* closeButton = startButtonBox->addButton(QDialogButtonBox::Close);
+	connect( closeButton, SIGNAL(clicked()), this, SLOT(close()) );
+	
+	searchButton = startButtonBox->addButton(tr("Search"), QDialogButtonBox::ActionRole);
+	connect( searchButton, SIGNAL(clicked()), this, SIGNAL(searchTriggered()) );
+	searchButton->setEnabled(false);	
+	
+	closeButton = importButtonBox->addButton(QDialogButtonBox::Close);
+	connect( closeButton, SIGNAL(clicked()), this, SLOT(close()) );
+
+	importButton = importButtonBox->addButton(tr("Import"), QDialogButtonBox::ActionRole);
+	connect( importButton, SIGNAL(clicked()), this, SIGNAL(importTriggered()) );
+	importButton->setEnabled(false);
+
+	backButton = importButtonBox->addButton(tr("New search"), QDialogButtonBox::ActionRole);
+	connect( backButton, SIGNAL(clicked()), this, SIGNAL(showStartPageTriggered()) );
+	backButton->setEnabled(false);
+
+	connect( resultsWidget, SIGNAL(itemActivated(QTreeWidgetItem*, int)), 
+		this, SIGNAL(resultsSelectionChanged()) );
 }
 
-QDialogButtonBox* MvdwImportDialog::buttonBox()
+void MvdwImportDialog::setSearchButtonEnabled(bool enabled)
 {
-	return Ui::MvdwImportDialog::buttonBox;
+	searchButton->setEnabled(enabled);
+}
+
+void MvdwImportDialog::setBackButtonEnabled(bool enabled)
+{
+	backButton->setEnabled(enabled);
+}
+
+void MvdwImportDialog::setImportButtonEnabled(bool enabled)
+{
+	importButton->setEnabled(enabled);
 }
 
 QWidget* MvdwImportDialog::startPage()
 {
-	return Ui::MvdwImportDialog::startPage;
+	return Ui::MvdwImportDialog::startPageFrame;
 }
 
-void MvdwImportDialog::showNextPage()
+/*! Clears the results and shows the start page. */
+void MvdwImportDialog::showStartPage()
 {
-	mainStack->setCurrentIndex(mainStack->currentIndex() + 1);
+	clearResults();
+	mainStack->setCurrentIndex(0);
 }
 
-void MvdwImportDialog::showPreviousPage()
+void MvdwImportDialog::showImportPage()
 {
-	mainStack->setCurrentIndex(mainStack->currentIndex() - 1);
+	mainStack->setCurrentIndex(1);
 }
 
 void MvdwImportDialog::setStatus(const QString& s)
@@ -61,5 +101,41 @@ void MvdwImportDialog::setStatus(const QString& s)
 
 void MvdwImportDialog::setBusyStatus(bool busy)
 {
-	loadingPixmapLabel->setVisible(busy);
+	labelAnimator->setPixmapVisible(busy);
+}
+
+QUuid MvdwImportDialog::addSearchResult(const QString& displayString)
+{
+	if (displayString.isEmpty())
+		return QUuid();
+
+	QUuid uuid = QUuid::createUuid();
+	QTreeWidgetItem* item = new QTreeWidgetItem(resultsWidget);
+	item->setText(0, displayString);
+	item->setData(0, ResultUuidRole, uuid.toString());
+	item->setCheckState(0, Qt::Unchecked);
+	return uuid;
+}
+
+//! Clears the search results.
+void MvdwImportDialog::clearResults()
+{
+	resultsWidget->clear();
+}
+
+//! Updates the UI after some result has been selected or deselected.
+void MvdwImportDialog::resultsSelectionChanged()
+{
+	bool uiChecked = importButton->isEnabled();
+	for (int i = 0; i < resultsWidget->topLevelItemCount(); ++i)
+	{
+		// Stop as soon as we find out that the current UI status is not valid
+		bool itemChecked = 
+			resultsWidget->topLevelItem(i)->checkState(0) == Qt::Checked;
+		if (itemChecked != uiChecked)
+		{
+			importButton->setEnabled(itemChecked);
+			break;
+		}
+	}
 }

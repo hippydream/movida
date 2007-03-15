@@ -47,6 +47,28 @@ public:
 		label->installEventFilter(this);
 	}
 
+public slots:
+	void setPixmapVisible(bool visible)
+	{
+		if (!visible)
+		{
+			if (timer->isActive())
+			{
+				timer->stop();
+				frame = 0;
+			}
+			label->setPixmap(QPixmap());
+		}
+		else
+		{
+			if (!timer->isActive())
+			{
+				timeout();
+				timer->start();
+			}
+		}
+	}
+
 protected:
 	bool eventFilter(QObject* sender, QEvent* event)
 	{

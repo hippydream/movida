@@ -32,6 +32,7 @@
 #include <QRegExp>
 #include <QDate>
 #include <QStringList>
+#include <QVarLengthArray>
 #include <QDebug>
 
 using namespace Movida;
@@ -374,4 +375,121 @@ QString MvdCore::replaceNewLine(QString text)
 		if (text.at(i) == nl)
 			text[i] = QChar::LineSeparator;
 	return text;
+}
+
+//! \internal Some code from Qt 4.2.0 qurl.cpp required by toLatin1PercentEncoding()
+namespace
+{
+	inline bool q_strchr(const char str[], char chr)
+	{
+		if (!str) return false;
+
+		const char *ptr = str;
+		char c;
+		while ((c = *ptr++))
+			if (c == chr)
+				return true;
+		return false;
+	}
+
+	static const char hexnumbers[] = "0123456789ABCDEF";
+	static inline char toHex(char c)
+	{
+		return hexnumbers[c & 0xf];
+	}
+}
+
+/*!
+	Same as QUrl::toPercentEncoding except that it does not convert the
+	string to UTF8 but to Latin1 (as required by some servers).
+	
+	From the QUrl documentation:
+
+	Returns an encoded copy of input. input is first converted to UTF-8, 
+	and all ASCII-characters that are not in the unreserved group are percent 
+	encoded. To prevent characters from being percent encoded pass them to 
+	exclude. To force characters to be percent encoded pass them to include.
+
+	Unreserved is defined as: ALPHA / DIGIT / "-" / "." / "_" / "~"
+*/
+QByteArray MvdCore::toLatin1PercentEncoding(const QString& input, 
+	const QByteArray& exclude, const QByteArray& include)
+{
+	// The code is the same as QUrl::toPercentEncoding as to Qt 4.2.0.
+	// The following line is actually the only difference (except for
+	// the removed debug prints) with the original implementation.
+	QByteArray tmp = input.toLatin1();
+
+	QVarLengthArray<char> output(tmp.size() * 3);
+
+	int len = tmp.count();
+	char *data = output.data();
+	const char *inputData = tmp.constData();
+	int length = 0;
+
+	const char * dontEncode = 0;
+	if (!exclude.isEmpty()) dontEncode = exclude.constData();
+
+
+	if (include.isEmpty()) {
+		for (int i = 0; i < len; ++i) {
+			unsigned char c = *inputData++;
+			if (c >= 0x61 && c <= 0x7A // ALPHA
+				|| c >= 0x41 && c <= 0x5A // ALPHA
+				|| c >= 0x30 && c <= 0x39 // DIGIT
+				|| c == 0x2D // -
+				|| c == 0x2E // .
+				|| c == 0x5F // _
+				|| c == 0x7E // ~
+				|| q_strchr(dontEncode, c)) {
+					data[length++] = c;
+			} else {
+				data[length++] = '%';
+				data[length++] = toHex((c & 0xf0) >> 4);
+				data[length++] = toHex(c & 0xf);
+			}
+		}
+	} else {
+		const char * alsoEncode = include.constData();
+		for (int i = 0; i < len; ++i) {
+			unsigned char c = *inputData++;
+			if ((c >= 0x61 && c <= 0x7A // ALPHA
+				|| c >= 0x41 && c <= 0x5A // ALPHA
+				|| c >= 0x30 && c <= 0x39 // DIGIT
+				|| c == 0x2D // -
+				|| c == 0x2E // .
+				|| c == 0x5F // _
+				|| c == 0x7E // ~
+				|| q_strchr(dontEncode, c))
+				&& !q_strchr(alsoEncode, c)) {
+					data[length++] = c;
+			} else {
+				data[length++] = '%';
+				data[length++] = toHex((c & 0xf0) >> 4);
+				data[length++] = toHex(c & 0xf);
+			}
+		}
+	}
+
+	return QByteArray(output.data(), length);
+}
+
+/*!
+	Replaces entities in XML/HTML text.
+*/
+QString MvdCore::decodeXmlEntities(QString s)
+{
+	if (s.isEmpty())
+		return s;
+
+	QRegExp rx("&#(\\d+);");
+	int pos = rx.indexIn(s);
+	while(pos >= 0)
+	{
+		s.replace(pos, rx.matchedLength(), QChar((rx.cap(1).toInt())));
+		pos = rx.indexIn(s, pos + 1);
+	}
+
+	s.replace("&nbsp;", QChar(' '));
+	return s;
 }
