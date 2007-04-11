@@ -113,8 +113,8 @@ void MvdBasicMpi::imdbMovieImport()
 	startPageUi = &ui;
 
 	startPageUi->input->setFocus(Qt::PopupFocusReason);
-	startPageUi->input->setText("Direktøren for det hele");
-	validateQuery("Direktøren for det hele");
+	startPageUi->input->setText("Direktren for det hele");
+	validateQuery("Direktren for det hele");
 
 	connect( ui.input, SIGNAL(textChanged(const QString&)), 
 		this, SLOT(validateQuery(const QString&)) );
@@ -391,9 +391,9 @@ void MvdBasicMpi::loadMovie(const QUuid& id)
 	if (title.isEmpty())
 		return;
 
-	MvdMovie movie;
-	movie.setOriginalTitle(title);
-	movie.setProductionYear(s);
+	QHash<QString,QVariant> movie;
+	movie.insert("original-title", title);
+	movie.insert("production-year", s);
 
-	importDialog->addMovie(id, movie);
+	importDialog->addMovieData(id, movie);
 }

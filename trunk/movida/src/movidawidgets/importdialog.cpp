@@ -88,12 +88,13 @@ QWidget* MvdwImportDialog::startPage()
 void MvdwImportDialog::showStartPage()
 {
 	clearResults();
-	mainStack->setCurrentIndex(0);
+	mainStack->setCurrentWidget(Ui::MvdwImportDialog::startPage);
 }
 
 void MvdwImportDialog::showImportPage()
 {
-	mainStack->setCurrentIndex(1);
+	mainStack->setCurrentWidget(Ui::MvdwImportDialog::importPage);
+qDebug("show import");
 }
 
 void MvdwImportDialog::setStatus(const QString& s)
@@ -138,7 +139,7 @@ void MvdwImportDialog::resultsSelectionChanged()
 		QUuid id(item->data(0, ResultUuidRole).toString());
 		if (id.isNull())
 			continue;
-		QHash<QUuid,MvdMovie>::ConstIterator it = movies.constFind(id);
+		QHash<QUuid, QHash<QString,QVariant> >::ConstIterator it = movies.constFind(id);
 		if (it == movies.constEnd())
 		{
 			emit movieRequired(id);
@@ -150,10 +151,9 @@ void MvdwImportDialog::resultsSelectionChanged()
 			}
 		}
 
-		//! \todo A MvdMovie object is not good here. We need explicit data, no SD ids!
-		MvdMovie movie = it.value();
-		produced->setText(movie.productionYear());
-		released->setText(movie.releaseYear());
+		QHash<QString,QVariant> movie = it.value();
+		produced->setText(movie.value("production-year").toString());
+		released->setText(movie.value("release-year").toString());
 
 		detailsStack->setCurrentWidget(detailsPage);
 		detailsLoaded = true;
@@ -178,7 +178,11 @@ void MvdwImportDialog::resultsStatusChanged()
 	}
 }
 
-void MvdwImportDialog::addMovie(const QUuid& id, const MvdMovie& movie)
+/*!
+	Adds the movie details for the movie with specific id.
+	Please refer to the development docs for details on how to represent movie data as a QVariant hash.
+*/
+void MvdwImportDialog::addMovieData(const QUuid& id, const QHash<QString,QVariant>& movieData)
 {
-	movies.insert(id, movie);
+	movies.insert(id, movieData);
 }
