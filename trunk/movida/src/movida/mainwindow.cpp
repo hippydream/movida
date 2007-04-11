@@ -790,6 +790,9 @@ bool MvdMainWindow::saveCollectionDlg()
 	if (filename.isEmpty())
 		return false;
 
+	if (!filename.endsWith(".mmc"))
+		filename.append(".mmc");
+
 	int sep = filename.lastIndexOf("/");
 	if (sep > 0)
 	{

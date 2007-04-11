@@ -18,6 +18,7 @@ HEADERS += \
 	sdsettingspage.h \
 	settingsdialog.h \
 	ratingwidget.h \
+	rowselectionmodel.h \
 	sdtreewidget.h \
 	smartview.h \
 	smartviewdelegate.h \
@@ -31,6 +32,7 @@ SOURCES += \
 	multipagedialog.cpp \
 	crewpage.cpp \
 	extendedinfopage.cpp \
+	guiglobal.cpp \
 	linkspage.cpp \
 	main.cpp \
 	maininfopage.cpp \

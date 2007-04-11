@@ -63,7 +63,6 @@ MvdCollectionSaver_P
 namespace MvdCollectionSaver_P
 {
 	static inline QFile* createFile(const QString& name);
-	static inline bool writeHashesFile(const QDir& dir);
 	static inline void writeDocumentRoot(MvdXmlWriter* xml, int itemCount);
 
 	static inline void writePersonData(MvdXmlWriter* xml, 
