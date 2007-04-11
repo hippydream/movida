@@ -66,6 +66,10 @@ public:
 		// It's quite hard that someone will add it to Movida, but its a 
 		// nice date ;)
 		parameters.insert("movidacore-min-movie-year", 1898);
+
+		// Movie posters bigger than this will be scaled.
+		parameters.insert("movidacore-max-poster-kb", 512);
+		parameters.insert("movidacore-max-poster-size", QSize(400, 150));
 	}
 
 	QDate globalSmdDate(const QString& s) const;

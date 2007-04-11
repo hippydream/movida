@@ -22,6 +22,8 @@
 #ifndef MVD_SMARTVIEWDELEGATE_H
 #define MVD_SMARTVIEWDELEGATE_H
 
+#include "guiglobal.h"
+
 #include <QItemDelegate>
 #include <QTextLayout>
 #include <QTextOption>
@@ -35,16 +37,10 @@ class MvdSmartViewDelegate : public QItemDelegate
 public:
 	MvdSmartViewDelegate(QObject* parent = 0);
 
-	void setAdditionalColumns(const QList<int>& c);
 	void setTextAlignment(Qt::Alignment a);
 
 	void setItemSize(const QSize& sz);
 	QSize itemSize() const;
-
-	bool isShowingHeaderData() const;
-
-public slots:
-	void setShowHeaderData(bool show);
 
 protected:
 	virtual void paint(QPainter* painter,
@@ -61,7 +57,8 @@ private:
 		const QRect& rect, const QModelIndex& index) const;
 	QSizeF doTextLayout(int lineWidth, int maxHeight, int* lineCount = 0) const;
 	QString prepareItemText(const QModelIndex& index, int* maxCharsOnLine = 0) const;
-	QList<QTextLayout::FormatRange> setTextFormatting(const QString& text) const;
+	bool appendData(const QAbstractItemModel& model, const QModelIndex& index, 
+		Movida::MovieAttribute attribute, int* maxCharsOnLine, QString& text) const;
 	void rebuildDefaultIcon();
 
 	const qreal iconAspectRatio;
@@ -88,13 +85,6 @@ private:
 	mutable QTextOption textOption;
 
 	QAbstractItemView* view;
-	
-	QList<int> columns;
-
-	bool showHeaderData;
-
-	//! Buggy. We need a way to elide formatted text with respect to a width boundary.
-	bool useRichText;
 };
 
 #endif // MVD_SMARTVIEWDELEGATE_H

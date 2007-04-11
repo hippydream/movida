@@ -34,8 +34,6 @@ class MvdCollectionModel : public QAbstractTableModel
 	Q_OBJECT
 
 public:
-	static const quint32 MovieIdRole = Qt::UserRole + 1;
-
 	MvdCollectionModel(QObject* parent = 0);
 	MvdCollectionModel(MvdMovieCollection* collection, QObject* parent = 0);
 	virtual ~MvdCollectionModel();
@@ -57,7 +55,7 @@ public:
 	bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex());
 	bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
 
-	virtual void sort(int column, Qt::SortOrder order);
+	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
 	virtual void setMovieCollection(MvdMovieCollection* c);
 

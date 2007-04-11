@@ -514,7 +514,11 @@ bool MvdPathResolver::removeDirectoryTree(const QString& path,
 	// This is because of the current (Qt 4.2.x) implementation
 	// of QDir.
 	QDir dir(QDir::cleanPath(path));
-	bool exclude = dir.dirName().toLower() == excludeDir.toLower();
+	QString thisDirName = dir.dirName().toLower();
+	bool exclude = thisDirName == excludeDir.toLower();
+
+	if (exclude)
+		return true;
 
 	QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::Dirs 
 		| QDir::NoSymLinks | QDir::NoDotAndDotDot);
@@ -529,11 +533,9 @@ bool MvdPathResolver::removeDirectoryTree(const QString& path,
 			if (!removeDirectoryTree(fi.filePath(), excludeDir))
 				ok = false;
 		}
-		else if (!exclude)
-		{
-			if (!QFile::remove(fi.absoluteFilePath()))
-				ok = false;
-		}
+
+		if (!QFile::remove(fi.absoluteFilePath()))
+			ok = false;
 	}
 
 	if (!exclude)

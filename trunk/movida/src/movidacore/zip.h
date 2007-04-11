@@ -72,7 +72,9 @@ public:
 		//! Preserve absolute paths
 		AbsolutePathsOption = 0x0002,
 		//! Do not store paths. All the files are put in the (evtl. user defined) root of the zip file
-		IgnorePathsOption = 0x0004
+		IgnorePathsOption = 0x0004,
+		//! Do not write the name of the root directory of the directory being compressed
+		IgnoreRootOption = 0x0008
 	};
 	Q_DECLARE_FLAGS(CompressionOptions, CompressionOption)
 

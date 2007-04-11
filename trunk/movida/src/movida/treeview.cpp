@@ -62,18 +62,6 @@ MvdTreeView::~MvdTreeView()
 }
 
 /*!
-	Enables or disables column sorting.
-*/
-void MvdTreeView::setSortingEnabled(bool enabled)
-{
-	QHeaderView* h = header();
-	if (h->isSortIndicatorShown() != enabled) {
-		h->setSortIndicatorShown(enabled);
-		h->setClickable(enabled);
-	}
-}
-
-/*!
 	Returns true if no header context menu should be shown.
 */
 bool MvdTreeView::isHeaderContextMenuDisabled() const
@@ -87,14 +75,6 @@ bool MvdTreeView::isHeaderContextMenuDisabled() const
 void MvdTreeView::setHeaderContextMenuDisabled(bool disable)
 {
 	mDisableHeaderContextMenu = disable;
-}
-
-/*!
-	Returns true if the columns can be sorted by clicking on the header.
-*/
-bool MvdTreeView::isSortingEnabled() const
-{
-	return header()->isSortIndicatorShown();
 }
 
 /*!
@@ -239,6 +219,15 @@ bool MvdTreeView::hasSelectedRows() const
 {
 	QItemSelectionModel* sel = selectionModel();
 	return sel != 0 && sel->selectedRows().count();
+}
+
+/*!
+	Returns the view's selected rows.
+*/
+QModelIndexList MvdTreeView::selectedRows() const
+{
+	QItemSelectionModel* sel = selectionModel();
+	return sel != 0 ? sel->selectedRows() : QModelIndexList();
 }
 
 //! Returns the first selected index or a null QModelIndex.

@@ -50,8 +50,8 @@ iconAspectRatio(0.7), borderColor(164, 164, 164),
 selectionColor(112, 142, 194), inactiveSelectionColor(173, 190, 220),
 shadowColor(127, 127, 127), currentItemSize(300, 110), 
 iconBorderWidth(7), innerIconBorderWidth(2), borderWidth(1), shadowWidth(4), roundLevel(0),
-firstLineSpacing(3), textAlignment(Qt::AlignLeft | Qt::AlignTop),
-view(0),showHeaderData(true), useRichText(false)
+firstLineSpacing(4), textAlignment(Qt::AlignLeft | Qt::AlignTop),
+view(0)
 {
 	// Override some parameters of the view
 	QWidget* w = qobject_cast<QWidget*>(parent);
@@ -83,18 +83,6 @@ view(0),showHeaderData(true), useRichText(false)
 	rebuildDefaultIcon();
 }
 
-/*!
-	Adds additional columns to this view.
-	The delegate should be attached to one dimensional views, possibly a
-	QListView, or a separate item will be drawn for every cell of the model.
-	The view's selected column does not need to be in the list as it would be
-	ignored. That column is always drawn at the top of the item's text part.
-*/
-void MvdSmartViewDelegate::setAdditionalColumns(const QList<int>& c)
-{
-	columns = c;
-}
-
 //! Sets the alignment flags for the item's text. Default is Top Left.
 void MvdSmartViewDelegate::setTextAlignment(Qt::Alignment a)
 {
@@ -118,24 +106,6 @@ void MvdSmartViewDelegate::setItemSize(const QSize& sz)
 QSize MvdSmartViewDelegate::itemSize() const
 {
 	return currentItemSize;
-}
-
-//! Returns true if header data is being displayed on the tiles.
-bool MvdSmartViewDelegate::isShowingHeaderData() const
-{
-	return showHeaderData;
-}
-
-void MvdSmartViewDelegate::setShowHeaderData(bool show)
-{
-	if (show != showHeaderData)
-	{
-		showHeaderData = show;
-
-		// Force an update of the view
-		if (view)
-			view->doItemsLayout();
-	}
 }
 
 //! \internal
@@ -189,7 +159,7 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 		// Load pixmap so we can adjust the icon border later.
 		// Default pixmap is stretched so we don't care.
 		QRect pixmapRect = iconRect.adjusted(innerIconBorderWidth, innerIconBorderWidth, -innerIconBorderWidth, -innerIconBorderWidth);
-		
+
 		QPixmap pixmap;
 		QString customPixmapPath = index.data(Qt::DecorationRole).toString();
 
@@ -221,6 +191,14 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
 		// Adjust actual icon area to respect the pixmap's AR.
 		iconRect = pixmapRect.adjusted( -innerIconBorderWidth, -innerIconBorderWidth, innerIconBorderWidth, innerIconBorderWidth );
+
+		// Internal icon border should use the base color and not the
+		// selection color
+		if (isSelected)
+		{
+			painter->fillRect(iconRect, 
+				option.palette.brush(cg, QPalette::Base));
+		}
 
 		// Icon border
 		pen.setStyle(Qt::SolidLine);
@@ -284,9 +262,6 @@ void MvdSmartViewDelegate::drawItemText(QPainter* painter, const QStyleOptionVie
 
 	textLayout.setText(text);
 
-	if (useRichText)
-		textLayout.setAdditionalFormats(setTextFormatting(text));
-
 	QSizeF textLayoutSize = doTextLayout(textRect.width(), textRect.height());
 
 	bool widthViolation = textRect.width() < textLayoutSize.width();
@@ -323,8 +298,6 @@ void MvdSmartViewDelegate::drawItemText(QPainter* painter, const QStyleOptionVie
 			textLayout.setText(elided);
 		}
 		
-		if (useRichText)
-			textLayout.setAdditionalFormats(setTextFormatting(elided));
 		textLayoutSize = doTextLayout(textRect.width(), textRect.height());
 	}
 
@@ -340,102 +313,75 @@ void MvdSmartViewDelegate::drawItemText(QPainter* painter, const QStyleOptionVie
 //! \internal
 QString MvdSmartViewDelegate::prepareItemText(const QModelIndex& index, int* maxCharsOnLine) const
 {
-	QString text;
-	QString data;
-	QString label;
-
 	if (maxCharsOnLine)
 		*maxCharsOnLine = 0;
 
-	// Do one more step!
-	for (int i = -1; i < columns.size(); ++i)
-	{
-		if (i >= 0 && columns.at(i) == index.column())
-			continue;
+	if (!view->model())
+		return QString();
 
-		QModelIndex colIndex;
-		if (i < 0)
-			colIndex = index;
-		else
-		{
-			if (!view || !view->model())
-				break;
+	QAbstractItemModel* model = view->model();
+	QString text;
 
-			colIndex = view->model()->index(index.row(), columns.at(i), index.parent());
-			if (!colIndex.isValid())
-				continue;
-		}
+	/* Format:
 
-		int charsOnLine = 0;
+		Title\n
+		ReleaseYear\n\n
+		Directors\n
+		Producers\n
+		Rating
+	*/
 
-		data = colIndex.data().toString();
-		if (showHeaderData && view && view->model())
-			label = view->model()->headerData(colIndex.column(), Qt::Horizontal).toString();
-
-		if (!label.isEmpty())
-			text.append(label).append(": ");
-
-		if (maxCharsOnLine)
-		{
-			charsOnLine = label.length();
-			if (charsOnLine != 0)
-				charsOnLine += 2; // Count for ": "
-			charsOnLine += data.length();
-
-			*maxCharsOnLine = qMax(charsOnLine, *maxCharsOnLine);
-		}
-
-		text.append(data).append(QChar::LineSeparator);
-	}
+	appendData(*model, index, Movida::TitleAttribute, maxCharsOnLine, text);
+	appendData(*model, index, Movida::ReleaseYearAttribute, maxCharsOnLine, text);
+	appendData(*model, index, Movida::DirectorsAttribute, maxCharsOnLine, text);
+	appendData(*model, index, Movida::ProducersAttribute, maxCharsOnLine, text);
+	appendData(*model, index, Movida::RatingAttribute, maxCharsOnLine, text);
 
 	return text;
 }
 
-//! \internal
-QList<QTextLayout::FormatRange> MvdSmartViewDelegate::setTextFormatting(const QString& text) const
+//! \internal Appends the contents of the specified column to \p text formatted according to \p format (which should contain a "%1" as place holder).
+bool MvdSmartViewDelegate::appendData(const QAbstractItemModel& model, 
+	const QModelIndex& index, Movida::MovieAttribute attribute, int* maxCharsOnLine, 
+	QString& text) const
 {
-	QList<QTextLayout::FormatRange> formats;
-	int cursor = 0;
+	int column = (int) attribute;
+	QModelIndex columnIndex = model.index(index.row(), column, index.parent());
+	QVariant data = columnIndex.data();
 
-	QStringList lines = text.split(QChar::LineSeparator);
-	for (int i = 0; i < lines.size(); ++i)
-	{
-		QString s = lines.at(i);
-		
-		if (s.isEmpty())
+	QString line;
+
+	if (data.isValid() && !(line = data.toString()).isEmpty() )
+	{		
+		switch (attribute)
 		{
-			// Take the LineSeparator into account!
-			cursor++;
-			continue;
-		}
-
-		int idx = s.indexOf(":");
-		QTextLayout::FormatRange fr;
-		fr.start = cursor;
-		fr.length = idx < 0 ? s.length() : idx + 1;
-		fr.format.setFontWeight(QFont::Bold);
-		formats << fr;
-
-		if (i == 0)
-		{
-			// First line is assumed to contain the most relevant attribute
-			// so let's put some more emphasis on it
-			QTextLayout::FormatRange fr;
-			fr.start = idx < 0 ? cursor : cursor + idx + 1;
-			fr.length = idx < 0 ? s.length() : s.length() - (idx + 1);
-			fr.format.setFontWeight(QFont::DemiBold);
-			formats << fr;
-		}
-
-		// Do not format more than the first line
-		if (!showHeaderData)
+		case Movida::ReleaseYearAttribute:
+			line.prepend(tr("Released in "));
 			break;
+		case Movida::DirectorsAttribute:
+			line.prepend(tr("Directed by "));
+			break;
+		case Movida::ProducersAttribute:
+			line.prepend(tr("Produced by "));
+			break;
+		case Movida::RatingAttribute:
+			line.prepend(tr("My rating: "));
+			break;
+		default: ;
+		}
 
-		// Take the LineSeparator into account!
-		cursor += s.length() + 1;
+		if (maxCharsOnLine)
+			*maxCharsOnLine = qMax(line.length(), *maxCharsOnLine);
+
+		if (!text.isEmpty())
+			text.append(QChar::LineSeparator);
+
+		text.append(line);
+
+		return true;
 	}
 
-	return formats;
+	return false;
 }
 
 //! \internal
@@ -462,8 +408,7 @@ QSizeF MvdSmartViewDelegate::doTextLayout(int lineWidth, int maxHeight, int* _li
 		line.setLineWidth(lineWidth);
 
 		// Second line: add some more spacing so that the first line gets more emphasis
-		if (lineCount++ == 1)
-			height += firstLineSpacing;
+		height += firstLineSpacing;
 
 		line.setPosition(QPointF(0, height));
 		height += line.height();

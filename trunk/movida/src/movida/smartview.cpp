@@ -53,16 +53,6 @@ void MvdSmartView::setModel(QAbstractItemModel* model)
 	view->setModel(model);
 }
 
-void MvdSmartView::setMainModelColumn(int col)
-{
-	view->setModelColumn(col);
-}
-
-void MvdSmartView::setAdditionalModelColumns(const QList<int>& list)
-{
-	delegate->setAdditionalColumns(list);
-}
-
 /*!
 	Returns the spacing for this view, i.e. the distance between icons.
 */
@@ -87,6 +77,18 @@ qreal MvdSmartView::aspectRatio() const
 void MvdSmartView::setAspectRatio(qreal r)
 {
 	currentAspectRatio = r == 0 ? 1 : r;
+}
+
+//! Returns the selection model used by this view.
+QItemSelectionModel* MvdSmartView::setSelectionModel() const
+{
+	return view->selectionModel();
+}
+
+//! Sets a shared selection model for this view.
+void MvdSmartView::setSelectionModel(QItemSelectionModel* selectionModel)
+{
+	view->setSelectionModel(selectionModel);
 }
 
 //! \internal
@@ -115,12 +117,12 @@ void MvdSmartView::init()
 	
 	view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	view->setItemDelegate(delegate);
+	view->setUniformItemSizes(true);
+	view->setFlow(QListView::LeftToRight);
+	view->setResizeMode(QListView::Adjust);
 
 	updateSliderStatus(true);
 
-	showAttributes->setCheckState(delegate->isShowingHeaderData() ? Qt::Checked : Qt::Unchecked);
-
-	connect( showAttributes, SIGNAL(toggled(bool)), delegate, SLOT(setShowHeaderData(bool)) );
 	connect( slider, SIGNAL(valueChanged(int)), this, SLOT(resizeTiles(int)) );
 }
 
@@ -144,6 +146,17 @@ bool MvdSmartView::eventFilter(QObject* o, QEvent* e)
 	}
 
 	return QWidget::eventFilter(o, e);
+}
+
+void MvdSmartView::contextMenuEvent(QContextMenuEvent* cme)
+{
+	QPoint viewpoint = view->mapFromGlobal(cme->globalPos());
+	if (!viewpoint.isNull() && view->model())
+	{
+		QModelIndex index = view->indexAt(viewpoint);
+		if (index.isValid())
+			emit contextMenuRequested(index);
+	}
 }
 
 void MvdSmartView::resizeTiles(int offset)

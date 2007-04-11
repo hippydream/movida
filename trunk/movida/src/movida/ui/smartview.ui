@@ -103,13 +103,6 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="0" >
-       <widget class="QCheckBox" name="showAttributes" >
-        <property name="text" >
-         <string>Show attributes</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>

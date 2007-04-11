@@ -302,6 +302,9 @@ void MvdCollectionLoader_P::parseCollection(const IdMapper& idMapper,
 {
 	Q_UNUSED(itemCount)
 
+	QString posterDir = collection->info(MvdMovieCollection::DataPathInfo)
+		.append("/images/");
+
 	xmlChar* attr = 0;
 	cur = cur->xmlChildrenNode;
 
@@ -484,6 +487,22 @@ void MvdCollectionLoader_P::parseCollection(const IdMapper& idMapper,
 				{
 					movie.setEdition(QString((const char*)attr));
 					xmlFree(attr);
+				}
+			}
+			else if (nodeName == "poster")
+			{
+				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
+				if (attr)
+				{
+					QString poster = QString((const char*)attr);
+					xmlFree(attr);
+					if (!QFile::exists(posterDir + poster))
+					{
+						Movida::wLog() << QString("Missing movie poster: %1")
+							.arg(posterDir + poster);
+					}
+					else
+						movie.setPoster(poster);
 				}
 			}
 
@@ -893,19 +912,19 @@ MvdCollectionLoader interface
 MvdCollectionLoader::ErrorCode MvdCollectionLoader::load(
 	MvdMovieCollection* collection, const QString& file)
 {
-	QFile xmlFile(file);
+	QFile mmcFile(file);
 	iLog() << QString("CLoader: Attempting to load collection from %1").arg(file);
 	
-	if (!xmlFile.exists())
+	if (!mmcFile.exists())
 	{
 		eLog() << QString("CLoader: File does not exist: %1").arg(file);
 		return FileNotFoundError;
 	}
 	
-	if (!xmlFile.open(QIODevice::ReadOnly))
+	if (!mmcFile.open(QIODevice::ReadOnly))
 	{
 		eLog() << QString("CLoader: Could not open file for reading (%1): %2")
-			.arg(xmlFile.errorString()).arg(file);
+			.arg(mmcFile.errorString()).arg(file);
 		return FileOpenError;
 	}
 		
@@ -949,7 +968,7 @@ MvdCollectionLoader::ErrorCode MvdCollectionLoader::load(
 	if (!MvdCollectionLoader_P::loadXmlDocument(QString("%1%2").arg(tmpPath)
 		.arg("movida-collection/metadata.xml"), &doc, &cur, &itemCount))
 	{
-		paths().removeDirectoryTree(tmpPath);
+		paths().removeDirectoryTree(tmpPath, "persistent");
 		eLog() << "CLoader: Unable to load metadata.xml file";
 		return InvalidFileError;
 	}
@@ -975,7 +994,7 @@ MvdCollectionLoader::ErrorCode MvdCollectionLoader::load(
 	QString currentNode;
 	int movieCount = -1;
 
-	collection->setInfo(MvdMovieCollection::DataPathInfo, dataPath);
+	collection->setInfo(MvdMovieCollection::DataPathInfo, dataPath+ "/persistent");
 	
 	cur = cur->xmlChildrenNode;
 	while (cur != 0)
@@ -1098,7 +1117,7 @@ MvdCollectionLoader::ErrorCode MvdCollectionLoader::load(
 		QString("%1%2").arg(dataPath).arg("collection.xml"), 
 		&doc, &cur, &itemCount))
 	{
-		paths().removeDirectoryTree(tmpPath);
+		paths().removeDirectoryTree(tmpPath, "persistent");
 		eLog() << "CLoader: Unable to parse collection.xml file";
 		return InvalidFileError;
 	}
@@ -1106,9 +1125,9 @@ MvdCollectionLoader::ErrorCode MvdCollectionLoader::load(
 	MvdCollectionLoader_P::parseCollection(idMapper, collection, doc, cur, itemCount);
 	xmlFreeDoc(doc);
 	
-	paths().removeDirectoryTree(tmpPath);
+	paths().removeDirectoryTree(tmpPath, "persistent");
 
-	QFileInfo finfo(xmlFile);
+	QFileInfo finfo(mmcFile);
 	collection->setFileName(finfo.completeBaseName());
 	collection->setPath(finfo.absoluteFilePath());
 

@@ -175,6 +175,19 @@ using namespace Movida;
 	/dir1/dir1.1/
 	/dir1/dir1.2/file1.2.1
 
+	EXAMPLE 5:
+	myZipInstance.addDirectory("/root/dir1", "myRoot", MvdZip::IgnoreRootOption);
+
+	RESULT:
+	The IgnoreRootOption option creates a zip file with the contents of the
+	specified directory but without the root of that directory itself:
+
+	myRoot/
+	myRoot/file1.1
+	myRoot/file1.2
+	myRoot/dir1/dir1.1/
+	myRoot/dir1/dir1.2/file1.2.1
+
 	\endverbatim
 */
 
@@ -252,7 +265,7 @@ public:
 	inline void initKeys(quint32* keys) const;
 	inline int decryptByte(quint32 key2) const;
 
-	inline QString extractRoot(const QString& p);
+	inline QString extractRoot(const QString& p, MvdZip::CompressionOptions o);
 };
 
 //! \internal
@@ -958,9 +971,15 @@ void MvdZip_P::reset()
 	delete device; device = 0;
 }
 
-//! \internal Returns the path of the parent directory
-QString MvdZip_P::extractRoot(const QString& p)
+/*!
+	\internal Returns the path of the parent directory,
+	i.e. extractRoot("/home/blue/.movida") will return
+	"/home".
+*/
+QString MvdZip_P::extractRoot(const QString& p, MvdZip::CompressionOptions o)
 {
+	Q_UNUSED(o);
+
 	QDir d(QDir::cleanPath(p));
 	if (!d.exists())
 		return QString();
@@ -1156,6 +1175,7 @@ MvdZip::ErrorCode MvdZip::addDirectory(const QString& path, const QString& root,
 	if (!dir.exists())
 		return MvdZip::FileNotFoundError;
 
+	// ActualRoot is the path to be written in the zip records
 	// Remove any trailing separator
 	QString actualRoot = root.trimmed();
 
@@ -1176,16 +1196,23 @@ MvdZip::ErrorCode MvdZip::addDirectory(const QString& path, const QString& root,
 	/* An attempt to compress the / root directory evtl. using a root prefix should be a good test */
 	if (options.testFlag(AbsolutePathsOption) && !options.testFlag(IgnorePathsOption))
 	{
-		QString absolutePath = d->extractRoot(path);
+		QString absolutePath = d->extractRoot(path, options);
+
+		// addDir("/home/blue/.movida", "myroot") -> absolutePath = "/home/"
 		if (!absolutePath.isEmpty() && absolutePath != "/")
 			absolutePath.append("/");
-		actualRoot.append(absolutePath);
+
+		// addDir("/home/blue/.movida", "myroot") -> actualRoot = "myroot/home/"
+		if (absolutePath.startsWith("/"))
+			actualRoot.append(absolutePath.right(absolutePath.length() -1 ));
+		else
+			actualRoot.append(absolutePath);
 	}
 
-	if (!options.testFlag(IgnorePathsOption))
+	if ( !(options.testFlag(IgnorePathsOption) || options.testFlag(IgnoreRootOption)) )
 	{
-		actualRoot = actualRoot.append(QDir(current.absoluteFilePath()).dirName());
-		actualRoot.append("/");
+		actualRoot.append(QDir(current.absoluteFilePath()).dirName())
+			.append("/");
 	}
 
 	// actualRoot now contains the path of the file relative to the zip archive

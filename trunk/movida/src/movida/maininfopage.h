@@ -63,6 +63,8 @@ private:
 	quint16 mDefaultRunningTime;
 	quint8 mDefaultRating;
 	bool mDefaultIsFavorite;
+	QString mDefaultPoster;
+
 	QString mPosterPath;
 };
 

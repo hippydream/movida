@@ -26,7 +26,49 @@
 #include <QtGlobal>
 #include <QIcon>
 #include <QString>
+#include <QCoreApplication>
 
 #define MVD_WINDOW_ICON setWindowIcon(QIcon(":/images/misc/logo.png"));
+
+namespace Movida
+{
+	//! Additional item view roles
+	enum ViewRole
+	{
+		MovieIdRole = Qt::UserRole + 1
+	};
+
+	//! Item view movie attributes (i.e. used as column identifiers)
+	enum MovieAttribute
+	{
+		TitleAttribute,
+		OriginalTitleAttribute,
+		ProductionYearAttribute,
+		ReleaseYearAttribute,
+		ProducersAttribute,
+		DirectorsAttribute,
+		CastAttribute,
+		CrewAttribute,
+		RunningTimeAttribute,
+		StorageIdAttribute,
+		GenresAttribute,
+		CountriesAttribute,
+		LanguagesAttribute,
+		TagsAttribute,
+		ColorModeAttribute,
+		ImdbIdAttribute,
+		RatingAttribute
+	};
+
+	enum MovieAttributeFilter
+	{
+		AllMovieAttributes,
+		DetailedMovieAttributes,
+		SimpleMovieAttributes
+	};
+
+	QList<MovieAttribute> movieAttributes(MovieAttributeFilter filter = AllMovieAttributes);
+	QString movieAttributeString(MovieAttribute attribute);
+}
 
 #endif // MVD_GUIGLOBAL_H

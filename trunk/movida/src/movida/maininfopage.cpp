@@ -110,7 +110,15 @@ QIcon MvdMainInfoPage::icon()
 
 bool MvdMainInfoPage::isModified() const
 {
-	//! \todo check poster
+	bool posterChanged = false;
+	if (!mPosterPath.isEmpty())
+	{
+		QFileInfo fi(mPosterPath);
+		posterChanged = fi.fileName() != mDefaultPoster;
+	}
+	else
+		posterChanged = mPosterPath != mDefaultPoster;
+
 	return title->isModified() 
 		|| originalTitle->isModified() 
 		|| version->isModified()
@@ -119,7 +127,7 @@ bool MvdMainInfoPage::isModified() const
 		|| lengthMinutes->value() != mDefaultRunningTime
 		|| storageID->isModified()
 		|| ratingLabel->value() != mDefaultRating
-		|| !mPosterPath.isEmpty();
+		|| posterChanged;
 }
 
 /*!
@@ -161,7 +169,10 @@ void MvdMainInfoPage::setMovieImpl(const MvdMovie& movie)
 	// Set the appropriate status text.
 	ratingHovered(-1);
 
-	setMoviePoster(movie.poster());
+	mDefaultPoster = movie.poster();
+
+	setMoviePoster(mCollection->info(MvdMovieCollection::DataPathInfo)
+		.append("/images/").append(mDefaultPoster));
 }
 
 bool MvdMainInfoPage::store(MvdMovie& movie)
@@ -183,7 +194,22 @@ bool MvdMainInfoPage::store(MvdMovie& movie)
 	movie.setReleaseYear(QString::number(releaseYear->value()));
 	movie.setRunningTime(lengthMinutes->value());
 	movie.setRating(ratingLabel->value());
-	movie.setPoster(mPosterPath);
+
+	if (!mPosterPath.isEmpty())
+	{
+		QString posterName = mCollection->addImage(mPosterPath, 
+			MvdMovieCollection::MoviePosterImage);
+	
+		if (posterName.isEmpty())
+		{
+			if (QMessageBox::question(this, _CAPTION_, tr("Sorry, the movie poster could not be imported. Continue?"), 
+				QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+				return false;
+		}
+
+		movie.setPoster(posterName);
+	}
+	else movie.setPoster(QString());
 
 	return true;
 }

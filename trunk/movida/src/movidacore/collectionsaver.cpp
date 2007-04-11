@@ -73,7 +73,7 @@ namespace MvdCollectionSaver_P
 	static inline void writeUrlData(MvdXmlWriter* xml, 
 		const QHash<smdid,MvdSharedData::UrlData>& map);
 	static inline void writeMovieData(MvdXmlWriter* xml, 
-		const MvdMovieCollection::MovieTable& map);
+		const MvdMovieCollection::MovieTable& map, QStringList& persistentData);
 	static inline void writePersonList(MvdXmlWriter* xml, 
 		const QHash<smdid, QStringList>& map);
 	static inline void writePersonList(MvdXmlWriter* xml, const QList<smdid>& list);
@@ -189,7 +189,7 @@ void MvdCollectionSaver_P::writeUrlData(MvdXmlWriter* xml,
 	\internal Writes out movie descriptions to an XML file.
 */
 void MvdCollectionSaver_P::writeMovieData(MvdXmlWriter* xml, 
-	const MvdMovieCollection::MovieTable& map)
+	const MvdMovieCollection::MovieTable& map, QStringList& persistentData)
 {
 	QHash<QString,QString> attrs;
 
@@ -284,6 +284,14 @@ void MvdCollectionSaver_P::writeMovieData(MvdXmlWriter* xml,
 		if (!list.isEmpty())
 			writeStringList(xml, list);
 		xml->writeCloseTag("special-contents");
+
+		//! \todo regenerate name if there are possible name clashes (iow. poster filename = HASH.PROG_ID but no other filed named HASH exists any more)
+		QString poster = movie.poster();
+		if (!poster.isEmpty())
+		{
+			xml->writeTaggedString("poster", poster);
+			persistentData.removeAll(poster.prepend("images/"));
+		}
 
 		xml->writeCloseTag("movie");
 	}
@@ -395,25 +403,16 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(
 		return ZipError;
 	}
 
-	QString tmpPath = paths().generateTempDir();
-	QDir tmpDir(tmpPath);
+	// data path is SOME_TEMP_DIR/persistent
+	QString dataPath = collection.info(MvdMovieCollection::DataPathInfo);
+	iLog() << QString("CSaver: Data path: %1").arg(dataPath);
 
-	iLog() << QString("CSaver: Using temporary directory: %1").arg(tmpPath);
+	// cdup to exit the persistent directory
+	QDir dataPathDir(dataPath);
+	dataPathDir.cdUp();
 
-	if (!tmpDir.exists())
-	{
-		eLog() << QString("CSaver: Unable to create a temporary directory");
-		return TemporaryDirectoryError;
-	}
-
-	QString mmcBase = QString("%1movida-collection/").arg(tmpPath);
-
-	if (!tmpDir.mkdir(mmcBase))
-	{
-		eLog() << QString("CSaver: Unable to create a temporary directory");
-		paths().removeDirectoryTree(tmpPath);
-		return TemporaryDirectoryError;
-	}
+	QString mmcBase = dataPathDir.absolutePath().append("/");
+	iLog() << QString("CSaver: MMC base path: %1").arg(mmcBase);
 
 	QString currFile;
 	QHash<QString,QString> attrs;
@@ -429,7 +428,7 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(
 	file = MvdCollectionSaver_P::createFile(currFile);
 	if (file == 0)
 	{
-		paths().removeDirectoryTree(tmpPath);
+		paths().removeDirectoryTree(mmcBase, "persistent");
 		return FileOpenError;
 	}
 	
@@ -464,7 +463,7 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(
 	file = MvdCollectionSaver_P::createFile(currFile);
 	if (file == 0)
 	{
-		paths().removeDirectoryTree(tmpPath);
+		paths().removeDirectoryTree(mmcBase, "persistent");
 		return FileOpenError;
 	}
 	
@@ -550,7 +549,7 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(
 	file = MvdCollectionSaver_P::createFile(currFile);
 	if (file == 0)
 	{
-		paths().removeDirectoryTree(tmpPath);
+		paths().removeDirectoryTree(mmcBase, "persistent");
 		return FileOpenError;
 	}
 	
@@ -562,19 +561,30 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(
 
 	MvdMovieCollection::MovieTable movies = collection.movies();
 
+	QStringList persistentData;
+
+	QDir imgDir(dataPath + "/images");
+	QStringList storedImages = imgDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+	for (int i = 0; i < storedImages.size(); ++i)
+		persistentData.append( QString("images/").append(storedImages.at(i)) );
+
 	if (!movies.isEmpty())
-		MvdCollectionSaver_P::writeMovieData(xml, movies);
+		MvdCollectionSaver_P::writeMovieData(xml, movies, persistentData);
 
 	xml->writeCloseTag("movida-xml-doc");
 
 	delete xml;
 	delete file;
 
+	// **************** remove unused persistent data ****************
+	for (int i = 0; i < persistentData.size(); ++i)
+		QFile::remove(dataPath + "/" + persistentData.at(i));
+
 	// **************** ZIP IT! ****************
 
-	zerr = zipper.addDirectory(mmcBase);
+	zerr = zipper.addDirectory(mmcBase, "movida-collection", MvdZip::IgnoreRootOption);
 	
-	paths().removeDirectoryTree(tmpPath);
+	paths().removeDirectoryTree(mmcBase, "persistent");
 
 	if (!zerr == MvdZip::NoError)
 	{

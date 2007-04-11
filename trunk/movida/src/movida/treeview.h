@@ -38,20 +38,20 @@ public:
 	MvdTreeView(QWidget* parent = 0);
 	~MvdTreeView();
 
-	bool isSortingEnabled() const;
-	void setSortingEnabled(bool enabled);
-
 	bool isHeaderContextMenuDisabled() const;
 	void setHeaderContextMenuDisabled(bool disable);
 
 	void setModel(QAbstractItemModel* model);
 
 	bool hasSelectedRows() const;
+	QModelIndexList selectedRows() const;
 
 	QModelIndex selectedIndex() const;
 	QModelIndexList selectedIndexes() const;
 
 	void selectIndex(const QModelIndex& idx);
+
+public slots:
 
 signals:
 	void contextMenuRequested(const QModelIndex& index, QContextMenuEvent::Reason);

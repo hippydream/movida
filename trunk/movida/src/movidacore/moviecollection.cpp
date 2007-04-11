@@ -25,9 +25,15 @@
 #include "movie.h"
 #include "logger.h"
 #include "global.h"
+#include "core.h"
+#include "pathresolver.h"
+#include "md5.h"
 
 #include <QDateTime>
 #include <QFileInfo>
+#include <QDir>
+#include <QPixmap>
+#include <QUuid>
 
 /*!
 	\class MvdMovieCollection moviecollection.h
@@ -183,6 +189,8 @@ MvdSharedData& MvdMovieCollection::smd() const
 
 /*!
 	Sets some metadata for this collection.
+	Setting the data path will resulty in the previously set data path (if any)
+	to be erased.
  */
 void MvdMovieCollection::setInfo(CollectionInfo ci, const QString& val)
 {
@@ -203,6 +211,8 @@ void MvdMovieCollection::setInfo(CollectionInfo ci, const QString& val)
 		d->website = val;
 		break;
 	case DataPathInfo:
+		if (!d->dataPath.isEmpty())
+			Movida::paths().removeDirectoryTree(d->dataPath);
 		d->dataPath = val;
 		break;
 	case NotesInfo:
@@ -215,6 +225,8 @@ void MvdMovieCollection::setInfo(CollectionInfo ci, const QString& val)
 
 /*!
 	Returns information about this collection.
+	Generates a new data path if the data path is requested but none has been
+	set yet.
 */
 QString MvdMovieCollection::info(CollectionInfo ci) const
 {
@@ -229,6 +241,12 @@ QString MvdMovieCollection::info(CollectionInfo ci) const
 	case WebsiteInfo:
 		return d->website;
 	case DataPathInfo:
+		if (d->dataPath.isEmpty())
+		{
+			d->dataPath = Movida::paths().generateTempDir().append("/persistent");
+			QDir dir;
+			dir.mkpath(d->dataPath + "/images/");
+		}
 		return d->dataPath;
 	case NotesInfo:
 		return d->notes;
@@ -697,6 +715,94 @@ void MvdMovieCollection::setFileName(const QString& p)
 QString MvdMovieCollection::fileName() const
 {
 	return d->fileName;
+}
+
+/*!
+	Adds a new image to the persistent data directory of this collection and
+	returns a collection-wide filename. Use this filename to access the
+	image file in Movida (i.e. in MvdMovie::setPoster()).
+
+	The \p category parameter is used to process files that will be used for
+	specific purposes (i.e. big movie posters are scaled for higher performance).
+
+	Returns a null string if \p path is not a valid file.
+*/
+QString MvdMovieCollection::addImage(const QString& path, 
+	MvdMovieCollection::ImageCategory category)
+{
+	if (!QFile::exists(path))
+		return QString();
+
+	// Init data path if necessary
+	if (d->dataPath.isEmpty())
+		info(DataPathInfo);
+
+	// Check if file has been already added
+	QString srcHash = MvdMd5::hashFile(path);
+	if (QFile::exists(d->dataPath + "/images/" + srcHash))
+		return srcHash;
+
+	// Compute internal filename
+	QString internalName = MvdMd5::hashFile(path);
+	// fall back to UUID
+	if (internalName.isEmpty())
+		internalName = QUuid::createUuid().toString();
+
+	// Process image if necessary
+	if (category == MoviePosterImage)
+	{
+		int maxKB = MvdCore::parameter("movidacore-max-poster-kb").toInt();
+		
+		QFileInfo fi(path);
+		if (fi.size() > maxKB)
+		{
+			// Scale image
+			//! \todo Set a limit for the file size or this might take some time!!
+			QPixmap pm(path);
+			if (pm.isNull())
+				return QString();
+
+			QSize maxSize = MvdCore::parameter("movidacore-max-poster-size").toSize();
+			pm = pm.scaled(maxSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+			
+			if (!pm.save(d->dataPath + "/images/" + internalName, "PNG"))
+			{
+				Movida::wLog() << QString("Failed to save %1")
+					.arg(d->dataPath + "/images/" + internalName);
+				return QString();
+			}
+		}
+	}
+
+	if (internalName.isEmpty())
+	{
+		QFile srcFile(path);
+		if (!srcFile.copy(d->dataPath + "/images/" + internalName))
+		{
+			Movida::wLog() << QString("Failed to copy %1 to %2: %3")
+				.arg(path).arg(d->dataPath + "/images/" + internalName)
+				.arg(srcFile.errorString());
+			return QString();
+		}
+	}
+
+	Movida::iLog() << QString("Added persistent image: %1")
+		.arg(d->dataPath + "/images/" + internalName);
+
+	return internalName;
+}
+
+/*!
+	Removes any persistent data stored in the system's temporary directory.
+*/
+void MvdMovieCollection::clearPersistentData()
+{
+	// The data path is a subdirectory of the collection's temp directory
+	// but we want to remove everything so we CD up once.
+	QDir dp(d->dataPath);
+	dp.cdUp();
+
+	Movida::paths().removeDirectoryTree(dp.absolutePath());
 }
 
 //! \internal Forces a detach.

@@ -1123,14 +1123,23 @@ QString MvdMovie::poster() const
 }
 
 /*!
-	Sets the path of the movie poster pixmap or clears any existing one
-	if \p path is not a valid path.
+	Sets a poster for this movie using the filename of an already existing 
+	movie poster.
+	
+	The poster file should exist in the collection's "persistent"
+	data path directory. 
+	
+	Use MvdMovieCollection::addImage() to register a new image file 
+	and call this method using the collection's internal filename returned 
+	by addImage().
+	
+	No checks are made as this movie instance has no
+	knowledge of the collection (and thus of its data path) it belongs to.
+	Removes any existing poster if \p filename is empty.
 */
-void MvdMovie::setPoster(const QString& path)
+void MvdMovie::setPoster(const QString& filename)
 {
-	if (!QFile::exists(path))
-		d->poster.clear();
-	else d->poster = path;
+	d->poster = filename;
 }
 
 //! \internal Forces a detach.

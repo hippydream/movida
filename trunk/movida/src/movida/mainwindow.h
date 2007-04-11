@@ -37,7 +37,9 @@ class QMenuBar;
 class QMenu;
 class QGridLayout;
 class QTextBrowser;
+class QStackedWidget;
 
+class MvdSmartView;
 class MvdTreeView;
 class MvdDockWidget;
 class MvdMovieCollection;
@@ -71,6 +73,10 @@ private:
 	QAction* mA_FileOpenLast;
 	QAction* mA_FileSave;
 	QAction* mA_FileSaveAs;
+	
+	QActionGroup* mAG_MovieView;
+	QAction* mA_SmartView;
+	QAction* mA_TreeView;
 	QAction* mA_ViewDetails;
 	QAction* mA_CollAddMovie;
 	QAction* mA_CollRemMovie;
@@ -95,7 +101,9 @@ private:
 	QMenu* mMN_Plugins;
 	
 	// Views
-	MvdTreeView* mMovieView;
+	QStackedWidget* mMainViewStack;
+	MvdSmartView* mSmartView;
+	MvdTreeView* mTreeView;
 	QTextBrowser* mDetailsView;
 
 	// Dock windows
@@ -151,12 +159,15 @@ private slots:
 	void editMovie(const QModelIndex& index);
 	void removeCurrentMovie();
 	void removeMovie(const QModelIndex& index);
+	void removeMovies(const QModelIndexList& list);
 
 	void showMovieContextMenu(const QModelIndex& index);
 
 	void externalActionTriggered(const QString& id, const QVariant& data);
 
 	void loadPlugins();
+	void movieViewToggled(QAction*);
+	void cycleMovieView();
 
 	//! \todo DEBUG
 	void testSlot();

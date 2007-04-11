@@ -35,6 +35,7 @@
 #include "movie.h"
 #include "moviecollection.h"
 #include "plugininterface.h"
+#include "rowselectionmodel.h"
 
 #include <QList>
 #include <QFile>
@@ -59,6 +60,8 @@
 #include <QInputDialog>
 #include <QLibrary>
 #include <QSignalMapper>
+#include <QStackedWidget>
+#include <QShortcut>
 
 using namespace Movida;
 
@@ -84,14 +87,26 @@ MvdMainWindow::MvdMainWindow()
 
 	mMovieModel = new MvdCollectionModel(this);
 
-	mMovieView = new MvdTreeView(this);
-	mMovieView->setObjectName("movie_view");
-	mMovieView->setModel(mMovieModel);
+	mMainViewStack = new QStackedWidget;
+	setCentralWidget(mMainViewStack);
 
-	setCentralWidget(mMovieView);
+	mSmartView = new MvdSmartView(this);
+	mSmartView->setObjectName("movie-smart-view");
+	mSmartView->setModel(mMovieModel);
+
+	mTreeView = new MvdTreeView(this);
+	mTreeView->setObjectName("movie-tree-view");
+	mTreeView->setModel(mMovieModel);
+	
+	// Share selection model
+	mTreeView->setSelectionModel(new MvdRowSelectionModel(mMovieModel));
+	mSmartView->setSelectionModel(mTreeView->selectionModel());
+	
+	mMainViewStack->addWidget(mTreeView);
+	mMainViewStack->addWidget(mSmartView);	
 
 	mDetailsDock = new MvdDockWidget(tr("Details"), this);
-	mDetailsDock->setObjectName("detailsDock");
+	mDetailsDock->setObjectName("details-dock");
 
 	addDockWidget(Qt::BottomDockWidgetArea, mDetailsDock);
 
@@ -113,6 +128,20 @@ MvdMainWindow::MvdMainWindow()
 	mA_FileSaveAs->setIcon(QIcon(":/images/32x32/file_saveas"));
 	mA_FileExit = new QAction(this);
 	mA_FileExit->setIcon(QIcon(":/images/32x32/exit"));
+
+	mA_TreeView = new QAction(this);
+	mA_TreeView->setIcon(QIcon(":/images/32x32/exit"));
+	mA_TreeView->setCheckable(true);
+	mA_TreeView->setChecked(true);
+
+	mA_SmartView = new QAction(this);
+	mA_SmartView->setIcon(QIcon(":/images/32x32/exit"));
+	mA_SmartView->setCheckable(true);
+
+	mAG_MovieView = new QActionGroup(this);
+	mAG_MovieView->setExclusive(true);
+	mAG_MovieView->addAction(mA_SmartView);
+	mAG_MovieView->addAction(mA_TreeView);	
 
 	mA_ViewDetails = mDetailsDock->toggleViewAction();
 	
@@ -142,15 +171,15 @@ MvdMainWindow::MvdMainWindow()
 
 	// Toolbars
 	mTB_File = addToolBar(tr("File"));
-	mTB_File->setObjectName("fileToolbar");
+	mTB_File->setObjectName("file-toolbar");
 	mTB_View = addToolBar(tr("View"));
-	mTB_View->setObjectName("viewToolbar");
+	mTB_View->setObjectName("view-toolbar");
 	mTB_Tool = addToolBar(tr("Tool"));
-	mTB_Tool->setObjectName("toolToolbar");
+	mTB_Tool->setObjectName("tool-toolbar");
 	mTB_Coll = addToolBar(tr("Collection"));
-	mTB_Coll->setObjectName("collectionToolbar");
+	mTB_Coll->setObjectName("collection-toolbar");
 	mTB_Help = addToolBar(tr("Help"));
-	mTB_Help->setObjectName("helpToolbar");
+	mTB_Help->setObjectName("help-toolbar");
 
 
 	// Menus
@@ -186,6 +215,9 @@ MvdMainWindow::MvdMainWindow()
 	mMN_File->addAction(mA_FileSaveAs);
 	mMN_File->addSeparator();
 	mMN_File->addAction(mA_FileExit);
+
+	QMenu* movieViewMenu = mMN_View->addMenu( tr("Movie view") );
+	movieViewMenu->addActions( mAG_MovieView->actions() );
 
 	mMN_View->addAction(mA_ViewDetails);
 
@@ -229,6 +261,11 @@ MvdMainWindow::MvdMainWindow()
 	mTB_Help->addAction(mA_HelpContents);
 
 
+	// Other application shortcuts
+	connect( new QShortcut(Qt::CTRL + Qt::Key_V, this), SIGNAL(activated()), 
+		this, SLOT(cycleMovieView()) );
+
+
 	// This will set tooltips and all the i18n-ed text
 	retranslateUi();
 
@@ -252,6 +289,7 @@ MvdMainWindow::MvdMainWindow()
 	p.setBool("use-last-collection", true, "movida-directories");
 	p.setBool("initials", false, "movida-movie-list");
 	p.setRect("main-window-rect", defaultWindowRect(), "movida-appearance");
+
 
 	// Initialize core library && load user settings
 	MvdCore::loadStatus();
@@ -345,6 +383,9 @@ void MvdMainWindow::retranslateUi()
 	mA_FileExit->setShortcut( tr( "Esc" ) );
 
 	dockViewsToggled();
+
+	mA_SmartView->setText( tr("&Tiles") );
+	mA_TreeView->setText( tr("&Details") );
 		
 	mA_CollAddMovie->setText( tr( "&Add a new movie" ) );
 	mA_CollAddMovie->setToolTip( tr( "Add a new movie to the collection" ) );
@@ -425,6 +466,8 @@ void MvdMainWindow::setupConnections()
 	connect ( mA_ToolPref, SIGNAL( triggered() ), this, SLOT ( showPreferences() ) );
 	connect ( mA_ToolLog, SIGNAL( triggered() ), this, SLOT ( showLog() ) );
 
+	connect ( mAG_MovieView, SIGNAL( triggered(QAction*) ), this, SLOT ( movieViewToggled(QAction*) ) );
+
 	connect ( mDetailsDock, SIGNAL( toggled(bool) ), this, SLOT ( dockViewsToggled() ) );
 	
 	connect ( mMN_FileMRU, SIGNAL(triggered(QAction*)), this, SLOT(openRecentFile(QAction*)) );
@@ -437,9 +480,11 @@ void MvdMainWindow::setupConnections()
 
 	connect ( mA_PluginLoad, SIGNAL( triggered() ), this, SLOT ( loadPlugins() ) );
 
-	connect ( mMovieView, SIGNAL( doubleClicked(const QModelIndex&) ), this, SLOT ( editMovie(const QModelIndex&) ) );
-	connect( mMovieView, SIGNAL( itemSelectionChanged() ), this, SLOT( movieViewSelectionChanged() ) );
-	connect( mMovieView, SIGNAL( contextMenuRequested(const QModelIndex&, QContextMenuEvent::Reason) ), this, SLOT( showMovieContextMenu(const QModelIndex&) ) );
+	connect ( mTreeView, SIGNAL( doubleClicked(const QModelIndex&) ), this, SLOT ( editMovie(const QModelIndex&) ) );
+	connect( mTreeView->selectionModel(), SIGNAL( selectionChanged(const QItemSelection&, const QItemSelection&) ), 
+		this, SLOT( movieViewSelectionChanged() ) );
+	connect( mTreeView, SIGNAL( contextMenuRequested(const QModelIndex&, QContextMenuEvent::Reason) ), this, SLOT( showMovieContextMenu(const QModelIndex&) ) );
+	connect( mSmartView, SIGNAL( contextMenuRequested(const QModelIndex&) ), this, SLOT( showMovieContextMenu(const QModelIndex&) ) );
 }
 
 /*!
@@ -642,6 +687,8 @@ bool MvdMainWindow::closeCollection()
 	}
 	
 	mMovieModel->setMovieCollection(0);
+
+	mCollection->clearPersistentData();
 
 	delete mCollection;
 	mCollection = 0;
@@ -900,7 +947,7 @@ void MvdMainWindow::addMovie()
 	}
 
 	// Select the new movie
-	mMovieView->selectIndex( mMovieModel->index( mMovieModel->rowCount()-1, 0 ) );
+	mTreeView->selectIndex( mMovieModel->index( mMovieModel->rowCount()-1, 0 ) );
 	collectionModified();
 }
 
@@ -934,24 +981,29 @@ void MvdMainWindow::newCollection()
 
 void MvdMainWindow::editPreviousMovie()
 {
-	QModelIndex prev = mMovieView->indexAbove(mMovieView->selectedIndex());
+	QModelIndex prev = mTreeView->indexAbove(mTreeView->selectedIndex());
 	editMovie(prev);
 }
 
 void MvdMainWindow::editCurrentMovie()
 {
-	editMovie(mMovieView->selectedIndex());
+	QModelIndexList list = mTreeView->selectedRows();
+	if (list.isEmpty())
+		return;
+	if (list.size() == 1)
+		editMovie(list.at(0));
+	else QMessageBox::warning(this, _CAPTION_, "Multiple movie editing not implemented yet");
 }
 
 void MvdMainWindow::editNextMovie()
 {
-	QModelIndex next = mMovieView->indexBelow(mMovieView->selectedIndex());
+	QModelIndex next = mTreeView->indexBelow(mTreeView->selectedIndex());
 	editMovie(next);
 }
 
 void MvdMainWindow::duplicateCurrentMovie()
 {
-	movieid id = modelIndexToId(mMovieView->selectedIndex());
+	movieid id = modelIndexToId(mTreeView->selectedIndex());
 	if (id == 0)
 		return;
 
@@ -994,7 +1046,7 @@ void MvdMainWindow::editMovie(const QModelIndex& index)
 	if (!mMovieEditor->setMovie(id, true))
 		return;
 	
-	mMovieView->setCurrentIndex(index);
+	mTreeView->setCurrentIndex(index);
 
 	if (resetRequired)
 	{
@@ -1008,7 +1060,7 @@ void MvdMainWindow::editMovie(const QModelIndex& index)
 	bool prev = false;
 	bool next = false;
 
-	i = mMovieView->indexAbove(index);
+	i = mTreeView->indexAbove(index);
 	if (i.isValid())
 	{
 		id = modelIndexToId(i);
@@ -1019,7 +1071,7 @@ void MvdMainWindow::editMovie(const QModelIndex& index)
 		}
 	}
 
-	i = mMovieView->indexBelow(index);
+	i = mTreeView->indexBelow(index);
 	if (i.isValid())
 	{
 		id = modelIndexToId(i);
@@ -1035,24 +1087,27 @@ void MvdMainWindow::editMovie(const QModelIndex& index)
 	if (prev)
 		connect(mMovieEditor, SIGNAL(previousRequested()), this, SLOT(editPreviousMovie()));
 
-	mMovieEditor->show();
+	mMovieEditor->exec();
 }
 
 quint32 MvdMainWindow::modelIndexToId(const QModelIndex& index) const
 {
-	QAbstractItemModel* model = mMovieView->model();
+	QAbstractItemModel* model = mTreeView->model();
 	if (model == 0)
 		return 0;
 
 	bool ok;
-	quint32 id = model->data(index, MvdCollectionModel::MovieIdRole).toUInt(&ok);
+	quint32 id = model->data(index, Movida::MovieIdRole).toUInt(&ok);
 	return ok ? id : 0;
 }
 
 void MvdMainWindow::removeCurrentMovie()
 {
-	QModelIndex idx = mMovieView->selectedIndex();
-	removeMovie(idx);
+	QModelIndexList list = mTreeView->selectedRows();
+	if (list.isEmpty())
+		return;
+
+	removeMovies(list);
 }
 
 void MvdMainWindow::removeMovie(const QModelIndex& index)
@@ -1061,10 +1116,12 @@ void MvdMainWindow::removeMovie(const QModelIndex& index)
 	if (id == 0)
 		return;
 
-	bool confirm = Movida::settings().getBool("confirm-delete-movie", "movida");
-	if (confirm)
+	bool confirmOk = Movida::settings().getBool("confirm-delete-movie", "movida");
+	if (confirmOk)
 	{
-		int res = QMessageBox::question(this, _CAPTION_, tr("Are you sure you want to delete this movie?"),
+		QString msg = tr("Are you sure you want to delete this movie?");
+
+		int res = QMessageBox::question(this, _CAPTION_, msg,
 			QMessageBox::Yes, QMessageBox::No);
 		if (res != QMessageBox::Yes)
 			return;
@@ -1076,19 +1133,55 @@ void MvdMainWindow::removeMovie(const QModelIndex& index)
 	collectionModified();
 }
 
+void MvdMainWindow::removeMovies(const QModelIndexList& list)
+{
+	bool confirmOk = Movida::settings().getBool("confirm-delete-movie", "movida");
+	if (confirmOk)
+	{
+		QString msg = list.size() < 2 ? tr("Are you sure you want to delete this movie?")
+			: tr("Are you sure you want to delete %1 movies?").arg(list.size());
+
+		int res = QMessageBox::question(this, _CAPTION_, msg,
+			QMessageBox::Yes, QMessageBox::No);
+		if (res != QMessageBox::Yes)
+			return;
+	}
+
+	for (int i = 0; i < list.size(); ++i)
+	{
+		movieid id = modelIndexToId(list.at(i));
+		if (id == 0)
+			continue;
+
+		mCollection->removeMovie(id);
+	}
+
+	movieViewSelectionChanged();
+	collectionModified();
+}
+
 void MvdMainWindow::movieViewSelectionChanged()
 {
-	bool enable = mMovieView->hasSelectedRows();
-	mA_CollRemMovie->setEnabled(enable);
-	mA_CollEdtMovie->setEnabled(enable);
-	mA_CollDupMovie->setEnabled(enable);
+	QModelIndexList list = mTreeView->selectedRows();
+
+	mA_CollRemMovie->setEnabled(!list.isEmpty());
+	mA_CollEdtMovie->setEnabled(!list.isEmpty());
+	mA_CollDupMovie->setEnabled(list.size() == 1);
 
 	updateDetailsView();
 }
 
 void MvdMainWindow::updateDetailsView()
 {
-	movieid current = modelIndexToId(mMovieView->selectedIndex());
+	QModelIndexList list = mTreeView->selectedRows();
+
+	if (list.size() != 1)
+	{
+		mDetailsView->clear();
+		return;
+	}
+
+	movieid current = modelIndexToId(list.at(0));
 	if (current == 0)
 	{
 		mDetailsView->clear();
@@ -1102,7 +1195,7 @@ void MvdMainWindow::updateDetailsView()
 
 void MvdMainWindow::movieChanged(movieid id)
 {
-	movieid current = modelIndexToId(mMovieView->selectedIndex());
+	movieid current = modelIndexToId(mTreeView->selectedIndex());
 
 	if (current == 0)
 		return;
@@ -1117,12 +1210,12 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	if (!index.isValid())
 		return;
 	
-	QAbstractItemModel* model = mMovieView->model();
+	QAbstractItemModel* model = mTreeView->model();
 	if (model == 0)
 		return;
 
 	bool ok;
-	movieid id = model->data(index, MvdCollectionModel::MovieIdRole).toUInt(&ok);
+	movieid id = model->data(index, Movida::MovieIdRole).toUInt(&ok);
 	if (!ok || id == 0)
 		return;
 
@@ -1130,7 +1223,20 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	if (!movie.isValid())
 		return;
 
+	QWidget* senderWidget = qobject_cast<QWidget*>(sender());
+	if (!senderWidget)
+		return;
+
 	QMenu menu;
+	if (sender() == mSmartView)
+	{
+		QMenu* sortMenu = menu.addMenu(tr("Sort movies by"));
+		sortMenu->addAction(tr("Title"));
+		sortMenu->addAction(tr("Production year"));
+		sortMenu->addAction(tr("Release year"));
+	}
+	
+	menu.exec(QCursor::pos());
 }
 
 //! \internal
@@ -1226,6 +1332,25 @@ void MvdMainWindow::loadPlugins()
 	mMN_Plugins->addAction(mA_PluginLoad);	
 }
 
+void MvdMainWindow::movieViewToggled(QAction* a)
+{
+	if (a == mA_SmartView)
+		mMainViewStack->setCurrentWidget(mSmartView);
+	else
+		mMainViewStack->setCurrentWidget(mTreeView);
+}
+
+void MvdMainWindow::cycleMovieView()
+{
+	QWidget* w = mMainViewStack->currentWidget();
+	if (w == mSmartView)
+		mMainViewStack->setCurrentWidget(mTreeView);
+	else
+		mMainViewStack->setCurrentWidget(mSmartView);
+}
+
+
+
 //! \todo DEBUG
 void MvdMainWindow::testSlot()
 {
@@ -1233,11 +1358,6 @@ void MvdMainWindow::testSlot()
 	MvdSmartView* view = new MvdSmartView(mMovieModel);
 	view->setAttribute(Qt::WA_DeleteOnClose, true);
 	
-	QList<int> cols;
-	cols << 0 << 1 << 2 << 3 << 4;	
-	view->setMainModelColumn(0);
-	view->setAdditionalModelColumns(cols);
-
 	view->show();
 #endif
 }

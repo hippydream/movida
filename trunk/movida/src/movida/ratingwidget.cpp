@@ -43,7 +43,8 @@ class MvdRatingWidget_P
 {
 public:
 	MvdRatingWidget_P() : value(0), minimum(0), maximum(10),
-		sizeCheckOk(true), sizeOk(true), mousePressed(false), hoveredIndex(-1)
+		sizeCheckOk(true), sizeOk(true), mousePressed(false), hoveredIndex(-1),
+		fullHover(true)
 	{}
 
 	inline QPixmap findValidPixmap() const
@@ -82,6 +83,9 @@ public:
 
 	bool mousePressed;
 	int hoveredIndex;
+
+	// If true items lower than the currently hovered item are painted as "rated"
+	bool fullHover;
 
 	static const int defaultSize = 20;
 };
@@ -347,7 +351,7 @@ void MvdRatingWidget::paintEvent(QPaintEvent* e)
 			QPixmap& pm = d->hovered.isNull() ? validPm : d->hovered;
 			p.drawPixmap(pm.width() * i, 0, pm);
 		}
-		else if (i < d->value)
+		else if (i < d->value || (d->fullHover && i < d->hoveredIndex))
 		{
 			// Rated
 			QPixmap& pm = d->rated.isNull() ? d->hovered.isNull() ? d->unrated : d->hovered : d->rated;

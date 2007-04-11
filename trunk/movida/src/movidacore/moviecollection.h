@@ -46,8 +46,13 @@ public:
 
 	typedef QHash<movieid, MvdMovie> MovieTable;
 	
-	enum CollectionInfo { NameInfo, OwnerInfo, EMailInfo, WebsiteInfo, 
-		NotesInfo, DataPathInfo };
+	enum CollectionInfo {
+		NameInfo, OwnerInfo, EMailInfo, WebsiteInfo, NotesInfo, DataPathInfo
+	};
+
+	enum ImageCategory {
+		MoviePosterImage, GenericImage
+	};
 	
 	MvdSharedData& smd() const;
 
@@ -80,6 +85,10 @@ public:
 
 	bool save(const QString& file = QString());
 	bool load(const QString& file);
+
+	QString addImage(const QString& path, ImageCategory category = GenericImage);
+
+	void clearPersistentData();
 	
 	///// internal
 	void detach();

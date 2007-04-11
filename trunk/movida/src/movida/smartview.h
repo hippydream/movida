@@ -28,6 +28,7 @@
 
 class MvdSmartViewDelegate;
 class QListView;
+class QItemSelectionModel;
 
 class MvdSmartView : public QWidget, protected Ui::MvdSmartView
 {
@@ -39,8 +40,6 @@ public:
 	virtual ~MvdSmartView();
 	
 	void setModel(QAbstractItemModel* model);
-	void setMainModelColumn(int col = 0);
-	void setAdditionalModelColumns(const QList<int>& list);
 
 	int viewSpacing() const;
 	void setViewSpacing(int spacing);
@@ -48,8 +47,15 @@ public:
 	qreal aspectRatio() const;
 	void setAspectRatio(qreal r);
 
+	QItemSelectionModel* setSelectionModel() const;
+	void setSelectionModel(QItemSelectionModel* selectionModel);
+
+signals:
+	void contextMenuRequested(const QModelIndex& index);
+
 protected:
 	bool eventFilter(QObject* o, QEvent* e);
+	void contextMenuEvent(QContextMenuEvent* cme);
 
 private slots:
 	void resizeTiles(int offset);
