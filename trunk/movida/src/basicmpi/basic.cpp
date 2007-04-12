@@ -231,7 +231,7 @@ void MvdBasicMpi::readResponseHeader(const QHttpResponseHeader& responseHeader)
 //!
 void MvdBasicMpi::httpDataReadProgress(int data, int total)
 {
-	qDebug("Downloaded %d bytes out of %d", data, total);
+
 }
 
 //! Parses the result received from IMDb.
@@ -302,8 +302,17 @@ void MvdBasicMpi::queryReturnPressed()
 {
 	Q_ASSERT(importDialog);
 	Q_ASSERT(startPageUi);
+
+	// Temporary fix. "startPageUi->input"'s enterPressed signal is being emitted even if
+	// we are in the import page and the widget is thus hidden. This appears to occur
+	// After we return to the start page using the "New search" button and hit ENTER
+	// to start a new query in the start page.
+	if (!startPageUi->input->isVisible())
+		return;
+
 	if (validateQuery(startPageUi->input->text()))
 		showImportPage();
+	else QApplication::beep();
 }
 
 //! Shows the import page and sends a search/download request to IMDb.
@@ -346,7 +355,7 @@ void MvdBasicMpi::import()
 void MvdBasicMpi::abortRequest()
 {
 	// TEMPORARY!
-	showStartPage();
+	// showStartPage();
 }
 
 //! Public interface for this plugin.

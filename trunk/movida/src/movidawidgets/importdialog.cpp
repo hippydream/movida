@@ -89,12 +89,13 @@ void MvdwImportDialog::showStartPage()
 {
 	clearResults();
 	mainStack->setCurrentWidget(Ui::MvdwImportDialog::startPage);
+	backButton->setEnabled(false);
 }
 
 void MvdwImportDialog::showImportPage()
 {
 	mainStack->setCurrentWidget(Ui::MvdwImportDialog::importPage);
-qDebug("show import");
+	backButton->setEnabled(true);
 }
 
 void MvdwImportDialog::setStatus(const QString& s)

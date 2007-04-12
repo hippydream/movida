@@ -25,6 +25,7 @@
 #include <QUuid>
 #include <QHash>
 #include <QVariant>
+#include <QPushButton>
 
 class MvdwLabelAnimator;
 class QPushButton;
