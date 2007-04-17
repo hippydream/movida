@@ -1,12 +1,17 @@
 HEADERS += \
 	importdialog.h \
-	labelanimator.h
+	labelanimator.h \
+	searchengine.h \
+	importstartpage.h \
+	importresultspage.h \
+	queryvalidator.h
 	
 SOURCES += \
-	importdialog.cpp
+	importdialog.cpp \
+	importstartpage.cpp \
+	importresultspage.cpp
 
-FORMS += \
-	ui\importdialog.ui
+FORMS += 
 
 RESOURCES += \
 	movidawidgets.qrc

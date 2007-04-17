@@ -19,6 +19,7 @@ win32 {
 TARGET = movidawidgets
 TEMPLATE = lib
 CONFIG += dll
+QT += network
 DEFINES += MVD_BUILD_MOVIDAWIDGETS
 
 INCLUDEPATH += . ../

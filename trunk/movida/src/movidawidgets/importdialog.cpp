@@ -20,16 +20,44 @@
 
 #include "importdialog.h"
 #include "labelanimator.h"
+#include "importstartpage.h"
+#include "importresultspage.h"
 
 #include <QPushButton>
 
-namespace {
-	static const int ResultUuidRole = Qt::UserRole + 1;
-}
+/*!
+	Creates a new Movida import wizard for the search engines listed in \p engines.
+	The dialog is a QWizard subclass so you can use the superclass methods to customize
+	the dialog's look:
 
-MvdwImportDialog::MvdwImportDialog(QWidget* parent)
-: QDialog(parent)
+	\verbatim
+	myWizard.setPixmap(QWizard::LogoPixmap, QPixmap(":/myLogo.png"));
+	// ...
+	myWizard.setWindowTitle("MyPlugin import wizard");
+	// ...
+	\endverbatim
+
+	Please refer to the QWizard documentation for further details.
+*/
+MvdwImportDialog::MvdwImportDialog(const QList<MvdwSearchEngine>& engines, QWidget* parent)
+: QWizard(parent)
 {
+	// Register alternative property handlers
+	setDefaultProperty("QComboBox", "currentText", SIGNAL("currentIndexChanged(int)"));
+	setDefaultProperty("MvdwImportStartPage", "engine", SIGNAL("currentEngineChanged()"));
+
+	startPageId = addPage(new MvdwImportStartPage(engines));
+	resultsPageId = addPage(new MvdwImportResultsPage(engines));
+	//! \todo add a import success final page for better user feedback
+
+	setPixmap(QWizard::LogoPixmap, QPixmap(":/images/import/logo.png"));
+	setPixmap(QWizard::BannerPixmap, QPixmap(":/images/import/banner.png"));
+	setPixmap(QWizard::BackgroundPixmap, QPixmap(":/images/import/background.png"));
+	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
+	
+	setWindowTitle(tr("Movida import wizard"));
+
+/*
 	setupUi(this);
 
 	QStringList frames;
@@ -61,9 +89,66 @@ MvdwImportDialog::MvdwImportDialog(QWidget* parent)
 	connect( resultsWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
 		this, SLOT(resultsStatusChanged()) );
 	connect( resultsWidget, SIGNAL(itemSelectionChanged()), 
-		this, SLOT(resultsSelectionChanged()) );
+		this, SLOT(resultsSelectionChanged()) );*/
 }
 
+/*!
+	This will register a slot for handling of response files.
+	The \p member must return a ResponseStatus as an int value
+	and take a QString containing the request URL and a
+	reference to the QIODevice containing the response file
+	as parameters.
+	Any previously set handler will be removed.
+
+	Example:
+	\verbatim
+	{
+		...
+		MvdwImportDialog d(myEngines, this);
+		d.registerResponseHandler(this, "myHandler");
+	}
+	...
+	public slots:
+	int myHandler(const QString& url, QIODevice& response) {
+		MvdwImportDialog::ResponseStatus status = MvdwImportDialog::ErrorResponse;
+		if (url.contains("title")) {
+			// Single match
+			status = MvdwImportDialog::SingleMatchResponse;
+			...
+			d.addMatch("myMovieTitle");
+		} else {
+			// Multiple matches
+			status = MvdwImportDialog::MultipleMatchesResponse;
+			...
+			d.addMatch("myMovieTitle1");
+			d.addMatch("myMovieTitle2");
+		}
+
+		return status;
+	}
+	\endverbatim
+*/
+void MvdwImportDialog::registerResponseHandler(QObject* handler, const char* member)
+{
+	MvdwImportResultsPage* p = dynamic_cast<MvdwImportResultsPage*>(page(resultsPageId));
+	if (p)
+		p->registerResponseHandler(handler, member);
+}
+
+void MvdwImportDialog::addMatch(const QString& title)
+{
+	MvdwImportResultsPage* p = dynamic_cast<MvdwImportResultsPage*>(page(resultsPageId));
+	if (p)
+		p->addMatch(title);
+}
+
+//!
+void MvdwImportDialog::accept()
+{
+	QDialog::accept();
+}
+
+/*
 void MvdwImportDialog::setSearchButtonEnabled(bool enabled)
 {
 	searchButton->setEnabled(enabled);
@@ -82,10 +167,10 @@ void MvdwImportDialog::setImportButtonEnabled(bool enabled)
 QWidget* MvdwImportDialog::startPage()
 {
 	return Ui::MvdwImportDialog::startPageFrame;
-}
+}*/
 
 /*! Clears the results and shows the start page. */
-void MvdwImportDialog::showStartPage()
+/*void MvdwImportDialog::showStartPage()
 {
 	clearResults();
 	mainStack->setCurrentWidget(Ui::MvdwImportDialog::startPage);
@@ -178,12 +263,13 @@ void MvdwImportDialog::resultsStatusChanged()
 		}
 	}
 }
-
+*/
 /*!
 	Adds the movie details for the movie with specific id.
 	Please refer to the development docs for details on how to represent movie data as a QVariant hash.
-*/
+*//*
 void MvdwImportDialog::addMovieData(const QUuid& id, const QHash<QString,QVariant>& movieData)
 {
 	movies.insert(id, movieData);
 }
+*/

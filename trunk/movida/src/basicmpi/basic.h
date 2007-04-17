@@ -24,10 +24,13 @@
 #include "ui_imdbimportstart.h"
 
 #include <movidacore/plugininterface.h>
+#include <movidawidgets/importdialog.h>
+
 #include <QtGlobal>
 #include <QHttp>
 #include <QHash>
 #include <QUuid>
+#include <QIODevice>
 
 #ifndef MVD_BASICMPI_EXPORT
 # ifdef Q_OS_WIN
@@ -63,6 +66,9 @@ public:
 	QList<PluginAction*> actions() const;
 	void actionTriggeredImplementation(const QString& name);
 
+public slots:
+	int responseHandler(const QString& url, QIODevice& response);
+
 private slots:
 	void readResponseHeader(const QHttpResponseHeader& responseHeader);
 	void httpDataReadProgress(int data, int total);
@@ -92,7 +98,10 @@ private:
 		ServerErrorClass = 5
 	};
 
-	void imdbMovieImport();
+	void imdbImportEntryPoint();
+
+	MvdwImportDialog* importDialog;
+
 	void retrieveImdbMovie(const QString& id);
 	void searchImdbMovie(const QString& name);
 	void initHttp();
@@ -100,7 +109,6 @@ private:
 	QString imdbMovieExtractTitle();
 
 	QHttp* http;
-	MvdwImportDialog* importDialog;
 	Ui::MvdImdbImportStart* startPageUi;
 	HttpRequest currentRequest;
 	int httpGetId;
