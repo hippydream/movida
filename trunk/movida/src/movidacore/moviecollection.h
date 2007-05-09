@@ -57,7 +57,7 @@ public:
 	MvdSharedData& smd() const;
 
 	void setInfo(CollectionInfo ci, const QString& val);
-	QString info(CollectionInfo ci) const;
+	QString info(CollectionInfo ci);
 
 	int count() const;
 	bool isEmpty() const;
@@ -70,7 +70,7 @@ public:
 	void updateMovie(movieid id, const MvdMovie& movie);
 	void removeMovie(movieid id);
 	
-	bool contains(const QString& title, int year);
+	bool contains(const QString& title, int year) const;
 	
 	void clear();
 	
@@ -89,10 +89,6 @@ public:
 	QString addImage(const QString& path, ImageCategory category = GenericImage);
 
 	void clearPersistentData();
-	
-	///// internal
-	void detach();
-	bool isDetached() const;
 
 signals:
 	void movieAdded(movieid id);
@@ -105,7 +101,12 @@ signals:
 	
 private:
 	MvdMovieCollection_P* d;
+public:
+	typedef MvdMovieCollection_P* DataPtr;
+	inline DataPtr& data_ptr() { return d; }
+	void detach();
+	bool isDetached() const;
 };
-Q_DECLARE_SHARED(MvdMovieCollection)
+MVD_DECLARE_SHARED(MvdMovieCollection)
 
 #endif // MVD_MOVIECOLLECTION_H

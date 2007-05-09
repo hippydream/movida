@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: searchengine.h
+** Filename: importfinalpage.h
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
@@ -18,27 +18,35 @@
 **
 **************************************************************************/
 
-#ifndef MVDW_SEARCHENGINE_H
-#define MVDW_SEARCHENGINE_H
+#ifndef MVDW_IMPORTFINAL_H
+#define MVDW_IMPORTFINAL_H
 
-#include <QString>
-#include <QUrl>
+#include "ui_importfinalpage.h"
+#include "importpage.h"
 
-class MvdwSearchEngine
+class QTemporaryFile;
+
+class MvdwImportFinalPage : public MvdwImportPage
 {
+	Q_OBJECT
+
 public:
-	//! Creates a new search engine.
-	MvdwSearchEngine() : canConfigure(false) {}
+	MvdwImportFinalPage(QWidget* parent = 0);
 
-	//! Creates a new search engine.
-	MvdwSearchEngine(const QString& displayName)
-	: name(displayName), canConfigure(false)
-	{ }
+	void showMessage(const QString& msg, MvdwImportPage::MessageType t = MvdwImportPage::InfoMessage);
 
-	QString name;
-	QString validator;
+	void initializePage();
+	void cleanupPage();
+	void setBusyStatus(bool busy);
 
-	bool canConfigure;
+signals:
+	void importRequest(const QList<int>&);
+
+private:
+	Ui::MvdwImportFinalPage ui;
+	bool locked;
+
+	void setLock(bool lock);
 };
 
-#endif // MVDW_SEARCHENGINE_H
+#endif // MVDW_IMPORTFINAL_H

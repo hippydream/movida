@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: searchengine.h
+** Filename: importpage.h
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
@@ -18,27 +18,35 @@
 **
 **************************************************************************/
 
-#ifndef MVDW_SEARCHENGINE_H
-#define MVDW_SEARCHENGINE_H
+#ifndef MVDW_IMPORTPAGE_H
+#define MVDW_IMPORTPAGE_H
 
-#include <QString>
-#include <QUrl>
+#include <QWizardPage>
 
-class MvdwSearchEngine
+class MvdwImportPage : public QWizardPage
 {
+	Q_OBJECT
+
 public:
-	//! Creates a new search engine.
-	MvdwSearchEngine() : canConfigure(false) {}
+	enum MessageType { InfoMessage, ErrorMessage };
 
-	//! Creates a new search engine.
-	MvdwSearchEngine(const QString& displayName)
-	: name(displayName), canConfigure(false)
-	{ }
+	MvdwImportPage(QWidget* parent = 0)
+	: QWizardPage(parent), busy(false) { }
+	
+	virtual void setBusyStatus(bool busy)
+	{ this->busy = busy; emit completeChanged(); }
 
-	QString name;
-	QString validator;
+	bool busyStatus() const { return busy; }
 
-	bool canConfigure;
+	virtual void showMessage(const QString& msg, MessageType t = InfoMessage)
+	{ Q_UNUSED(msg); Q_UNUSED(t); }
+
+	//! Re-implements the superclass method to ensure that the status is not busy.
+	virtual bool isComplete() const
+	{ return !busy && QWizardPage::isComplete(); }
+
+private:
+	bool busy;
 };
 
-#endif // MVDW_SEARCHENGINE_H
+#endif // MVDW_IMPORTPAGE_H

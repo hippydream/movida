@@ -33,6 +33,7 @@
 	\ingroup movidacore
 
 	\brief Reppresents a movie in a Movida collection.
+	\todo Direct support for awards, certification, soundtrack, technical data
 */
 
 
@@ -45,7 +46,7 @@ class MvdMovie_P
 {
 public:
 	MvdMovie_P();
-	MvdMovie_P(const MvdMovie& m);
+	MvdMovie_P(const MvdMovie_P& other);
 
 	int isValidYear(const QString& s);
 
@@ -72,13 +73,13 @@ public:
 	QList<smdid> countries;
 	QList<smdid> languages;
 
-	QHash<smdid, QStringList> cast;
-	QHash<smdid, QStringList> crew;
+	QHash<smdid, QStringList> actors;
+	QHash<smdid, QStringList> crewMembers;
 	QList<smdid> directors;
 	QList<smdid> producers;
 
-	QList<smdid> links;
-	smdid defaultLink;
+	QList<smdid> urls;
+	smdid defaultUrl;
 
 	QStringList specialContents;
 };
@@ -91,46 +92,46 @@ MvdMovie_P::MvdMovie_P()
 	runningTime = 0;
 	colorMode = MvdMovie::UnknownColorMode;
 	rating = 0;
-	defaultLink = 0;
+	defaultUrl = 0;
 }
 
 //! \internal
-MvdMovie_P::MvdMovie_P(const MvdMovie& m)
+MvdMovie_P::MvdMovie_P(const MvdMovie_P& other)
 {
 	ref = 1;
 
-	title = m.title();
-	originalTitle = m.originalTitle();
-	edition = m.edition();
-	imdbId = m.imdbId();
-	poster = m.poster();
-	plot = m.plot();
-	notes = m.notes();
-	productionYear = m.productionYear();
-	releaseYear = m.releaseYear();
-	storageId = m.storageId();
+	title = other.title;
+	originalTitle = other.originalTitle;
+	edition = other.edition;
+	imdbId = other.imdbId;
+	poster = other.poster;
+	plot = other.plot;
+	notes = other.notes;
+	productionYear = other.productionYear;
+	releaseYear = other.releaseYear;
+	storageId = other.storageId;
 
-	runningTime = m.runningTime();
+	runningTime = other.runningTime;
 
-	defaultLink = m.defaultUrl();
+	defaultUrl = other.defaultUrl;
 
-	tags = m.tags();
-	links = m.urls();
-	genres = m.genres();
-	directors = m.directors();
-	producers = m.producers();
+	tags = other.tags;
+	urls = other.urls;
+	genres = other.genres;
+	directors = other.directors;
+	producers = other.producers;
 
-	languages = m.languages();
+	languages = other.languages;
 
-	countries = m.countries();
+	countries = other.countries;
 
-	colorMode = m.colorMode();
-	rating = m.rating();
+	colorMode = other.colorMode;
+	rating = other.rating;
 
-	cast = m.actors();
-	crew = m.crewMembers();
+	actors = other.actors;
+	crewMembers = other.crewMembers;
 
-	specialContents = m.specialContents();
+	specialContents = other.specialContents;
 }
 
 /*!	\internal Returns >= 0 if \p s is a valid year, 0 if the \p s is empty 
@@ -169,15 +170,6 @@ MvdMovie::MvdMovie()
 }
 
 /*!
-	Assignment operator.
- */
-MvdMovie& MvdMovie::operator=(const MvdMovie& m)
-{
-	qAtomicAssign(d, m.d);
-	return *this;
-}
-
-/*!
 	Builds a new movie as a copy of an existing one.
  */
 MvdMovie::MvdMovie(const MvdMovie& m)
@@ -193,6 +185,28 @@ MvdMovie::~MvdMovie()
 {
 	if (!d->ref.deref())
 		delete d;
+}
+
+/*!
+	Assignment operator.
+ */
+MvdMovie& MvdMovie::operator=(const MvdMovie& m)
+{
+	MvdMovie tmp(m);
+	qAtomicAssign(d, tmp.d);
+	return *this;
+}
+
+//! \internal Forces a detach.
+void MvdMovie::detach()
+{
+	qAtomicDetach(d);
+}
+
+//! \internal
+bool MvdMovie::isDetached() const
+{
+	return d->ref == 1;
 }
 
 //! Returns false if no title has been set.
@@ -247,7 +261,6 @@ bool MvdMovie::setReleaseYear(const QString& s)
 		return false;
 
 	detach();
-
 	d->releaseYear = y == 0 ? QString() : QString::number(y);
 	return true;
 }
@@ -272,7 +285,6 @@ bool MvdMovie::setProductionYear(const QString& s)
 		return false;
 
 	detach();
-
 	d->productionYear = y == 0 ? QString() : QString::number(y);
 	return true;
 }
@@ -366,7 +378,6 @@ bool MvdMovie::setRating(quint8 rating)
 		return false;
 
 	detach();
-
 	d->rating = rating;
 	return true;
 }
@@ -409,7 +420,6 @@ void MvdMovie::addGenre(smdid genreID)
 		return;
 
 	detach();
-
 	d->genres.append(genreID);
 }
 
@@ -423,7 +433,6 @@ void MvdMovie::setGenres(const QList<smdid>& genres)
 		return;
 
 	detach();
-
 	d->genres = genres;
 }
 
@@ -436,7 +445,6 @@ void MvdMovie::clearGenres()
 		return;
 
 	detach();
-
 	d->genres.clear();
 }
 
@@ -460,7 +468,6 @@ void MvdMovie::addCountry(smdid countryID)
 		return;
 
 	detach();
-
 	d->countries.append(countryID);
 }
 
@@ -474,7 +481,6 @@ void MvdMovie::setCountries(const QList<smdid>& countries)
 		return;
 
 	detach();
-
 	d->countries = countries;
 }
 
@@ -487,7 +493,6 @@ void MvdMovie::clearCountries()
 		return;
 
 	detach();
-
 	d->countries.clear();
 }
 
@@ -511,7 +516,6 @@ void MvdMovie::addTag(smdid tagID)
 		return;
 
 	detach();
-
 	d->tags.append(tagID);
 }
 
@@ -525,7 +529,6 @@ void MvdMovie::setTags(const QList<smdid>& tags)
 		return;
 
 	detach();
-
 	d->tags = tags;
 }
 
@@ -538,7 +541,6 @@ void MvdMovie::clearTags()
 		return;
 
 	detach();
-
 	d->tags.clear();
 }
 
@@ -551,7 +553,7 @@ QList<smdid> MvdMovie::tags() const
 }
 
 /*!
-	Adds a crew member with given role and ID to the crew list.
+	Adds a crewMembers member with given role and ID to the crewMembers list.
 	Duplicates won't be added.
  */
 void MvdMovie::addCrewMember(smdid memberID, const QStringList& roles)
@@ -564,15 +566,15 @@ void MvdMovie::addCrewMember(smdid memberID, const QStringList& roles)
 	for (int i = 0; i < roles.size(); ++i)
 		_roles.append( roles.at(i).trimmed() );
 
-	if (d->crew.isEmpty())
+	if (d->crewMembers.isEmpty())
 	{
 		detach();
-		d->crew.insert(memberID, _roles);
+		d->crewMembers.insert(memberID, _roles);
 		return;
 	}
 
-	QHash<smdid,QStringList>::Iterator itr = d->crew.find(memberID);
-	if (itr != d->crew.end())
+	QHash<smdid,QStringList>::Iterator itr = d->crewMembers.find(memberID);
+	if (itr != d->crewMembers.end())
 	{
 		if (roles.isEmpty())
 			return;
@@ -595,12 +597,11 @@ void MvdMovie::addCrewMember(smdid memberID, const QStringList& roles)
 	}
 
 	detach();
-
-	d->crew.insert(memberID, _roles);
+	d->crewMembers.insert(memberID, _roles);
 }
 
 /*!
-	Returns the roles associated to the given crew member.
+	Returns the roles associated to the given crewMembers member.
 	Returns 0 if memberID is negative or if no such member is in the list.
  */
 QStringList MvdMovie::crewMemberRoles(smdid memberID) const
@@ -608,20 +609,20 @@ QStringList MvdMovie::crewMemberRoles(smdid memberID) const
 	if (memberID == 0)
 		return QStringList();
 
-	QHash<smdid,QStringList>::Iterator itr = d->crew.find(memberID);
-	return itr == d->crew.end() ? QStringList() : itr.value();
+	QHash<smdid,QStringList>::Iterator itr = d->crewMembers.find(memberID);
+	return itr == d->crewMembers.end() ? QStringList() : itr.value();
 }
 
 /*!
-	Returns a list of crew member IDs.
+	Returns a list of crewMembers member IDs.
  */
 QList<smdid> MvdMovie::crewMemberIDs() const
 {
-	return d->crew.keys();
+	return d->crewMembers.keys();
 }
 
 /*!
-	Returns a list of crew member IDs with given role.
+	Returns a list of crewMembers member IDs with given role.
  */
 QList<smdid> MvdMovie::crewMemberIDs(const QString& role) const
 {
@@ -632,7 +633,7 @@ QList<smdid> MvdMovie::crewMemberIDs(const QString& role) const
 
 	QList<smdid> fCrew;
 
-	for (QHash<smdid,QStringList>::ConstIterator itr = d->crew.constBegin(); itr != d->crew.constEnd(); ++itr)
+	for (QHash<smdid,QStringList>::ConstIterator itr = d->crewMembers.constBegin(); itr != d->crewMembers.constEnd(); ++itr)
 	{
 		for (QStringList::ConstIterator itr2 = itr.value().constBegin(); itr2 != itr.value().constEnd(); ++itr2)
 		{
@@ -648,39 +649,37 @@ QList<smdid> MvdMovie::crewMemberIDs(const QString& role) const
 }
 
 /*!
-	Clears the crew list.
+	Clears the crewMembers list.
  */
 void MvdMovie::clearCrewMembers()
 {
-	if (d->crew.isEmpty())
+	if (d->crewMembers.isEmpty())
 		return;
 
 	detach();
-
-	d->crew.clear();
+	d->crewMembers.clear();
 }
 
 /*!
-	Sets the crew members for this movie.
+	Sets the crewMembers members for this movie.
 	Does not check for duplicate or invalid IDs.
 	Please ensure no empty strings are set as roles!
  */
 void MvdMovie::setCrewMembers(const QHash<smdid,QStringList>& members)
 {
-	if (d->crew.isEmpty() && members.isEmpty())
+	if (d->crewMembers.isEmpty() && members.isEmpty())
 		return;
 
 	detach();
-
-	d->crew = members;
+	d->crewMembers = members;
 }
 
 /*!
-	Returns the crew members list for this movie.
+	Returns the crewMembers members list for this movie.
  */
 QHash<smdid,QStringList> MvdMovie::crewMembers() const
 {
-	return d->crew;
+	return d->crewMembers;
 }
 
 /*!
@@ -702,7 +701,6 @@ void MvdMovie::addDirector(smdid id)
 		return;
 
 	detach();
-
 	d->directors.append(id);
 }
 
@@ -725,7 +723,6 @@ void MvdMovie::clearDirectors()
 		return;
 
 	detach();
-
 	d->directors.clear();
 }
 
@@ -739,7 +736,6 @@ void MvdMovie::setDirectors(const QList<smdid>& directors)
 		return;
 
 	detach();
-
 	d->directors = directors;
 }
 
@@ -762,7 +758,6 @@ void MvdMovie::addProducer(smdid id)
 		return;
 
 	detach();
-
 	d->producers.append(id);
 }
 
@@ -783,7 +778,6 @@ void MvdMovie::clearProducers()
 		return;
 
 	detach();
-
 	d->producers.clear();
 }
 
@@ -797,12 +791,11 @@ void MvdMovie::setProducers(const QList<smdid>& prod)
 		return;
 
 	detach();
-
 	d->producers = prod;
 }
 
 /*!
-	Adds an actor to the cast for this movie.
+	Adds an actor to the actors for this movie.
 	No duplicates are added. Roles are merged if the actor already exists.
  */
 void MvdMovie::addActor(smdid actorID, const QStringList& roles)
@@ -815,15 +808,15 @@ void MvdMovie::addActor(smdid actorID, const QStringList& roles)
 	for (int i = 0; i < roles.size(); ++i)
 		_roles.append( roles.at(i).trimmed() );
 
-	if (d->cast.isEmpty())
+	if (d->actors.isEmpty())
 	{
 		detach();
-		d->cast.insert(actorID, _roles);
+		d->actors.insert(actorID, _roles);
 		return;
 	}
 
-	QHash<smdid,QStringList>::Iterator itr = d->cast.find(actorID);
-	if (itr != d->cast.end())
+	QHash<smdid,QStringList>::Iterator itr = d->actors.find(actorID);
+	if (itr != d->actors.end())
 	{
 		if (roles.isEmpty())
 			return;
@@ -846,23 +839,21 @@ void MvdMovie::addActor(smdid actorID, const QStringList& roles)
 	}
 
 	detach();
-
-	d->cast.insert(actorID, _roles);
+	d->actors.insert(actorID, _roles);
 }
 
 /*!
-	Sets the cast for this movie.
+	Sets the actors for this movie.
 	Does not check for duplicate or invalid IDs.
 	Please ensure no empty strings are set as roles!
  */
 void MvdMovie::setActors(const QHash<smdid,QStringList>& actors)
 {
-	if (actors.isEmpty() && d->cast.isEmpty())
+	if (actors.isEmpty() && d->actors.isEmpty())
 		return;
 
 	detach();
-
-	d->cast = actors;
+	d->actors = actors;
 }
 
 /*!
@@ -870,7 +861,7 @@ void MvdMovie::setActors(const QHash<smdid,QStringList>& actors)
  */
 QList<smdid> MvdMovie::actorIDs() const
 {
-	return d->cast.keys();
+	return d->actors.keys();
 }
 
 /*!
@@ -881,29 +872,28 @@ QStringList MvdMovie::actorRoles(smdid actorID) const
 	if (actorID == 0)
 		return QStringList();
 
-	QHash<smdid,QStringList>::ConstIterator itr = d->cast.find(actorID);
-	return itr == d->cast.end() ? QStringList() : itr.value();
+	QHash<smdid,QStringList>::ConstIterator itr = d->actors.find(actorID);
+	return itr == d->actors.end() ? QStringList() : itr.value();
 }
 
 /*!
-	Clears the cast for this movie.
+	Clears the actors for this movie.
  */
 void MvdMovie::clearActors()
 {
-	if (d->cast.isEmpty())
+	if (d->actors.isEmpty())
 		return;
 
 	detach();
-
-	d->cast.clear();
+	d->actors.clear();
 }
 
 /*!
-	Returns the cast for this movie.
+	Returns the actors for this movie.
  */
 QHash<smdid,QStringList> MvdMovie::actors() const
 {
-	return d->cast;
+	return d->actors;
 }
 
 /*!
@@ -914,46 +904,44 @@ void MvdMovie::addUrl(smdid id, bool setDefault)
 	if (id == 0)
 		return;
 
-	if (d->links.isEmpty())
+	if (d->urls.isEmpty())
 	{
 		detach();
-		d->links.append(id);
+		d->urls.append(id);
 		if (setDefault)
-			d->defaultLink = id;
+			d->defaultUrl = id;
 		return;
 	}
 
-	if (d->links.contains(id))
+	if (d->urls.contains(id))
 		return;
 
 	detach();
-
-	d->links.append(id);
+	d->urls.append(id);
 
 	if (setDefault)
-		d->defaultLink = id;
+		d->defaultUrl = id;
 }
 
 /*!
 	Sets the urls for this movie.
 	Does not check for duplicate or invalid IDs.
  */
-void MvdMovie::setUrls(const QList<smdid>& links, smdid def)
+void MvdMovie::setUrls(const QList<smdid>& urls, smdid def)
 {
-	if (links.isEmpty() && d->links.isEmpty())
+	if (urls.isEmpty() && d->urls.isEmpty())
 		return;
 
 	detach();
-
-	d->links = links;
-	d->defaultLink = def;
+	d->urls = urls;
+	d->defaultUrl = def;
 }
 /*!
 	Returns the list of urls for this movie.
  */
 QList<smdid> MvdMovie::urls() const
 {
-	return d->links;
+	return d->urls;
 }
 
 /*!
@@ -961,7 +949,7 @@ QList<smdid> MvdMovie::urls() const
 */
 smdid MvdMovie::defaultUrl() const
 {
-	return d->defaultLink;
+	return d->defaultUrl;
 }
 
 /*!
@@ -969,12 +957,11 @@ smdid MvdMovie::defaultUrl() const
  */
 void MvdMovie::clearUrls()
 {
-	if (d->links.isEmpty())
+	if (d->urls.isEmpty())
 		return;
 
 	detach();
-
-	d->links.clear();
+	d->urls.clear();
 }
 
 /*!
@@ -996,7 +983,6 @@ void MvdMovie::addLanguage(smdid id)
 		return;
 
 	detach();
-
 	d->languages.append(id);
 }
 
@@ -1010,7 +996,6 @@ void MvdMovie::setLanguages(const QList<smdid>& langs)
 		return;
 
 	detach();
-
 	d->languages = langs;
 }
 /*!
@@ -1030,7 +1015,6 @@ void MvdMovie::clearLanguages()
 		return;
 
 	detach();
-
 	d->languages.clear();
 }
 
@@ -1043,7 +1027,6 @@ void MvdMovie::setSpecialContents(const QStringList& list)
 		return;
 
 	detach();
-
 	d->specialContents = list;
 }
 
@@ -1064,7 +1047,6 @@ void MvdMovie::clearSpecialContents()
 		return;
 
 	detach();
-
 	d->specialContents.clear();
 }
 
@@ -1087,7 +1069,6 @@ void MvdMovie::setRunningTime(quint16 minutes)
 		return;
 
 	detach();
-
 	quint16 max = MvdCore::parameter("movidacore-max-running-time").toUInt();
 	d->runningTime = minutes <= max ? minutes : 0;
 }
@@ -1141,16 +1122,3 @@ void MvdMovie::setPoster(const QString& filename)
 {
 	d->poster = filename;
 }
-
-//! \internal Forces a detach.
-void MvdMovie::detach()
-{
-	qAtomicDetach(d);
-}
-
-//! \internal
-bool MvdMovie::isDetached() const
-{
-	return d->ref == 1;
-}
-

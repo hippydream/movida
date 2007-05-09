@@ -272,6 +272,9 @@ bool MvdCore::initCore()
 
 	//! \todo check library versions?
 
+	// Init libxml2
+	xmlSetStructuredErrorFunc(NULL, Movida::xmlStructuredErrorHandler);
+
 	MvdCoreInitialized = true;
 	return true;
 }
@@ -496,4 +499,23 @@ QString MvdCore::decodeXmlEntities(QString s)
 
 	s.replace("&nbsp;", QChar(' '));
 	return s;
+}
+
+//! Redirects libxml2 structured errors to the application log.
+void Movida::xmlStructuredErrorHandler(void* userData, xmlErrorPtr error)
+{
+	Q_UNUSED(userData);
+
+	QString msg = QString("(libxml2@%1:%2) ").arg(error->line).arg(error->int2);
+	msg.append(QString(error->message).trimmed());
+
+	switch (error->level)
+	{
+	case XML_ERR_NONE:
+		iLog() << msg; break;
+	case XML_ERR_WARNING:
+		wLog() << msg; break;
+	default:
+		eLog() << msg;
+	}
 }

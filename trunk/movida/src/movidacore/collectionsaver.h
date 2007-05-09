@@ -42,7 +42,7 @@ public:
 	static const quint8 version = 1;
 	
 	static ErrorCode save(
-		const MvdMovieCollection& collection, const QString& file);
+		MvdMovieCollection& collection, const QString& file);
 };
 
 #endif // MVD_COLLECTIONSAVER_H

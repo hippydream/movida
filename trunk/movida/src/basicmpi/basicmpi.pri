@@ -3,6 +3,3 @@ HEADERS += \
 	
 SOURCES += \
 	basic.cpp
-
-FORMS += \
-	ui\imdbimportstart.ui

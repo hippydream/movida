@@ -21,77 +21,46 @@
 #ifndef MVDW_IMPORTRESULTSPAGE_H
 #define MVDW_IMPORTRESULTSPAGE_H
 
-#include "searchengine.h"
-
-#include <QWizardPage>
+#include "importpage.h"
 
 class QTreeWidget;
 class QLabel;
-class QHttp;
-class QHttpResponseHeader;
-class QTemporaryFile;
+class QTreeWidgetItem;
 
-class MvdwImportResultsPage : public QWizardPage
+class MvdwImportResultsPage : public MvdwImportPage
 {
 	Q_OBJECT
 
 public:
-	enum StatusType
-	{
-		InfoStatus, BusyStatus, ErrorStatus
-	};
+	enum ItemType { StandardItem, SectionItem };
 
-	MvdwImportResultsPage(const QList<MvdwSearchEngine>& engines, QWidget* parent = 0);
+	MvdwImportResultsPage(QWidget* parent = 0);
 
-	void registerResponseHandler(QObject* handler, const char* member);
-	void addMatch(const QString& title);
-	
+	int addMatch(const QString& title, const QString& year, const QString& notes = QString());
+	void addSection(const QString& title, const QString& notes = QString());
+	void addSubSection(const QString& title, const QString& notes = QString());
+
 	void initializePage();
 	void cleanupPage();
-	bool isComplete() const;
 
-	void setStatus(const QString& msg, StatusType t = InfoStatus);
-	StatusType status() const;
+	int countMatches() const;
+	QList<int> jobs() const;
+
+	void showMessage(const QString& msg, MvdwImportPage::MessageType t = MvdwImportPage::InfoMessage);
+	void setBusyStatus(bool busy);
 
 private slots:
-// 	void backButtonPressed();
-
-	void readProgress(int data, int total);
-	void requestFinished(int id, bool error);
-
-	// HTTP specific
-	void httpResponseHeader(const QHttpResponseHeader& responseHeader);
+	void resultsSelectionChanged();
+	void resultsCheckStateChanged();
 
 private:
-	enum HttpStatusClass
-	{
-		NoStatusClass = 0, 
-		InformationalClass = 1, 
-		SuccessClass = 2, 
-		RedirectionClass = 3, 
-		ClientErrorClass = 4, 
-		ServerErrorClass = 5
-	};
-
-	QList<MvdwSearchEngine> engines;
 	QTreeWidget* results;
 	QLabel* infoLabel;
-	QHttp* httpHandler;
-	QTemporaryFile* tempFile;
-	StatusType currentStatus;
-	bool initRequired;
-	int requestId;
-	QString lastRequestUrl;
+	int matchId;
+	bool locked;
 
-	// Response handler
-	QObject* responseHandler;
-	QString responseHandlerMember;
-
-	void startHttpRequest(const QString& query, const MvdwSearchEngine& engine);
-	bool createTempFile();
-	void deleteTempFile();
-	void releaseHttpHandler();
+	int countSections(const QTreeWidgetItem* section = 0) const;
+	void setLock(bool lock);
 };
 
 #endif // MVDW_IMPORTRESULTSPAGE_H
-

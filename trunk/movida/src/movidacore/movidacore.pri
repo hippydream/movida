@@ -8,6 +8,7 @@ HEADERS += \
 	md5.h \
 	movie.h \
 	moviecollection.h \
+	moviedata.h \
 	pathresolver.h \
 	plugininterface.h \
 	settings.h \

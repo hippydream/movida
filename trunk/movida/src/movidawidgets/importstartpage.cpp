@@ -25,9 +25,14 @@
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLineEdit>
+#include <QPushButton>
 
-MvdwImportStartPage::MvdwImportStartPage(const QList<MvdwSearchEngine>& _engines, QWidget* parent)
-: QWizardPage(parent), engines(_engines)
+/*!
+	This Import Wizard page allows to enter a query, validate it and
+	select a search engine (if more than one are available).
+*/
+MvdwImportStartPage::MvdwImportStartPage(QWidget* parent)
+: MvdwImportPage(parent)
 {
 	setTitle(tr("Movida Internet import wizard"));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
@@ -35,12 +40,10 @@ MvdwImportStartPage::MvdwImportStartPage(const QList<MvdwSearchEngine>& _engines
 	infoLabel = new QLabel;
 	infoLabel->setWordWrap(true);
 	
-	engineCombo = engines.size() < 2 ? 0 : new QComboBox;
+	engineCombo = new QComboBox;
 	queryInput = new QLineEdit;
 
-	if (engineCombo)
-		infoLabel->setText(tr("Please select a search type, enter your query and hit the Search button (or press Enter) to start the search."));
-	else infoLabel->setText(tr("Please enter your query and hit the Search button (or press Enter) to start the search."));
+	infoLabel->setText(tr("Please enter your query and hit the Search button (or press Enter) to start the search."));
 
 	QGridLayout* gridLayout = new QGridLayout(this);
 	gridLayout->addWidget(infoLabel, 0, 0, 1, 2);
@@ -48,29 +51,13 @@ MvdwImportStartPage::MvdwImportStartPage(const QList<MvdwSearchEngine>& _engines
 	gridLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed), 1, 1, 1, 1);
 
 	QGridLayout* queryGridLayout = new QGridLayout();
-	if (engineCombo)
-	{
-		QLabel* engineLabel = new QLabel(this);
-		engineLabel->setText(tr("Search type:"));
-		queryGridLayout->addWidget(engineLabel, 0, 0, 1, 1);
-		queryGridLayout->addWidget(engineCombo, 0, 1, 1, 1);
-		queryGridLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed), 1, 1, 1, 1);
+	QLabel* engineLabel = new QLabel(this);
+	engineLabel->setText(tr("Search type:"));
+	queryGridLayout->addWidget(engineLabel, 0, 0, 1, 1);
+	queryGridLayout->addWidget(engineCombo, 0, 1, 1, 1);
+	queryGridLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed), 1, 1, 1, 1);
 
-		// Extract engine names
-		QStringList engineNames;
-		foreach (MvdwSearchEngine e, engines)
-			engineNames.append(e.name);
-		engineCombo->addItems(engineNames);
-
-		// Setup the query validator for the selected engine
-		engineChanged();
-		connect( engineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(engineChanged()) );
-	}
-	else
-	{
-		// Setup the query validator for the selected engine
-		engineChanged();
-	}
+	connect( engineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(engineChanged()) );
 
 	QLabel* queryLabel = new QLabel(this);
 	queryLabel->setText(tr("Query:"));
@@ -79,37 +66,68 @@ MvdwImportStartPage::MvdwImportStartPage(const QList<MvdwSearchEngine>& _engines
 
 	gridLayout->addLayout(queryGridLayout, 2, 0, 1, 2);
 
-	gridLayout->addItem(new QSpacerItem(20, 61, QSizePolicy::Minimum, QSizePolicy::Expanding), 3, 0, 1, 1);
+	gridLayout->addItem(new QSpacerItem(20, 60, QSizePolicy::Minimum, QSizePolicy::Expanding), 3, 0, 1, 1);
 
-	// Register fields
-	registerField("query*", queryInput);
-	if (engineCombo)
-		registerField("engine", engineCombo);
-	else registerField("engine", this);
+	configButton = new QPushButton(this);
+	configButton->setText(tr("&Options"));
+	configButton->setDisabled(true);
+	connect( configButton, SIGNAL(clicked()), this, SLOT(configButtonTriggered()) );
+
+	gridLayout->addItem(new QSpacerItem(60, 20, QSizePolicy::Expanding, QSizePolicy::Minimum), 4, 0, 1, 1);
+	gridLayout->addWidget(configButton, 4, 1, 1, 1);
+
+	// Finish GUI setup
+	queryInput->setFocus(Qt::OtherFocusReason);
 }
 
-//! The info text should show some basic information about the kind of searches the registered engines do.
-void MvdwImportStartPage::setInfoText(const QString& s)
+//! See MvdwImportDialog::registerEngine(const MvdwSearchEngine&)
+int MvdwImportStartPage::registerEngine(const MvdwSearchEngine& engine)
 {
-	infoLabel->setText(s);
+	if (engine.name.isEmpty())
+		return -1;
+
+	engines.append(engine);
+	engineCombo->addItem(engine.name);
+	int id = engineCombo->count() - 1;
+	
+	if (id == 1) // More than two engines now! Update info label.
+		infoLabel->setText(tr("Please select a search type, enter your query and hit the Search button (or press Enter) to start the search."));
+	
+	// Update current validator
+	if (id == 0)
+		engineChanged();
+	engineCombo->setCurrentIndex(0);
+	return id;
 }
 
-QString MvdwImportStartPage::engine() const
-{
-	if (engineCombo) 
-		return engineCombo->currentText();
-
-	return engines.isEmpty() ? QString() : engines.at(0).name;
-}
-
+//! \internal
 void MvdwImportStartPage::engineChanged()
 {
 	if (engines.isEmpty())
 		return;
 
-	QRegExp rx(engineCombo ? engines.at(engineCombo->currentIndex()).validator :
-		engines.at(0).validator);
+	const MvdwSearchEngine& e = engines.at(engineCombo->currentIndex());
+
+	QRegExp rx(e.validator);
 	queryInput->setValidator(new MvdwQueryValidator(this));
 
-	emit currentEngineChanged();
+	configButton->setEnabled(e.canConfigure);
+}
+
+//! \internal
+void MvdwImportStartPage::configButtonTriggered()
+{
+	emit engineConfigurationRequest(engineCombo->currentIndex());
+}
+
+//! Returns the ID of the currently selected search engine.
+int MvdwImportStartPage::engine() const
+{
+	return engineCombo->currentIndex();
+}
+
+//! Returns the current (possibly trimmed) query.
+QString MvdwImportStartPage::query() const
+{
+	return queryInput->text().trimmed();
 }

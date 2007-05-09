@@ -175,8 +175,21 @@ MvdMovieCollection::~MvdMovieCollection()
  */
 MvdMovieCollection& MvdMovieCollection::operator=(const MvdMovieCollection& m)
 {
+	MvdMovieCollection tmp(m);
 	qAtomicAssign(d, m.d);
 	return *this;
+}
+
+//! \internal Forces a detach.
+void MvdMovieCollection::detach()
+{
+	qAtomicDetach(d);
+}
+
+//! \internal
+bool MvdMovieCollection::isDetached() const
+{
+	return d->ref == 1;
 }
 
 /*!
@@ -228,7 +241,7 @@ void MvdMovieCollection::setInfo(CollectionInfo ci, const QString& val)
 	Generates a new data path if the data path is requested but none has been
 	set yet.
 */
-QString MvdMovieCollection::info(CollectionInfo ci) const
+QString MvdMovieCollection::info(CollectionInfo ci)
 {
 	switch (ci)
 	{
@@ -243,6 +256,7 @@ QString MvdMovieCollection::info(CollectionInfo ci) const
 	case DataPathInfo:
 		if (d->dataPath.isEmpty())
 		{
+			detach();
 			d->dataPath = Movida::paths().generateTempDir().append("/persistent");
 			QDir dir;
 			dir.mkpath(d->dataPath + "/images/");
@@ -542,6 +556,7 @@ void MvdMovieCollection::removeMovie(movieid id)
  */
 void MvdMovieCollection::clear()
 {
+	detach();
 	d->movies.clear();
 	d->quickLookupTable.clear();
 	d->id = 1;
@@ -570,6 +585,7 @@ bool MvdMovieCollection::isModified() const
 */
 void MvdMovieCollection::setModifiedStatus(bool modified)
 {
+	detach();
 	d->modified = modified;
 }
 
@@ -595,7 +611,7 @@ QList<movieid> MvdMovieCollection::movieIds() const
 	The title is either the localized title or the original title if
 	the localized is missing.
  */
-bool MvdMovieCollection::contains(const QString& title, int year)
+bool MvdMovieCollection::contains(const QString& title, int year) const
 {
 	if (d->quickLookupTable.isEmpty())
 		return false;
@@ -605,14 +621,14 @@ bool MvdMovieCollection::contains(const QString& title, int year)
 	
 	QString lTitle = title.toLower();
 	
-	MvdMovieCollection_P::QuickLookupTable::Iterator qltIterator = d->quickLookupTable.find(lTitle);
-	if (qltIterator == d->quickLookupTable.end())
+	MvdMovieCollection_P::QuickLookupTable::ConstIterator qltIterator = d->quickLookupTable.find(lTitle);
+	if (qltIterator == d->quickLookupTable.constEnd())
 		return false;
 	
 	MvdMovieCollection_P::QuickLookupList qll = qltIterator.value();
 
-	for (MvdMovieCollection_P::QuickLookupList::Iterator qllIterator = qll.begin(); 
-		qllIterator != qll.end(); ++qllIterator)
+	for (MvdMovieCollection_P::QuickLookupList::ConstIterator qllIterator = qll.begin(); 
+		qllIterator != qll.constEnd(); ++qllIterator)
 		if (*qllIterator == year)
 			return true;
 	
@@ -640,6 +656,7 @@ bool MvdMovieCollection::save(const QString& file)
 
 		if (ec == MvdCollectionSaver::NoError)
 		{
+			detach();
 			QFileInfo fi(file);
 			d->fileName = fi.completeBaseName();
 			d->path = fi.absoluteFilePath();
@@ -662,6 +679,7 @@ bool MvdMovieCollection::load(const QString& file)
 		if (d->fileName.isEmpty())
 			return false;
 
+		// Detach is handled by other methods invoked by MvdCollectionLoader::load()
 		ec = MvdCollectionLoader::load(this, d->fileName);
 	}
 	else ec = MvdCollectionLoader::load(this, file);
@@ -690,6 +708,7 @@ bool MvdMovieCollection::isEmpty() const
 */
 void MvdMovieCollection::setPath(const QString& p)
 {
+	detach();
 	d->path = p;
 }
 
@@ -706,6 +725,7 @@ QString MvdMovieCollection::path() const
 */
 void MvdMovieCollection::setFileName(const QString& p)
 {
+	detach();
 	d->fileName = p;
 }
 
@@ -803,16 +823,4 @@ void MvdMovieCollection::clearPersistentData()
 	dp.cdUp();
 
 	Movida::paths().removeDirectoryTree(dp.absolutePath());
-}
-
-//! \internal Forces a detach.
-void MvdMovieCollection::detach()
-{
-	qAtomicDetach(d);
-}
-
-//! \internal
-bool MvdMovieCollection::isDetached() const
-{
-	return d->ref == 1;
 }

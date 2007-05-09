@@ -389,7 +389,7 @@ MvdCollectionSaver
 	the collection's filename (if \p file is empty).
 */
 MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(
-	const MvdMovieCollection& collection, 
+	MvdMovieCollection& collection, 
 	const QString& mmcFilename)
 {
 	MvdZip zipper;

@@ -66,6 +66,65 @@
 # define MVD_LINEBREAK "\n"
 #endif
 
+/************ IMPLICIT SHARING ************/
+
+/* Please add the class to the "shared" doxygen group.
+
+	USAGE EXAMPLE:
+	Add a proper copy constructor, destructor and assignment
+	operator, add a d-pointer and DataPtr code, add the isDetached() 
+	and detach() methods. 
+	Remember to call detach() every time a non-const method modifies
+	the object!
+
+	//! \ingroup shared
+	class MyT {
+	public:
+		MyT() : d(new MyT_P) {
+			...
+		}
+		MyT(const MyT& other) : d(other.d) {
+			d->ref.ref();
+		}
+		MyT& operator=(const MyT& other) {
+			MyT tmp(other);
+			qAtomicAssign(d, tmp.d);
+			return *this;
+		}
+		~MyT() {
+			if (!d->ref.deref())
+				delete d;
+		}
+		void detach() { qAtomicDetach(d); }
+		bool isDetached() const { return d->ref == 1; }
+		...	
+	private:
+		MyT_P* d;
+	public:
+		typedef MyT_P* DataPtr;
+		inline DataPtr& data_ptr() { return d; }
+	};
+	MVD_DECLARE_SHARED(MyT)
+
+	class MyT_P
+	{
+	public:
+		MyT_P() {
+			ref = 1;
+			...
+		}
+		MyT_P(const MyT_P& other) {
+			ref = 1;
+		}
+		...
+		QAtomic ref;
+	}
+*/
+
+// The following code comes from qglobal.h but we better don't rely on it as it is
+// internal and thus may change from time to time.
+#define MVD_DECLARE_SHARED(TYPE) Q_DECLARE_SHARED(TYPE)
+
 // movida version numbers
 static const int VER_MAJOR = 0;
 static const int VER_MINOR = 3;

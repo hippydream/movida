@@ -35,9 +35,9 @@ class MVD_EXPORT MvdMovie
 public:
 	MvdMovie();
 	MvdMovie(const MvdMovie& m);
-	MvdMovie& operator=(const MvdMovie& m);
 	virtual ~MvdMovie();
-	
+	MvdMovie& operator=(const MvdMovie& m);
+
 	bool isValid() const;
 	
 	enum ColorMode { Color, BlackWhite, UnknownColorMode };
@@ -140,13 +140,14 @@ public:
 	QString poster() const;
 	void setPoster(const QString& path);
 
-	///// internal
-	void detach();
-	bool isDetached() const;
-	
 private:
 	MvdMovie_P* d;
+public:
+	typedef MvdMovie_P* DataPtr;
+	inline DataPtr& data_ptr() { return d; }
+	void detach();
+	bool isDetached() const;
 };
-Q_DECLARE_SHARED(MvdMovie)
+MVD_DECLARE_SHARED(MvdMovie)
 
 #endif // MVD_MOVIE_H

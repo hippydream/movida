@@ -21,31 +21,32 @@
 #ifndef MVDW_IMPORTSTARTPAGE_H
 #define MVDW_IMPORTSTARTPAGE_H
 
+#include "importpage.h"
 #include "searchengine.h"
-
-#include <QWizardPage>
 
 class QLabel;
 class QComboBox;
 class QLineEdit;
+class QPushButton;
 
-class MvdwImportStartPage : public QWizardPage
+class MvdwImportStartPage : public MvdwImportPage
 {
 	Q_OBJECT
-	Q_PROPERTY(QString engine READ engine)
 
 public:
-	MvdwImportStartPage(const QList<MvdwSearchEngine>& engines, QWidget* parent = 0);
+	MvdwImportStartPage(QWidget* parent = 0);
 
-	void setInfoText(const QString& s);
+	int registerEngine(const MvdwSearchEngine& engine);
 
-	QString engine() const;
+	int engine() const;
+	QString query() const;
 
 signals:
-	void currentEngineChanged();
+	void engineConfigurationRequest(int engine);
 
 private slots:
 	void engineChanged();
+	void configButtonTriggered();
 
 private:
 	QList<MvdwSearchEngine> engines;
@@ -53,6 +54,7 @@ private:
 	QLabel* infoLabel;
 	QComboBox* engineCombo;
 	QLineEdit* queryInput;
+	QPushButton* configButton;
 };
 
 #endif // MVDW_IMPORTSTARTPAGE_H

@@ -150,8 +150,8 @@ MvdPathResolver_P::MvdPathResolver_P()
 
 #endif // Q_WS_WIN
 
-	preferencesFile = QString(QString("%1%2").arg(preferencesDir).arg(PREF_FILENAME));
-	logFile = QString(QString("%1%2").arg(preferencesDir).arg(LOG_FILENAME));
+	preferencesFile = QDir::cleanPath(QString(QString("%1/%2").arg(preferencesDir).arg(PREF_FILENAME)));
+	logFile = QDir::cleanPath(QString(QString("%1/%2").arg(preferencesDir).arg(LOG_FILENAME)));
 
 	root.clear();
 

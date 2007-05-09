@@ -22,71 +22,46 @@
 #include "searchengine.h"
 
 #include <QDialog>
-#include <QUuid>
 #include <QHash>
 #include <QVariant>
 #include <QPushButton>
 #include <QWizard>
 #include <QStringList>
 
-class MvdwLabelAnimator;
 class QPushButton;
+class MvdwImportStartPage;
+class MvdwImportResultsPage;
+class MvdwImportFinalPage;
 
 class MVDW_EXPORT MvdwImportDialog : public QWizard
 {
 	Q_OBJECT
 
 public:
-	enum ResponseStatus
-	{
-		SingleMatchResponse,
-		MultipleMatchesResponse,
-		ErrorResponse
-	};
+	MvdwImportDialog(QWidget* parent = 0);
 
-	MvdwImportDialog(const QList<MvdwSearchEngine>& engines, QWidget* parent = 0);
+	int registerEngine(const MvdwSearchEngine& engine);
 
-	void registerResponseHandler(QObject* handler, const char* member);
-	void addMatch(const QString& title);
+	int addMatch(const QString& title, const QString& year, const QString& notes = QString());
 
-	// Reimplements QDialog's accept() slot.
-	// This is called when the user hits the accept button (aka "Import")
+	void addSection(const QString& title, const QString& notes = QString());
+	void addSubSection(const QString& title, const QString& notes = QString());
+
+	void done();
+
 	void accept();
-	
-// 	QWidget* startPage();
-// 	void setStatus(const QString& s);
-// 
-// 	QUuid addSearchResult(const QString& displayString);
-// 	void addMovieData(const QUuid& id, const QHash<QString,QVariant>& movieData);
-
-public slots:
-// 	void showStartPage();
-// 	void showImportPage();
-// 
-// 	void setBusyStatus(bool busy);
-// 	void setSearchButtonEnabled(bool enabled);
-// 	void setBackButtonEnabled(bool enabled);
-// 	void setImportButtonEnabled(bool enabled);
-// 
-// 	void clearResults();
 
 signals:
-
-// 	void searchTriggered();
-// 	void importTriggered();
-// 	void showStartPageTriggered();
-// 	void movieRequired(const QUuid& id);
+	void engineConfigurationRequest(int engine);
+	void searchRequest(const QString& query, int engine);
+	void importRequest(const QList<int>& matches);
 
 private slots:
-// 	void resultsStatusChanged();
-// 	void resultsSelectionChanged();
+	void pageChanged(int newPage);
 
 private:
-	int resultsPageId;
-	int startPageId;
-// 	QPushButton* searchButton;
-// 	QPushButton* backButton;
-// 	QPushButton* importButton;
-// 	MvdwLabelAnimator* labelAnimator;
-// 	QHash<QUuid, QHash<QString,QVariant> > movies;
+	MvdwImportStartPage* startPage;
+	MvdwImportResultsPage* resultsPage;
+	MvdwImportFinalPage* finalPage;
+	int startPageId, resultsPageId, finalPageId;
 };

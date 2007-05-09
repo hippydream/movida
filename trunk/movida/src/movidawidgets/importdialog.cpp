@@ -22,6 +22,7 @@
 #include "labelanimator.h"
 #include "importstartpage.h"
 #include "importresultspage.h"
+#include "importfinalpage.h"
 
 #include <QPushButton>
 
@@ -39,16 +40,22 @@
 
 	Please refer to the QWizard documentation for further details.
 */
-MvdwImportDialog::MvdwImportDialog(const QList<MvdwSearchEngine>& engines, QWidget* parent)
+MvdwImportDialog::MvdwImportDialog(QWidget* parent)
 : QWizard(parent)
 {
-	// Register alternative property handlers
-	setDefaultProperty("QComboBox", "currentText", SIGNAL("currentIndexChanged(int)"));
-	setDefaultProperty("MvdwImportStartPage", "engine", SIGNAL("currentEngineChanged()"));
+	//! \todo Check for supported engine URLs and handle file:// protocol with a QFileBrowser and a query-like filter instead of a standard query input widget
 
-	startPageId = addPage(new MvdwImportStartPage(engines));
-	resultsPageId = addPage(new MvdwImportResultsPage(engines));
-	//! \todo add a import success final page for better user feedback
+	startPage = new MvdwImportStartPage;
+	startPageId = addPage(startPage);
+	connect( startPage, SIGNAL(engineConfigurationRequest(int)), 
+		this, SIGNAL(engineConfigurationRequest(int)) );
+	connect( this, SIGNAL(currentIdChanged(int)),
+		this, SLOT(pageChanged(int)) );
+
+	resultsPage = new MvdwImportResultsPage;
+	resultsPageId = addPage(resultsPage);
+	finalPage = new MvdwImportFinalPage;
+	finalPageId = addPage(finalPage);
 
 	setPixmap(QWizard::LogoPixmap, QPixmap(":/images/import/logo.png"));
 	setPixmap(QWizard::BannerPixmap, QPixmap(":/images/import/banner.png"));
@@ -56,220 +63,85 @@ MvdwImportDialog::MvdwImportDialog(const QList<MvdwSearchEngine>& engines, QWidg
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
 	
 	setWindowTitle(tr("Movida import wizard"));
-
-/*
-	setupUi(this);
-
-	QStringList frames;
-	for (int i = 1; i <= 8; ++i)
-		frames << QString(":/images/loading_p%1.png").arg(i);
-	labelAnimator = new MvdwLabelAnimator(frames, loadingIconLabel, this);
-
-	resultsWidget->setHeaderLabels(QStringList() << tr("Matching movies"));
-
-	// Setup buttons
-	QPushButton* closeButton = startButtonBox->addButton(QDialogButtonBox::Close);
-	connect( closeButton, SIGNAL(clicked()), this, SLOT(close()) );
-	
-	searchButton = startButtonBox->addButton(tr("Search"), QDialogButtonBox::ActionRole);
-	connect( searchButton, SIGNAL(clicked()), this, SIGNAL(searchTriggered()) );
-	searchButton->setEnabled(false);	
-	
-	closeButton = importButtonBox->addButton(QDialogButtonBox::Close);
-	connect( closeButton, SIGNAL(clicked()), this, SLOT(close()) );
-
-	importButton = importButtonBox->addButton(tr("Import"), QDialogButtonBox::ActionRole);
-	connect( importButton, SIGNAL(clicked()), this, SIGNAL(importTriggered()) );
-	importButton->setEnabled(false);
-
-	backButton = importButtonBox->addButton(tr("New search"), QDialogButtonBox::ActionRole);
-	connect( backButton, SIGNAL(clicked()), this, SIGNAL(showStartPageTriggered()) );
-	backButton->setEnabled(false);
-
-	connect( resultsWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
-		this, SLOT(resultsStatusChanged()) );
-	connect( resultsWidget, SIGNAL(itemSelectionChanged()), 
-		this, SLOT(resultsSelectionChanged()) );*/
 }
 
 /*!
-	This will register a slot for handling of response files.
-	The \p member must return a ResponseStatus as an int value
-	and take a QString containing the request URL and a
-	reference to the QIODevice containing the response file
-	as parameters.
-	Any previously set handler will be removed.
+	This will signal the current page that the plugin handler has finished handling
+	the last request.
+	This should be called only after the handler has finished handling a request.
+	I.e. after a searchRequest() signal, handler is supposed to call addMatch()
+	for any found result and then call done(), so that the user can be allowed to
+	select and import the required items.
 
-	Example:
-	\verbatim
-	{
-		...
-		MvdwImportDialog d(myEngines, this);
-		d.registerResponseHandler(this, "myHandler");
-	}
-	...
-	public slots:
-	int myHandler(const QString& url, QIODevice& response) {
-		MvdwImportDialog::ResponseStatus status = MvdwImportDialog::ErrorResponse;
-		if (url.contains("title")) {
-			// Single match
-			status = MvdwImportDialog::SingleMatchResponse;
-			...
-			d.addMatch("myMovieTitle");
-		} else {
-			// Multiple matches
-			status = MvdwImportDialog::MultipleMatchesResponse;
-			...
-			d.addMatch("myMovieTitle1");
-			d.addMatch("myMovieTitle2");
-		}
-
-		return status;
-	}
-	\endverbatim
+	The use of multiple handlers and thus multiple calls to the done() method
+	for the same request (i.e. after the searchRequest() signal and before the
+	importRequest() signal) leads to undefined behavior!
 */
-void MvdwImportDialog::registerResponseHandler(QObject* handler, const char* member)
+void MvdwImportDialog::done()
 {
-	MvdwImportResultsPage* p = dynamic_cast<MvdwImportResultsPage*>(page(resultsPageId));
+	qDebug("MvdwImportDialog::done()");
+
+	MvdwImportPage* p = dynamic_cast<MvdwImportPage*>(currentPage());
 	if (p)
-		p->registerResponseHandler(handler, member);
+		p->setBusyStatus(false);
 }
 
-void MvdwImportDialog::addMatch(const QString& title)
+/*!
+	Registers a new search engine. Returns an identifier that will be used
+	to refer to this engine (i.e. in the searchRequest() signal).
+	This method should be called before calling show() or exec().
+*/
+int MvdwImportDialog::registerEngine(const MvdwSearchEngine& engine)
 {
-	MvdwImportResultsPage* p = dynamic_cast<MvdwImportResultsPage*>(page(resultsPageId));
-	if (p)
-		p->addMatch(title);
+	return startPage->registerEngine(engine);
+}
+
+/*! Adds a search result to the results list. \p notes can contain additional data used
+	to help the user distinguish between similar results.
+	Returns a unique identifier used to refer to this search result later on (i.e. in the
+	importRequest() signal).
+*/
+int MvdwImportDialog::addMatch(const QString& title, const QString& year, const QString& notes)
+{
+	return resultsPage->addMatch(title, year, notes);
+}
+
+/*!
+	Starts a new top level section to group search results. \p notes is an optional tooltip text.
+	The section will be marked as <i>active</i> and subsequent calls to addMatch() will cause
+	the matches to be placed in this section.
+*/
+void MvdwImportDialog::addSection(const QString& title, const QString& notes)
+{
+	resultsPage->addSection(title, notes);
+}
+
+/*!
+	Starts a new second level section to group search results. \p notes is an optional tooltip text.
+	The section will be marked as <i>active</i> and subsequent calls to addMatch() will cause
+	the matches to be placed in this section.
+*/
+void MvdwImportDialog::addSubSection(const QString& title, const QString& notes)
+{
+	resultsPage->addSubSection(title, notes);
 }
 
 //!
 void MvdwImportDialog::accept()
-{
+{	
 	QDialog::accept();
 }
 
-/*
-void MvdwImportDialog::setSearchButtonEnabled(bool enabled)
+void MvdwImportDialog::pageChanged(int id)
 {
-	searchButton->setEnabled(enabled);
-}
-
-void MvdwImportDialog::setBackButtonEnabled(bool enabled)
-{
-	backButton->setEnabled(enabled);
-}
-
-void MvdwImportDialog::setImportButtonEnabled(bool enabled)
-{
-	importButton->setEnabled(enabled);
-}
-
-QWidget* MvdwImportDialog::startPage()
-{
-	return Ui::MvdwImportDialog::startPageFrame;
-}*/
-
-/*! Clears the results and shows the start page. */
-/*void MvdwImportDialog::showStartPage()
-{
-	clearResults();
-	mainStack->setCurrentWidget(Ui::MvdwImportDialog::startPage);
-	backButton->setEnabled(false);
-}
-
-void MvdwImportDialog::showImportPage()
-{
-	mainStack->setCurrentWidget(Ui::MvdwImportDialog::importPage);
-	backButton->setEnabled(true);
-}
-
-void MvdwImportDialog::setStatus(const QString& s)
-{
-	loadingLabel->setText(s);
-}
-
-void MvdwImportDialog::setBusyStatus(bool busy)
-{
-	labelAnimator->setPixmapVisible(busy);
-}
-
-QUuid MvdwImportDialog::addSearchResult(const QString& displayString)
-{
-	if (displayString.isEmpty())
-		return QUuid();
-
-	QUuid uuid = QUuid::createUuid();
-	QTreeWidgetItem* item = new QTreeWidgetItem(resultsWidget);
-	item->setText(0, displayString);
-	item->setData(0, ResultUuidRole, uuid.toString());
-	item->setCheckState(0, Qt::Unchecked);
-	return uuid;
-}
-
-//! Clears the search results.
-void MvdwImportDialog::clearResults()
-{
-	resultsWidget->clear();
-	movies.clear();
-}
-
-//! Updates the UI after a selection change in the results list.
-void MvdwImportDialog::resultsSelectionChanged()
-{
-	bool detailsLoaded = false;
-
-	QList<QTreeWidgetItem*> list = resultsWidget->selectedItems();
-	for (int i = 0; i < list.size(); ++i)
+	if (id == resultsPageId && startPage)
 	{
-		QTreeWidgetItem* item = list.at(i);
-		QUuid id(item->data(0, ResultUuidRole).toString());
-		if (id.isNull())
-			continue;
-		QHash<QUuid, QHash<QString,QVariant> >::ConstIterator it = movies.constFind(id);
-		if (it == movies.constEnd())
-		{
-			emit movieRequired(id);
-			it = movies.constFind(id);
-			if (it == movies.constEnd())
-			{
-				setStatus("Failed to download movie details.");
-				return;
-			}
-		}
-
-		QHash<QString,QVariant> movie = it.value();
-		produced->setText(movie.value("production-year").toString());
-		released->setText(movie.value("release-year").toString());
-
-		detailsStack->setCurrentWidget(detailsPage);
-		detailsLoaded = true;
-		break;
+		qDebug("emitting queryRequest");
+		emit searchRequest(startPage->query(), startPage->engine());
+	}
+	else if (id == finalPageId && resultsPage)
+	{
+		qDebug("emitting importRequest");
+		emit importRequest(resultsPage->jobs());
 	}
 }
-
-//! Updates the UI after some result has been checked or un-checked.
-void MvdwImportDialog::resultsStatusChanged()
-{
-	bool uiChecked = importButton->isEnabled();
-	for (int i = 0; i < resultsWidget->topLevelItemCount(); ++i)
-	{
-		// Stop as soon as we find out that the current UI status is not valid
-		bool itemChecked = 
-			resultsWidget->topLevelItem(i)->checkState(0) == Qt::Checked;
-		if (itemChecked != uiChecked)
-		{
-			importButton->setEnabled(itemChecked);
-			break;
-		}
-	}
-}
-*/
-/*!
-	Adds the movie details for the movie with specific id.
-	Please refer to the development docs for details on how to represent movie data as a QVariant hash.
-*//*
-void MvdwImportDialog::addMovieData(const QUuid& id, const QHash<QString,QVariant>& movieData)
-{
-	movies.insert(id, movieData);
-}
-*/

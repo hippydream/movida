@@ -21,17 +21,6 @@
 #ifndef MVDMPI_BASIC_H
 #define MVDMPI_BASIC_H
 
-#include "ui_imdbimportstart.h"
-
-#include <movidacore/plugininterface.h>
-#include <movidawidgets/importdialog.h>
-
-#include <QtGlobal>
-#include <QHttp>
-#include <QHash>
-#include <QUuid>
-#include <QIODevice>
-
 #ifndef MVD_BASICMPI_EXPORT
 # ifdef Q_OS_WIN
 #  if defined(MVD_BUILD_BASICMPI)
@@ -44,11 +33,18 @@
 # endif
 #endif // MVD_BASICMPI_EXPORT
 
+#include <movidacore/plugininterface.h>
+#include <movidacore/moviedata.h>
+#include <movidawidgets/importdialog.h>
+
+#include <QtGlobal>
+#include <QHttp>
+#include <QHash>
+#include <QList>
+
 class MvdwImportDialog;
-class Ui::MvdImdbImportStart;
-class QHttp;
-class QPushButton;
 class QTemporaryFile;
+class QTextStream;
 
 class MvdBasicMpi : public MvdPluginInterface
 {
@@ -58,36 +54,23 @@ public:
 	MvdBasicMpi(QObject* parent = 0);
 	virtual ~MvdBasicMpi();
 
+	// MvdPluginInterface overloads:
 	bool init();
 	void unload();
-
 	QString lastError() const;
 	PluginInfo info() const;
 	QList<PluginAction*> actions() const;
 	void actionTriggeredImplementation(const QString& name);
 
-public slots:
-	int responseHandler(const QString& url, QIODevice& response);
-
 private slots:
-	void readResponseHeader(const QHttpResponseHeader& responseHeader);
-	void httpDataReadProgress(int data, int total);
-	void httpRequestFinished(int id, bool error);
-	bool validateQuery(const QString& query);
-	void queryReturnPressed();
-	void showImportPage();
-	void showStartPage();
-	void import();
-	void abortRequest();
-	void loadMovie(const QUuid& id);
+	void configureEngine(int engine);
+	void search(const QString& query, int engine);
+	void import(const QList<int>& list);
+
+	void requestFinished(int id, bool error);
+	void httpResponseHeader(const QHttpResponseHeader& responseHeader);
 
 private:
-	enum HttpRequest
-	{
-		NoRequest = 0, 
-		SearchMovieRequest, 
-		FetchMovieRequest
-	};
 	enum HttpStatusClass
 	{
 		NoStatusClass = 0, 
@@ -97,26 +80,53 @@ private:
 		ClientErrorClass = 4, 
 		ServerErrorClass = 5
 	};
+	
+	struct SearchEngine
+	{
+		SearchEngine() : port(-1) {}
 
-	void imdbImportEntryPoint();
+		QString name;
+		QString host;
+		QString query;
+		int port;
+	};
+
+	enum DataSourceType
+	{
+		CachedSource,
+		RemoteSource
+	};
+
+	struct SearchResult
+	{
+		SearchResult() : sourceType(CachedSource) {}
+		QString dataSource;
+		DataSourceType sourceType;
+		MvdMovieData data;
+	};
 
 	MvdwImportDialog* importDialog;
+	QHttp* httpHandler;
+	int requestId;
+	QTemporaryFile* tempFile;
+	QString currentLocation;
+	
+	QList<SearchEngine> availableEngines;
+	QHash<int,SearchEngine> registeredEngines;
+	QHash<int,SearchResult> searchResults;
+	QList<int> importsQueue;
 
-	void retrieveImdbMovie(const QString& id);
-	void searchImdbMovie(const QString& name);
-	void initHttp();
-	void resetImportPage(bool success);
-	QString imdbMovieExtractTitle();
+	void processNextImport();
+	void parseImdbMoviePage(SearchResult& job);
+	void parseQueryResponse();
+	void parseResultsBlock(QTextStream& in, QString line);
+	void deleteTemporaryFile(QTemporaryFile** file, bool removeFile = true);
+	QTemporaryFile* createTemporaryFile();
 
-	QHttp* http;
-	Ui::MvdImdbImportStart* startPageUi;
-	HttpRequest currentRequest;
-	int httpGetId;
-	QTemporaryFile* currentTempFile;
-	QHash<QUuid,QString> downloadedMovies;
+	// Plugin entry point handlers
+	void imdbImportEntryPoint();
 };
 
-extern "C" MVD_BASICMPI_EXPORT 
-MvdPluginInterface* pluginInterface(QObject* parent);
+extern "C" MVD_BASICMPI_EXPORT MvdPluginInterface* pluginInterface(QObject* parent);
 
 #endif // MVDMPI_BASIC_H

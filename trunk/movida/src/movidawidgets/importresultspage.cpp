@@ -19,22 +19,31 @@
 **************************************************************************/
 
 #include "importresultspage.h"
+#include "importdialog.h"
 
 #include <movidacore/core.h>
 
 #include <QLabel>
 #include <QTreeWidget>
 #include <QGridLayout>
-#include <QHttp>
-#include <QTemporaryFile>
-#include <QDir>
-#include <QAbstractButton>
+#include <QPushButton>
+#include <QHeaderView>
 
 #include <math.h>
 
-MvdwImportResultsPage::MvdwImportResultsPage(const QList<MvdwSearchEngine>& _engines, QWidget* parent)
-: QWizardPage(parent), engines(_engines), httpHandler(0), tempFile(0),
-currentStatus(InfoStatus), initRequired(true), requestId(-1), responseHandler(0)
+namespace MovidaWidgets
+{
+	static const int ItemTypeRole = Qt::UserRole + 1;
+	static const int JobIdRole = Qt::UserRole + 2;
+};
+using namespace MovidaWidgets;
+
+/*!
+	This Import Wizard page shows search results and allows the user to
+	select what to import.
+*/
+MvdwImportResultsPage::MvdwImportResultsPage(QWidget* parent)
+: MvdwImportPage(parent), matchId(0), locked(false)
 {
 	setTitle(tr("Search results"));
 	setSubTitle(tr("Please select the items you want to import."));
@@ -43,6 +52,9 @@ currentStatus(InfoStatus), initRequired(true), requestId(-1), responseHandler(0)
 	QGridLayout* gridLayout = new QGridLayout(this);
 	
 	results = new QTreeWidget(this);
+	results->setHeaderLabels(QStringList() << tr("Title") << tr("Year"));
+	// results->setRootIsDecorated(false);
+
 	QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	sizePolicy.setHorizontalStretch(5);
 	sizePolicy.setVerticalStretch(0);
@@ -52,295 +64,312 @@ currentStatus(InfoStatus), initRequired(true), requestId(-1), responseHandler(0)
 	gridLayout->addWidget(results, 0, 0, 1, 1);
 	
 	infoLabel = new QLabel(this);
+	infoLabel->setWordWrap(true);
+
 	sizePolicy = QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	sizePolicy.setHorizontalStretch(2);
 	sizePolicy.setVerticalStretch(0);
 	sizePolicy.setHeightForWidth(infoLabel->sizePolicy().hasHeightForWidth());
 	infoLabel->setSizePolicy(sizePolicy);
-	infoLabel->setMargin(10);
+	// infoLabel->setMargin(10);
 	
-	gridLayout->addWidget(infoLabel, 0, 1, 1, 1);
+	gridLayout->addWidget(infoLabel, 1, 0, 1, 1);
 
-	// Register fields
+	connect( results, SIGNAL(itemSelectionChanged()), 
+		this, SLOT(resultsSelectionChanged()) );
+	connect( results, SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
+		this, SLOT(resultsCheckStateChanged()) );
 }
 
-/*!
-	See MvdwImportDialog::registerResponseHandler(QObject*, const char*)
-*/
-void MvdwImportResultsPage::registerResponseHandler(QObject* handler, const char* member)
+//! Override. Unlocks the UI if it was locked.
+void MvdwImportResultsPage::setBusyStatus(bool busy)
 {
-	qDebug("registerResponseHandler");
-
-	bool removeHandler = false;
-
-	if (!handler || !member)
-		removeHandler = true;
-	else
+	if (locked && !busy)
 	{
-		responseHandler = handler;
-		responseHandlerMember = QString::fromLatin1(member);
-		removeHandler = responseHandlerMember.isEmpty();
+		setLock(false);
+		resultsSelectionChanged();
 	}
 
-	if (removeHandler)
-	{
-		responseHandler = 0;
-		responseHandlerMember.clear();
-	}
+	MvdwImportPage::setBusyStatus(busy);
 }
 
-/*!
-	See MvdwImportDialog::addMatch(const QString&)
-*/
-void MvdwImportResultsPage::addMatch(const QString& title)
+//! Locks or unlocks (part of) the GUI.
+void MvdwImportResultsPage::setLock(bool lock)
 {
-	QTreeWidgetItem* item = new QTreeWidgetItem(results);
-	item->setText(0, title);
-	item->setCheckState(0, Qt::Unchecked);
+	if (lock == locked)
+		return;
+	locked = lock;
+	if (locked)
+		qDebug("Locked");
 }
 
+//! Initialize page each time it is shown.
 void MvdwImportResultsPage::initializePage()
 {
-// 	if (initRequired)
-// 	{
-// 		initRequired = false;
-// 		if (wizard()->button(QWizard::BackButton))
-// 			connect(wizard()->button(QWizard::BackButton), SIGNAL(clicked()), this, SLOT(backButtonPressed()));
-// 	}
-
-	QString query = field("query").toString().trimmed();
-	QString engineName = field("engine").toString();
-
-	// Set cleaned query string
-	setField("query", query);
-
-	MvdwSearchEngine engine;
-
-	foreach (MvdwSearchEngine e, engines)
-	{
-		if (e.name == engineName)
-		{
-			engine = e;
-			break;
-		}
-	}
-
-	if (!engine.queryUrl.isValid())
-	{	
-		setStatus(tr("Invalid search engine URL."), ErrorStatus);
-		return;
-	}
-
-	if (engine.queryUrl.scheme() != "http")
-	{
-		setStatus(tr("Unsupported search engine URL."), ErrorStatus);
-		return;
-	}
-
-	setStatus(tr("Searching..."), BusyStatus);
-	startHttpRequest(query, engine);
+	// Wait until the search is done.
+	setBusyStatus(true);
+	setLock(true);
 }
 
 //! This method is called when the user hits the "back" button.
 void MvdwImportResultsPage::cleanupPage()
 {
-	qDebug("cleanup");
-	if (httpHandler)
-		releaseHttpHandler();
-	deleteTempFile();
 	results->clear();
+
+	// Update status message
+	resultsSelectionChanged();
+
+	matchId = 0;
 }
 
-//! Re-implements the superclass method to ensure that the status is not BusyStatus.
-bool MvdwImportResultsPage::isComplete() const
+//! Override.
+void MvdwImportResultsPage::showMessage(const QString& msg, MvdwImportPage::MessageType t)
 {
-	return currentStatus != BusyStatus && QWizardPage::isComplete();
-}
-
-void MvdwImportResultsPage::setStatus(const QString& msg, StatusType t)
-{
+	Q_UNUSED(t);
 	infoLabel->setText(msg);
-
-	if (currentStatus == t)
-		return;
-
-	currentStatus = t;
-
-	// This will ensure that the appropriate buttons are enabled/disabled.
-	emit completeChanged();
 }
 
-MvdwImportResultsPage::StatusType MvdwImportResultsPage::status() const
+/*!
+	See MvdwImportDialog::addMatch(const QString&)
+*/
+int MvdwImportResultsPage::addMatch(const QString& title, const QString& year, const QString& notes)
 {
-	return currentStatus;
-}
-
-// void MvdwImportResultsPage::backButtonPressed()
-// {
-// }
-
-void MvdwImportResultsPage::readProgress(int data, int total)
-{
-}
-
-void MvdwImportResultsPage::requestFinished(int id, bool error)
-{
-	Q_ASSERT(httpHandler);
-	Q_ASSERT(tempFile);
-
-	if (error)
+	// Get current section (if any)
+	QTreeWidgetItem* sectionItem = 0;
+	for (int i = results->topLevelItemCount() - 1; i >= 0 && !sectionItem; --i)
 	{
-		setStatus(tr("Sorry, some error occurred.\n(%1)").arg(httpHandler->errorString()), ErrorStatus);
-		releaseHttpHandler();
-		return;
+		QTreeWidgetItem* item = results->topLevelItem(i);
+		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
+		if (type == SectionItem)
+			sectionItem = item;
 	}
-
-	if (id != requestId)
-		return;
-
-	releaseHttpHandler();
-	if (responseHandler && !responseHandlerMember.isEmpty())
+	if (sectionItem)
 	{
-		tempFile->seek(0);
-		int response;
-		QMetaObject::invokeMethod(responseHandler, responseHandlerMember.toLatin1().constData(),
-			Qt::DirectConnection, Q_RETURN_ARG(int, response),
-			Q_ARG(QString, lastRequestUrl), QArgument<QIODevice>("QIODevice&", *tempFile));
-	}
-}
-
-void MvdwImportResultsPage::httpResponseHeader(const QHttpResponseHeader& responseHeader)
-{
-	qDebug("response header");
-	Q_ASSERT(httpHandler);
-
-	int status = responseHeader.statusCode();
-	HttpStatusClass httpClass = (HttpStatusClass) int(floor(status / 100.0));
-
-	switch (httpClass)
-	{
-	case RedirectionClass:
-		// Redirect example:
-		// Location: http://akas.imdb.com/title/tt0469754/
+		for (int i = sectionItem->childCount() - 1; i >= 0; --i)
 		{
-			QString location = responseHeader.value("Location");
-			QUrl locationUrl(location);
-
-			// Reset temp file
-			if (!createTempFile())
+			QTreeWidgetItem* item = sectionItem->child(i);
+			ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
+			if (type == SectionItem)
 			{
-				setStatus(tr("Unable to create a temporary file."), ErrorStatus);
-				releaseHttpHandler();
-				return;
+				sectionItem = item;
+				break;
 			}
-
-			setStatus(tr("Redirecting..."), BusyStatus);
-			location = locationUrl.path().append("?").append(locationUrl.encodedQuery());
-			lastRequestUrl = location;
-			requestId = httpHandler->get(location, tempFile);
 		}
-		break;
-	case SuccessClass:
-		setStatus(tr("Processing results..."), BusyStatus);
-		break;
-	default:
-		setStatus(tr("Sorry, an error occurred (Code %1: %2).\nPlease <a href='movida://httpget/search'>click here</a> to retry.")
-			.arg(responseHeader.statusCode()).arg(responseHeader.reasonPhrase()), ErrorStatus);
-		cleanupPage();
 	}
+
+	int id = matchId++;
+
+	QTreeWidgetItem* item = sectionItem ? 
+		new QTreeWidgetItem(sectionItem) : new QTreeWidgetItem(results);
+	item->setData(0, ItemTypeRole, quint32(StandardItem));
+	item->setData(0, JobIdRole, id);
+	item->setText(0, title);
+	item->setText(1, year);
+	if (!notes.isEmpty())
+		item->setData(0, Qt::ToolTipRole, notes);
+	item->setCheckState(0, Qt::Unchecked);
+
+	return id;
 }
 
-void MvdwImportResultsPage::startHttpRequest(const QString& query, const MvdwSearchEngine& engine)
+/*!
+	See MvdwImportDialog::addSection(const QString&, const QString&)
+*/
+void MvdwImportResultsPage::addSection(const QString& title, const QString& notes)
 {
-	// Assert no jobs are running
-	Q_ASSERT(!httpHandler);
-	Q_ASSERT(!tempFile);
+	QTreeWidgetItem* item = new QTreeWidgetItem(results);
+	// Expand the first top-level section only
+	if (countSections() == 0)
+		results->expandItem(item);
+	item->setSpanning(true);
 
-	if (!createTempFile())
+	QFont font = item->font(0);
+	font.setBold(true);
+	item->setFont(0, font);
+	
+	item->setData(0, ItemTypeRole, quint32(SectionItem));
+
+	if (title.isEmpty())
 	{
-		setStatus(tr("Unable to create a temporary file."), ErrorStatus);		
+		int topC = countSections();
+		QString autoTitle = topC > 1 ? 
+			tr("Results group %1").arg(topC) : tr("Main group");
+		item->setText(0, autoTitle);
+	}
+	else item->setText(0, title);
+
+	if (!notes.isEmpty())
+		item->setData(0, Qt::ToolTipRole, notes);
+}
+
+/*!
+	See MvdwImportDialog::addSubSection(const QString&, const QString&)
+*/
+void MvdwImportResultsPage::addSubSection(const QString& title, const QString& notes)
+{
+	// Get current top level section
+	QTreeWidgetItem* sectionItem = 0;
+	int topLevelItemIndex = 0;
+	for (int i = results->topLevelItemCount() - 1; i >= 0 && !sectionItem; --i)
+	{
+		QTreeWidgetItem* item = results->topLevelItem(i);
+		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
+		if (type == SectionItem)
+		{
+			sectionItem = item;
+			topLevelItemIndex = i;
+		}
+	}
+
+	if (!sectionItem)
+	{
+		sectionItem = new QTreeWidgetItem(results);
+		// Expand the first top-level section only
+		results->expandItem(sectionItem);
+		QFont font = sectionItem->font(0);
+		font.setBold(true);
+		sectionItem->setFont(0, font);
+		sectionItem->setSpanning(true);
+		sectionItem->setData(0, ItemTypeRole, quint32(SectionItem));
+		sectionItem->setText(0, tr("Main group"));
+	}
+
+	QTreeWidgetItem* item = new QTreeWidgetItem(sectionItem);
+	// Expand the first top-level section only
+	if (topLevelItemIndex == 0)
+		results->expandItem(item);
+	item->setSpanning(true);
+
+	QFont font = item->font(0);
+	font.setBold(true);
+	item->setFont(0, font);
+	
+	item->setData(0, ItemTypeRole, quint32(SectionItem));
+
+	if (title.isEmpty())
+	{
+		int topC = countSections(sectionItem);
+		QString autoTitle = topC > 1 ? 
+			tr("Results sub-group %1").arg(topC) : tr("Main results");
+		item->setText(0, autoTitle);
+	}
+	else item->setText(0, title);
+
+	if (!notes.isEmpty())
+		item->setData(0, Qt::ToolTipRole, notes);
+}
+
+int MvdwImportResultsPage::countMatches() const
+{
+	int c = 0;
+	for (int i = 0; i < results->topLevelItemCount(); ++i)
+	{
+		QTreeWidgetItem* item = results->topLevelItem(i);
+		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
+		if (type == SectionItem)
+		{
+			for (int j = 0; j < item->childCount(); ++j)
+			{
+				QTreeWidgetItem* subItem = item->child(j);
+				ItemType subType = ItemType(subItem->data(0, ItemTypeRole).toUInt());
+				if (subType == SectionItem)
+					c += subItem->childCount();
+				else c++;
+			}
+		}
+		else c++;
+	}
+	return c;
+}
+
+/*!
+	\internal Returns the number of sub sections.
+	\p if section is 0 this is the number of top level sections.
+*/
+int MvdwImportResultsPage::countSections(const QTreeWidgetItem* section) const
+{
+	int c = 0;
+	for (int i = 0; i < (section ? section->childCount() : results->topLevelItemCount()); ++i)
+	{
+		QTreeWidgetItem* item = section ? section->child(i) : results->topLevelItem(i);
+		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
+		if (type == SectionItem)
+			c++;
+	}
+	return c;
+}
+
+//! \internal Updates the status according to the currently selected search result.
+void MvdwImportResultsPage::resultsSelectionChanged()
+{
+	if (busyStatus())
 		return;
-	}
 
-	// Init QHTTP
-	httpHandler = new QHttp(this);
+	bool showItemCount = false;
+	QString text;
 
-	connect(httpHandler, SIGNAL(dataReadProgress(int, int)), 
-		this, SLOT(readProgress(int, int)));
-	connect(httpHandler, SIGNAL(requestFinished(int, bool)), 
-		this, SLOT(requestFinished(int, bool)));
-	connect(httpHandler, SIGNAL(responseHeaderReceived(const QHttpResponseHeader&)), 
-		this, SLOT(httpResponseHeader(const QHttpResponseHeader&)));	
-
-	//! \todo Handle proxy in the main application (best with Qt >= 4.3)
-
-	httpHandler->setHost(engine.queryUrl.host(), engine.queryUrl.port(80));
-	
-	QByteArray encodedQuery = MvdCore::toLatin1PercentEncoding(query);
-	
-	// Do not alter original URL
-	QUrl requestUrl(engine.queryUrl);
-
-	// All this crap is necessary because QUrl lacks of a way to set a single query item!
-	requestUrl.removeQueryItem(engine.queryParameter);
-	QList<QPair<QString, QString> > queryItems = requestUrl.queryItems();
-
-	QString request = requestUrl.path();
-	if (!queryItems.isEmpty())
-		request.append("?");
-
-	for (int i = 0; i < queryItems.size(); ++i)
+	QList<QTreeWidgetItem*> list = results->selectedItems();
+	if (list.isEmpty())
+		showItemCount = true;
+	else
 	{
-		QPair<QString, QString> item = queryItems.at(i);
-		request.append(item.first).append("=").append(item.second).append("&");
+		const QTreeWidgetItem* item = list.at(0);
+		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
+		if (type == StandardItem)
+		{
+			text = item->data(0, Qt::ToolTipRole).toString();
+			showItemCount = text.isEmpty();
+		}
+		else showItemCount = true;
 	}
-	request.append(engine.queryParameter).append("=").append(QString::fromLatin1(encodedQuery));
 
-	lastRequestUrl = request;
-	requestId = httpHandler->get(request.toLatin1(), tempFile);
+	if (showItemCount)
+	{
+		int matches = countMatches();
+		if (matches == 0)
+			showMessage(tr("No matches found."));
+		else
+			showMessage(tr("%1 match(es) found.", "Found results", matches).arg(matches));
+	}
+	else showMessage(text);
+}
+
+//! Returns a list containing the requested jobs.
+QList<int> MvdwImportResultsPage::jobs() const
+{
+	QList<int> list;
+	for (int i = 0; i < results->topLevelItemCount(); ++i)
+	{
+		QTreeWidgetItem* topItem = results->topLevelItem(i);
+		ItemType topType = ItemType(topItem->data(0, ItemTypeRole).toUInt());
+ 		if (topType == SectionItem)
+		{
+			for (int j = 0; j < topItem->childCount(); ++j)
+			{
+				QTreeWidgetItem* subItem = topItem->child(j);
+				ItemType subType = ItemType(subItem->data(0, ItemTypeRole).toUInt());
+				if (subType == SectionItem)
+				{
+					for (int k = 0; k < subItem->childCount(); ++k)
+					{
+						QTreeWidgetItem* item = subItem->child(k);
+						ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
+						if (type == StandardItem && item->checkState(0) == Qt::Checked)
+							list << item->data(0, JobIdRole).toInt();
+					}
+				}
+				else if (subItem->checkState(0) == Qt::Checked)
+					list << subItem->data(0, JobIdRole).toInt();
+			}
+		}
+		else if (topItem->checkState(0) == Qt::Checked)
+			list << topItem->data(0, JobIdRole).toInt();
+	}
+
+	return list;
 }
 
 //! \internal
-bool MvdwImportResultsPage::createTempFile()
+void MvdwImportResultsPage::resultsCheckStateChanged()
 {
-	if (tempFile)
-	{
-		// Delete old temp file
-		deleteTempFile();
-	}
-
-	tempFile = new QTemporaryFile(QDir::tempPath() + "/movida-import", this);
-	tempFile->setAutoRemove(false);
-	if (!tempFile->open())
-	{
-		delete tempFile;
-		tempFile = 0;
-		return false;
-	}
-
-	return true;
-}
-
-//! \internal
-void MvdwImportResultsPage::deleteTempFile()
-{
-	if (tempFile)
-	{
-		QFileInfo info(*tempFile);
-		delete tempFile;
-		tempFile = 0;
-		QFile::remove(info.absoluteFilePath());
-	}
-}
-
-//! \internal
-void MvdwImportResultsPage::releaseHttpHandler()
-{
-	Q_ASSERT(httpHandler);
-	qDebug("releaseHttp");
-	httpHandler->disconnect(this);
-	httpHandler->disconnect();
-	// Delete after returning to the event loop.
-	httpHandler->deleteLater();
-	httpHandler = 0;
 }

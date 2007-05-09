@@ -25,6 +25,8 @@
 #include "global.h"
 #include <QVariant>
 
+#include <libxml/xmlerror.h>
+
 class MvdCore_P;
 
 class MVD_EXPORT MvdCore
@@ -48,5 +50,10 @@ private:
 	static MvdCore_P* d;
 	static bool MvdCoreInitialized;
 };
+
+namespace Movida
+{
+	void xmlStructuredErrorHandler(void* userData, xmlErrorPtr error);
+}
 
 #endif // MVD_CORE_H
