@@ -36,9 +36,9 @@ public:
 
 	struct PersonData
 	{
-		QString firstName;
-		QString lastName;
-		QString role;
+		QString name;
+		QString imdbId;
+		QString roles;
 	};
 
 	struct UrlData

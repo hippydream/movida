@@ -24,6 +24,7 @@
 #include "global.h"
 
 #include <QImage>
+#include <QStringList>
 
 #define MVD_SMD_CHECK_ID(id) \
 	if (id == 0x7FFFFFFF) \
@@ -209,25 +210,61 @@ MvdSharedData::PersonData::PersonData(const PersonData& o)
 	*this = o;
 }
 
-//! Lexicographically compares two persons (last name is compared first - case insensitive compare).
+//! Lexicographically compares two persons ( case insensitive compare).
 bool MvdSharedData::PersonData::operator <(const MvdSharedData::PersonData& p) const
 {
-	if (lastName.toLower() != p.lastName.toLower())
-		return lastName.toLower() < p.lastName.toLower();
-	else return (firstName.toLower() < p.firstName.toLower());
+	return name.toLower() < p.name.toLower();
 }
 
-//! Returns true if two items refer to the same person (case insensitive compare).
+/*!
+	Returns true if two items refer to the same person.
+	First checks IMDb id (if both have one).
+	Case insensitive compare. Checks all possible combinations of first name, 
+	last name and middle name - if any.
+*/
 bool MvdSharedData::PersonData::operator ==(const MvdSharedData::PersonData& p) const
 {
-	return ((firstName.toLower() == p.firstName.toLower()) && (lastName.toLower() == p.lastName.toLower()));
+	if (!imdbId.isEmpty() && !p.imdbId.isEmpty())
+		return imdbId == p.imdbId;
+
+	int matches = 0;
+	QStringList me = name.toLower().split(" ", QString::SkipEmptyParts);
+	QStringList he = p.name.toLower().split(" ", QString::SkipEmptyParts);
+
+	for (int i = 0; i < me.size(); ++i)
+	{
+		QString ms = me.at(i);
+		int matchIdx = -1;
+
+		for (int j = 0; j < he.size() && matchIdx < 0; ++j)
+		{
+			QString hs = he.at(j);
+			bool match = hs == ms;
+			if (!match)
+			{
+				// DeNiro --> De Niro
+				if (ms.length() <= 3)
+					match = hs.startsWith(ms);
+				else if (hs.length() <= 3)
+					match = ms.startsWith(hs);
+			}
+			if (match)
+			{
+				matchIdx = j;
+				matches++;
+				he.removeAt(j);	
+			}
+		}
+	}
+
+	return matches == qMax(me.size(), he.size());
 }
 
 //! Copy operator. Only user data is copied, no movie IDs!
 MvdSharedData::PersonData& MvdSharedData::PersonData::operator =(const MvdSharedData::PersonData& p)
 {
-	lastName = p.lastName;
-	firstName = p.firstName;
+	name = p.name;
+	imdbId = p.imdbId;
 	defaultUrl = p.defaultUrl;
 	urls = p.urls;
 	return *this;
@@ -589,21 +626,22 @@ Retrieve an item ID by it's value
 
 /*!
 	Returns the id of a person or 0 if there is no such person in the database.
+	If \p imdbId is not empty, the comparison prefers a matching id.
  */
-smdid MvdSharedData::findPerson(const QString& _fname, const QString& _lname) const
+smdid MvdSharedData::findPerson(const QString& name, const QString& imdbId) const
 {
 	if (d->persons == 0)
 		return 0;
 	
-	QString fname = _fname.trimmed();
-	QString lname = _lname.trimmed();
+	QString fname = name.trimmed();
+	QString id = imdbId.trimmed();
 
-	if (lname.isEmpty() && fname.isEmpty())
+	if (fname.isEmpty())
 		return 0;
-		
+	
 	PersonData p;
-	p.firstName = fname;
-	p.lastName = lname;
+	p.name = fname;
+	p.imdbId = id;
 	
 	for (QHash<smdid,PersonData>::ConstIterator itr = d->persons->constBegin(); itr != d->persons->constEnd(); ++itr)
 	{
@@ -737,22 +775,30 @@ Adds a new item to the SD (if no similar item exists)
 *************************************************************************/
 
 /*!
+	Convenience method.
+ */
+smdid MvdSharedData::addPerson(const QString& name, const QList<smdid>& urls)
+{
+	return addPerson(name, QString(), urls);
+}
+
+/*!
 	Returns the ID associated to given person or adds a new one to the persons list.
 	Returns 0 if both \p fname and \p lname are empty.
  */
-smdid MvdSharedData::addPerson(const QString& _fname, const QString& _lname, const QList<smdid>& urls)
+smdid MvdSharedData::addPerson(const QString& name, const QString& imdbId, const QList<smdid>& urls)
 {
 	MVD_SMD_CHECK_ID(d->personID)
 
-	QString fname = _fname.trimmed();
-	QString lname = _lname.trimmed();
+	QString fname = name.trimmed();
+	QString id = imdbId.trimmed();
 
-	if (lname.isEmpty() && fname.isEmpty())
+	if (fname.isEmpty() && id.isEmpty())
 		return 0;
 
 	PersonData _p;
-	_p.firstName = fname;
-	_p.lastName = lname;
+	_p.name = fname;
+	_p.imdbId = id;
 	
 	if (d->persons == 0)
 	{
@@ -764,7 +810,7 @@ smdid MvdSharedData::addPerson(const QString& _fname, const QString& _lname, con
 		{
 			if (itr.value() == _p)
 			{
-				iLog() << tr("SD: Person already in list: %1 %2").arg(fname).arg(lname);
+				iLog() << tr("SD: Person already in list: %1 (IMDb id: %2)").arg(fname).arg(id);
 				return itr.key();
 			}
 		}
@@ -779,7 +825,7 @@ smdid MvdSharedData::addPerson(const QString& _fname, const QString& _lname, con
 	MVD_SET_HARDCODED((this == mvdGlobalSD), newId)
 
 	d->persons->insert(newId, _p);
-	iLog() << tr("SD: Person added: %1 %2 (id=%3)").arg(fname).arg(lname).arg(newId);
+	iLog() << tr("SD: Person added: %1 (IMDb id: %2, Movida id: %3)").arg(fname).arg(id).arg(newId);
 	emit personAdded(newId);
 	return newId;
 }
@@ -1010,8 +1056,10 @@ Changes an item with specific id
 	Changes the person description with given id.
 	If \p id is a valid ID, a personChanged(id) is emitted and the function returns true.
 	Items in the global SD cannot be changed or removed. The method always returns false if this is the global SD.
+	If \p name is empty but \p imdbId is valid, the old name will be kept.
  */
-bool MvdSharedData::changePerson(smdid id, const QString& _fname, const QString& _lname, const QList<smdid>& urls)
+bool MvdSharedData::changePerson(smdid id, const QString& name, const QString& imdbId, 
+	const QList<smdid>& urls)
 {
 	if (this == mvdGlobalSD)
 		return false;
@@ -1019,10 +1067,10 @@ bool MvdSharedData::changePerson(smdid id, const QString& _fname, const QString&
 	if (d->persons == 0)
 		return false;
 
-	QString lname = _lname.trimmed();
-	QString fname = _fname.trimmed();
+	QString fname = name.trimmed();
+	QString imdb = imdbId.trimmed();
 
-	if (lname.isEmpty() && fname.isEmpty())
+	if (fname.isEmpty() && imdb.isEmpty())
 		return false;
 	
 	QHash<smdid,PersonData>::Iterator itr = d->persons->find(id);
@@ -1034,10 +1082,12 @@ bool MvdSharedData::changePerson(smdid id, const QString& _fname, const QString&
 	
 	PersonData& p = itr.value();
 		
-	iLog() << tr("SD: Person change. %1 %2 is now %3 %4").arg(p.firstName).arg(p.lastName).arg(fname).arg(lname);
+	iLog() << tr("SD: Person change. %1 (%2) is now %3 (%4)")
+		.arg(p.name).arg(p.imdbId).arg(fname.isEmpty() ? p.name : fname).arg(id);
 
-	p.lastName = lname;
-	p.firstName = fname;
+	if (!fname.isEmpty())
+		p.name = fname;
+	p.imdbId = imdb;
 	if (!urls.isEmpty())
 		p.urls = urls;
 	else p.urls.clear();

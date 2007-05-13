@@ -89,11 +89,11 @@ void MvdSDTreeWidget::setDataSource(Movida::SmdDataRole ds)
 	{
 	case Movida::ActorRole:
 	case Movida::CrewMemberRole:
-		labels << tr("First name") << tr("Last name") << tr("Role(s)");
+		labels << tr("Name") << tr("IMDb ID") << tr("Role(s)");
 		break;
 	case Movida::DirectorRole:
 	case Movida::ProducerRole:
-		labels << tr("First name") << tr("Last name");
+		labels << tr("Name") << tr("IMDb ID");
 		break;
 	case Movida::GenreRole:
 		labels << tr("Genre");
@@ -392,8 +392,8 @@ void MvdSDTreeWidget::setPersonRoleData(const QHash<smdid, QStringList>& d)
 		item->setFlags(item->flags() | Qt::ItemIsEditable);
 		item->setData(0, MVD_MST_ITEM_ID, id);
 
-		item->setText(0, pd->firstName);
-		item->setText(1, pd->lastName);
+		item->setText(0, pd->name);
+		item->setText(1, pd->imdbId);
 		item->setText(2, joinStringList(roles, "; "));
 	}
 }
@@ -455,8 +455,8 @@ void MvdSDTreeWidget::setSimpleData(const QList<smdid>& d, Movida::SmdDataRole d
 				item->setFlags(item->flags() | Qt::ItemIsEditable);
 				item->setData(0, MVD_MST_ITEM_ID, id);
 
-				item->setText(0, pd->firstName);
-				item->setText(1, pd->lastName);
+				item->setText(0, pd->name);
+				item->setText(1, pd->imdbId);
 			}
 			break;
 		case Movida::GenreRole:
@@ -761,16 +761,6 @@ QMap<QString,MvdSDTreeWidget::ActionDescriptor> MvdSDTreeWidget::generateActions
 	return actions;
 }
 
-//! Returns a string in "LastName, FirstName" form.
-QString MvdSDTreeWidget::generateDisplayName(const QString& fn, const QString& ln) const
-{
-	QString displayName = ln;
-	if (!ln.isEmpty() && !fn.isEmpty())
-		displayName.append(", ");
-	displayName.append(fn);
-	return displayName;
-}
-
 //! \internal Creates a map of labels and action descriptors suitable for a menu.
 void MvdSDTreeWidget::generateActions(
    const QHash<smdid, MvdSharedData::StringData>& d, 
@@ -809,7 +799,7 @@ void MvdSDTreeWidget::generateActions(
 
 		if ((selected != 0 && id == selected) || !current.contains(id))
 		{
-			QString displayName = generateDisplayName(it.value().firstName, it.value().lastName);
+			QString displayName = it.value().name;
 
 			if (! displayName.isEmpty() )
 			{
@@ -1212,8 +1202,8 @@ void MvdSDDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 				Movida::globalSD().person(id) : mc->smd().person(id);
 			Q_ASSERT(pd != 0);
 
-			item->setText(0, pd->firstName);
-			item->setText(1, pd->lastName);
+			item->setText(0, pd->name);
+			item->setText(1, pd->imdbId);
 		}
 		else
 		{
@@ -1286,14 +1276,14 @@ void MvdSDDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptionView
 	// r.setY(r.y() - 2);
 	// r.setHeight(r.height() + 4);
 
-	if (dt == PersonDelegate)
-	{
-		// Join first name and last name columns
-		int sz = tree->header()->sectionSize( 0 )+ tree->header()->sectionSize( 1 );
-
-		r.setX(0);
-		r.setWidth(sz);
-	}
+// 	if (dt == PersonDelegate)
+// 	{
+// 		// Join first name and last name columns
+// 		int sz = tree->header()->sectionSize( 0 )+ tree->header()->sectionSize( 1 );
+// 
+// 		r.setX(0);
+// 		r.setWidth(sz);
+// 	}
 
 	editor->setGeometry(r);
 }
@@ -1359,8 +1349,8 @@ bool MvdSDDelegate::isItemValid(Movida::SmdDataRole ds, const QTreeWidgetItem& i
 	case Movida::CrewMemberRole:
 	case Movida::DirectorRole:
 	case Movida::ProducerRole:
-		// First and last name not empty
-		valid = !(item.text(0).isEmpty() && item.text(1).isEmpty());
+		// Name not empty
+		valid = !item.text(0).isEmpty();
 		break;
 	case Movida::UrlRole:
 		// Url not empty

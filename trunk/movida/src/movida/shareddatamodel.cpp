@@ -36,8 +36,8 @@
 	collection-specific data, unless you call setFilter().
 */
 
-static const unsigned short MVD_SDM_FirstName = 0;
-static const unsigned short MVD_SDM_LastName = 1;
+static const unsigned short MVD_SDM_PersonName = 0;
+static const unsigned short MVD_SDM_PersonId = 1;
 static const unsigned short MVD_SDM_Genre = 2;
 static const unsigned short MVD_SDM_Country = 3;
 static const unsigned short MVD_SDM_Language = 4;
@@ -108,8 +108,8 @@ QString MvdSharedDataModel_P::resolveSectionLabel(unsigned short s) const
 {
 	switch (s)
 	{
-	case MVD_SDM_FirstName: return QCoreApplication::translate("MvdSharedDataModel", "First Name");
-	case MVD_SDM_LastName: return QCoreApplication::translate("MvdSharedDataModel", "Last Name");
+	case MVD_SDM_PersonName: return QCoreApplication::translate("MvdSharedDataModel", "Name");
+	case MVD_SDM_PersonId: return QCoreApplication::translate("MvdSharedDataModel", "IMDb ID");
 	case MVD_SDM_Genre: return QCoreApplication::translate("MvdSharedDataModel", "Genre");
 	case MVD_SDM_Country: return QCoreApplication::translate("MvdSharedDataModel", "Country");
 	case MVD_SDM_Language: return QCoreApplication::translate("MvdSharedDataModel", "Language");
@@ -138,22 +138,22 @@ bool MvdSharedDataModel_P::sort(int column, Qt::SortOrder order)
 
 		switch (column)
 		{
-			case MVD_SDM_FirstName:
+			case MVD_SDM_PersonName:
 			{
 				const MvdSharedData::PersonData* pd = smd(id).person(id);
 				if (pd != 0)
 				{
-					w.data = pd->firstName;
+					w.data = pd->name;
 					l << w;
 				}
 				break;
 			}
-			case MVD_SDM_LastName:
+			case MVD_SDM_PersonId:
 			{
 				const MvdSharedData::PersonData* pd = smd(id).person(id);
 				if (pd != 0)
 				{
-					w.data = pd->lastName;
+					w.data = pd->imdbId;
 					l << w;
 				}
 				break;
@@ -483,15 +483,15 @@ QVariant MvdSharedDataModel::data(const QModelIndex& index, int role) const
 
 	switch (col)
 	{
-		case MVD_SDM_FirstName:
+		case MVD_SDM_PersonName:
 		{
 			const MvdSharedData::PersonData* pd = d->smd(id).person(id);
-			return pd == 0 ? QString() : pd->firstName;
+			return pd == 0 ? QString() : pd->name;
 		}
-		case MVD_SDM_LastName:
+		case MVD_SDM_PersonId:
 		{
 			const MvdSharedData::PersonData* pd = d->smd(id).person(id);
-			return pd == 0 ? QString() : pd->lastName;
+			return pd == 0 ? QString() : pd->imdbId;
 		}
 		case MVD_SDM_Genre:
 		{

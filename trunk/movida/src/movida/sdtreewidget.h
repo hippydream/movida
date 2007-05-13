@@ -98,8 +98,6 @@ private:
 	inline void executeAction(ActionDescriptor ad, QTreeWidgetItem* item = 0,
 		const QVariant& data = QVariant());
 
-	inline QString generateDisplayName(const QString& fn, const QString& ln) const;
-
 	inline QMap<QString,ActionDescriptor> generateActions(quint32 selected = 0, 
 		int* itemCount = 0, int max = -1);
 	inline void generateActions(const QHash<smdid, MvdSharedData::PersonData>& d, 

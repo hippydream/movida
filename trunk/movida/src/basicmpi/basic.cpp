@@ -196,6 +196,7 @@ void MvdBasicMpi::search(const QString& query, int engine)
 //! \internale Downloads and imports the specified search results.
 void MvdBasicMpi::import(const QList<int>& list)
 {
+	qDebug("MvdBasicMpi::import()");
 	if (list.isEmpty())
 	{
 		importDialog->done();
@@ -226,6 +227,7 @@ void MvdBasicMpi::processNextImport()
 		return;
 	}
 
+	qDebug("Processing job %d", id);
 	SearchResult& job = it.value();
 	
 	if (job.sourceType == CachedSource)
@@ -246,21 +248,31 @@ void MvdBasicMpi::parseImdbMoviePage(SearchResult& job)
 
 	// Use a not-so-stupid "algorithm" and check for a different target (or target set)
 	// each time- This ain't very smart but it's still better than a hundred of comparisons.
+	// IMDb pages are actualy slightly heterogeneous and we can't be too strict here.
 	//! \todo Implement a text configuration file based dynamic parsing engine
-	enum Target { Script1 = 0, Poster, Script2, Rating, Hr1, Info, End };
+	enum Target { Script1 = 0, Poster, Rating, Hr1, Info, End };
 	int currentTarget = int(Script1);
+	int previousTarget = currentTarget;
 	bool targetHit = false;
 
 	QRegExp infoTypeRx("^<h5>(.*):</h5>$");
-	QRegExp ratingRx("^.*([0-9.,]*)/([0-9.,]*).*$"); // <b>7.4/10</b>
-	QRegExp castRx("<td class=\"char\">(.*)</td>");
 
-	MvdMovieData::PropertyName name = MvdMovieData::InvalidProperty;
+	// <b>7.4/10</b>
+	QRegExp ratingRx("^.*([0-9.,]*)/([0-9.,]*).*$");
+
+	// <a href="/name/nmXXX/">NAME</a></td><td class="ddd"> ... </td><td class="char">ROLE</td>
+	QRegExp castRx("<a href=\"/name/nm([0-9]*)/\"[^<>]*>([^<>]*)</a></td><td[^<>]*>[^<>]*</td><td class=\"char\">([^<>]*)</td>");
+
+	MvdMovieData::PropertyName infoType;
 	QString extra;
 
 	while ( !(line = in.readLine()).isNull() && currentTarget != End )
 	{
-		qDebug("Target: %d", (int)currentTarget);
+		if (currentTarget != previousTarget)
+		{
+			previousTarget = currentTarget;
+			qDebug("New target: %d", (int)currentTarget);
+		}
 
 		line = line.trimmed();
 
@@ -274,7 +286,7 @@ void MvdBasicMpi::parseImdbMoviePage(SearchResult& job)
 			}
 			else if (targetHit) // Line contains poster URL
 			{
-				
+				qDebug("Poster hit");
 				currentTarget++;
 				targetHit = false;
 			}
@@ -283,7 +295,6 @@ void MvdBasicMpi::parseImdbMoviePage(SearchResult& job)
 			break;
 
 		case Script1:
-		case Script2:
 			if (line == "//-->")
 				currentTarget++;
 			break;
@@ -296,6 +307,8 @@ void MvdBasicMpi::parseImdbMoviePage(SearchResult& job)
 			}
 			else if (targetHit)
 			{
+				qDebug("Rating hit");
+
 				if (ratingRx.exactMatch(line))
 				{
 					float n = ratingRx.cap(1).toFloat();
@@ -328,62 +341,66 @@ void MvdBasicMpi::parseImdbMoviePage(SearchResult& job)
 		// AKAs, Running time, Countries, Languages, Color mode, 
 		// AR, Sound mix, Certifications, Locations, MOVIEmeter, Companies
 		// Trivia, Goofs, Quotes, Soundtrack
-		case Info: 
-			if (line.startsWith("<img src=\"http://i.imdb.com/images/tn15/header_faq.gif"))
-			{
-				currentTarget++; // End of info section
-				targetHit = false;
-			}
-			else if (line.startsWith("<img src=\"http://i.imdb.com/images/tn15/header_cast.gif"))
+		case Info:
+			if (line.startsWith("<img src=\"http://i.imdb.com/images/tn15/header_cast.gif"))
 			{
 				// CAST is a huge one-liner containing <td class="char">FIRST_NAME LAST_NAME</td>
-				qDebug("Extracting cast members");
+				qDebug("Cast hit");
 				int pos = 0;
 				while ((pos = castRx.indexIn(line, pos)) != -1)
 				{
-					QString s = castRx.cap(1);
+					QString id = castRx.cap(1).trimmed();
+					QString name = castRx.cap(2).trimmed();
+					QString role = castRx.cap(3).trimmed();
+
+					MvdMovieData::PersonData d;
+					d.name = name;
+					d.imdbId = id;
+					d.roles = role;
+
+					qDebug("Name: %s ID: %s", d.name.toLatin1().data(), d.imdbId.toLatin1().data());
+
 					pos += castRx.matchedLength();
-					qDebug(s.toLatin1().constData());
 				}
+				targetHit = false;
+			}
+			else if (line.startsWith("<img src=\"http://i.imdb.com/images/tn15/header_faq.gif"))
+			{
+				qDebug("FAQ hit");
+				currentTarget++; // End of info section
 				targetHit = false;
 			}
 			else if (targetHit)
 			{
+				qDebug("Info type %d hit", infoType);
 				targetHit = false;
 				// Parse contents
 			}
-			else
+			else if (infoTypeRx.exactMatch(line))
 			{
-				if (line == "<hr/>")
+				QString nameString = infoTypeRx.cap(1).trimmed().toLower();
+				infoType = MvdMovieData::InvalidProperty;
+				
+				if (line.startsWith("director"))
+					infoType = MvdMovieData::Directors;
+				else if (line.startsWith("writer"))
 				{
-					currentTarget++;
-					targetHit = false;
+					infoType = MvdMovieData::CrewMembers;
+					extra = tr("Writer", "Movie writer role");
 				}
-				else if (infoTypeRx.exactMatch(line))
-				{
-					QString nameString = infoTypeRx.cap(1).trimmed().toLower();
-					
-					if (line.startsWith("director"))
-						name = MvdMovieData::Directors;
-					else if (line.startsWith("writer"))
-					{
-						name = MvdMovieData::CrewMembers;
-						extra = tr("Writer", "Movie writer role");
-					}
-					else if (line.startsWith("release"))
-						name = MvdMovieData::ReleaseYear;
-					else if (line.startsWith("genre"))
-						name = MvdMovieData::Genres;
-					else if (line.startsWith("plot outline"))
-						name = MvdMovieData::Plot;
-					else if (line.startsWith("plot keyword"))
-						name = MvdMovieData::Tags;
-					else if (line.startsWith("plot outline"))
-						name = MvdMovieData::Plot;
+				else if (line.startsWith("release"))
+					infoType = MvdMovieData::ReleaseYear;
+				else if (line.startsWith("genre"))
+					infoType = MvdMovieData::Genres;
+				else if (line.startsWith("plot outline"))
+					infoType = MvdMovieData::Plot;
+				else if (line.startsWith("plot keyword"))
+					infoType = MvdMovieData::Tags;
+				else if (line.startsWith("plot outline"))
+					infoType = MvdMovieData::Plot;
 
-					if (name != MvdMovieData::InvalidProperty)
-						targetHit = true;
-				}
+				if (infoType != MvdMovieData::InvalidProperty)
+					targetHit = true;
 			}
 			break;
 		default:

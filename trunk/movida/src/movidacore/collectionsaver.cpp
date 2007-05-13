@@ -127,8 +127,9 @@ void MvdCollectionSaver_P::writePersonData(MvdXmlWriter* xml,
 		attrs.insert("id", QString::number(id));
 
 		xml->writeOpenTag("person", attrs);
-		xml->writeTaggedString("first-name", pd.firstName);
-		xml->writeTaggedString("last-name", pd.lastName);
+		xml->writeTaggedString("name", pd.name);
+		if (!pd.imdbId.isEmpty())
+			xml->writeTaggedString("imdb-id", pd.imdbId);
 		if (!pd.urls.isEmpty())
 		{
 			xml->writeOpenTag("links");

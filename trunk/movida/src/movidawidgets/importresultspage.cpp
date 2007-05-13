@@ -106,6 +106,8 @@ void MvdwImportResultsPage::setLock(bool lock)
 //! Initialize page each time it is shown.
 void MvdwImportResultsPage::initializePage()
 {
+	results->clear();
+
 	// Wait until the search is done.
 	setBusyStatus(true);
 	setLock(true);

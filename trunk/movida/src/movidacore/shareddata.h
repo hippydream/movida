@@ -75,8 +75,8 @@ public:
 		bool operator==(const PersonData& p) const;
 		PersonData& operator=(const PersonData& p);
 
-		QString firstName;
-		QString lastName;
+		QString name;
+		QString imdbId;
 
 		smdid defaultUrl;
 		SmdIdList urls;
@@ -132,7 +132,7 @@ public:
 
 	// Retrieve an item ID by it's value
 	//! \todo Add fuzzy item search
-	smdid findPerson(const QString& fname, const QString& lname) const;
+	smdid findPerson(const QString& name, const QString& imdbId = QString()) const;
 	smdid findGenre(const QString& name) const;
 	smdid findTag(const QString& name) const;
 	smdid findCountry(const QString& name) const;
@@ -140,7 +140,8 @@ public:
 	smdid findUrl(const QString& url) const;
 
 	// Adds a new item to the SD (no duplicates are added)
-	smdid addPerson(const QString& fname, const QString& lname, const SmdIdList& urls = SmdIdList());
+	smdid addPerson(const QString& name, const SmdIdList& urls = SmdIdList());
+	smdid addPerson(const QString& name, const QString& imdbId, const SmdIdList& urls = SmdIdList());
 	smdid addGenre(const QString& genre);
 	smdid addTag(const QString& name);
 	smdid addCountry(const QString& name);
@@ -148,7 +149,8 @@ public:
 	smdid addUrl(const QString& url, const QString& description = QString());
 	
 	// Changes an item with specific id
-	bool changePerson(smdid id, const QString& fname, const QString& lname, const SmdIdList& urls = SmdIdList());
+	bool changePerson(smdid id, const QString& name, const SmdIdList& urls = SmdIdList());
+	bool changePerson(smdid id, const QString& name, const QString& imdbId, const SmdIdList& urls = SmdIdList());
 	bool changeGenre(smdid id, const QString& genre);
 	bool changeTag(smdid id, const QString& name);
 	bool changeCountry(smdid id, const QString& name);

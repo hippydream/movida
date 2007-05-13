@@ -154,8 +154,8 @@ void MvdCollectionLoader_P::parsePersonDescriptions(IdMapper* idMapper,
 			continue;
 		}
 
-		QString fname;
-		QString lname;
+		QString name;
+		QString imdbId;
 		QList<smdid> urls;
 		smdid defaultUrl = 0;
 
@@ -164,10 +164,10 @@ void MvdCollectionLoader_P::parsePersonDescriptions(IdMapper* idMapper,
 		{
 			nodeName = (const char*) personNode->name;
 
-			if (nodeName == "first-name")
-				fname = QString((const char*)xmlNodeListGetString(doc, personNode->xmlChildrenNode, 1));
-			else if (nodeName == "last-name")
-				lname = QString((const char*)xmlNodeListGetString(doc, personNode->xmlChildrenNode, 1));
+			if (nodeName == "name")
+				name = QString((const char*)xmlNodeListGetString(doc, personNode->xmlChildrenNode, 1));
+			else if (nodeName == "imdb-id")
+				imdbId = QString((const char*)xmlNodeListGetString(doc, personNode->xmlChildrenNode, 1));
 			else if (nodeName == "urls")
 				parseUrlDescriptions(*idMapper, doc, personNode, &defaultUrl, &urls);
 
@@ -176,9 +176,9 @@ void MvdCollectionLoader_P::parsePersonDescriptions(IdMapper* idMapper,
 		} // while (personNode)
 
 
-		if (!(lname.isEmpty() && fname.isEmpty()))
+		if (!name.isEmpty())
 		{
-			smdid smd_id = collection->smd().addPerson(fname, lname, urls);
+			smdid smd_id = collection->smd().addPerson(name, imdbId, urls);
 			if (smd_id > 0)
 				idMapper->c_persons.insert(id, smd_id);
 		}

@@ -106,7 +106,7 @@ QDate MvdCore_P::globalSmdDate(const QString& s) const
 	return date;
 }
 
-//! \internal
+//! \internal \warning Global Shared Data handling is going to change deeply with the next SVN commit.
 void MvdCore_P::loadGlobalSmdData(const QString& baseDir, Movida::SmdDataRole role) const
 {
 	QString locale = QLocale::system().name();
@@ -180,7 +180,7 @@ void MvdCore_P::loadGlobalSmdData(const QString& baseDir, Movida::SmdDataRole ro
 	{
 		line = line.trimmed();
 
-		if (line.isEmpty())
+		if (line.isEmpty() || line.at(0) == '#')
 			continue;
 
 		if (role == Movida::PersonRole)
@@ -315,7 +315,7 @@ void MvdCore::storeStatus()
 	Q_ASSERT(d);
 
 	QString prefFile = paths().preferencesFile();
-	iLog() << QString("MvdCore: Storing preferences to %1").arg(prefFile);
+	iLog() << QString("MvdCore: Storing preferences in %1").arg(prefFile);
 
 	if (!settings().save(prefFile))
 		eLog() << QString("MvdCore: Unable to store preferences.");

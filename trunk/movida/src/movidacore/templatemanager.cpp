@@ -251,8 +251,8 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 				: collection.smd().person(id);
 			if (sd != 0)
 			{
-				xml.append(QString("\t\t<first-name>%1</first-name>\n").arg(sd->firstName));
-				xml.append(QString("\t\t<last-name>%1</last-name>\n").arg(sd->lastName));
+				xml.append(QString("\t\t<name>%1</name>\n").arg(sd->name));
+				xml.append(QString("\t\t<imdb-id>%1</imdb-id>\n").arg(sd->imdbId));
 			}
 		}
 		xml.append("\t</directors>\n");
@@ -271,8 +271,8 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 				: collection.smd().person(id);
 			if (sd != 0)
 			{
-				xml.append(QString("\t\t\t<first-name>%1</first-name>\n").arg(sd->firstName));
-				xml.append(QString("\t\t\t<last-name>%1</last-name>\n").arg(sd->lastName));
+				xml.append(QString("\t\t<name>%1</name>\n").arg(sd->name));
+				xml.append(QString("\t\t<imdb-id>%1</imdb-id>\n").arg(sd->imdbId));
 			}
 			xml.append("\t\t</person>\n");
 		}
@@ -292,8 +292,8 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 				: collection.smd().person(id);
 			if (sd != 0)
 			{
-				xml.append(QString("\t\t\t<first-name>%1</first-name>\n").arg(sd->firstName));
-				xml.append(QString("\t\t\t<last-name>%1</last-name>\n").arg(sd->lastName));
+				xml.append(QString("\t\t<name>%1</name>\n").arg(sd->name));
+				xml.append(QString("\t\t<imdb-id>%1</imdb-id>\n").arg(sd->imdbId));
 			}
 			xml.append("\t\t</person>\n");
 		}
@@ -315,8 +315,8 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 				: collection.smd().person(id);
 			if (sd != 0)
 			{
-				xml.append(QString("\t\t\t<first-name>%1</first-name>\n").arg(sd->firstName));
-				xml.append(QString("\t\t\t<last-name>%1</last-name>\n").arg(sd->lastName));
+				xml.append(QString("\t\t<name>%1</name>\n").arg(sd->name));
+				xml.append(QString("\t\t<imdb-id>%1</imdb-id>\n").arg(sd->imdbId));
 				if (!roles.isEmpty())
 				{
 					xml.append("\t\t\t<roles>\n");
@@ -346,8 +346,8 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 				: collection.smd().person(id);
 			if (sd != 0)
 			{
-				xml.append(QString("\t\t\t<first-name>%1</first-name>\n").arg(sd->firstName));
-				xml.append(QString("\t\t\t<last-name>%1</last-name>\n").arg(sd->lastName));
+				xml.append(QString("\t\t<name>%1</name>\n").arg(sd->name));
+				xml.append(QString("\t\t<imdb-id>%1</imdb-id>\n").arg(sd->imdbId));
 				if (!roles.isEmpty())
 				{
 					xml.append("\t\t\t<roles>\n");

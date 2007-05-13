@@ -70,7 +70,6 @@ public:
 	MvdSharedData& smd(smdid id) const;
 
 	QString dataList(const QList<smdid>& list, Movida::SmdDataRole dt) const;
-	QString initials(const QString& s) const;
 	void sort(Movida::MovieAttribute attribute, Qt::SortOrder order);
 
 	MvdMovieCollection* collection;
@@ -90,9 +89,6 @@ QString MvdCollectionModel_P::dataList(const QList<smdid>& list, Movida::SmdData
 {
 	QString s;
 
-	//! \todo Some names may have a non trivial way to be transformed into initials: what if "De Niro" would be a name? Are the initials "D.N." or just "D."?
-	bool truncate = Movida::settings().getBool("initials", "movida-movie-list");
-
 	for (int i = 0; i < list.size(); ++i)
 	{
 		smdid id = list.at(i);
@@ -107,13 +103,7 @@ QString MvdCollectionModel_P::dataList(const QList<smdid>& list, Movida::SmdData
 					if (!s.isEmpty())
 						s.append("; ");
 
-					if (data->firstName.isEmpty())
-						s.append(data->lastName);
-					else if (data->lastName.isEmpty())
-						s.append(data->firstName);
-					else if (truncate)
-						s.append( QString("%1 %2").arg(initials(data->firstName)).arg(data->lastName) );
-					else s.append( QString("%1 %2").arg(data->firstName).arg(data->lastName) );
+					s.append(data->name);
 				}
 			}
 			break;
@@ -170,25 +160,6 @@ QString MvdCollectionModel_P::dataList(const QList<smdid>& list, Movida::SmdData
 	}
 
 	return s;
-}
-
-//! \internal
-QString MvdCollectionModel_P::initials(const QString& s) const
-{
-	QString final;
-	QStringList list = s.split(" ", QString::SkipEmptyParts);
-
-	for (int i = 0; i < list.size(); ++i)
-	{
-		QString p = list.at(i);
-
-		Q_ASSERT(!p.isEmpty()); // We use skipEmptyParts in split()
-
-		final.append( p.at(0).toUpper() );
-		final.append( "." );
-	}
-
-	return final;
 }
 
 //! \internal
