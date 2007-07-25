@@ -183,7 +183,7 @@ void MvdwImportResultsPage::addSection(const QString& title, const QString& note
 	// Expand the first top-level section only
 	if (countSections() == 0)
 		results->expandItem(item);
-	item->setSpanning(true);
+	item->setFirstColumnSpanned(true);
 
 	QFont font = item->font(0);
 	font.setBold(true);
@@ -231,7 +231,7 @@ void MvdwImportResultsPage::addSubSection(const QString& title, const QString& n
 		QFont font = sectionItem->font(0);
 		font.setBold(true);
 		sectionItem->setFont(0, font);
-		sectionItem->setSpanning(true);
+		sectionItem->setFirstColumnSpanned(true);
 		sectionItem->setData(0, ItemTypeRole, quint32(SectionItem));
 		sectionItem->setText(0, tr("Main group"));
 	}
@@ -240,7 +240,7 @@ void MvdwImportResultsPage::addSubSection(const QString& title, const QString& n
 	// Expand the first top-level section only
 	if (topLevelItemIndex == 0)
 		results->expandItem(item);
-	item->setSpanning(true);
+	item->setFirstColumnSpanned(true);
 
 	QFont font = item->font(0);
 	font.setBold(true);

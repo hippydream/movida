@@ -22,6 +22,7 @@
 
 #include <movidacore/core.h>
 #include <movidacore/logger.h>
+#include <movidacore/moviedata.h>
 #include <movidawidgets/searchengine.h>
 
 #include <QMessageBox>

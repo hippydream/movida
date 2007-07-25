@@ -24,6 +24,7 @@
 #include "pathresolver.h"
 #include "logger.h"
 #include "shareddata.h"
+#include "moviedata.h"
 
 #include <QApplication>
 #include <QLocale>

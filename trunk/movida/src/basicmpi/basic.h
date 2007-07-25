@@ -21,6 +21,8 @@
 #ifndef MVDMPI_BASIC_H
 #define MVDMPI_BASIC_H
 
+#include <QtGlobal>
+
 #ifndef MVD_BASICMPI_EXPORT
 # ifdef Q_OS_WIN
 #  if defined(MVD_BUILD_BASICMPI)
@@ -42,6 +44,7 @@
 #include <QHash>
 #include <QList>
 
+class MvdMovieData;
 class MvdwImportDialog;
 class QTemporaryFile;
 class QTextStream;
