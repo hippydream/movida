@@ -9,7 +9,7 @@ message(Using temporary directory \"$${TEMP}\")
 
 win32 {
 	message(Using lib directory \"$${ROOT}/lib/win32\")
-	LIBS += $${ROOT}/lib/mvdcore.lib
+	LIBS += $${ROOT}/lib/win32/mvdcore.lib
 } else {
 	LIBS += -L$${ROOT}/lib -lmvdcore -lxml2 -lxslt
 }
@@ -20,7 +20,12 @@ CONFIG += dll
 DEFINES += MVD_BUILD_SHARED_DLL
 
 DLLDESTDIR = $${ROOT}/bin
-DESTDIR = $${ROOT}/lib
+win32 {
+	DESTDIR = $${ROOT}/lib/win32
+} else {
+	DESTDIR = $${ROOT}/lib
+}
+
 
 INCLUDEPATH += . ../mvdcore
 

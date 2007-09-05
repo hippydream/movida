@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="mvdshared"
-	ProjectGUID="{25CCBA21-FEC7-336E-8689-1C79B454BFDD}"
+	ProjectGUID="{4ECAA59A-B661-3BB4-9013-DEC7B5280A42}"
 	Keyword="Qt4VSv1.0">
 	<Platforms>
 		<Platform
@@ -39,11 +39,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../lib/mvdcore.lib $(QTDIR)\lib\QtGuid4.lib $(QTDIR)\lib\QtCored4.lib"
+				AdditionalDependencies="../../lib/win32/mvdcore.lib $(QTDIR)\lib\QtGuid4.lib $(QTDIR)\lib\QtCored4.lib"
 				AdditionalLibraryDirectories="$(QTDIR)\lib"
 				GenerateDebugInformation="true"
 				IgnoreImportLibrary="true"
-				OutputFile="..\..\lib\mvdshared.dll"
+				OutputFile="..\..\lib\win32\mvdshared.dll"
 				ProgramDatabaseFile=""
 				SubSystem="2"
 				SuppressStartupBanner="true"/>
@@ -93,12 +93,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../lib/mvdcore.lib $(QTDIR)\lib\QtGui4.lib $(QTDIR)\lib\QtCore4.lib"
+				AdditionalDependencies="../../lib/win32/mvdcore.lib $(QTDIR)\lib\QtGui4.lib $(QTDIR)\lib\QtCore4.lib"
 				AdditionalLibraryDirectories="$(QTDIR)\lib"
 				GenerateDebugInformation="false"
 				IgnoreImportLibrary="true"
 				LinkIncremental="1"
-				OutputFile="..\..\lib\mvdshared.dll"
+				OutputFile="..\..\lib\win32\mvdshared.dll"
 				ProgramDatabaseFile=""
 				SubSystem="2"
 				SuppressStartupBanner="true"/>

@@ -9,7 +9,7 @@ message(Using temporary directory \"$${TEMP}\")
 
 win32 {
 	message(Using lib directory \"$${ROOT}/lib/win32\")
-	LIBS += $${ROOT}/lib/mvdcore.lib $${ROOT}/lib/mvdshared.lib
+	LIBS += $${ROOT}/lib/win32/mvdcore.lib $${ROOT}/lib/win32/mvdshared.lib
 } else {
 	LIBS += -L$${ROOT}/lib -lmvdcore -lmvdshared -lxml2 -lxslt
 }

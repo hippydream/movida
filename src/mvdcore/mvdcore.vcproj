@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="mvdcore"
-	ProjectGUID="{42FA0F01-F4DC-3F48-B661-9721CCE8828D}"
+	ProjectGUID="{71FA2AE2-6D8E-3FD9-A3CD-9074D0723022}"
 	Keyword="Qt4VSv1.0">
 	<Platforms>
 		<Platform
@@ -43,7 +43,7 @@
 				AdditionalLibraryDirectories="$(QTDIR)\lib"
 				GenerateDebugInformation="true"
 				IgnoreImportLibrary="true"
-				OutputFile="..\..\lib\mvdcore.dll"
+				OutputFile="..\..\lib\win32\mvdcore.dll"
 				ProgramDatabaseFile=""
 				SubSystem="2"
 				SuppressStartupBanner="true"/>
@@ -98,7 +98,7 @@
 				GenerateDebugInformation="false"
 				IgnoreImportLibrary="true"
 				LinkIncremental="1"
-				OutputFile="..\..\lib\mvdcore.dll"
+				OutputFile="..\..\lib\win32\mvdcore.dll"
 				ProgramDatabaseFile=""
 				SubSystem="2"
 				SuppressStartupBanner="true"/>
