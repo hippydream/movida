@@ -21,7 +21,11 @@ CONFIG += dll
 DEFINES += MVD_BUILD_CORE_DLL
 
 DLLDESTDIR = $${ROOT}/bin
-DESTDIR = $${ROOT}/lib
+win32 {
+	DESTDIR = $${ROOT}/lib/win32
+} else {
+	DESTDIR = $${ROOT}/lib
+}
 
 INCLUDEPATH += .
 
