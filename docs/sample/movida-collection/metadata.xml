@@ -1,0 +1,10 @@
+<movida-xml-doc items="0" version="1" update="2007-07-25T11:04:24">
+  <info>
+    <movies>1</movies>
+    <name>My Collection</name>
+    <owner>Fabrizio Angius</owner>
+    <notes>Sample Movida Movie Collection</notes>
+    <email>blue_death@users.sourceforge.net</email>
+    <website>http://movida.sourceforge.net</website>
+  </info>
+</movida-xml-doc>

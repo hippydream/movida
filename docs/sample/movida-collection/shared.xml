@@ -1,0 +1,22 @@
+<movida-xml-doc items="0" version="1" update="2007-07-25T11:04:24">
+  <shared-data>
+    <shared-item id="1" type="PersonItem">
+      <value>Sharon Stoned</value>
+      <description></description>
+      <identifier>1234565</identifier>
+      <urls>
+        <url description="SharonRocks website" default="true">http://sharonrocks.net</url>
+        <url description="Wikipedia">http://en.wikipedia.org/wiki/Sharon_Stoned</url>
+      </urls>
+    </shared-item>
+    <shared-item id="2" type="PersonItem">
+      <value>Jimmi Joystick</value>
+    </shared-item>
+    <shared-item id="3" type="PersonItem">
+      <value>Naima</value>
+    </shared-item>
+    <shared-item id="4" type="PersonItem">
+      <value>Miki D.</value>
+    </shared-item>
+  </shared-data>
+</movida-xml-doc>
