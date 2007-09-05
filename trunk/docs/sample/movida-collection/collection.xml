@@ -1,0 +1,60 @@
+<movida-xml-doc items="0" version="1" update="2007-07-25T11:04:24">
+  <movies>
+    <movie>
+      <title>42</title>
+      <original-title>42 - the movie</original-title>
+      <running-time>123</running-time>
+      <production-year>1991</production-year>
+      <release-year>1992</release-year>
+      <rating>5</rating>
+      <imdb-id>1234566</imdb-id>
+      <notes></notes>
+      <plot></plot>
+      <edition></edition>
+      <storage-id></storage-id>
+      <cast>
+        <person id="1">
+          <roles>
+            <role>Miss Blonde</role>
+            <role>Hippy girl no.5</role>
+          </roles>
+        </person>
+      </cast>
+      <crew>
+        <person id="2">
+          <roles>
+            <role>Writer</role>
+            <role>Storyboard</role>
+          </roles>
+        </person>
+      </crew>
+      <directors>
+        <person id="3"/>
+      </directors>
+      <producers>
+        <person id="3"/>
+        <person id="4"/>
+      </producers>
+      <genres>
+        <genre id="32"/>
+      </genres>
+      <countries>
+        <country id="22"/>
+      </countries>
+      <languages>
+        <language id="15"/>
+      </languages>
+      <tags>
+        <tag id="2"/>
+      </tags>
+      <color-mode>color</color-mode>
+      <urls>
+        <url description="Test URL" default="true">http://abc.com</url>
+      </urls>
+      <special-contents>
+        <item>Trailer</item>
+      </special-contents>
+      <poster>867eb2a551dd71143353fc74589be9a3</poster>
+    </movie>
+  </movies>
+  </movida-xml-doc>
