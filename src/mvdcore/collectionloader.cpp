@@ -552,7 +552,7 @@ void MvdCollectionLoader_P::parsePersonIdList(xmlDocPtr doc, xmlNodePtr cur,
 			xmlNodePtr rolesNode = personNode->children;
 			while (rolesNode)
 			{
-				if (xmlStrcmp(rolesNode->name, (const xmlChar*) "roles")) {
+				if (!xmlStrcmp(rolesNode->name, (const xmlChar*) "roles")) {
 					QStringList thisRoles = parseStringDescriptions(doc, rolesNode, "role");
 					for (int i = 0; i < thisRoles.size(); ++i)
 						roles.append(thisRoles.at(i));
