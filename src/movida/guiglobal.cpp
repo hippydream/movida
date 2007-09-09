@@ -28,8 +28,7 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 	QList<MovieAttribute> list;
 	switch (filter)
 	{
-	case AllAttributes:
-	case DetailedAttributes:
+	case NoAttributeFilter:
 		list << ProducersAttribute;
 		list << DirectorsAttribute;
 		list << CastAttribute;
@@ -40,7 +39,7 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 		list << TagsAttribute;
 		list << ColorModeAttribute;
 		list << ImdbIdAttribute;
-	case SimpleAttributes:
+	case MainAttributeFilter:
 		list << TitleAttribute;
 		list << OriginalTitleAttribute;
 		list << ProductionYearAttribute;
@@ -79,7 +78,7 @@ QString Movida::movieAttributeString(MovieAttribute attribute)
 	return QString();
 }
 
-QList<SharedDataAttribute> Movida::sharedDataAttributes(Movida::DataRole role)
+QList<SharedDataAttribute> Movida::sharedDataAttributes(Movida::DataRole role, AttributeFilter filter)
 {
 	QList<SharedDataAttribute> list;
 	
@@ -91,9 +90,10 @@ QList<SharedDataAttribute> Movida::sharedDataAttributes(Movida::DataRole role)
 	case Movida::ProducerRole:
 	case Movida::CrewMemberRole:
 		list << NameSDA;
-		if (role == Movida::ActorRole || role == Movida::CrewMemberRole || role == Movida::PersonRole)
+		if (role & Movida::ActorRole || role & Movida::CrewMemberRole)
 			list << RolesSDA;
-		list << ImdbIdSDA;
+		if (filter == NoAttributeFilter)
+			list << ImdbIdSDA;
 		break;
 	case Movida::GenreRole:
 		list << GenreSDA;
