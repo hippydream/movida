@@ -208,11 +208,26 @@ MvdSharedData::ItemList MvdSharedData::items(Movida::DataRole role) const
 */
 mvdid MvdSharedData::findItem(const MvdSdItem& item) const
 {
-	QHash<mvdid, MvdSdItem>	results;
 	for (QHash<mvdid,MvdSdItem>::ConstIterator it = d->data.constBegin();
 		it != d->data.constEnd(); ++it)
 	{
 		if (it.value() == item)
+			return it.key();
+	}
+
+	return MvdNull;
+}
+
+/*!
+	Returns MvdNull if \p item could not be found.
+*/
+mvdid MvdSharedData::findItemByValue(QString value, Qt::CaseSensitivity cs) const
+{
+	value = value.trimmed();
+	for (QHash<mvdid,MvdSdItem>::ConstIterator it = d->data.constBegin();
+		it != d->data.constEnd(); ++it)
+	{
+		if (!QString::compare(it.value().value, value, cs))
 			return it.key();
 	}
 
