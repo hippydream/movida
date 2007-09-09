@@ -64,6 +64,7 @@ public:
 	MvdSdItem item(mvdid id) const;
 	ItemList items(Movida::DataRole role) const;
 	mvdid findItem(const MvdSdItem& item) const;
+	mvdid findItemByValue(QString value, Qt::CaseSensitivity cs = Qt::CaseInsensitive) const;
 
 	// Misc
 	int usageCount(mvdid id, ReferenceTypes rt = AllReferences) const;
