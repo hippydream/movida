@@ -72,6 +72,7 @@ void MvdNotesPage::setMovieImpl(const MvdMovie& movie)
 
 void MvdNotesPage::setMoviesImpl(const QList<MvdMovie>& movies)
 {
+	Q_UNUSED(movies);
 }
 
 bool MvdNotesPage::store(MvdMovie& movie)

@@ -81,6 +81,7 @@ QIcon MvdCrewPage::icon()
 */
 void MvdCrewPage::setMoviesImpl(const QList<MvdMovie>& movies)
 {
+	Q_UNUSED(movies);
 }
 
 /*!

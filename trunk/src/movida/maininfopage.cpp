@@ -131,6 +131,7 @@ QIcon MvdMainInfoPage::icon()
 */
 void MvdMainInfoPage::setMoviesImpl(const QList<MvdMovie>& movies)
 {
+	Q_UNUSED(movies);
 }
 
 /*!

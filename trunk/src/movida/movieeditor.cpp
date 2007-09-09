@@ -130,6 +130,8 @@ bool MvdMovieEditor::setMovie(mvdid id, bool confirmIfModified)
 //! \todo Implement
 bool MvdMovieEditor::setMovies(const QList<mvdid>& movies, bool confirmIfModified)
 {
+	Q_UNUSED(movies);
+
 	if (mCollection == 0)
 		return false;
 

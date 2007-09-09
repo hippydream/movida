@@ -129,6 +129,7 @@ void MvdLinksPage::setMovieImpl(const MvdMovie& movie)
 
 void MvdLinksPage::setMoviesImpl(const QList<MvdMovie>& movies)
 {
+	Q_UNUSED(movies);
 }
 
 /*!
@@ -178,6 +179,9 @@ bool MvdLinksPage::store(MvdMovie& movie)
 
 void MvdLinksPage::contextMenuRequested(QTreeWidgetItem* item, int column)
 {
+	Q_UNUSED(column);
+	Q_UNUSED(item);
+
 	QMenu menu;
 	QAction* deleteUrlAction = 0, * openUrlAction = 0;
 

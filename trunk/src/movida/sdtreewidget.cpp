@@ -785,6 +785,9 @@ MvdSDTreeWidget* MvdSDDelegate::tree() const
 Movida::ItemValidator MvdSDDelegate::validatorType(const QModelIndex& index, 
 	const MvdSDTreeWidget& tree, QVariant* data, ValidatorUse use) const
 {
+	Q_UNUSED(use);
+	Q_UNUSED(data);
+
 	//! \todo use columns as defined in Movida namespace.
 	/*
 	Movida::DataRole ds = tree.dataSource();
@@ -810,6 +813,8 @@ Movida::ItemValidator MvdSDDelegate::validatorType(const QModelIndex& index,
 QWidget* MvdSDDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, 
 	const QModelIndex& index) const
 {
+	Q_UNUSED(option);
+
 	MvdSDTreeWidget* t = tree();
 	Q_ASSERT(t);
 
@@ -827,13 +832,12 @@ QWidget* MvdSDDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem
 	
 	QMap<QString,MvdSDTreeWidget::ActionDescriptor> actions = 
 		t->generateActions(id);
-	int currentIndex = 0;
 
 	for (QMap<QString,MvdSDTreeWidget::ActionDescriptor>::ConstIterator it = 
 		actions.constBegin(); it != actions.constEnd(); ++it)
 	{
-		const MvdSDTreeWidget::ActionDescriptor& ad = it.value();
-		mvdid currentId = ad.itemIds.first();
+		// const MvdSDTreeWidget::ActionDescriptor& ad = it.value();
+		// mvdid currentId = ad.itemIds.first();
 
 		completionData << it.key();
 	}
