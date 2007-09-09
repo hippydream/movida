@@ -80,15 +80,14 @@ namespace Movida
 
 	enum AttributeFilter
 	{
-		AllAttributes,
-		DetailedAttributes,
-		SimpleAttributes
+		NoAttributeFilter,
+		MainAttributeFilter
 	};
 
-	QList<MovieAttribute> movieAttributes(AttributeFilter filter = AllAttributes);
+	QList<MovieAttribute> movieAttributes(AttributeFilter filter = NoAttributeFilter);
 	QString movieAttributeString(MovieAttribute attribute);
 
-	QList<SharedDataAttribute> sharedDataAttributes(Movida::DataRole role);
+	QList<SharedDataAttribute> sharedDataAttributes(Movida::DataRole role, AttributeFilter filter = NoAttributeFilter);
 	QString sharedDataAttributeString(SharedDataAttribute attribute);
 }
 

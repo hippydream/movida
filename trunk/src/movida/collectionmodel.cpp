@@ -329,7 +329,7 @@ int MvdCollectionModel::rowCount(const QModelIndex&) const
 */
 int MvdCollectionModel::columnCount(const QModelIndex&) const
 {
-	return Movida::movieAttributes(Movida::DetailedAttributes).size();
+	return Movida::movieAttributes(Movida::NoAttributeFilter).size();
 }
 
 /*!

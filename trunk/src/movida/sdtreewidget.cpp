@@ -28,13 +28,14 @@
 #include <QtDebug>
 #include <QComboBox>
 #include <QList>
-#include <QTreeWidgetItemIterator>
 #include <QMenu>
 #include <QMessageBox>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QComboBox>
 #include <QHeaderView>
+#include <QCompleter>
+#include <QStringListModel>
 
 /*!
 	\class MvdSDTreeWidget sdtreewidget.h
@@ -43,8 +44,13 @@
 	\brief MvdTreeWidget for display and editing of a movie's shared data.
 	\todo Add a "add new" special item to the "add existing" combo box.
 	\todo Rename "data source" to "role" to be consistent within the whole app.
+	\todo Override tab order when a new item is being edited!
 */
 
+
+namespace MvdSDTW {
+	static const int RolesColumn = 1;
+}
 
 /************************************************************************
 MvdSDTreeWidget
@@ -64,9 +70,12 @@ MvdSDTreeWidget::MvdSDTreeWidget(QWidget* parent)
 */
 MvdSDTreeWidget::MvdSDTreeWidget(Movida::DataRole ds, const MvdMovie& movie, 
 	MvdMovieCollection* c, QWidget* parent)
-: MvdTreeWidget(parent), mMovie(movie), mCollection(c), mDS(ds)
+: MvdTreeWidget(parent), mCollection(0), mDS(Movida::NoRole)
 {
 	init();
+	setMovieCollection(c);
+	setMovie(movie);
+	setDataSource(ds);
 }
 
 //! \internal
@@ -82,6 +91,8 @@ void MvdSDTreeWidget::init()
 
 	setItemDelegate(new MvdSDDelegate(this));
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+	appendPlaceHolder();
 }
 
 /*!
@@ -91,37 +102,18 @@ void MvdSDTreeWidget::init()
 */
 void MvdSDTreeWidget::setDataSource(Movida::DataRole ds)
 {
-	clear();
-	setModified(false);
-
 	mDS = ds;
 
-	QStringList labels;
+	clear();
+	appendPlaceHolder();
+	setModified(false);
 
-	switch (ds)
-	{
-	case Movida::ActorRole:
-	case Movida::CrewMemberRole:
-		labels << tr("Name") << tr("IMDb ID") << tr("Role(s)");
-		break;
-	case Movida::DirectorRole:
-	case Movida::ProducerRole:
-		labels << tr("Name") << tr("IMDb ID");
-		break;
-	case Movida::GenreRole:
-		labels << tr("Genre");
-		break;
-	case Movida::CountryRole:
-		labels << tr("Country");
-		break;
-	case Movida::LanguageRole:
-		labels << tr("Language");
-		break;
-	case Movida::TagRole:
-		labels << tr("Tag");
-		break;
-	default: ;
-	}
+	QStringList labels;
+	QList<Movida::SharedDataAttribute> attributes = 
+		Movida::sharedDataAttributes(mDS, Movida::MainAttributeFilter);
+
+	for (int i = 0; i < attributes.size(); ++i)
+		labels << Movida::sharedDataAttributeString(attributes.at(i));
 
 	setHeaderLabels(labels);
 
@@ -137,22 +129,22 @@ void MvdSDTreeWidget::setDataSource(Movida::DataRole ds)
 		setPersonRoleData(mMovie.crewMembers());
 		break;
 	case Movida::DirectorRole:
-		setSimpleData(mMovie.directors(), ds);
+		setSimpleData(mMovie.directors());
 		break;
 	case Movida::ProducerRole:
-		setSimpleData(mMovie.producers(), ds);
+		setSimpleData(mMovie.producers());
 		break;
 	case Movida::GenreRole:
-		setSimpleData(mMovie.genres(), ds);
+		setSimpleData(mMovie.genres());
 		break;
 	case Movida::TagRole:
-		setSimpleData(mMovie.tags(), ds);
+		setSimpleData(mMovie.tags());
 		break;
 	case Movida::CountryRole:
-		setSimpleData(mMovie.countries(), ds);
+		setSimpleData(mMovie.countries());
 		break;
 	case Movida::LanguageRole:
-		setSimpleData(mMovie.languages(), ds);
+		setSimpleData(mMovie.languages());
 		break;
 	default: ;
 	}
@@ -161,8 +153,6 @@ void MvdSDTreeWidget::setDataSource(Movida::DataRole ds)
 /*!
 	Convenience method, same as calling setDataSource(Movida::DataRole) with the
 	same old data source. Clears the modified status.
-
-	\todo add a RESET_DEFAULTS action to the context menu
 */
 void MvdSDTreeWidget::resetToDefaults()
 {
@@ -184,48 +174,35 @@ void MvdSDTreeWidget::setMovie(const MvdMovie& m)
 */
 void MvdSDTreeWidget::store(MvdMovie& m)
 {
+	if (!mCollection)
+		return;
+
 	QHash<mvdid,QStringList> roleData;
 	QList<mvdid> stringData;
 
 	for (int i = 0; i < topLevelItemCount(); ++i)
 	{
 		QTreeWidgetItem* item = topLevelItem(i);
-		if (!item || isPlaceHolder(item))
+		if (isPlaceHolder(item))
 			continue;
 
 		mvdid id = item->data(0, Movida::IdRole).toUInt();
-		if (id == MvdNull && mCollection != 0)
+		if (id == MvdNull)
 		{
+			// Register a new shared item.
+
 			MvdSdItem sdItem;
 			sdItem.role = mDS;
-
-			// Record new item in SMD.
-			switch (mDS)
-			{
-			case Movida::ActorRole:
-			case Movida::CrewMemberRole:
-			case Movida::DirectorRole:
-			case Movida::ProducerRole:
-				sdItem.value = item->text(0);
-				sdItem.id = item->text(1);
-				break;
-			case Movida::GenreRole:
-			case Movida::CountryRole:
-			case Movida::LanguageRole:
-			case Movida::TagRole:
-				sdItem.value = item->text(0);
-				break;
-			default: ;
-			}
+			sdItem.value = item->text(0);
 			
 			id = mCollection->smd().addItem(sdItem);
 		}
 
 		// Re-check id as we might have added a new item to the SD
-		if (id != 0)
+		if (id != MvdNull)
 		{
 			if (mDS == Movida::ActorRole || mDS == Movida::CrewMemberRole)
-				roleData.insert(id, splitString(item->text(2)));
+				roleData.insert(id, splitString(item->text(MvdSDTW::RolesColumn)));
 			else stringData.append(id);
 		}
 	}
@@ -278,7 +255,7 @@ QList<quint32> MvdSDTreeWidget::currentValues(quint32 excluded, bool excludeNewI
 	for (int i = 0; i < topLevelItemCount(); ++i)
 	{
 		QTreeWidgetItem* item = topLevelItem(i);
-		if (!item || isPlaceHolder(item))
+		if (isPlaceHolder(item))
 			continue;
 
 		mvdid id = item->data(0, Movida::IdRole).toUInt();
@@ -313,7 +290,7 @@ void MvdSDTreeWidget::setModified(bool m)
 void MvdSDTreeWidget::updatedModifiedStatus()
 {
 	// We are editing a new movie
-	if (mCollection == 0 || !mMovie.isValid())
+	if (!mCollection || !mMovie.isValid())
 	{
 		setModified(this->topLevelItemCount() != 0);
 		return;
@@ -321,7 +298,6 @@ void MvdSDTreeWidget::updatedModifiedStatus()
 
 	// We are editing an existing movie: check for changed values
 	QList<quint32> current = currentValues(0, false);
-
 	QList<mvdid> original;
 
 	switch (mDS)
@@ -362,11 +338,11 @@ void MvdSDTreeWidget::updatedModifiedStatus()
 		for (int i = 0; i < topLevelItemCount(); ++i)
 		{
 			QTreeWidgetItem* item = topLevelItem(i);
-			if (!item || isPlaceHolder(item))
+			if (isPlaceHolder(item))
 				continue;
 
 			mvdid id = item->data(0, Movida::IdRole).toUInt();
-			QStringList roles = splitString(item->text(2));
+			QStringList roles = splitString(item->text(MvdSDTW::RolesColumn));
 
 			QStringList originalRoles = mDS == Movida::ActorRole ? 
 				mMovie.actorRoles(id) : mMovie.crewMemberRoles(id);
@@ -411,13 +387,11 @@ void MvdSDTreeWidget::setPersonRoleData(const QHash<mvdid, QStringList>& d)
 
 		MvdSdItem pd = mCollection->smd().item(id);
 
-		QTreeWidgetItem* item = new QTreeWidgetItem(this);
+		MvdTreeWidgetItem* item = new MvdTreeWidgetItem(this);
 		item->setFlags(item->flags() | Qt::ItemIsEditable);
 		item->setData(0, Movida::IdRole, id);
-
 		item->setText(0, pd.value);
-		item->setText(1, pd.id);
-		item->setText(2, joinStringList(roles, "; "));
+		item->setText(MvdSDTW::RolesColumn, joinStringList(roles, "; "));
 	}
 }
 
@@ -447,7 +421,7 @@ QString MvdSDTreeWidget::joinStringList(const QStringList& list,
 
 QStringList MvdSDTreeWidget::splitString(const QString& s) const
 {
-	QStringList dirty = s.split(";", QString::SkipEmptyParts);
+	QStringList dirty = s.split(QRegExp("[;,/]"), QString::SkipEmptyParts);
 	QStringList clean;
 
 	for (int i = 0; i < dirty.size(); ++i)
@@ -461,32 +435,17 @@ QStringList MvdSDTreeWidget::splitString(const QString& s) const
 }
 
 //! \internal Populates the view with simple data descriptions.
-void MvdSDTreeWidget::setSimpleData(const QList<mvdid>& d, Movida::DataRole ds)
+void MvdSDTreeWidget::setSimpleData(const QList<mvdid>& d)
 {
 	for (int i = 0; i < d.size(); ++i)
 	{
 		mvdid id = d.at(i);
 		MvdSdItem sdItem = mCollection->smd().item(id);
 		
-		QTreeWidgetItem* item = new QTreeWidgetItem(this);
+		MvdTreeWidgetItem* item = new MvdTreeWidgetItem(this);
 		item->setFlags(item->flags() | Qt::ItemIsEditable);
 		item->setData(0, Movida::IdRole, id);
-
-		switch (ds)
-		{
-		case Movida::DirectorRole:
-		case Movida::ProducerRole:
-				item->setText(0, sdItem.value);
-				item->setText(1, sdItem.id);
-			break;
-		case Movida::GenreRole:
-		case Movida::TagRole:
-		case Movida::CountryRole:
-		case Movida::LanguageRole:
-				item->setText(0, sdItem.value);
-			break;
-		default: ;
-		}
+		item->setText(0, sdItem.value);
 	}
 }
 
@@ -496,20 +455,17 @@ void MvdSDTreeWidget::showContextMenu(QTreeWidgetItem* item, int col)
 	Q_UNUSED(col);
 	Q_UNUSED(item);
 
-	if (mCollection == 0)
+	if (!mCollection)
 		return;
 
 	int itemCount;
 	int maxMenuItems = MvdCore::parameter("mvdp://movida/max-menu-items").toInt();
 
-	QList<mvdid> selected = filteredSelectedIds();
+	QList<QTreeWidgetItem*> selected = filteredSelectedItems();
 	QMap<QString, ActionDescriptor> actions = generateActions(0, &itemCount, maxMenuItems);
 
 	// Create context menu
 	QMenu menu;
-
-	// ************* EXECUTE/PROPERTIES
-
 
 	// ************* ADD/MANAGE
 	if (itemCount != 0)
@@ -553,7 +509,7 @@ void MvdSDTreeWidget::showContextMenu(QTreeWidgetItem* item, int col)
 QMap<QString, MvdSDTreeWidget::ActionDescriptor> MvdSDTreeWidget::generateActions(
 	quint32 sel, int* _itemCount, int max)
 {
-	Q_ASSERT(mCollection != 0);
+	Q_ASSERT(mCollection);
 
 	QMap<QString,ActionDescriptor> actions;
 	QList<quint32> current = currentValues();
@@ -660,11 +616,11 @@ void MvdSDTreeWidget::executeAction(ActionDescriptor ad, const QVariant& data)
 		{
 			QList<mvdid> l;
 			l << ad.itemIds.first();
-			setSimpleData(l, mDS);
+			setSimpleData(l);
 		}
 		break;
 	case RemoveItemAction:
-		qDeleteAll(itemsById(ad.itemIds));
+		qDeleteAll(ad.items);
 		break;
 	case ShowEditorAction:
 		QMessageBox::warning(this, MVD_CAPTION, "Not implemented");
@@ -672,7 +628,7 @@ void MvdSDTreeWidget::executeAction(ActionDescriptor ad, const QVariant& data)
 	case ShowItemSelectorAction:
 		/*
 		{
-			QTreeWidgetItem* item = new QTreeWidgetItem(this);
+			MvdTreeWidgetItem* item = new MvdTreeWidgetItem(this);
 			item->setFlags(item->flags() | Qt::ItemIsEditable);
 			item->setData(0, Movida::IdRole, 0);
 			setCurrentItem(item);
@@ -694,30 +650,118 @@ void MvdSDTreeWidget::executeAction(ActionDescriptor ad, const QVariant& data)
 void MvdSDTreeWidget::keyPressEvent(QKeyEvent* event)
 {
 	QTreeWidgetItem* item = currentItem();
-	if (!item)
-		return;
 
-	bool ok;
-	mvdid currentId = item->data(0, Movida::IdRole).toUInt(&ok);
+	bool ok = true;
+	mvdid currentId = item ? item->data(0, Movida::IdRole).toUInt(&ok) : MvdNull;
 	if (!ok)
 		currentId = MvdNull;
 
-	QList<mvdid> selectedIds = filteredSelectedIds();
+	QList<QTreeWidgetItem*> selected = filteredSelectedItems();
 
 	switch (event->key())
 	{
 	case Qt::Key_Delete:
-		if (!selectedIds.isEmpty())
+		if (!selected.isEmpty())
 		{
-			ActionDescriptor ad;
-			ad.type = RemoveItemAction;
-			ad.itemIds = selectedIds;
-			executeAction(ad);
+			executeAction(ActionDescriptor(RemoveItemAction, selected));
 			return;
 		}
 	}
 
 	MvdTreeWidget::keyPressEvent(event);
+}
+
+MvdTreeWidgetItem* MvdSDTreeWidget::appendPlaceHolder()
+{
+	if (mDS == Movida::NoRole)
+		return 0;
+
+	MvdTreeWidgetItem* item = new MvdTreeWidgetItem(this);
+	item->setFlags(item->flags() | Qt::ItemIsEditable);
+	
+	QFont f = item->font(0);
+	item->setData(0, Movida::FontBackupRole, f);
+	f.setItalic(true);
+	item->setFont(0, f);
+
+	f = item->font(1);
+	item->setData(1, Movida::FontBackupRole, f);
+	f.setItalic(true);
+	item->setFont(1, f);
+
+	switch (mDS)
+	{
+	case Movida::ActorRole:
+		item->setText(0, tr("New actor"));
+		item->setData(0, Qt::ToolTipRole, tr("Edit here to add a new actor"));
+		item->setData(MvdSDTW::RolesColumn, Qt::ToolTipRole, tr("Separate roles with a semi colon (\";\"), comma (\",\") or slash (\"/\")"));
+		break;
+	case Movida::DirectorRole:
+		item->setText(0, tr("New director"));
+		item->setData(0, Qt::ToolTipRole, tr("Edit here to add a new director"));
+		item->setData(MvdSDTW::RolesColumn, Qt::ToolTipRole, tr("Separate roles with a semi colon (\";\"), comma (\",\") or slash (\"/\")"));
+		break;
+	case Movida::ProducerRole:
+		item->setText(0, tr("New producer"));
+		item->setData(0, Qt::ToolTipRole, tr("Edit here to add a new producer"));
+		item->setData(MvdSDTW::RolesColumn, Qt::ToolTipRole, tr("Separate roles with a semi colon (\";\"), comma (\",\") or slash (\"/\")"));
+		break;
+	case Movida::CrewMemberRole:
+		item->setText(0, tr("New crew member"));
+		item->setData(0, Qt::ToolTipRole, tr("Edit here to add a new crew member"));
+		item->setData(MvdSDTW::RolesColumn, Qt::ToolTipRole, tr("Separate roles with a semi colon (\";\"), comma (\",\") or slash (\"/\")"));
+		break;
+	case Movida::GenreRole:
+		item->setText(0, tr("New genre"));
+		item->setData(0, Qt::ToolTipRole, tr("Edit here to add a new genre"));
+		break;
+	case Movida::LanguageRole:
+		item->setText(0, tr("New language"));
+		item->setData(0, Qt::ToolTipRole, tr("Edit here to add a new language"));
+		break;
+	case Movida::CountryRole:
+		item->setText(0, tr("New country"));
+		item->setData(0, Qt::ToolTipRole, tr("Edit here to add a new country"));
+		break;
+	case Movida::TagRole:
+		item->setText(0, tr("New tag"));
+		item->setData(0, Qt::ToolTipRole, tr("Edit here to add a new tag"));
+		break;
+	default:
+		item->setText(0, tr("New item"));
+		item->setData(0, Qt::ToolTipRole, tr("Edit here to add a new item"));
+	}
+	
+	item->setData(0, Movida::PlaceholderRole, true);
+
+	item->setData(0, Movida::TextColorBackupRole, item->data(0, Qt::TextColorRole));
+	item->setData(0, Qt::TextColorRole, qVariantFromValue<QColor>(QColor("#585858")));
+	item->setData(1, Movida::TextColorBackupRole, item->data(1, Qt::TextColorRole));
+	item->setData(1, Qt::TextColorRole, qVariantFromValue<QColor>(QColor("#585858")));
+
+	return item;
+}
+
+void MvdSDTreeWidget::removePlaceHolder(QTreeWidgetItem* item)
+{
+	if (!item || !isPlaceHolder(item))
+		return;
+
+	item->setData(0, Movida::PlaceholderRole, QVariant());
+	
+	QVariant c = item->data(0, Movida::TextColorBackupRole);
+	item->setData(0, Movida::TextColorBackupRole, QVariant());
+	item->setData(0, Qt::TextColorRole, c);
+	c = item->data(1, Movida::TextColorBackupRole);
+	item->setData(1, Movida::TextColorBackupRole, QVariant());
+	item->setData(1, Qt::TextColorRole, c);
+
+	QVariant f = item->data(0, Movida::FontBackupRole);
+	item->setData(0, Movida::FontBackupRole, QVariant());
+	item->setFont(0, qVariantValue<QFont>(f));
+	f = item->data(1, Movida::FontBackupRole);
+	item->setData(1, Movida::FontBackupRole, QVariant());
+	item->setFont(1, qVariantValue<QFont>(f));
 }
 
 
@@ -731,41 +775,10 @@ MvdSDDelegate::MvdSDDelegate(MvdSDTreeWidget* parent)
 {
 }
 
-//! Returns the type of delegate to be used for the current index.
-MvdSDDelegate::DelegateType MvdSDDelegate::delegateType(const QModelIndex& index, 
-	MvdSDTreeWidget** _tree) const
+//! \internal Convenience method.
+MvdSDTreeWidget* MvdSDDelegate::tree() const
 {
-	MvdSDTreeWidget* tree = qobject_cast<MvdSDTreeWidget*>(this->parent());
-	if (tree == 0)
-		return UnsupportedDelegate;
-
-	if (_tree != 0)
-		*_tree = tree;
-
-	QTreeWidgetItem* currentItem = tree->itemFromIndex(index);
-	if (currentItem != 0)
-	{
-		QVariant v = currentItem->data(0, Movida::NewItemRole);
-		bool isNew = v.isNull() ? false : v.toBool();
-		
-		// New custom item
-		if (isNew)
-			return TextDelegate;
-	}
-
-	Movida::DataRole ds = tree->dataSource();
-	if (Movida::PersonRole & ds)
-	{
-		// ID column
-		if (index.column() == 1)
-			return NullDelegate;
-		// Role column
-		if (index.column() > 1)
-			return TextDelegate;
-
-		return PersonDelegate;
-	}
-	return StandardDelegate;
+	return qobject_cast<MvdSDTreeWidget*>(this->parent());
 }
 
 //! \internal Returns the validator associated to a column and/or row (if any).
@@ -773,6 +786,7 @@ Movida::ItemValidator MvdSDDelegate::validatorType(const QModelIndex& index,
 	const MvdSDTreeWidget& tree, QVariant* data, ValidatorUse use) const
 {
 	//! \todo use columns as defined in Movida namespace.
+	/*
 	Movida::DataRole ds = tree.dataSource();
 	if ((Movida::PersonRole & ds) && index.column() == 1)
 	{
@@ -784,6 +798,10 @@ Movida::ItemValidator MvdSDDelegate::validatorType(const QModelIndex& index,
 		}
 		return Movida::RegExpValidator;
 	}
+	*/
+
+	if (tree.isPlaceHolder(tree.topLevelItem(index.row())))
+		return Movida::UndoEmptyValitator;
 
 	return Movida::NoValidator;
 }
@@ -792,178 +810,157 @@ Movida::ItemValidator MvdSDDelegate::validatorType(const QModelIndex& index,
 QWidget* MvdSDDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, 
 	const QModelIndex& index) const
 {
-	MvdSDTreeWidget* tree = 0;
-	DelegateType dt = delegateType(index, &tree);
+	MvdSDTreeWidget* t = tree();
+	Q_ASSERT(t);
+
+	MvdExpandingLineEdit* le = new MvdExpandingLineEdit(parent);
+	le->setFrame(false);
+
+	QStringList completionData;
 	
-	if (dt == UnsupportedDelegate)
-		return QItemDelegate::createEditor(parent, option, index);
-
-	if (dt == NullDelegate)
-		return 0;
+	QTreeWidgetItem* item = t->currentItem();
+	Q_ASSERT(item);
 	
-	Q_ASSERT(tree != 0);
-	// Movida::DataRole ds = tree->dataSource();
+	// id might be MvdNull if we are adding a new item. generateActions() behaves 
+	// correctly in this case too.
+	mvdid id = item->data(0, Movida::IdRole).toUInt();
+	
+	QMap<QString,MvdSDTreeWidget::ActionDescriptor> actions = 
+		t->generateActions(id);
+	int currentIndex = 0;
 
-	QWidget* editor = 0;
-
-	if (dt == TextDelegate)
+	for (QMap<QString,MvdSDTreeWidget::ActionDescriptor>::ConstIterator it = 
+		actions.constBegin(); it != actions.constEnd(); ++it)
 	{
-		MvdExpandingLineEdit* le = new MvdExpandingLineEdit(parent);
-		le->setFrame(false);
-		editor = le;
+		const MvdSDTreeWidget::ActionDescriptor& ad = it.value();
+		mvdid currentId = ad.itemIds.first();
 
-		QVariant v;
-		Movida::ItemValidator val = validatorType(index, *tree, &v, MaskUse);
-		if (val == Movida::RegExpValidator)
-		{
-			QString mask = v.toString();
-			if (!mask.isEmpty())
-				le->setInputMask(mask);
-		}
+		completionData << it.key();
 	}
-	else
+
+	QCompleter* completer = new QCompleter(completionData, le);
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
+	completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+	le->setCompleter(completer);
+
+	QVariant v;
+	Movida::ItemValidator val = validatorType(index, *t, &v, MaskUse);
+	if (val == Movida::RegExpValidator)
 	{
-		QComboBox* cb = new QComboBox(parent);
-		cb->setFrame(false);
-		editor = cb;
+		QString mask = v.toString();
+		if (!mask.isEmpty())
+			le->setInputMask(mask);
 	}
-	
-	return editor;
+
+	return le;
 }
 
-//! \internal Populates the combobox editor with smd data.
+//! \internal
 void MvdSDDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
 {
-	MvdSDTreeWidget* tree = 0;
-	DelegateType dt = delegateType(index, &tree);
+	MvdSDTreeWidget* t = tree();
+	Q_ASSERT(t);
 
-	if (dt == UnsupportedDelegate)
-	{
-		QItemDelegate::setEditorData(editor, index);
-		return;
-	}
+	QTreeWidgetItem* item = t->currentItem();
+	Q_ASSERT(item);
 
-	if (dt == NullDelegate)
-		return;
+	QLineEdit* le = qobject_cast<QLineEdit*>(editor);
+	Q_ASSERT(le);
 
-	Q_ASSERT(tree != 0);
-
-	QTreeWidgetItem* item = tree->currentItem();
-	Q_ASSERT(item != 0);
-
-	if (dt == TextDelegate)
-	{
-		QLineEdit* le = qobject_cast<QLineEdit*>(editor);
-		Q_ASSERT(le != 0);
-
+	if (!t->isPlaceHolder(item))
 		le->setText( item->text(index.column()) );
-	}
-	else
-	{
-		QComboBox* cb = qobject_cast<QComboBox*>(editor);
-		Q_ASSERT(cb != 0);
-
-		// ID might be 0 if we are adding a new item. generateAction behaves 
-		// correctly in this case too.
-		mvdid id = item->data(0, Movida::IdRole).toUInt();
-		
-		QMap<QString,MvdSDTreeWidget::ActionDescriptor> actions = 
-			tree->generateActions(id);
-		int currentIndex = 0;
-
-		for (QMap<QString,MvdSDTreeWidget::ActionDescriptor>::ConstIterator it = 
-			actions.constBegin(); it != actions.constEnd(); ++it)
-		{
-			const MvdSDTreeWidget::ActionDescriptor& ad = it.value();
-			mvdid currentId = ad.itemIds.first();
-
-			cb->addItem(it.key());
-			cb->setItemData(cb->count() - 1, currentId, Movida::IdRole);
-			if (currentId == id)
-				currentIndex = cb->count() - 1;
-		}
-
-		cb->setCurrentIndex(currentIndex);
-	}
 }
 
 //! \internal Stores changes in the model.
 void MvdSDDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, 
 	const QModelIndex& index) const
 {
-	MvdSDTreeWidget* tree = 0;
-	DelegateType dt = delegateType(index, &tree);
+	MvdSDTreeWidget* t = tree();
+	Q_ASSERT(t);
 
-	if (dt == UnsupportedDelegate)
-	{
-		QItemDelegate::setModelData(editor, model, index);
-		return;
-	}
-
-	if (dt == NullDelegate)
-		return;
-
-	Q_ASSERT(tree);
-
-	QTreeWidgetItem* item = tree->topLevelItem(index.row());
+	QTreeWidgetItem* item = t->topLevelItem(index.row());
 	Q_ASSERT(item);
 
-	MvdMovieCollection* mc = tree->movieCollection();
+	MvdMovieCollection* mc = t->movieCollection();
 	Q_ASSERT(mc);
 
-	if (dt == TextDelegate)
-	{
-		QLineEdit* le = qobject_cast<QLineEdit*>(editor);
-		Q_ASSERT(le);
+	QLineEdit* le = qobject_cast<QLineEdit*>(editor);
+	Q_ASSERT(le);
 
-		QVariant v = item->data(0, Movida::NewItemRole);
-		bool isNew = v.isNull() ? false : v.toBool();
+	QStringListModel* slModel = static_cast<QStringListModel*>(le->completer()->model());
+	Q_ASSERT(model);
 
-		Movida::ItemValidator validator = validatorType(index, *tree, &v);
-
-		QString text = le->text();
-				
-		bool accept = true;
-		if (validator == Movida::RegExpValidator && !text.isEmpty())
-		{
-			QString pattern = v.toString();
-			if (!pattern.isEmpty())
-			{
-				QRegExp rx(pattern);
-				accept = rx.exactMatch(text);
-			}
-		}
-
-		if (accept)
-			item->setText(index.column(), text);
-
-		if (isNew && !isItemValid(tree->dataSource(), *item))
-		{
-			// Close editor so we can delete the item safely.
-			tree->closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
-			delete item;
-			return;
-		}	
-	}
-	else
-	{
-		QComboBox* cb = qobject_cast<QComboBox*>(editor);
-		Q_ASSERT(cb);
+	QString text = le->text().trimmed();
 	
-		// The ID in the combo should never be 0.
-		mvdid id = cb->itemData(cb->currentIndex(), Movida::IdRole).toUInt();
+	// Discard empty required fields
+	if (text.isEmpty() && index.column() == 0)
+		return;
+
+	QStringList completionData = slModel->stringList();
+	bool isNew = !completionData.contains(text);
+	bool isPH = t->isPlaceHolder(item);
+
+	// Ensure this is not a duplicate
+	if (isNew && index.column() == 0)
+	{
+		// \todo add dynamic validation by coloring the editor when a duplicate or empty string is entered
+		for (int i = 0; i < t->topLevelItemCount(); ++i)
+		{
+			QTreeWidgetItem* it = t->topLevelItem(i);
+			if (item == it || t->isPlaceHolder(it))
+				continue;
+
+			// Discard duplicate!
+			if (it->text(0).toLower() == text.toLower())
+				return;
+		}
+	}
+	else if (!isNew && index.column() == 0)
+	{
+		// Store ID
+		mvdid id = mc->smd().findItemByValue(text);
 		Q_ASSERT(id != MvdNull);
-
 		item->setData(0, Movida::IdRole, id);
+	}
 
-		// Change display role data too. depends on data source.
-		Movida::DataRole ds = tree->dataSource();
-		MvdSdItem sdItem = mc->smd().item(id);
+	QVariant v;
+	Movida::ItemValidator validator = validatorType(index, *t, &v);
 
-		item->setText(0, sdItem.value);
+	bool accept = true;
+	if (validator == Movida::RegExpValidator && !text.isEmpty())
+	{
+		QString pattern = v.toString();
+		if (!pattern.isEmpty())
+		{
+			QRegExp rx(pattern);
+			accept = rx.exactMatch(text);
+		}
+	}
+	else if (validator == Movida::UndoEmptyValitator)
+	{
+		accept = !text.isEmpty();
+	}
 
-		if (Movida::PersonRole & ds)
-			item->setText(1, sdItem.id);
+	if (accept)
+		item->setText(index.column(), text);
+
+	if (isPH)
+	{
+		if (accept)
+		{
+			// Remove placeholder
+			t->removePlaceHolder(item);
+			if (index.column() != 0)
+				item->setText(0, tr("Undefined item", "New shared data item with no name"));
+			t->setCurrentItem(t->appendPlaceHolder());
+		}
+		else
+		{
+			// Reset placeholder
+			t->closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
+			delete item;
+			t->setCurrentItem(t->appendPlaceHolder());
+		}
 	}
 }
 
@@ -973,35 +970,8 @@ void MvdSDDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptionView
 {
 	Q_UNUSED(index);
 
-	MvdSDTreeWidget* tree = 0;
-	DelegateType dt = delegateType(index, &tree);
-
-	if (dt == UnsupportedDelegate)
-	{
-		QItemDelegate::updateEditorGeometry(editor, option, index);
-		return;
-	}
-
-	if (dt == NullDelegate)
-		return;
-
-	Q_ASSERT(tree != 0);
-
-	QTreeWidgetItem* item = tree->currentItem();
-	Q_ASSERT(item != 0);
-
-	QRect r = option.rect;
-	/*if (r.y() > 0)
-	{
-		r.setY(r.y() - 2);
-		r.setHeight(r.height() + 4);
-	}
-	else
-	{
-		r.setHeight(r.height() + 6);
-	}*/
-
-	editor->setGeometry(r);
+	if (editor)
+		editor->setGeometry(option.rect);
 }
 
 /*!
@@ -1022,31 +992,21 @@ bool MvdSDDelegate::eventFilter(QObject* object, QEvent* event)
 		// Intercept ESC key when editing an item and delete unused new items
 		case Qt::Key_Escape:
 		{
-			MvdSDTreeWidget* tree = qobject_cast<MvdSDTreeWidget*>(this->parent());
-			if (tree != 0)
+			MvdSDTreeWidget* t = tree();
+			Q_ASSERT(t);
+
+			QTreeWidgetItem* item = t->currentItem();
+			if (item)
 			{
-				QTreeWidgetItem* item = tree->currentItem();
-				if (item != 0)
+				if (t->isPlaceHolder(item) && !isItemValid(t->dataSource(), *item))
 				{
-					QVariant v = item->data(0, Movida::NewItemRole);
-					bool isNew = v.isNull() ? false : v.toBool();
-					quint32 id = item->data(0, Movida::IdRole).toUInt();
-
-					//! \todo Delete empty new items (possibly check first and last name)
-					if (id == 0)
-					{
-						if (! (isNew && isItemValid(tree->dataSource(), *item)) )
-						{
-							// Don't commit data but ensure the item won't be used 
-							// any more so we can delete it.
-							tree->closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
-
-							delete item;
-
-							// Filter (block!) the event.
-							return true;
-						}
-					}
+					// Reset place holder
+					t->closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
+					delete item;
+					t->setCurrentItem(t->appendPlaceHolder());
+					
+					// Filter (block!) the event.
+					return true;
 				}
 			}
 		}

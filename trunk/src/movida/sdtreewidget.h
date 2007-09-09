@@ -50,9 +50,12 @@ public:
 			type(atype), itemIds(QList<mvdid>() << aid), current(acurrent) {}
 		ActionDescriptor(ActionType atype, QList<mvdid> aids, bool acurrent = false) : 
 			type(atype), itemIds(aids), current(acurrent) {}
+		ActionDescriptor(ActionType atype, QList<QTreeWidgetItem*> aitems, bool acurrent = false) : 
+			type(atype), items(aitems), current(acurrent) {}
 
 		ActionType type;
 		QList<mvdid> itemIds;
+		QList<QTreeWidgetItem*> items;
 		bool current;
 	};
 
@@ -90,7 +93,7 @@ private:
 
 	void init();
 	void setPersonRoleData(const QHash<mvdid, QStringList>& d);
-	void setSimpleData(const QList<mvdid>& d, Movida::DataRole ds);
+	void setSimpleData(const QList<mvdid>& d);
 
 	inline QMenu* createItemMenu(const QString& label, 
 		const QMap<QString,ActionDescriptor>& actions, ActionType type);
@@ -107,6 +110,9 @@ private:
 		quint32 selected = 0);
 
 	inline void setModified(bool m);
+
+	inline MvdTreeWidgetItem* appendPlaceHolder();
+	inline void removePlaceHolder(QTreeWidgetItem* item);
 
 	void keyPressEvent(QKeyEvent* event);
 
@@ -132,24 +138,9 @@ public:
 	bool eventFilter(QObject* object, QEvent* event);
 
 private:
-	enum DelegateType
-	{
-		//! Standard SMD data populated combo
-		StandardDelegate, 
-		//! One combo for both first and last name
-		PersonDelegate, 
-		//! Trivial line edit
-		TextDelegate,
-		//! This item should not be editable
-		NullDelegate,
-		//! Parent is not a valid MvdSDTreeWidget
-		UnsupportedDelegate
-	};
-
 	enum ValidatorUse { ValidationUse, MaskUse };
 
-	inline DelegateType delegateType(const QModelIndex& index, 
-		MvdSDTreeWidget** tree = 0) const;
+	inline MvdSDTreeWidget* tree() const;
 	inline Movida::ItemValidator validatorType(const QModelIndex& index, 
 		const MvdSDTreeWidget& tree, QVariant* data = 0, ValidatorUse use = ValidationUse) const;
 	inline bool isItemValid(Movida::DataRole ds, 
