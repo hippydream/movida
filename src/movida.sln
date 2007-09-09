@@ -1,25 +1,25 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mvdcore", "mvdcore\mvdcore.vcproj", "{71FA2AE2-6D8E-3FD9-A3CD-9074D0723022}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mvdcore", "mvdcore\mvdcore.vcproj", "{42FA0F01-F4DC-3F48-B661-9721CCE8828D}"
 	GlobalSection(Qt) = preSolution
 		Integration = True
 	EndGlobalSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mvdshared", "mvdshared\mvdshared.vcproj", "{4ECAA59A-B661-3BB4-9013-DEC7B5280A42}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mvdshared", "mvdshared\mvdshared.vcproj", "{25CCBA21-FEC7-336E-8689-1C79B454BFDD}"
 	GlobalSection(Qt) = preSolution
 		Integration = True
 	EndGlobalSection
 	ProjectSection(ProjectDependencies) = postProject
-		{71FA2AE2-6D8E-3FD9-A3CD-9074D0723022} = {71FA2AE2-6D8E-3FD9-A3CD-9074D0723022}
+		{42FA0F01-F4DC-3F48-B661-9721CCE8828D} = {42FA0F01-F4DC-3F48-B661-9721CCE8828D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Movida", "movida\Movida.vcproj", "{CC74C7FC-83E0-3EF2-AA83-C087B99D93D3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Movida", "movida\Movida.vcproj", "{4DD504A8-DDFA-3728-B3F1-CE0D8C12F63B}"
 	GlobalSection(Qt) = preSolution
 		Integration = True
 	EndGlobalSection
 	ProjectSection(ProjectDependencies) = postProject
-		{4ECAA59A-B661-3BB4-9013-DEC7B5280A42} = {4ECAA59A-B661-3BB4-9013-DEC7B5280A42}
-		{71FA2AE2-6D8E-3FD9-A3CD-9074D0723022} = {71FA2AE2-6D8E-3FD9-A3CD-9074D0723022}
+		{42FA0F01-F4DC-3F48-B661-9721CCE8828D} = {42FA0F01-F4DC-3F48-B661-9721CCE8828D}
+		{25CCBA21-FEC7-336E-8689-1C79B454BFDD} = {25CCBA21-FEC7-336E-8689-1C79B454BFDD}
 	EndProjectSection
 EndProject
 Global
@@ -31,18 +31,18 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{71FA2AE2-6D8E-3FD9-A3CD-9074D0723022}.Debug|Win32.ActiveCfg = Debug|Win32
-		{71FA2AE2-6D8E-3FD9-A3CD-9074D0723022}.Debug|Win32.Build.0 = Debug|Win32
-		{71FA2AE2-6D8E-3FD9-A3CD-9074D0723022}.Release|Win32.ActiveCfg = Release|Win32
-		{71FA2AE2-6D8E-3FD9-A3CD-9074D0723022}.Release|Win32.Build.0 = Release|Win32
-		{4ECAA59A-B661-3BB4-9013-DEC7B5280A42}.Debug|Win32.ActiveCfg = Debug|Win32
-		{4ECAA59A-B661-3BB4-9013-DEC7B5280A42}.Debug|Win32.Build.0 = Debug|Win32
-		{4ECAA59A-B661-3BB4-9013-DEC7B5280A42}.Release|Win32.ActiveCfg = Release|Win32
-		{4ECAA59A-B661-3BB4-9013-DEC7B5280A42}.Release|Win32.Build.0 = Release|Win32
-		{CC74C7FC-83E0-3EF2-AA83-C087B99D93D3}.Debug|Win32.ActiveCfg = Debug|Win32
-		{CC74C7FC-83E0-3EF2-AA83-C087B99D93D3}.Debug|Win32.Build.0 = Debug|Win32
-		{CC74C7FC-83E0-3EF2-AA83-C087B99D93D3}.Release|Win32.ActiveCfg = Release|Win32
-		{CC74C7FC-83E0-3EF2-AA83-C087B99D93D3}.Release|Win32.Build.0 = Release|Win32
+		{42FA0F01-F4DC-3F48-B661-9721CCE8828D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{42FA0F01-F4DC-3F48-B661-9721CCE8828D}.Debug|Win32.Build.0 = Debug|Win32
+		{42FA0F01-F4DC-3F48-B661-9721CCE8828D}.Release|Win32.ActiveCfg = Release|Win32
+		{42FA0F01-F4DC-3F48-B661-9721CCE8828D}.Release|Win32.Build.0 = Release|Win32
+		{25CCBA21-FEC7-336E-8689-1C79B454BFDD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{25CCBA21-FEC7-336E-8689-1C79B454BFDD}.Debug|Win32.Build.0 = Debug|Win32
+		{25CCBA21-FEC7-336E-8689-1C79B454BFDD}.Release|Win32.ActiveCfg = Release|Win32
+		{25CCBA21-FEC7-336E-8689-1C79B454BFDD}.Release|Win32.Build.0 = Release|Win32
+		{4DD504A8-DDFA-3728-B3F1-CE0D8C12F63B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4DD504A8-DDFA-3728-B3F1-CE0D8C12F63B}.Debug|Win32.Build.0 = Debug|Win32
+		{4DD504A8-DDFA-3728-B3F1-CE0D8C12F63B}.Release|Win32.ActiveCfg = Release|Win32
+		{4DD504A8-DDFA-3728-B3F1-CE0D8C12F63B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
