@@ -53,7 +53,7 @@ public:
 	CursorMovement cursorMovement() const;
 	void setCursorMovement(CursorMovement m);
 
-	inline bool isPlaceHolder(QTreeWidgetItem* item) const;
+	bool isPlaceHolder(QTreeWidgetItem* item) const;
 
 	virtual QList<QTreeWidgetItem*> filteredSelectedItems() const;
 	virtual QList<mvdid> filteredSelectedIds() const;

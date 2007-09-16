@@ -582,6 +582,8 @@ void MvdCollectionLoader_P::parsePersonIdList(xmlDocPtr doc, xmlNodePtr cur,
 void MvdCollectionLoader_P::parseSimpleIdList(xmlDocPtr doc, xmlNodePtr cur,
 	const IdMapper& idMapper, MvdMovie* movie, Movida::DataRole role)
 {
+	Q_UNUSED(doc);
+
 	xmlNodePtr dataNode = cur->children;
 	xmlChar* attr = 0;
 

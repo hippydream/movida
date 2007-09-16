@@ -86,8 +86,8 @@ private:
 
 		bool operator==(const AdvancedControl& o) const { return id == o.id; };
 
-		QString label;
 		int id;
+		QString label;
 		bool enabled;
 	};
 

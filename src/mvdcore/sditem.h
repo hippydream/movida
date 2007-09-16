@@ -82,6 +82,9 @@ public:
 		return value.toLower() == o.value.toLower();
 	}
 
+	//! This defines what this item is about (a person, an URL, a movie genre, etc.).
+	Movida::DataRole role;
+
 	//! I.e. a person name or a URL
 	QString value;
 	//! I.e. a title for a URL or some note
@@ -96,9 +99,6 @@ public:
 
 	//! Interesting URLs for this item.
 	QList<Url> urls;
-
-	//! This defines what this item is about (a person, an URL, a movie genre, etc.).
-	Movida::DataRole role;
 };
 
 typedef MvdSdItem::Url MvdUrl;

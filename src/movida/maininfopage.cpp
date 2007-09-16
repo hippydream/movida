@@ -48,7 +48,7 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 	setupUi(this);
 	int w = MvdCore::parameter("mvdp://movida/poster-default-width").toInt();
 	qreal ar = MvdCore::parameter("mvdp://movida/poster-aspect-ratio").toDouble();
-	int h = w / ar;
+	int h = int(w / ar);
 	Ui::MvdMainInfoPage::poster->setFixedSize(w, h);
 
 	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::RatedRole, QPixmap(":/images/misc/rating-rated.png") );
