@@ -1,0 +1,16 @@
+<RCC>
+	<qresource prefix="/" >
+		<file>images/import/logo.png</file>
+		<file>images/import/banner.png</file>
+		<file>images/import/watermark.png</file>
+		<file>images/import/background.png</file>
+		<file>images/loading_p1.png</file>
+		<file>images/loading_p2.png</file>
+		<file>images/loading_p3.png</file>
+		<file>images/loading_p4.png</file>
+		<file>images/loading_p5.png</file>
+		<file>images/loading_p6.png</file>
+		<file>images/loading_p7.png</file>
+		<file>images/loading_p8.png</file>
+	</qresource>
+</RCC>

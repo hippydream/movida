@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="movida-xml-doc">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="movie">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="original-title" type="xs:string" />
+              <xs:element name="running-time" type="xs:unsignedShort" />
+              <xs:element name="production-year" type="xs:unsignedShort" />
+              <xs:element name="release-year" type="xs:unsignedShort" />
+              <xs:element name="edition" type="xs:string" />
+              <xs:element name="rating" type="xs:unsignedShort" />
+              <xs:element name="favorite" type="xs:boolean" />
+              <xs:element name="notes" type="xs:string" />
+              <xs:element name="plot" type="xs:string" />
+              <xs:element name="imdb-id">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:pattern value="[0-9]{7}" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="storage-id" type="xs:string" />
+              <xs:element name="color-mode">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="color" />
+                    <xs:enumeration value="bw" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="cast" type="personlist">
+              </xs:element>
+              <xs:element name="crew" type="personlist">
+              </xs:element>
+              <xs:element name="directors" type="personlist">
+              </xs:element>
+              <xs:element name="producers" type="personlist">
+              </xs:element>
+              <xs:element name="genres" type="idlist">
+              </xs:element>
+              <xs:element name="countries" type="idlist">
+              </xs:element>
+              <xs:element name="languages" type="idlist">
+              </xs:element>
+              <xs:element name="tags" type="idlist">
+              </xs:element>
+              <xs:element name="urls" type="idlist">
+              </xs:element>
+              <xs:element name="special-contents" type="stringlist">
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="title" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:unsignedShort" use="optional" />
+      <xs:attribute name="items" type="xs:unsignedInt" use="optional" />
+      <xs:attribute name="update" type="xs:dateTime" use="optional" />
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="personlist">
+    <xs:sequence>
+      <xs:element type="person" name="person" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="idlist">
+    <xs:simpleContent>
+      <xs:extension base="xs:unsignedInt">
+        <xs:attribute name="default" type="xs:boolean" use="optional" />
+        <xs:attribute name="hardcoded" type="xs:boolean" use="optional" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="stringlist">
+    <xs:sequence>
+      <xs:element name="item" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="person">
+    <xs:sequence>
+      <xs:element name="role" type="xs:string" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+    <xs:attribute name="hardcoded" type="xs:boolean" />
+  </xs:complexType>
+</xs:schema>

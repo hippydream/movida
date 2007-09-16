@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="mma_archive">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="movie">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="cast" type="person_list" />
+              <xs:element name="tags" type="simple_data" />
+              <xs:element name="color_mode" type="color_mode" />
+              <xs:element name="countries" type="simple_data" />
+              <xs:element name="crew" type="person_list" />
+              <xs:element name="directors" type="person_list" />
+              <xs:element name="genres" type="simple_data" />
+              <xs:element name="imdb_id" type="seven_digit_code" />
+              <xs:element name="running_time" type="movie_length">
+              </xs:element>
+              <xs:element name="links" type="links_list" />
+              <xs:element name="notes" type="xs:string" />
+              <xs:element name="original_title" type="xs:string" />
+              <xs:element name="plot" type="xs:string" />
+              <xs:element name="producers" type="person_list">
+              </xs:element>
+              <xs:element name="production_year" type="xs:gYear" />
+              <xs:element name="rating" type="movie_rating" />
+              <xs:element name="release_year" type="xs:gYear" />
+              <xs:element name="storage_type" type="storage" />
+              <xs:element name="storage_id" type="string" />
+              <xs:element name="version" type="xs:string" />
+              <xs:element name="special_contents" type="string_list" />
+            </xs:sequence>
+            <xs:attribute name="title" type="xs:string" use="required" />
+            <xs:attribute name="media_type" type="media" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:decimal" use="required" />
+      <xs:attribute name="update" type="xs:dateTime" use="required" />
+      <xs:attribute name="items" type="xs:unsignedByte" use="required" />
+    </xs:complexType>
+  </xs:element>
+  <xs:simpleType name="color_mode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="bw" />
+      <xs:enumeration value="color" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="seven_digit_code">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{7}" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="movie_length">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{1,3}" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="movie_rating">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="([0-5])" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="storage">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="cdr70" />
+      <xs:enumeration value="cdr80" />
+      <xs:enumeration value="cdr90" />
+      <xs:enumeration value="cdr100" />
+      <xs:enumeration value="cd-r" />
+      <xs:enumeration value="cd+r" />
+      <xs:enumeration value="dvddl" />
+      <xs:enumeration value="other" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="media">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="dvd" />
+      <xs:enumeration value="mpeg4" />
+      <xs:enumeration value="other" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="string_list">
+    <xs:sequence>
+      <xs:element name="item" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="person_list">
+    <xs:sequence>
+      <xs:element name="person" type="xs:string" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" />
+    <xs:attribute name="role" type="xs:string" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="simple_data">
+    <xs:sequence>
+      <xs:element name="item" type="xs:string" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" />
+  </xs:complexType>
+  <xs:complexType name="links_list">
+    <xs:sequence>
+      <xs:element name="link" type="url_node" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="url_node">
+    <xs:sequence>
+      <xs:element name="url" type="xs:string" />
+      <xs:element name="description" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

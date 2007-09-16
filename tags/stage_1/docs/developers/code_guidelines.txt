@@ -1,0 +1,154 @@
+Latest update: 2007-02-24
+
+
+PURPOSE OF THIS DOCUMENT
+
+This document contains some brief coding guidelines that all the files
+belonging to the project should follow.
+The guidelines are just recommendations. They should simply help other 
+developers reading the source code and browsing the project files.
+
+
+PLAIN TEXT FILES
+
+Plain text files (like this document) should follow a few basic rules:
+
+1. use lower case filenames except for the classic README, COPYING and
+   *LICENSE* files;
+   
+2. if the version of the document is relevant, put it the first line
+   like in this document;
+   
+3. all the dates should be either in ISO format (YYYY-MM-DD) or in ISO
+   format with no hyphen (YYYYMMDD)
+
+
+SOURCE CODE
+
+1. General Guidelines
+
+ a. Be minimal. Don't overbloat the public interface of your class. Keep
+    things as simple as possible. Try to change the public interface as
+    less as possible over time.
+    
+ b. Don't write overly general code and don't chose overly general names.
+    Don't call a class ImageProcessor if you already know that it will only
+    resize PNG files. Call it PngResizer instead :)
+ 
+ c. Remember that other people might want to read your code. Use intuitive
+    names and be consistent throughout the whole project!
+    Consistency is the golden rule :)
+  
+ d. Please document at least all the public code. This means all the code
+    that developers using your class/library/whatever else might need to
+    understand.
+    Writing documentation can be a real p.i.t.a. but it _is_ very important.
+    
+ e. Try to keep the text within the 80 column boundary so that it can be viewed
+    easily from different devices/applications (i.e. a unix shell).
+
+
+2. Naming Conventions.
+   Most are common practice among C++ developers, some have been inspired by
+   the Qt 4 API and some are just obvious.
+
+ a. Names representing types must be in mixed case starting with upper case.
+    The same applies to enumeration values.
+    Example: MyClass, MyGlobalEnum, MyClass:ColorsEnum { Red, Green, Blue }
+    
+ b. Variable names must be in mixed case starting with lower case.
+    Common practice; it effectively resolves potential naming collision.
+    Example: foo, myLongNameVariable
+
+ c. Do not abbreviate, if possible. Abbreviated names may save you from pressing
+    some more keys when writing the (method|variable|class|*) name, but they
+    lead to make things less readable. This does not name you will have to follow
+    the Win32API-like naming horror, like GetFileInformationByHandle, 
+    GetDynamicTimeZoneInformation or GetTheAnswerToLifeTheUniverseAndEverything.
+    Object oriented languages help keeping the names short while still avoiding 
+    name clashes.
+    Example: prevItem() -> previousItem;
+    
+ c. Enumeration values should repeat (part of) the name of the enum either as a
+    prefix or suffix. C++ enums are not typed and this helps both reading the
+    code and writing error free code.
+    Example: enum Corner { TopLeftCorner, TopRightCorner, ... }
+             enum TextAlignment { AlignTopLeft, AligntopRight, ... }
+             
+ d. The method names should help distinguish between cont and non const methods 
+    and, generally, between methods that modigy an object and methods that return
+    a new (modified) object.
+    Example: MyString MyString::elided(int chars) const; // Return a new elided string
+             MyString& MyStringelide(int chars); // Elide this string and return a ref
+             
+ e. Use intuitive parameter names in the header files as these might be used to document
+    the code.
+    
+ f. Method names should be in mixed case, starting with a lower case (and they should 
+    possibly be verbs).
+    Example: hashFile(), checkVersion()
+    
+ g. Use the Qt 4 naming guidelines for getters and setters:
+
+    <QUOTE>  
+     * Adjectives are prefixed with is-. Examples:
+           o isChecked()
+           o isDown()
+           o isEmpty()
+           o isMovingEnabled()
+       However, adjectives applying to a plural noun have no prefix:
+           o scrollBarsEnabled(), not areScrollBarsEnabled()
+     * Verbs have no prefix and don't use the third person (-s):
+           o acceptDrops(), not acceptsDrops()
+           o allColumnsShowFocus()
+     * Nouns generally have no prefix:
+           o autoCompletion(), not isAutoCompletion()
+           o boundaryChecking()
+       Sometimes, having no prefix is misleading, in which case we prefix with is-:
+           o isOpenGLAvailable(), not openGL()
+           o isDialog(), not dialog()
+       (From a function called dialog(), we would normally expect that it returns a QDialog*.) 
+ 
+    The name of the setter is derived from that of the getter by removing any is prefix and 
+    putting a set at the front of the name; for example, setDown() and setScrollBarsEnabled().
+    The name of the property is the same as the getter, but without the is prefix.
+    </QUOTE>
+
+ h. Names representing namespaces should be all lowercase.
+ 
+ i. Abbreviations and acronyms must not be uppercase when used as name. The (real) main reason is 
+    that this ensures the word is more readable when it is used in a composed name.
+    Example: setHtml() and not setHTML()
+             setXmlTip() and not setXMLTip() // can you see it's far more readable? :)
+
+ j. All names should be written in English. Please avoid spaghetti English (mixing English with
+    your language) and remember that other people might be reading/working on your code!
+
+ 
+3. Source files
+
+ a. Use the .cpp and .h extensions for C++ files and headers. Do not use the (also common) .cxx,
+    .hh or .hxx extensions. This is just a matter of being consistent within the project.
+    
+ b. Avoid definitions in header files (except for private header files that are only included from
+    .cpp files. This speeds up build time if you need to change the code and it is an important
+    point in public header files that belong to a library (binary compatibility!).
+    
+ c. Use tabs and not spaces to indent the code.
+    There are two reasons to prefer tabs: first, graphical IDEs allow the user to specify how
+    tab should be displayed (how many spaces width); second, you won't need to write/delete 500 
+    spaces to change the indentation level of a line.
+    
+ d. Header files must contain a uniquely named guard. Use the same prefix used for the project's
+    global members and remeber that #defines should always be upper case. Always use the _H suffix!
+    Example:
+     #ifndef MVD_MOVIECOLLECTION_H
+     #define MVD_MOVIECOLLECTION_H
+     ...
+     #endif // MVD_MOVIECOLLECTION_H
+     
+ e. Sort and group #include statements. First library includes, then project includes and finally
+    3rd party includes (standard library included).
+    
+ f. Add the template in header_template.txt at the top of each file.
+ 
