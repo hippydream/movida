@@ -1018,6 +1018,7 @@ bool MvdSDDelegate::eventFilter(QObject* object, QEvent* event)
 		}
 	}
 	break;
+	default: ;
 	}
 	
 	return QItemDelegate::eventFilter(object, event);
