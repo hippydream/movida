@@ -24,14 +24,17 @@
 #include "pathresolver.h"
 #include "logger.h"
 #include "shareddata.h"
-#include <QApplication>
+#include <QCoreApplication>
 #include <QLocale>
+#include <QSize>
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 #include <QRegExp>
 #include <QDate>
 #include <QStringList>
 #include <QVarLengthArray>
+#include <QProcess>
 #include <QDebug>
 
 using namespace Movida;
@@ -368,4 +371,73 @@ MvdCore::LabelAction MvdCore::parseLabelAction(const QString& url)
 	}
 
 	return a;
+}
+
+/*!
+	Attempts to locate an application with the given name.
+	\p name must not include platform dependent suffixes (i.e. ".exe").
+
+	The application is first searched in the movida application directory 
+	(unless \p searchInAppDirPath is true) and then
+	in the directories included in the PATH environment variable.
+
+	Returns the path to the application (filename included) or an empty QString on failure.
+*/
+QString MvdCore::locateApplication(QString name, bool searchInAppDirPath)
+{
+	name = name.trimmed();
+	if (name.isEmpty())
+		return QString();
+
+	Qt::CaseSensitivity cs = Qt::CaseSensitive;
+
+#ifdef Q_OS_WIN
+		name.append(".exe");
+		cs = Qt::CaseInsensitive;
+#endif
+
+	//! \todo On Mac OS X this will point to the directory actually containing the executable, which may be inside of an application bundle (if the application is bundled). 
+	QString appPath = searchInAppDirPath ? QCoreApplication::applicationDirPath() : QString();
+	if (!appPath.isEmpty())
+	{
+		QFileInfo fi(appPath.append("/").append(name));
+		if (fi.exists() && fi.isExecutable())
+			return fi.absoluteFilePath();
+	}
+
+	QString pathEnv = env("path", Qt::CaseInsensitive);
+
+#ifdef Q_OS_WIN
+	QChar pathSep(';');
+#else
+	QChar pathSep(':');
+#endif
+
+	QStringList pathList = pathEnv.split(pathSep, QString::SkipEmptyParts);
+	for (int i = 0; i < pathList.size(); ++i)
+	{
+		QString p = pathList.at(i);
+		QFileInfo fi(p.append("/").append(name));
+		if (fi.exists() && fi.isExecutable())
+			return fi.absoluteFilePath();
+	}
+
+	return QString();
+}
+
+//! Returns the value of an environment variable.
+QString MvdCore::env(const QString& s, Qt::CaseSensitivity cs)
+{
+	QRegExp rx(QString("^%1=(.*)$").arg(s));
+	rx.setCaseSensitivity(cs);
+
+	QStringList envList = QProcess::systemEnvironment();
+	for (int i = 0; i < envList.size(); ++i)
+	{
+		QString e = envList.at(i);
+		if (rx.exactMatch(e))
+			return rx.cap(1);
+	}
+
+	return QString();
 }
