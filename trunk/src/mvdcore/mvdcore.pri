@@ -30,6 +30,7 @@ SOURCES += \
 	md5.cpp \
 	movie.cpp \
 	moviecollection.cpp \
+	moviedata.cpp \
 	pathresolver.cpp \
 	plugininterface.cpp \
 	settings.cpp \

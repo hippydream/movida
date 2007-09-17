@@ -241,6 +241,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\moviedata.cpp"
+				>
+			</File>
+			<File
 				RelativePath="pathresolver.cpp"
 				>
 			</File>
