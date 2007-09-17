@@ -55,6 +55,9 @@ public:
 	static QString decodeXmlEntities(QString s);
 	static LabelAction parseLabelAction(const QString& url);
 
+	static QString locateApplication(QString name, bool searchInAppDirPath = true);
+	static QString env(const QString& s, Qt::CaseSensitivity cs = Qt::CaseInsensitive);
+
 private:
 	static MvdCore_P* d;
 	static bool MvdCoreInitOk;
