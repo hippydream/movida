@@ -251,7 +251,7 @@ MvdLogger& MvdLogger::operator<< (const char* t)
 //! Writes a string to the log file.
 MvdLogger& MvdLogger::operator<< (const QString& t)
 {
-	*(d->stream) << "\"" << t  << "\"";
+	*(d->stream) << t;
 	d->stream->flush();
 	return *this;
 }
@@ -259,7 +259,7 @@ MvdLogger& MvdLogger::operator<< (const QString& t)
 //! Writes a string to the log file.
 MvdLogger& MvdLogger::operator<< (const QLatin1String& t)
 {
-	*(d->stream) << "\""  << t.latin1() << "\"";
+	*(d->stream) << t.latin1();
 	d->stream->flush();
 	return *this;
 }
@@ -267,7 +267,7 @@ MvdLogger& MvdLogger::operator<< (const QLatin1String& t)
 //! Writes a byte array to the log file.
 MvdLogger& MvdLogger::operator<< (const QByteArray& t)
 {
-	*(d->stream) << "\"" << t << "\"";
+	*(d->stream) << t;
 	d->stream->flush();
 	return *this;
 }
