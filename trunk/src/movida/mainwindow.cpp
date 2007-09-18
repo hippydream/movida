@@ -507,6 +507,8 @@ void MvdMainWindow::showLog()
 	QTextBrowser* viewer = new QTextBrowser;
 	viewer->setAcceptRichText(false);
 	viewer->setAttribute(Qt::WA_DeleteOnClose, true);
+	viewer->setWindowFlags(Qt::Tool);
+	viewer->setWindowModality(Qt::NonModal);
 	viewer->setSearchPaths(QStringList() << fi.absolutePath());
 	viewer->setSource(QUrl(fi.fileName()));
 	viewer->resize(640, 480);
@@ -1251,7 +1253,7 @@ void MvdMainWindow::externalActionTriggered(const QString& id, const QVariant& d
 		Movida::settings().setStringList("recent-files", QStringList(), "movida");
 		mA_FileOpenLast->setEnabled(false);
 	}
-	else qDebug("Unregistered external action %s", id.toAscii().constData());
+	else eLog() << QString("Unregistered external action: ").append(id);
 }
 
 //! \internal
@@ -1278,13 +1280,12 @@ void MvdMainWindow::loadPlugins()
 		QLibrary myLib(fi.absoluteFilePath());
 		if (!myLib.load())
 		{
-			qDebug("Failed to load %s (reason: %s)", 
-				fi.absoluteFilePath().toAscii().constData(),
-				myLib.errorString().toAscii().constData());
+			eLog() << QString("Failed to load %1 (reason: %2)")
+				.arg(fi.absoluteFilePath()).arg(myLib.errorString());
 			continue;
 		}
 
-		qDebug("Checking plugin: %s", fi.absoluteFilePath().toAscii().constData());
+		iLog() << "Checking plugin " << fi.absoluteFilePath();
 
 		typedef MvdPluginInterface* (*PluginInterfaceF)(QObject*);
 		PluginInterfaceF pluginInterfaceF = (PluginInterfaceF) myLib.resolve("pluginInterface");
@@ -1298,13 +1299,13 @@ void MvdMainWindow::loadPlugins()
 		MvdPluginInterface::PluginInfo info = iface->info();
 		if (info.name.isEmpty())
 		{
-			qDebug("Discarding unnamed plugin.");
+			wLog() << "Discarding unnamed plugin.";
 			continue;
 		}
 
-		qDebug("'%s' plugin loaded.", info.name.toAscii().constData());
+		iLog() << QString("'%1' plugin loaded.").arg(info.name);
 
-		QList<MvdPluginInterface::PluginAction*> actions = iface->actions();
+		QList<MvdPluginInterface::PluginAction> actions = iface->actions();
 
 		if (actions.isEmpty())
 			continue;
@@ -1316,18 +1317,17 @@ void MvdMainWindow::loadPlugins()
 			QDir d;
 			if (!d.mkpath(dataStorePath))
 			{
-				qDebug("Failed to create data store for plugin: %s", dataStorePath.toAscii().constData());
+				eLog() << "Failed to create data store for plugin: " << dataStorePath;
 				continue;
 			}
 		}
 
 		iface->setDataStore(dataStorePath);
-		qDebug("'%s' plugin data store created: %s", info.name.toAscii().constData(), 
-			dataStorePath.toAscii().constData());
+		iLog() << QString("'%1' plugin data store created: ").arg(info.name).append(dataStorePath);
 
 		// Initialize plugin
 		iface->init();
-		qDebug("'%s' plugin initialized.", info.name.toAscii().constData());
+		iLog() << QString("'%1' plugin initialized.").arg(info.name);
 
 		//! \todo sort plugin names?
 		QMenu* pluginMenu = mMN_Plugins->addMenu(info.name);
@@ -1336,13 +1336,13 @@ void MvdMainWindow::loadPlugins()
 
 		for (int j = 0; j < actions.size(); ++j)
 		{
-			MvdPluginInterface::PluginAction* a = actions.at(j);
+			const MvdPluginInterface::PluginAction& a = actions.at(j);
 			QAction* qa = new QAction(this);
-			qa->setText(a->text);
-			qa->setStatusTip(a->helpText);
+			qa->setText(a.text);
+			qa->setStatusTip(a.helpText);
 
 			connect( qa, SIGNAL(triggered()), signalMapper, SLOT(map()) );
-			signalMapper->setMapping(qa, a->name);
+			signalMapper->setMapping(qa, a.name);
 
 			pluginMenu->addAction(qa);
 		}
