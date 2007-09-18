@@ -298,7 +298,7 @@ MvdLogger& MvdLogger::operator<< (QTextStreamFunction f)
 MvdLogger& MvdLogger::appendTimestamp(const QString& message)
 {
 	QString timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-	*(d->stream) << (d->html ? "<br />" : MVD_LINEBREAK) << (message.isEmpty() ?
+	*(d->stream) << (d->html ? QString("<br />").append(MVD_LINEBREAK) : MVD_LINEBREAK) << (message.isEmpty() ?
 		QString("[%1] ").arg(timestamp) :
 		QString("[%1 - %2] ").arg(timestamp).arg(message));
 	return *this;
