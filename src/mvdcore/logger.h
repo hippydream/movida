@@ -36,6 +36,9 @@ public:
 	static MvdLogger& instance();
 	virtual ~MvdLogger();
 
+	void setUseHtml(bool useHtml);
+	bool isUsingHtml() const;
+
 	inline MvdLogger &operator<< (QChar t);
 	inline MvdLogger &operator<< (bool t);
 	inline MvdLogger &operator<< (char t);
