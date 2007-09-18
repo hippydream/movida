@@ -23,6 +23,7 @@
 #include "mainwindow.h"
 #include "guiglobal.h"
 #include "core.h"
+#include "logger.h"
 #include <QtGlobal>
 #include <QString>
 #include <QApplication>
@@ -63,6 +64,8 @@ int main( int argc, char ** argv )
 				QCoreApplication::translate("Main", "Failed to initialize the application.\nPlease see the log file for details."));
 			exit(MVD_ERROR_INIT);
 		}
+
+		MvdLogger::instance().setUseHtml(true);
 
 		MvdMainWindow w;
 		w.show();

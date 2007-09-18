@@ -289,7 +289,6 @@ MvdMainWindow::MvdMainWindow(QWidget* parent)
 	p.setBool("initials", false, "movida-movie-list");
 	p.setRect("main-window-rect", defaultWindowRect(), "movida-appearance");
 
-
 	// Initialize core library && load user settings
 	MvdCore::loadStatus();
 
@@ -504,16 +503,13 @@ void MvdMainWindow::showPreferences()
 */
 void MvdMainWindow::showLog()
 {
-	QString logPath = paths().logFile();
-	logPath = QDir::cleanPath(logPath).prepend("file://");
-
-	QStringList searchPaths;
-	searchPaths << "C:/Documents and Settings/blue/Dati applicazioni/BlueSoft/Movida/";
-
+	QFileInfo fi(paths().logFile());
 	QTextBrowser* viewer = new QTextBrowser;
+	viewer->setAcceptRichText(false);
 	viewer->setAttribute(Qt::WA_DeleteOnClose, true);
-	viewer->setSearchPaths(searchPaths);
-	viewer->setSource(QUrl("Movida.log"));
+	viewer->setSearchPaths(QStringList() << fi.absolutePath());
+	viewer->setSource(QUrl(fi.fileName()));
+	viewer->resize(640, 480);
 	viewer->show();
 }
 
@@ -1278,17 +1274,17 @@ void MvdMainWindow::loadPlugins()
 	QFileInfoList list = pluginDir.entryInfoList(QStringList() << ext);
 	for (int i = 0; i < list.size(); ++i)
 	{
-		QLibrary myLib(list.at(i).absoluteFilePath());
+		QFileInfo& fi = list[i];
+		QLibrary myLib(fi.absoluteFilePath());
 		if (!myLib.load())
 		{
-			qDebug("Failed to load %s (reason: %s)", list.at(i)
-			.absoluteFilePath().toAscii().constData(),
-			myLib.errorString().toAscii().constData());
+			qDebug("Failed to load %s (reason: %s)", 
+				fi.absoluteFilePath().toAscii().constData(),
+				myLib.errorString().toAscii().constData());
 			continue;
 		}
 
-		qDebug("Checking plugin: %s", list.at(i)
-			.absoluteFilePath().toAscii().constData());
+		qDebug("Checking plugin: %s", fi.absoluteFilePath().toAscii().constData());
 
 		typedef MvdPluginInterface* (*PluginInterfaceF)(QObject*);
 		PluginInterfaceF pluginInterfaceF = (PluginInterfaceF) myLib.resolve("pluginInterface");
@@ -1300,6 +1296,12 @@ void MvdMainWindow::loadPlugins()
 			continue;
 
 		MvdPluginInterface::PluginInfo info = iface->info();
+		if (info.name.isEmpty())
+		{
+			qDebug("Discarding unnamed plugin.");
+			continue;
+		}
+
 		qDebug("'%s' plugin loaded.", info.name.toAscii().constData());
 
 		QList<MvdPluginInterface::PluginAction*> actions = iface->actions();
@@ -1307,8 +1309,25 @@ void MvdMainWindow::loadPlugins()
 		if (actions.isEmpty())
 			continue;
 
+		//! \todo Check if completeBaseName() works with .so.1.xyz linux libraries!!
+		QString dataStorePath = paths().preferencesDir().append("/plugins/").append(fi.completeBaseName());
+		if (!QFile::exists(dataStorePath))
+		{
+			QDir d;
+			if (!d.mkpath(dataStorePath))
+			{
+				qDebug("Failed to create data store for plugin: %s", dataStorePath.toAscii().constData());
+				continue;
+			}
+		}
+
+		iface->setDataStore(dataStorePath);
+		qDebug("'%s' plugin data store created: %s", info.name.toAscii().constData(), 
+			dataStorePath.toAscii().constData());
+
 		// Initialize plugin
 		iface->init();
+		qDebug("'%s' plugin initialized.", info.name.toAscii().constData());
 
 		//! \todo sort plugin names?
 		QMenu* pluginMenu = mMN_Plugins->addMenu(info.name);
