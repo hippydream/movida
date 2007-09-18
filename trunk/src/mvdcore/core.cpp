@@ -35,6 +35,8 @@
 #include <QStringList>
 #include <QVarLengthArray>
 #include <QProcess>
+#include <QtGlobal>
+#include <QDir>
 #include <QDebug>
 
 using namespace Movida;
@@ -440,4 +442,18 @@ QString MvdCore::env(const QString& s, Qt::CaseSensitivity cs)
 	}
 
 	return QString();
+}
+
+//! Cleans a file path and replaces path separators with the separators used on the current platform.
+QString MvdCore::toLocalFilePath(QString s)
+{
+#ifdef Q_WS_WIN
+	QChar goodSep('\\');
+	QChar badSep('/');
+#else
+	QChar goodSep('/');
+	QChar badSep('\\');
+#endif
+
+	return QDir::cleanPath(s).replace(badSep, goodSep);
 }
