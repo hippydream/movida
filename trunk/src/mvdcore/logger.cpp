@@ -51,11 +51,12 @@ public:
 
 	QTextStream* stream;
 	QFile* file;
+	bool html;
 };
 
 //! \internal
 MvdLogger_P::MvdLogger_P()
-: stream(0), file(0)
+: stream(0), file(0), html(false)
 {
 }
 
@@ -63,7 +64,11 @@ MvdLogger_P::MvdLogger_P()
 MvdLogger_P::~MvdLogger_P()
 {
 	if (stream)
+	{
+		if (html)
+			*stream << "</body>" << MVD_LINEBREAK << "</html>";
 		stream->flush();
+	}
 	delete stream;
 	delete file;
 }
@@ -88,12 +93,15 @@ MvdLogger::MvdLogger()
 	{
 		d->stream = new QTextStream(d->file);
 
+		if (d->html)
+			*(d->stream) << "<html>" << MVD_LINEBREAK << "<body>" << MVD_LINEBREAK;
+
 		QDateTime dt = QDateTime::currentDateTime();
 		QString header = tr("Movida log: application started at %1")
-			.arg(dt.toString(Qt::ISODate)).append("\r\n");
+			.arg(dt.toString(Qt::ISODate)).append(MVD_LINEBREAK);
 		*(d->stream) << header;
 		header = QString().fill('-', header.length());
-		*(d->stream) << header << "\r\n";
+		*(d->stream) << header << MVD_LINEBREAK;
 	}
 }
 
@@ -114,6 +122,18 @@ MvdLogger& MvdLogger::instance()
 MvdLogger::~MvdLogger()
 {
 	delete d;
+}
+
+//! Sets whether the log should be written in HTML or plain text.
+void MvdLogger::setUseHtml(bool useHtml)
+{
+	d->html = useHtml;
+}
+
+//! Returns true if HTML is used when writing the log.
+bool MvdLogger::isUsingHtml() const
+{
+	return d->html;
 }
 
 //! Writes a single char to the log file.
@@ -278,7 +298,7 @@ MvdLogger& MvdLogger::operator<< (QTextStreamFunction f)
 MvdLogger& MvdLogger::appendTimestamp(const QString& message)
 {
 	QString timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-	*(d->stream) << MVD_LINEBREAK << (message.isEmpty() ?
+	*(d->stream) << (d->html ? "<br />" : MVD_LINEBREAK) << (message.isEmpty() ?
 		QString("[%1] ").arg(timestamp) :
 		QString("[%1 - %2] ").arg(timestamp).arg(message));
 	return *this;
@@ -290,7 +310,8 @@ MvdLogger& MvdLogger::appendTimestamp(const QString& message)
 */
 MvdLogger& Movida::eLog()
 {
-	return MvdLogger::instance().appendTimestamp("ERROR");
+	QString s = MvdLogger::instance().isUsingHtml() ? "<span style='color:red;'>ERROR</span>" : "ERROR";
+	return MvdLogger::instance().appendTimestamp(s);
 }
 
 /*!
@@ -299,7 +320,8 @@ MvdLogger& Movida::eLog()
 */
 MvdLogger& Movida::wLog()
 {
-	return MvdLogger::instance().appendTimestamp("WARNING");
+	QString s = MvdLogger::instance().isUsingHtml() ? "<span style='color:orange;'>WARNING</span>" : "WARNING";
+	return MvdLogger::instance().appendTimestamp(s);
 }
 
 /*!
