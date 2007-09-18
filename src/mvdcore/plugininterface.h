@@ -72,7 +72,7 @@ public:
 
 	virtual QString lastError() const = 0;
 	virtual PluginInfo info() const = 0;
-	virtual QList<PluginAction*> actions() const = 0;
+	virtual QList<PluginAction> actions() const = 0;
 
 	virtual void actionTriggeredImplementation(const QString& name) = 0;
 
