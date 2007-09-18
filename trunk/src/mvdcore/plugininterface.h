@@ -27,6 +27,8 @@
 #include <QIcon>
 #include <QList>
 
+class MvdPluginInterface_P;
+
 class MVD_EXPORT MvdPluginInterface : public QObject
 {
 	Q_OBJECT
@@ -62,8 +64,8 @@ public:
 		ActionType type;
 	};
 
-	MvdPluginInterface(QObject* parent = 0)
-		: QObject(parent) {}
+	MvdPluginInterface(QObject* parent = 0);
+	virtual ~MvdPluginInterface();
 
 	virtual bool init() = 0;
 	virtual void unload() = 0;
@@ -74,8 +76,14 @@ public:
 
 	virtual void actionTriggeredImplementation(const QString& name) = 0;
 
+	QString dataStore() const;
+	void setDataStore(const QString& path);
+
 public slots:
 	void actionTriggered(const QString& name);
+
+private:
+	MvdPluginInterface_P* d;
 };
 
 #endif // MVD_PLUGININTERFACE_H
