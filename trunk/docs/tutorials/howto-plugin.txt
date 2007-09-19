@@ -1,0 +1,83 @@
+*** Author: Fabrizio Angius
+*** Version: 1
+*** Title: How to write a plugin for movida.
+
+
+Movida plugins are simple dynamic/shared libraries (we will use the term DLL from now on).
+The DLL must link the mvdcore library and export pluginInterface() method:
+
+extern "C" MY_EXPORT_MACRO MvdPluginInterface* pluginInterface(QObject* parent);
+
+Plugin files (we will often call them MPI files - Movida Plug-In) must be placed in the "plugins" subdirectory inside the directory containing the movida application.
+This is a temporary solution. Future releases will allow to place per-user plugins in some other directory.
+
+The plugin can link the mvdshared library to access some convenience widgets or classes that are not part of mvdcore.
+
+As we have mentioned above, you will need to create a MvdPluginInterface subclass and return an instance to it in the pluginInterface() method.
+This will be the access point used by movida. Here is an example:
+
+// From blue.h:
+
+class MpiBlue : public MvdPluginInterface
+{
+	Q_OBJECT
+
+public:
+	MpiBlue(QObject* parent = 0);
+	virtual ~MpiBlue();
+
+	// MvdPluginInterface overloads:
+	bool init();
+	void unload();
+	QString lastError() const;
+	PluginInfo info() const;
+	QList<PluginAction> actions() const;
+	void actionTriggeredImplementation(const QString& name);
+};
+extern "C" MY_EXPORT_MACRO MvdPluginInterface* pluginInterface(QObject* parent);
+
+
+// From blue.cpp:
+
+MvdPluginInterface* pluginInterface(QObject* parent)
+{
+	return new MpiBlue(parent);
+}
+
+Even though the method takes a QObject pointer, the official movida GUI application will pass a pointer to the main window to the plugin.
+This means that plugins can cast it to QWidget (qobject_cast<QWidget*>(parent)) and pass it to other widgets.
+You are encouraged to do so and to set the windowModality property of dialogs to Qt::WindowModal, allowing the log window to be always accessible.
+
+mImportDialog = new MvdImportDialog(qobject_cast<QWidget*>(parent()));
+// ...
+mImportDialog->setWindowModality(Qt::WindowModal);
+mImportDialog->exec();
+
+For details on the MvdPluginInterface methods that need to be implemented, please refer to the doxygen documentation for the MvdPluginInterface class.
+
+The plugin can store/load per-user application settings using the Movida::settings() singleton. Please refer to the MvdSettings documentation for details.
+Other per-user data (i.e. additional configuration files) can be stored in the the path returned by MvdPluginInterface::dataStore().
+The directory is ensured to exist after the plugin has been loaded and right before init() is called.
+
+The init() method will be called as soon as the plugin is loaded into movida. Use this method to initialize the plugin and load settings from the data store.
+Please use care when accessing the data store from the constructor as the directory might not have been created yet.
+
+Every plugin must return a PluginInfo structure containing at least a non empty name. The name is used in the user interface, so it should be localized.
+
+The actions() method is assumed to return a list of PluginAction structures. A PluginAction defines an action (or "feature") that a plugin offers.
+Each action must have a non empty "text" member, that will be displayed in the GUI as a user interface action (i.e. a menu item).
+You are encouraged to set a short but meaningful description in the "helpText" member (it might be used as tool tip or on the status bar):
+
+QList<MvdPluginInterface::PluginAction> MpiBlue::actions() const
+{
+	MvdPluginInterface::PluginAction a;
+	a.text = tr("IMDb movie import");
+	a.helpText = tr("Import movies from the IMDb website.");
+	a.name = "imdb-import";
+	a.type = MvdPluginInterface::MovieImportAction;
+	return QList<MvdPluginInterface::PluginAction>() << a;
+}
+
+The "name" member is used as an identifier. It will be passed to the actionTriggeredImplementation() when the user triggers that specific action.
+The "type" can be set to a value different from GenericAction if a plugin action is "special", meaning that it can be classified using one of the predefined ActionType enum values.
+If an action is not a GenericAction, it can be called from special menus (i.e. "File > Import > Movie" if it is of type MovieImportAction).
