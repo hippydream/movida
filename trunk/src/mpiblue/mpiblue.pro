@@ -16,7 +16,7 @@ win32 {
 	LIBS += -L$${ROOT}/lib -lmvdcore -lmvdshared -lxml2
 }
 
-TARGET = blue.mpi
+TARGET = mpiblue
 TEMPLATE = lib
 CONFIG += dll
 DEFINES += MPI_BUILD_BLUE_DLL
@@ -28,7 +28,6 @@ win32 {
 } else {
 	DESTDIR = $${ROOT}/lib
 }
-
 
 INCLUDEPATH += . ../mvdcore ../mvdshared
 
