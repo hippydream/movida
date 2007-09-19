@@ -1373,15 +1373,11 @@
 			ParseFiles="false"
 			>
 			<File
-				RelativePath="images\32x32\add.png"
-				>
-			</File>
-			<File
 				RelativePath="images\16x16\add.png"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrow_down.png"
+				RelativePath="images\32x32\add.png"
 				>
 			</File>
 			<File
@@ -1389,11 +1385,15 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrow_left.png"
+				RelativePath="images\32x32\arrow_down.png"
 				>
 			</File>
 			<File
 				RelativePath="images\16x16\arrow_left.png"
+				>
+			</File>
+			<File
+				RelativePath="images\32x32\arrow_left.png"
 				>
 			</File>
 			<File
@@ -1405,19 +1405,19 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrow_up.png"
-				>
-			</File>
-			<File
 				RelativePath="images\16x16\arrow_up.png"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrowc_down.png"
+				RelativePath="images\32x32\arrow_up.png"
 				>
 			</File>
 			<File
 				RelativePath="images\16x16\arrowc_down.png"
+				>
+			</File>
+			<File
+				RelativePath="images\32x32\arrowc_down.png"
 				>
 			</File>
 			<File
@@ -1429,15 +1429,11 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrowc_right.png"
-				>
-			</File>
-			<File
 				RelativePath="images\16x16\arrowc_right.png"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrowc_up.png"
+				RelativePath="images\32x32\arrowc_right.png"
 				>
 			</File>
 			<File
@@ -1445,11 +1441,15 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\bottom.png"
+				RelativePath="images\32x32\arrowc_up.png"
 				>
 			</File>
 			<File
 				RelativePath="images\16x16\bottom.png"
+				>
+			</File>
+			<File
+				RelativePath="images\32x32\bottom.png"
 				>
 			</File>
 			<File
@@ -1489,11 +1489,11 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\configure.png"
+				RelativePath="images\16x16\configure.png"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\configure.png"
+				RelativePath="images\32x32\configure.png"
 				>
 			</File>
 			<File
@@ -1513,19 +1513,19 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\duplicate.png"
-				>
-			</File>
-			<File
 				RelativePath="images\16x16\duplicate.png"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\edit.png"
+				RelativePath="images\32x32\duplicate.png"
 				>
 			</File>
 			<File
 				RelativePath="images\16x16\edit.png"
+				>
+			</File>
+			<File
+				RelativePath="images\32x32\edit.png"
 				>
 			</File>
 			<File
@@ -1537,15 +1537,11 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\file_close.png"
-				>
-			</File>
-			<File
 				RelativePath="images\16x16\file_close.png"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\file_new.png"
+				RelativePath="images\32x32\file_close.png"
 				>
 			</File>
 			<File
@@ -1553,11 +1549,15 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\file_open.png"
+				RelativePath="images\32x32\file_new.png"
 				>
 			</File>
 			<File
 				RelativePath="images\16x16\file_open.png"
+				>
+			</File>
+			<File
+				RelativePath="images\32x32\file_open.png"
 				>
 			</File>
 			<File
@@ -1569,19 +1569,19 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\file_save.png"
-				>
-			</File>
-			<File
 				RelativePath="images\16x16\file_save.png"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\file_saveas.png"
+				RelativePath="images\32x32\file_save.png"
 				>
 			</File>
 			<File
 				RelativePath="images\16x16\file_saveas.png"
+				>
+			</File>
+			<File
+				RelativePath="images\32x32\file_saveas.png"
 				>
 			</File>
 			<File
@@ -1593,19 +1593,19 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\filter_edit.png"
-				>
-			</File>
-			<File
 				RelativePath="images\16x16\filter_edit.png"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\find.png"
+				RelativePath="images\32x32\filter_edit.png"
 				>
 			</File>
 			<File
 				RelativePath="images\16x16\find.png"
+				>
+			</File>
+			<File
+				RelativePath="images\32x32\find.png"
 				>
 			</File>
 			<File
@@ -1617,15 +1617,11 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\help.png"
-				>
-			</File>
-			<File
 				RelativePath="images\16x16\help.png"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\log.png"
+				RelativePath="images\32x32\help.png"
 				>
 			</File>
 			<File
@@ -1634,6 +1630,10 @@
 			</File>
 			<File
 				RelativePath="images\16x16\log.png"
+				>
+			</File>
+			<File
+				RelativePath="images\32x32\log.png"
 				>
 			</File>
 			<File
@@ -1687,11 +1687,11 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\purge.png"
+				RelativePath="images\16x16\purge.png"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\purge.png"
+				RelativePath="images\32x32\purge.png"
 				>
 			</File>
 			<File
@@ -1791,11 +1791,11 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\star.png"
+				RelativePath="images\16x16\star.png"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\star.png"
+				RelativePath="images\32x32\star.png"
 				>
 			</File>
 			<File
@@ -1815,11 +1815,11 @@
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\video.png"
+				RelativePath="images\16x16\video.png"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\video.png"
+				RelativePath="images\32x32\video.png"
 				>
 			</File>
 		</Filter>
