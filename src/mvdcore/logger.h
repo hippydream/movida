@@ -39,27 +39,25 @@ public:
 	void setUseHtml(bool useHtml);
 	bool isUsingHtml() const;
 
-	inline MvdLogger &operator<< (QChar t);
-	inline MvdLogger &operator<< (bool t);
-	inline MvdLogger &operator<< (char t);
-	inline MvdLogger &operator<< (signed short t);
-	inline MvdLogger &operator<< (unsigned short t);
-	inline MvdLogger &operator<< (signed int t);
-	inline MvdLogger &operator<< (unsigned int t);
-	inline MvdLogger &operator<< (signed long t);
-	inline MvdLogger &operator<< (unsigned long t);
-	inline MvdLogger &operator<< (qint64 t);
-	inline MvdLogger &operator<< (quint64 t);
-	inline MvdLogger &operator<< (float t);
-	inline MvdLogger &operator<< (double t);
-	// Don't inline this or GCC will send a warning
+	MvdLogger &operator<< (QChar t);
+	MvdLogger &operator<< (bool t);
+	MvdLogger &operator<< (char t);
+	MvdLogger &operator<< (signed short t);
+	MvdLogger &operator<< (unsigned short t);
+	MvdLogger &operator<< (signed int t);
+	MvdLogger &operator<< (unsigned int t);
+	MvdLogger &operator<< (signed long t);
+	MvdLogger &operator<< (unsigned long t);
+	MvdLogger &operator<< (qint64 t);
+	MvdLogger &operator<< (quint64 t);
+	MvdLogger &operator<< (float t);
+	MvdLogger &operator<< (double t);
 	MvdLogger &operator<< (const char* t);
-	// Don't inline this or GCC will send a warning
 	MvdLogger &operator<< (const QString& t);
-	inline MvdLogger &operator<< (const QLatin1String& t);
-	inline MvdLogger &operator<< (const QByteArray& t);
-	inline MvdLogger &operator<< (const void* t);
-	inline MvdLogger &operator<< (QTextStreamFunction f);
+	MvdLogger &operator<< (const QLatin1String& t);
+	MvdLogger &operator<< (const QByteArray& t);
+	MvdLogger &operator<< (const void* t);
+	MvdLogger &operator<< (QTextStreamFunction f);
 	inline MvdLogger &appendTimestamp(const QString& message = QString());
 
 private:
