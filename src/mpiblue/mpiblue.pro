@@ -18,16 +18,11 @@ win32 {
 
 TARGET = mpiblue
 TEMPLATE = lib
-CONFIG += dll
+CONFIG += plugin
 DEFINES += MPI_BUILD_BLUE_DLL
 QT += network
 
 DLLDESTDIR = $${ROOT}/bin/plugins
-win32 {
-	DESTDIR = $${ROOT}/lib/win32
-} else {
-	DESTDIR = $${ROOT}/lib
-}
 
 INCLUDEPATH += . ../mvdcore ../mvdshared
 
