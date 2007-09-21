@@ -1,11 +1,13 @@
 HEADERS += \
 	blue.h \
-	blueglobal.h
+	blueglobal.h \
+	movieimport.h
 	
 SOURCES += \
-	blue.cpp
+	blue.cpp \
+	movieimport.cpp
 
-RESOURCES +=	
+RESOURCES += mpiblue.qrc
 	
 FORMS += \
 	ui/importstart.ui
