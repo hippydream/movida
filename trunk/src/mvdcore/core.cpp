@@ -391,11 +391,11 @@ QString MvdCore::locateApplication(QString name, bool searchInAppDirPath)
 	if (name.isEmpty())
 		return QString();
 
-	Qt::CaseSensitivity cs = Qt::CaseSensitive;
+	//Qt::CaseSensitivity cs = Qt::CaseSensitive;
 
 #ifdef Q_OS_WIN
 		name.append(".exe");
-		cs = Qt::CaseInsensitive;
+		//cs = Qt::CaseInsensitive;
 #endif
 
 	//! \todo On Mac OS X this will point to the directory actually containing the executable, which may be inside of an application bundle (if the application is bundled). 
