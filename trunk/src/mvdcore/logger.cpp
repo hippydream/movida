@@ -80,7 +80,7 @@ MvdLogger
 
 //! \internal Private constructor.
 MvdLogger::MvdLogger()
-: d(new MvdLogger_P)
+: d(new MvdLogger_P), QObject()
 {
 	d->file = new QFile( paths().logFile() );
 	if (!d->file->open(QIODevice::ReadWrite | QIODevice::Truncate))
