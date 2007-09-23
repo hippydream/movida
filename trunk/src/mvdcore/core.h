@@ -58,7 +58,7 @@ public:
 	static QString locateApplication(QString name, bool searchInAppDirPath = true);
 	static QString env(const QString& s, Qt::CaseSensitivity cs = Qt::CaseInsensitive);
 
-	static QString toLocalFilePath(QString s);
+	static QString toLocalFilePath(QString s, bool considerDirectory = false);
 
 private:
 	static MvdCore_P* d;

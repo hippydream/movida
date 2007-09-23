@@ -445,15 +445,10 @@ QString MvdCore::env(const QString& s, Qt::CaseSensitivity cs)
 }
 
 //! Cleans a file path and replaces path separators with the separators used on the current platform.
-QString MvdCore::toLocalFilePath(QString s)
+QString MvdCore::toLocalFilePath(QString s, bool considerDirectory)
 {
-#ifdef Q_WS_WIN
-	QChar goodSep('\\');
-	QChar badSep('/');
-#else
-	QChar goodSep('/');
-	QChar badSep('\\');
-#endif
-
-	return QDir::cleanPath(s).replace(badSep, goodSep);
+	s = QDir::toNativeSeparators(QDir::cleanPath(s));
+	if (considerDirectory && !s.endsWith(QDir::separator()))
+		s.append(QDir::separator());
+	return s;
 }
