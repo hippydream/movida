@@ -118,7 +118,7 @@ QStringList MvdTemplateManager::movieTemplates() const
 	return names;
 }
 
-//! Returns an empty string if \p movie is not valid.
+//! Returns an empty string if \p movie is not valid. \todo Use XmlWriter or encode special chars (i.e. "&").
 QString MvdTemplateManager::movieToXml(const MvdMovie& movie, 
 	const MvdMovieCollection& collection)
 {
