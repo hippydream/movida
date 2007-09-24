@@ -263,13 +263,10 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					quint32 idLen = MvdCore::parameter("mvdp://movidacore/imdb-id-length").toInt();
-					if (strlen((const char*)attr) == idLen)
-					{
-						mvdid id = MvdCore::atoid((const char*)attr);
-						if (id != 0)
-							movie.setImdbId(QString::number(id));
-					}
+					QRegExp imdbRx(MvdCore::parameter("mvdp://mvdcore/imdb-id-regexp").toString());
+					QString imdbId = QString::fromAscii((const char*)attr);
+					if (imdbRx.exactMatch(imdbId))
+						movie.setImdbId(imdbId);
 					xmlFree(attr);
 				}
 			}
