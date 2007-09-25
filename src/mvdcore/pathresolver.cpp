@@ -252,25 +252,25 @@ MvdPathResolver_P::MvdPathResolver_P()
 	this->resourcesDirSystem = sysResources;
 #endif
 #if defined(Q_WS_X11)
-	QString userResources = QDir::homeDirPath().append("/.").append(org).append("/").append(app).append("/Resources");
+	QString userResources = QDir::homePath().append("/.").append(org).append("/").append(app).append("/Resources");
 	QDir dir(userResources);
 		userResources = dir.absolutePath();
-	if (!QDir::exists(userResources) && !dir.mkpath(userResources))
+	if (!dir.exists() && !dir.mkpath(userResources))
 		qDebug() << "MvdPathResolver: failed to create directory" << userResources;
 	else
 		this->resourcesDirUser = MvdCore::toLocalFilePath(userResources, true);
 
 	QString sysResources = QString("/etc/").append(org).append("/").append(app).append("/Resources");
 	dir = QDir(sysResources);
-	sysResources = sysResourcesDir.absolutePath();
-	if (!QDir::exists(sysResources) && !dir.mkpath(sysResources))
+	sysResources = dir.absolutePath();
+	if (!dir.exists() && !dir.mkpath(sysResources))
 	{
 		qDebug() << "MvdPathResolver: failed to create directory" << sysResources;
 		return;
 	}
 	sysResources = MvdCore::toLocalFilePath(sysResources, true);
 	if (this->resourcesDirUser.isEmpty())
-		this->>resourcesDirUser = sysResources;
+		this->resourcesDirUser = sysResources;
 	this->resourcesDirSystem = sysResources;
 #endif
 

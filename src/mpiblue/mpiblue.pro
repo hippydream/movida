@@ -22,6 +22,7 @@ CONFIG += plugin
 DEFINES += MPI_BUILD_BLUE_DLL
 QT += network
 
+DESTDIR = $${ROOT}/bin/plugins
 DLLDESTDIR = $${ROOT}/bin/plugins
 
 INCLUDEPATH += . ../mvdcore ../mvdshared
