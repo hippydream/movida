@@ -53,6 +53,9 @@ using namespace Movida;
 	\brief Handles platform-specific directory or file paths.
 	The returned paths always end with a directory separator.
 
+	<b>Movida::paths()</b> can be used as a convenience method to access the singleton.
+	<b>Movida::pid()</b> can be used to retrieve the process ID.
+
 	Please refer to the individual methods for the location of the path on
 	each platform.
 	
@@ -74,9 +77,6 @@ using namespace Movida;
 		SSF = "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\"
 		USF = "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\"
 	\endverbatim
-
-	<b>Movida::paths()</b> can be used as a convenience method to access the singleton.
-	<b>Movida::pid()</b> can be used to retrieve the process ID.
 */
 
 
@@ -376,7 +376,8 @@ bool MvdPathResolver::isInitialized() const
 
 /*!
 	Returns the absolute path of a directory that contains the user specific settings
-	file.
+	file. Please append "/{Org}/{App}.xml" to the returned value to have the exact
+	filename (this is necessary because of the current implementation of MvdSettings).
 
 	<table>
 		<tr><th>Platform</th><th>Scope</th><th>Location</th><th>Notes</th></tr>
