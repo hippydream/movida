@@ -1234,10 +1234,13 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 
 #if defined(Q_WS_WIN)
 	QString ext = "*.dll";
+	QString prefix = "mpi";
 #elif defined(Q_WS_MAC)
 	QString ext = "*.dylib";
+	QString prefix = "libmpi";
 #else
 	QString ext = "*.so";
+	QString prefix = "libmpi";
 #endif
 
 	QFileInfoList list = pluginDir.entryInfoList(QStringList() << ext);
@@ -1246,7 +1249,7 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 		QFileInfo& fi = list[i];
 		QString name = fi.completeBaseName();
 
-		if (!name.startsWith("mpi"))
+		if (!name.startsWith(prefix))
 			continue;
 
 		QLibrary myLib(fi.absoluteFilePath());

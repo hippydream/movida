@@ -1,5 +1,5 @@
 *** Author: Fabrizio Angius
-*** Version: 1.1
+*** Version: 1.1.1
 *** Title: How to write a plugin for movida.
 
 
@@ -9,7 +9,9 @@ The DLL must link the mvdcore library and export pluginInterface() method:
 extern "C" MY_EXPORT_MACRO MvdPluginInterface* pluginInterface(QObject* parent);
 
 Plugin files (we will often call them MPI files - Movida Plug-In) must be placed in the "Plugins" subdirectory inside the 
-user or system resources directory, and they must have the lower case prefix "mpi" (i.e. "mpiblue.so" and "mpiblue.dll").
+user or system resources directory.
+Plugin files must have the lower case prefix "mpi" on Windows and "libmpi" on Linux and Mac OS X (i.e. "mpiblue.dll", "libmpiblue.so"
+and "libmpiblue.dylib").
 
 The resources directory can be found in these locations:
 
