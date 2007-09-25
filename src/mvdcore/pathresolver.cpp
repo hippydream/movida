@@ -145,7 +145,16 @@ MvdPathResolver_P::MvdPathResolver_P()
 		this->settingsDir = root;
 	}
 #else
-	//! \todo Linux and mac settings!
+	QString root = QDir::homePath().append("/.config");
+	QDir dir(root);
+	root = dir.absolutePath();
+	if (!dir.exists() && !dir.mkpath(root))
+	{
+		qDebug() << "MvdPathResolver: failed to create directory" << root;
+		return;
+	}
+	root = MvdCore::toLocalFilePath(root, true);
+	this->settingsDir = root;
 #endif
 
 	QString sd(QString(this->settingsDir).append(org).append(QDir::separator()).append(app).append(".xml"));
@@ -206,7 +215,7 @@ MvdPathResolver_P::MvdPathResolver_P()
 			else
 				this->resourcesDirSystem = root;
 		}
-		resourcesOk = !this->resourcesDirSystem.isEmpty() && !this->resourcesDirUser.isEmpty();
+		resourcesOk = !this->resourcesDirUser.isEmpty();
 	}
 
 	if (!resourcesOk)
@@ -222,10 +231,7 @@ MvdPathResolver_P::MvdPathResolver_P()
 			return;
 		}
 		root = MvdCore::toLocalFilePath(root, true);
-		if (this->resourcesDirSystem.isEmpty())
-			this->resourcesDirSystem = root;
-		if (this->resourcesDirUser.isEmpty())
-			this->resourcesDirUser = root;
+		this->resourcesDirUser = root;
 	}
 #endif
 #if defined(Q_WS_MAC)
@@ -233,45 +239,48 @@ MvdPathResolver_P::MvdPathResolver_P()
 	QDir dir(userResources);
 	userResources = dir.absolutePath();
 	if (!QDir::exists(userResources) && !dir.mkpath(userResources))
+	{
 		qDebug() << "MvdPathResolver: failed to create directory" << userResources;
-	else
-		this->resourcesDirUser = MvdCore::toLocalFilePath(userResources, true);
+		return;
+	}
+	
+	this->resourcesDirUser = MvdCore::toLocalFilePath(userResources, true);
 
 	QString sysResources = QCoreApplication::applicationDirPath().append("/../Resources");
 	sysResources = QDir::cleanPath(sysResources);
 	QDir sysResourcesDir(sysResources);
 	sysResources = sysResourcesDir.absolutePath();
-	if (sysResourcesDir.exists())
+	if (!sysResourcesDir.exists())
 	{
 		qDebug() << "MvdPathResolver: failed to locate directory" << sysResources;
-		return;
 	}
-	sysResources = MvdCore::toLocalFilePath(sysResources, true);
-	if (this->resourcesDirUser.isEmpty())
-		this->resourcesDirUser = sysResources;
-	this->resourcesDirSystem = sysResources;
+	else
+	{
+		sysResources = MvdCore::toLocalFilePath(sysResources, true);
+		this->resourcesDirSystem = sysResources;
+	}
 #endif
 #if defined(Q_WS_X11)
 	QString userResources = QDir::homePath().append("/.").append(org).append("/").append(app).append("/Resources");
-	QDir dir(userResources);
-		userResources = dir.absolutePath();
+	dir = QDir(userResources);
+	userResources = dir.absolutePath();
 	if (!dir.exists() && !dir.mkpath(userResources))
+	{
 		qDebug() << "MvdPathResolver: failed to create directory" << userResources;
-	else
-		this->resourcesDirUser = MvdCore::toLocalFilePath(userResources, true);
+		return;
+	}
+	this->resourcesDirUser = MvdCore::toLocalFilePath(userResources, true);
 
 	QString sysResources = QString("/etc/").append(org).append("/").append(app).append("/Resources");
 	dir = QDir(sysResources);
 	sysResources = dir.absolutePath();
 	if (!dir.exists() && !dir.mkpath(sysResources))
-	{
 		qDebug() << "MvdPathResolver: failed to create directory" << sysResources;
-		return;
+	else
+	{
+		sysResources = MvdCore::toLocalFilePath(sysResources, true);
+		this->resourcesDirSystem = sysResources;
 	}
-	sysResources = MvdCore::toLocalFilePath(sysResources, true);
-	if (this->resourcesDirUser.isEmpty())
-		this->resourcesDirUser = sysResources;
-	this->resourcesDirSystem = sysResources;
 #endif
 
 	qDebug() << "MvdPathResolver: using" << this->resourcesDirUser << "as user resources directory.";
@@ -383,7 +392,7 @@ bool MvdPathResolver::isInitialized() const
 		<tr><th>Platform</th><th>Scope</th><th>Location</th><th>Notes</th></tr>
 		<tr><td>Windows NT</td><td></td><td>{{USF\AppData}}\{Org}\{App}\</td><td></td>
 		<tr><td>Windows 9x</td><td></td><td>{AppDir}\</td><td></td>
-		<tr><td>Unix / Mac OS X</td><td></td><td>{HOME}/.{Org}/{App}/</td><td></td>
+		<tr><td>Unix / Mac OS X</td><td></td><td>{HOME}/.config/{Org}/{App}/</td><td></td>
 	</table>
 */
 QString MvdPathResolver::settingsDir() const
@@ -474,6 +483,9 @@ QString MvdPathResolver::applicationDirPath()
 	Returns the absolute path of a directory that can be used to store
 	user specific or system wide resources, such as skins, configuration files
 	and more.
+
+	The user resources directory is assured to exist (unless initialization failed), but the
+	system resources directory could not exist or it could not have write permissions.
 
 	<table>
 		<tr><th>Platform</th><th>Scope</th><th>Location</th><th>Notes</th></tr>
