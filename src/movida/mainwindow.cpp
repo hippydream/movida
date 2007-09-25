@@ -1215,11 +1215,11 @@ void MvdMainWindow::loadPlugins()
 	// Clear old plugin menus if any
 	mMN_Plugins->clear();
 
-	QString up = paths().resourcesDir(Movida::UserScope).append("Plugins");
-	loadPluginsFromDir(up);
-	QString sp = paths().resourcesDir(Movida::SystemScope).append("Plugins");
-	if (sp != up)
-		loadPluginsFromDir(sp);
+	QString path = paths().resourcesDir(Movida::UserScope).append("Plugins");
+	loadPluginsFromDir(path);
+	path = paths().resourcesDir(Movida::SystemScope).append("Plugins");
+	if (!path.isEmpty())
+		loadPluginsFromDir(path);
 
 	// Add the RELOAD action
 	if (!mMN_Plugins->isEmpty())
