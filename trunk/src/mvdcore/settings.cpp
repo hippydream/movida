@@ -489,8 +489,14 @@ MvdSettings& MvdSettings::instance()
 			MvdSettings_P::readXmlSettings, MvdSettings_P::writeXmlSettings);
 		QSettings::setPath(xmlFormat, QSettings::UserScope, Movida::paths().settingsDir());
 
+#if defined(Q_WS_WIN)
 		MvdSettings_P::settings = new QSettings(xmlFormat, QSettings::UserScope,
 			QCoreApplication::organizationName(), QCoreApplication::applicationName());
+#else
+		// QSettings appends "{Org}/{App}.xml" so we need a hack to store settings in $HOME/.{Org}!
+		MvdSettings_P::settings = new QSettings(xmlFormat, QSettings::UserScope,
+			QCoreApplication::organizationName().prepend("."), QCoreApplication::applicationName());
+#endif
 
 		mInstance = new MvdSettings;
 	}
