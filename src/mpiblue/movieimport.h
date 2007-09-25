@@ -93,6 +93,15 @@ private:
 		MvdMovieData data;
 	};
 
+	enum State
+	{
+		NoState = 0,
+		FetchingResultsScriptState,
+		FetchingImportScriptState,
+		FetchingResultsState,
+		FetchingDataState
+	};
+
 	MvdImportDialog* mImportDialog;
 	QHttp* mHttpHandler;
 	int mRequestId;
@@ -100,6 +109,8 @@ private:
 	QString mCurrentLocation;
 	int mCurrentEngine;
 	QProcess* mInterpreter;
+	State mCurrentState;
+	QString mNextUrl;
 	
 	QHash<int,MpiBlue::Engine*> mRegisteredEngines;
 	QHash<int,SearchResult> mSearchResults;
@@ -110,6 +121,10 @@ private:
 	void parseQueryResponse();
 	void deleteTemporaryFile(QTemporaryFile** file, bool removeFile = true);
 	QTemporaryFile* createTemporaryFile();
+	void initHttpHandler();
+	void setScriptPaths(MpiBlue::Engine* engine);
+	QString locateScriptPath(const QString& name);
+	bool isValidScriptFile(const QString& path) const;
 };
 
 #endif // MPI_MOVIEIMPORT_H

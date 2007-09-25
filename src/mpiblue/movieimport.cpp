@@ -26,6 +26,9 @@
 #include <QMessageBox>
 #include <QRegExp>
 #include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
 #include <QTemporaryFile>
 #include <QProcess>
 #include <math.h>
@@ -34,7 +37,7 @@ using namespace Movida;
 
 MpiMovieImport::MpiMovieImport(QObject* parent)
 : QObject(parent), mImportDialog(0), mHttpHandler(0), mRequestId(-1), mTempFile(0), mCurrentEngine(-1), 
-mInterpreter(0)
+mInterpreter(0), mCurrentState(NoState)
 {
 }
 
@@ -83,53 +86,116 @@ void MpiMovieImport::configureEngine(int engine)
 */
 void MpiMovieImport::search(const QString& query, int engineId)
 {
-	iLog() << QString("MpiBlue: search request for query '%1' and engine %2").arg(query).arg(engineId);
-
-	mSearchResults.clear();
-	mImportsQueue.clear();
-
 	MpiBlue::Engine* engine = mRegisteredEngines.value(engineId);
-	if (!engine->scriptsFetched)
+
+	if (mCurrentState == NoState)
 	{
-		// We need to check for possible script updates and
-		// replace the script file names with absolute, clean and localized paths.
-		if (engine->updateUrl.startsWith("http://"))
+		iLog() << QString("MpiBlue: search request for query '%1' and engine %2").arg(query).arg(engineId);
+
+		mSearchResults.clear();
+		mImportsQueue.clear();
+
+		mCurrentEngine = engineId;
+
+		if (!engine->scriptsFetched)
 		{
-			// Check for updates.
-			int rep = engine->updateUrl.indexOf("{SCRIPT}");
-			QString engineUpdateUrl = engine->updateUrl;
-			if (rep <= 0)
+			// We need to check for possible script updates and
+			// replace the script file names with absolute, clean and localized paths.
+			if (engine->updateUrl.startsWith("http://"))
 			{
-				if (!engineUpdateUrl.endsWith("/") && !engineUpdateUrl.endsWith("="))
-					engineUpdateUrl.append("/");
+				// Check for updates.
+				int rep = engine->updateUrl.indexOf("{SCRIPT}");
+				QString engineUpdateUrl = engine->updateUrl;
+				if (rep <= 0)
+				{
+					if (!engineUpdateUrl.endsWith("/") && !engineUpdateUrl.endsWith("="))
+						engineUpdateUrl.append("/");
+				}
+				
+				// Search script
+				QString replacement = engine->resultsUrl.isEmpty() ? engine->resultsScript : engine->resultsUrl;
+				QString currentUrl = engineUpdateUrl;
+
+				if (rep <= 0)
+					currentUrl.append(replacement);
+				else currentUrl.replace("{SCRIPT}", replacement);
+
+				// Prepare import script URL
+				replacement = engine->importUrl.isEmpty() ? engine->importScript : engine->importUrl;
+				mNextUrl = engineUpdateUrl;
+
+				if (rep <= 0)
+					mNextUrl.append(replacement);
+				else mNextUrl.replace("{SCRIPT}", replacement);
+
+				mTempFile = createTemporaryFile();
+				if (!mTempFile)
+				{
+					mImportDialog->done();
+					return;
+				}
+
+				initHttpHandler();
+				Q_ASSERT(mHttpHandler);
+
+				QUrl url(currentUrl);
+				mHttpHandler->setHost(url.host(), url.port());
+
+				mCurrentLocation = url.path();
+				if (url.hasQuery())
+					mCurrentLocation.append("?").append(url.encodedQuery());
+
+				mCurrentState = FetchingResultsScriptState;
+
+				iLog() << "MpiBlue: Attempting to update results script: " << mCurrentLocation;
+				mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
 			}
-			
-			// Search script
-			QString replacement = engine->resultsUrl.isEmpty() ? engine->resultsScript : engine->resultsUrl;
-			QString currentUrl = engineUpdateUrl;
-
-			if (rep <= 0)
-				currentUrl.append(replacement);
-			else currentUrl.replace("{SCRIPT}", replacement);
-
-			iLog() << "MpiBlue: Attempting to update results script: " << currentUrl;
-
-			// Import script
-			replacement = engine->importUrl.isEmpty() ? engine->importScript : engine->importUrl;
-			currentUrl = engineUpdateUrl;
-
-			if (rep <= 0)
-				currentUrl.append(replacement);
-			else currentUrl.replace("{SCRIPT}", replacement);
-
-			iLog() << "MpiBlue: Attempting to update import script: " << currentUrl;
+			else setScriptPaths(engine);
 		}
-		else
+
+		// Scripts fetched. We have the latest versions and absolute paths!
+		performSearch(query, engine, engineId);
+	}
+	else if (mCurrentState == FetchingResultsScriptState)
+	{
+		// Temp file possibly contains the results parser script
+		// CHECK FILE, & COPY TO SOME PATH
+
+		deleteTemporaryFile(&mTempFile, true);
+
+		mTempFile = createTemporaryFile();
+		if (!mTempFile)
 		{
-			// Locate script and set absolute paths.
+			mImportDialog->done();
+			return;
 		}
 
-	} else performSearch(query, engine, engineId);
+		initHttpHandler();
+		Q_ASSERT(mHttpHandler);
+
+		QUrl url(mNextUrl);
+		mNextUrl.clear();
+		mHttpHandler->setHost(url.host(), url.port());
+
+		mCurrentLocation = url.path();
+		if (url.hasQuery())
+			mCurrentLocation.append("?").append(url.encodedQuery());
+
+		mCurrentState = FetchingImportScriptState;
+
+		iLog() << "MpiBlue: Attempting to update import script: " << mCurrentLocation;
+		mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
+	}
+	else if (mCurrentState == FetchingImportScriptState)
+	{
+		// Temp file possibly contains the import parser script
+		// CHECK FILE, & COPY TO SOME PATH
+
+		deleteTemporaryFile(&mTempFile, true);
+		engine->scriptsFetched = true;
+		setScriptPaths(engine);
+		performSearch(query, engine, engineId);
+	}
 }
 
 //! Do not call this directly. Use search() as it will perform some initialization.
@@ -158,29 +224,17 @@ void MpiMovieImport::performSearch(const QString& query, MpiBlue::Engine* engine
 	mTempFile = createTemporaryFile();
 	if (!mTempFile)
 	{
-		eLog() << "MpiBlue: Failed to create a temporary file";
 		mImportDialog->done();
 		return;
 	}
 	
 	mCurrentEngine = engineId;
 
-	// Assert no jobs are running
-	if (mHttpHandler)
-		mHttpHandler->abort();
-	else
-	{
-		//! \todo Handle proxy in the main application (best with Qt >= 4.3)
-		mHttpHandler = new QHttp(this);
-
-		connect(mHttpHandler, SIGNAL(requestFinished(int, bool)),
-			this, SLOT(requestFinished(int, bool)));
-		connect(mHttpHandler, SIGNAL(responseHeaderReceived(const QHttpResponseHeader&)),
-			this, SLOT(httpResponseHeader(const QHttpResponseHeader&)));
-	}
+	initHttpHandler();
+	Q_ASSERT(mHttpHandler);
 
 	iLog() << QString("MpiBlue: Connecting to %1:%2").arg(searchUrl.host()).arg(searchUrl.port() < 0 ? 80 : searchUrl.port());
-	mHttpHandler->setHost(searchUrl.host(),searchUrl.port() < 0 ? 80 : searchUrl.port());
+	mHttpHandler->setHost(searchUrl.host(), searchUrl.port() < 0 ? 80 : searchUrl.port());
  	
 	mCurrentLocation = searchUrl.path();
 	if (searchUrl.hasQuery())
@@ -188,6 +242,55 @@ void MpiMovieImport::performSearch(const QString& query, MpiBlue::Engine* engine
 
 	iLog() << QString("MpiBlue: Sending http request for '%1'").arg(mCurrentLocation);
 	mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
+}
+
+//! Locates the latest version of an engine's scripts and sets the absolute path
+void MpiMovieImport::setScriptPaths(MpiBlue::Engine* engine)
+{
+	QString path = locateScriptPath(engine->resultsScript);
+	engine->resultsScript = path;
+	path = locateScriptPath(engine->importScript);
+	engine->importScript = path;
+}
+
+//! Returns the absolute, localized, clean path of the possibly most updated version of a script. (phew!)
+QString MpiMovieImport::locateScriptPath(const QString& name)
+{
+	Q_ASSERT(MpiBluePlugin::instance);
+
+	// Search order: plugin's user data store, plugin's global data store
+
+	QString filename;
+
+	// plugin's user data store
+	QString dataStore = MpiBluePlugin::instance->dataStore();
+	filename = QString("%1/").arg(dataStore).append(name);
+	if (QFile::exists(filename) && isValidScriptFile(filename))
+		return MvdCore::toLocalFilePath(filename);
+
+	// global data store
+	dataStore = MpiBluePlugin::instance->dataStore();
+	filename = QString("%1/").arg(dataStore).append(name);
+	if (QFile::exists(filename) && isValidScriptFile(filename))
+		return MvdCore::toLocalFilePath(filename);
+
+	return QString();
+}
+
+bool MpiMovieImport::isValidScriptFile(const QString& path) const
+{
+	QFile file(path);
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		eLog() << "MpiMovieImport: Failed to open script file: " << path;
+		return false;
+	}
+	QTextStream stream(&file);
+	QString line = stream.readLine().trimmed();
+	bool valid = line.contains(MvdCore::parameter("mvdp://blue.mpi/script-signature").toString());
+	if (!valid)
+		eLog() << "MpiMovieImport: Invalid script file: " << path;
+	return valid;
 }
 
 //! \internale Downloads and imports the specified search results.
@@ -293,7 +396,6 @@ void MpiMovieImport::httpResponseHeader(const QHttpResponseHeader& responseHeade
 			mTempFile = createTemporaryFile();
 			if (!mTempFile)
 			{
-				eLog() << "MpiBlue: Unable to create a temporary file.";
 				mImportDialog->done();
 				mHttpHandler->abort();
 				return;
@@ -374,6 +476,10 @@ QTemporaryFile* MpiMovieImport::createTemporaryFile()
 		delete file;
 		file = 0;
 	}
+	
+	if (!file)
+		eLog() << "MpiBlue: Failed to create a temporary file";
+
 	return file;
 }
 
@@ -385,4 +491,21 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 void MpiMovieImport::interpreterStateChanged(QProcess::ProcessState state)
 {
 
+}
+
+//! \internal Creates a new http handler or ensures the existing one is not active.
+void MpiMovieImport::initHttpHandler()
+{
+	if (mHttpHandler)
+		mHttpHandler->abort();
+	else
+	{
+		//! \todo Handle proxy in the main application (best with Qt >= 4.3)
+		mHttpHandler = new QHttp(this);
+
+		connect(mHttpHandler, SIGNAL(requestFinished(int, bool)),
+			this, SLOT(requestFinished(int, bool)));
+		connect(mHttpHandler, SIGNAL(responseHeaderReceived(const QHttpResponseHeader&)),
+			this, SLOT(httpResponseHeader(const QHttpResponseHeader&)));
+	}
 }

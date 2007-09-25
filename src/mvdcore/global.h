@@ -98,6 +98,12 @@ namespace Movida
 		LanguageRole = 0x040,
 		TagRole = 0x080,
 	};
+
+	enum Scope
+	{
+		UserScope,
+		SystemScope
+	};
 };
 
 // This is to be added to each class

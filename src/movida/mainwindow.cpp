@@ -112,7 +112,7 @@ MvdMainWindow::MvdMainWindow(QWidget* parent)
 
 	mDetailsView = new QTextBrowser;
 	mDetailsView->setSearchPaths(QStringList() << 
-		Movida::paths().preferencesDir().append("/templates/movie/"));
+		Movida::paths().resourcesDir().append("Templates/Movie/"));
 	mDetailsDock->setWidget(mDetailsView);
 
 	// Actions
@@ -279,41 +279,38 @@ MvdMainWindow::MvdMainWindow(QWidget* parent)
 	parameters.insert("mvdp://movida/imdb-movie-url", "http://akas.imdb.com/title/tt%1");
 	MvdCore::registerParameters(parameters);
 
+	MvdCore::loadStatus();
 	MvdSettings& p = Movida::settings();
 
 	// Set default settings
-	p.setInt("maximum-recent-files", 5, "movida");
-	p.setBool("confirm-delete-movie", true, "movida");
+	p.setDefaultValue("movida/maximum-recent-files", 5);
+	p.setDefaultValue("movida/confirm-delete-movie", true);
 
-	p.setBool("use-last-collection", true, "movida-directories");
-	p.setBool("initials", false, "movida-movie-list");
-	p.setRect("main-window-rect", defaultWindowRect(), "movida-appearance");
+	p.setDefaultValue("movida/directories/use-last-collection", true);
+	p.setDefaultValue("movida/movie-list/initials", false);
 
 	// Initialize core library && load user settings
-	MvdCore::loadStatus();
-
-	QStringList recentFiles = p.getStringList("recent-files", "movida");
-	int max = p.getInt("maximum-recent-files", "movida");
+	QStringList recentFiles = p.value("movida/recent-files").toStringList();
+	int max = p.value("movida/maximum-recent-files").toInt();
 	int recentFilesCount = recentFiles.size();
 	while (recentFiles.size() > max)
 		recentFiles.removeLast();
 	if (recentFilesCount != recentFiles.size())
-		p.setStringList("recent-files", recentFiles, "movida");
+		p.setValue("movida/recent-files", recentFiles);
 
 	mA_FileOpenLast->setDisabled(recentFiles.isEmpty());
 
-	QByteArray ba = p.getByteArray("main-window-state", "movida-appearance");
+	QByteArray ba = p.value("movida/appearance/main-window-state").toByteArray();
 	if (!ba.isEmpty())
 		restoreState(ba);
 
-	QRect rect = p.getRect("main-window-rect", "movida-appearance");
-	if (rect.isValid())
-		setWindowRect(rect);
+	resize(p.value("movida/appearance/main-window-size", QSize(640, 480)).toSize());
+	move(p.value("movida/appearance/main-window-pos", QPoint(200, 100)).toPoint());
 
-	bool ok, bl;
+	bool bl;
 	
-	bl = p.getBool("start-maximized", "movida-appearance", &ok);
-	if (ok && bl)
+	bl = p.value("movida/appearance/start-maximized").toBool();
+	if (bl)
 		setWindowState(Qt::WindowMaximized);
 	
 	// a new empty collection is always open at startup
@@ -541,9 +538,10 @@ void MvdMainWindow::closeEvent(QCloseEvent* e)
 	}
 
 	MvdSettings& p = Movida::settings();
-	p.setByteArray("main-window-state", saveState(), "movida-appearance");
-	p.setBool("start-maximized", isMaximized(), "movida-appearance");
-	p.setRect("main-window-rect", frameGeometry(), "movida-appearance");
+	p.setValue("movida/appearance/main-window-state", saveState());
+	p.setValue("movida/appearance/start-maximized", isMaximized());
+	p.setValue("movida/appearance/main-window-size", size());
+	p.setValue("movida/appearance/main-window-pos", pos());
 
 	MvdCore::storeStatus();
 }
@@ -573,7 +571,7 @@ void MvdMainWindow::openRecentFile(QAction* a)
 void MvdMainWindow::addRecentFile(const QString& file)
 {
 	QFileInfo fi(file);
-	QStringList list = Movida::settings().getStringList("recent-files", "movida");
+	QStringList list = Movida::settings().value("movida/recent-files").toStringList();
 
 	// avoid duplicate entries
 	for (int i = 0; i < list.size(); ++i)
@@ -584,11 +582,11 @@ void MvdMainWindow::addRecentFile(const QString& file)
 	
 	list.append(file);
 	
-	int max = Movida::settings().getInt("maximum-recent-files", "movida");
+	int max = Movida::settings().value("movida/maximum-recent-files").toInt();
 	while (list.size() > max)
 		list.removeLast();
 	
-	Movida::settings().setStringList("recent-files", list, "movida");
+	Movida::settings().value("movida/recent-files", list).toStringList();
 
 	mA_FileOpenLast->setDisabled(list.isEmpty());
 }
@@ -598,7 +596,7 @@ void MvdMainWindow::addRecentFile(const QString& file)
 */
 void MvdMainWindow::updateRecentFilesMenu()
 {
-	QStringList list = Movida::settings().getStringList("recent-files", "movida");
+	QStringList list = Movida::settings().value("movida/recent-files").toStringList();
 	
 	// Remove missing files
 	bool updateList = false;
@@ -612,7 +610,7 @@ void MvdMainWindow::updateRecentFilesMenu()
 	}
 
 	if (updateList)
-		Movida::settings().setStringList("recent-files", list, "movida");
+		Movida::settings().setValue("movida/recent-files", list);
 
 	mMN_FileMRU->setDisabled(list.isEmpty());
 	mMN_FileMRU->clear();
@@ -745,7 +743,7 @@ bool MvdMainWindow::loadCollectionDlg()
 	
 	MvdSettings& p = Movida::settings();
 
-	QString lastDir = p.getString("last-collection", "movida-directories");
+	QString lastDir = p.value("movida/directories/last-collection").toString();
 
 	QString file = QFileDialog::getOpenFileName(
 		this, MVD_CAPTION, 
@@ -759,8 +757,8 @@ bool MvdMainWindow::loadCollectionDlg()
 	int sep = file.lastIndexOf("/");
 	if (sep > 0)
 	{
-		if (p.getBool("use-last-collection", "movida-directories"))
-			p.setString("last-collection", file.left(sep), "movida-directories");
+		if (p.value("movida/directories/use-last-collection").toBool())
+			p.setValue("movida/directories/last-collection", file.left(sep));
 	}
 	
 	addRecentFile(file);
@@ -777,7 +775,7 @@ bool MvdMainWindow::saveCollectionDlg()
 	Q_ASSERT(mCollection != 0);
 	Q_ASSERT(!mCollection->isEmpty());
 
-	QString lastDir = Movida::settings().getString("last-collection", "movida-directories");
+	QString lastDir = Movida::settings().value("movida/directories/last-collection").toString();
 
 	QString filename = QFileDialog::getSaveFileName(this, MVD_CAPTION, lastDir, "*.mmc");
 	if (filename.isEmpty())
@@ -789,8 +787,8 @@ bool MvdMainWindow::saveCollectionDlg()
 	int sep = filename.lastIndexOf("/");
 	if (sep > 0)
 	{
-		if (Movida::settings().getBool("use-last-collection", "movida-directories"))
-			Movida::settings().setString("last-collection", filename.left(sep), "movida-directories");
+		if (Movida::settings().value("movida/directories/use-last-collection").toBool())
+			Movida::settings().setValue("movida/directories/last-collection", filename.left(sep));
 	}
 
 	MvdCollectionSaver::ErrorCode res = MvdCollectionSaver::save(mCollection, filename);
@@ -835,7 +833,7 @@ bool MvdMainWindow::saveCollection()
 void MvdMainWindow::loadLastCollection()
 {
 	QStringList recentFiles = 
-		Movida::settings().getStringList("recent-files", "movida");
+		Movida::settings().value("movida/recent-files").toStringList();
 
 	if (recentFiles.isEmpty())
 		return;
@@ -927,51 +925,6 @@ void MvdMainWindow::addMovie()
 	// Select the new movie
 	mTreeView->selectIndex( mMovieModel->index( mMovieModel->rowCount()-1, 0 ) );
 	collectionModified();
-}
-
-/*!
-	Returns the default window size and position.
-*/
-QRect MvdMainWindow::defaultWindowRect() const
-{
-	QDesktopWidget* desktop = QApplication::desktop();
-	QRect available = desktop->availableGeometry();
-	int screenWidth = available.width();
-	int screenHeight = available.height();
-
-	// set width and height to the window size we want
-	int width = (int)(screenWidth * 0.8);
-	int height = (int)(screenHeight * 0.8);
-	
-	int posX = (screenWidth - width) / 2 + available.x();
-	int posY = (screenHeight - height) / 2 + available.y();
-	
-	return QRect(posX, posY, width, height);
-}
-
-void MvdMainWindow::setWindowRect(QRect rect)
-{
-	QDesktopWidget* desktop = QApplication::desktop();
-	QRect available = desktop->availableGeometry();
-
-	if (rect.x() < available.x() || rect.x() > available.x() + available.width())
-		rect.setX(available.x());
-	if (rect.width() > available.width())
-		rect.setWidth(available.width());
-
-	if (rect.y() < available.y() || rect.y() > available.y() + available.height())
-		rect.setY(available.y());
-	if (rect.height() > available.height())
-		rect.setHeight(available.height());
-
-	// Attempt to translate frame geometry to window geometry
-	QRect f = frameGeometry();
-	QRect w = geometry();
-
-	rect.setX( rect.x() + (f.width() - w.width()) );
-	rect.setY( rect.y() + (f.height() - w.height()) );
-
-	setGeometry(rect);
 }
 
 void MvdMainWindow::newCollection()
@@ -1120,7 +1073,7 @@ void MvdMainWindow::removeMovie(const QModelIndex& index)
 	if (id == 0)
 		return;
 
-	bool confirmOk = Movida::settings().getBool("confirm-delete-movie", "movida");
+	bool confirmOk = Movida::settings().value("movida/confirm-delete-movie").toBool();
 	if (confirmOk)
 	{
 		QString msg = tr("Are you sure you want to delete this movie?");
@@ -1139,7 +1092,7 @@ void MvdMainWindow::removeMovie(const QModelIndex& index)
 
 void MvdMainWindow::removeMovies(const QModelIndexList& list)
 {
-	bool confirmOk = Movida::settings().getBool("confirm-delete-movie", "movida");
+	bool confirmOk = Movida::settings().value("movida/confirm-delete-movie").toBool();
 	if (confirmOk)
 	{
 		QString msg = list.size() < 2 ? tr("Are you sure you want to delete this movie?")
@@ -1250,7 +1203,7 @@ void MvdMainWindow::externalActionTriggered(const QString& id, const QVariant& d
 
 	if (id == "clear-mru")
 	{
-		Movida::settings().setStringList("recent-files", QStringList(), "movida");
+		Movida::settings().setValue("movida/recent-files", QStringList());
 		mA_FileOpenLast->setEnabled(false);
 	}
 	else eLog() << QString("Unregistered external action: ").append(id);
@@ -1263,7 +1216,7 @@ void MvdMainWindow::loadPlugins()
 	mMN_Plugins->clear();
 
 	// Load plugins
-	QDir pluginDir(QCoreApplication::applicationDirPath().append("/plugins"));
+	QDir pluginDir(paths().resourcesDir().append("Plugins"));
 
 #if defined(Q_WS_WIN)
 	QString ext = "*.dll";
@@ -1311,19 +1264,22 @@ void MvdMainWindow::loadPlugins()
 			continue;
 
 		//! \todo Check if completeBaseName() works with .so.1.xyz linux libraries!!
-		QString dataStorePath = paths().preferencesDir().append("/plugins/").append(fi.completeBaseName());
+		QString dataStorePath = paths().resourcesDir().append("Plugins/").append(fi.completeBaseName());
 		if (!QFile::exists(dataStorePath))
 		{
 			QDir d;
 			if (!d.mkpath(dataStorePath))
 			{
-				eLog() << "Failed to create data store for plugin: " << dataStorePath;
+				eLog() << "Failed to create user data store for plugin: " << dataStorePath;
 				continue;
 			}
 		}
 
-		iface->setDataStore(dataStorePath);
-		iLog() << QString("'%1' plugin data store created: ").arg(info.name).append(dataStorePath);
+		iface->setDataStore(dataStorePath, MvdPluginInterface::UserScope);
+		iLog() << QString("'%1' plugin user data store created: ").arg(info.name).append(dataStorePath);
+
+		// Create global data store (if possible)
+		dataStorePath = "";// QCoreApplication::
 
 		// Initialize plugin
 		iface->init();

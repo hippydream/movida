@@ -41,11 +41,11 @@ MvdMainSettingsPage::MvdMainSettingsPage(MvdSettingsDialog* parent)
 	setupUi(this);
 	connect(Ui::MvdMainSettingsPage::clearMRU, SIGNAL(clicked()), this, SLOT(clearMruTriggered()));
 
-	QStringList recentFiles = Movida::settings().getStringList("recent-files", "movida");
+	QStringList recentFiles = Movida::settings().value("movida/recent-files").toStringList();
 	Ui::MvdMainSettingsPage::clearMRU->setDisabled(recentFiles.isEmpty());
 
 	int max = MvdCore::parameter("mvdp://movida/maximum-recent-files").toInt();
-	int current = Movida::settings().getInt("maximum-recent-files", "movida");
+	int current = Movida::settings().value("movida/maximum-recent-files").toInt();
 	maximumMRU->setMaximum(max);
 	maximumMRU->setValue(current);
 }

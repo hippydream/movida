@@ -89,6 +89,10 @@ private:
 	QList<Engine*> mEngines;
 };
 
+namespace MpiBluePlugin {
+	static MpiBlue* instance = 0;
+};
+
 extern "C" MPI_EXPORT_BLUE MvdPluginInterface* pluginInterface(QObject* parent);
 
 #endif // MPI_BLUE_H

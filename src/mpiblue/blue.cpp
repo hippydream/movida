@@ -34,12 +34,17 @@ using namespace Movida;
 //! Public interface for this plugin.
 MvdPluginInterface* pluginInterface(QObject* parent)
 {
-	return new MpiBlue(parent);
+	if (!MpiBluePlugin::instance)
+		MpiBluePlugin::instance = new MpiBlue(parent);
+	return MpiBluePlugin::instance;
 }
 
 MpiBlue::MpiBlue(QObject* parent)
 : MvdPluginInterface(parent)
 {
+	QHash<QString,QVariant> parameters;
+	parameters.insert("mvdp://blue.mpi/script-signature", "## movida blue.mpi plugin script ##");
+	MvdCore::registerParameters(parameters);
 }
 
 MpiBlue::~MpiBlue()
@@ -104,8 +109,7 @@ void MpiBlue::actionTriggeredImplementation(const QString& name)
 void MpiBlue::loadEngines(bool loadBundled)
 {
 	//! \todo Problem: we need to check for updated scripts *and* set the absolute file path (script might be in user or in global directory). AND we would like to do a LAZY update! Problem is that we need to remember what script has been fetched in the plugin (i.e. HERE) and not in the MpiMovieImport class, which is created only when necessary.
-	bool ok;
-	if (loadBundled && !(settings().getBool("disableBundledEngines", "blue.mpi", &ok) && ok))
+	if (loadBundled && !settings().value("plugins/blue/disableBundledEngines").toBool())
 		loadEnginesFromFile(":/xml/engines.xml");
 
 	QString externalEngines = dataStore().append("/engines.xml");
@@ -163,6 +167,7 @@ void MpiBlue::loadEnginesFromFile(const QString& path)
 	if (xmlStrcmp(node->name, (const xmlChar*) "mpi-blue-engines"))
 	{
 		eLog() << QString("MpiBlue: Not a valid engines.xml file.").append(path);
+		xmlFree(node);
 		return;
 	}
 
@@ -267,6 +272,8 @@ void MpiBlue::loadEnginesFromFile(const QString& path)
 
 		node = node->next;
 	}
+
+	xmlFreeDoc(doc);
 }
 
 //!
