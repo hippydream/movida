@@ -287,7 +287,7 @@ bool MpiMovieImport::isValidScriptFile(const QString& path) const
 	}
 	QTextStream stream(&file);
 	QString line = stream.readLine().trimmed();
-	bool valid = line.contains(MvdCore::parameter("mvdp://blue.mpi/script-signature").toString());
+	bool valid = line.contains(MvdCore::parameter("blue.mpi/script-signature").toString());
 	if (!valid)
 		eLog() << "MpiMovieImport: Invalid script file: " << path;
 	return valid;
