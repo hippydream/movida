@@ -44,6 +44,88 @@ using namespace Movida;
 
 	\brief The MvdSettings class allows to both handle application preferences
 	at run time and to load/store them from/to a platform independent XML format.
+
+	<b>Movida::settings()</b> can be used as a convenience method to access the singleton.
+
+	The current version uses QSettings as a backend, with a custom format to
+	read and write from/to xml files.
+
+	Please refer to MvdPathResolver::settingsDir() for the exact location
+	of the settings file on each platform.
+
+	Each setting consists of a QString that specifies the setting's name (the key) 
+	and a QVariant that stores the data associated with the key.
+	To write a setting, use setValue().
+	
+	For example:
+	\verbatim
+	Movida::settings().setValue("plugins/blue/max-results", 20); 
+	\endverbatim
+
+	If there already exists a setting with the same key, the existing value is overwritten 
+	by the new value. For efficiency, the changes may not be saved to permanent storage immediately.
+	
+	You can get a setting's value back using value(): 
+	\verbatim
+	int maxResults = Movida::settings().value("plugins/blue/max-results").toInt(); 
+	\endverbatim
+
+	If there is no setting with the specified name, MvdSettings returns a null QVariant 
+	(which can be converted to the integer 0). You can specify another default value by 
+	passing a second argument to value().
+
+	To test whether a given key exists, call contains().
+	To remove the setting associated with a key, call remove().
+	To remove all keys, call clear().
+
+	<b>QVariant and GUI Types</b>
+
+	Because QVariant is part of the mvdcore library, it cannot provide conversion functions to data types 
+	such as QColor, QImage, and QPixmap, which are part of QtGui.
+	
+	In other words, there is no toColor(), toImage(), or toPixmap() functions in QVariant.
+
+	Instead, you can use the QVariant::value() or the qVariantValue() template function. For example:
+	\verbatim
+	QColor color = Movida::settings().value("plugins/blue/myfavouritecolor").value<QColor>(); 
+	\endverbatim
+
+	The inverse conversion (e.g., from QColor to QVariant) is automatic for all data types supported by 
+	QVariant, including GUI-related types: 
+	\verbatim
+	Movida::settings().setValue("plugins/blue/myfavouritecolor", QColor("blue")); 
+	\endverbatim
+
+	Custom types registered using qRegisterMetaType() and qRegisterMetaTypeStreamOperators() 
+	can be stored using MvdSettings.
+
+	<b>Key Syntax</b>
+
+	Setting keys can contain any Unicode characters and are <b>case sensitive</b>.
+	Do not use slashes ('/' and '\') in key names; They have a special meaning. 
+	You can form hierarchical keys using the '/' character as a separator, similar to Unix file paths. For example: 
+	\verbatim
+	Movida::settings().setValue("plugins/blue/color", QColor("blue"));
+	Movida::settings().setValue("plugins/blue/number", 42);
+	Movida::settings().setValue("plugins/blue/42", "Answer to Life, the Universe, and Everything");
+	\endverbatim
+
+	If you want to save or restore many settings with the same prefix, you can specify the prefix using 
+	beginGroup() and call endGroup() at the end. Here's the same example again, but this time using the 
+	group mechanism: 
+
+	\verbatim
+	Movida::settings().beginGroup("plugins/blue");
+	Movida::settings().setValue("color", QColor("blue"));
+	Movida::settings().setValue("number", 42);
+	Movida::settings().setValue("42", "Answer to Life, the Universe, and Everything");
+	Movida::settings().endGroup();
+	\endverbatim
+
+	If a group is set using beginGroup(), the behavior of most functions changes consequently.
+	Groups can be set recursively. 
+	In addition to groups, QSettings also supports an "array" concept. 
+	See beginReadArray() and beginWriteArray() for details.
 */
 
 /************************************************************************
@@ -89,6 +171,9 @@ namespace MvdSettings_P {
 		return result;
 	}
 
+	/*! \internal The code is a slightly modified version of QSettingsPrivate::stringToVariant(),
+		with base 64 encoding of binary data.
+	*/
 	QVariant stringToVariant(const QString& s)
 	{
 		if (s.startsWith(QLatin1Char('@'))) {
@@ -209,6 +294,7 @@ namespace MvdSettings_P {
 		return result;
 	}
 
+	//! \internal Recursively writes a group of settings to an xml file.
 	void writeSettingsNode(MvdXmlWriter& xml, const SettingsGroup& node, const QString& groupName = QString())
 	{
 		if (!groupName.isEmpty())
@@ -284,6 +370,7 @@ namespace MvdSettings_P {
 		}
 	}
 
+	//! Reads a movida-settings xml file into a QSettings map.
 	bool readXmlSettings(QIODevice& device, QSettings::SettingsMap& map)
 	{
 		if (device.size() > 1024 * 1024)
@@ -323,6 +410,7 @@ namespace MvdSettings_P {
 		return true;
 	}
 
+	//! Writes a QSettings map to a movida-settings xml file.
 	bool writeXmlSettings(QIODevice& device, const QSettings::SettingsMap& map)
 	{
 		// Map path-like keys to an alphabetically ordered tree structure

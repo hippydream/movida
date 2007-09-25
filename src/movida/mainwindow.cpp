@@ -141,7 +141,7 @@ MvdMainWindow::MvdMainWindow(QWidget* parent)
 	mAG_MovieView = new QActionGroup(this);
 	mAG_MovieView->setExclusive(true);
 	mAG_MovieView->addAction(mA_SmartView);
-	mAG_MovieView->addAction(mA_TreeView);	
+	mAG_MovieView->addAction(mA_TreeView);
 
 	mA_ViewDetails = mDetailsDock->toggleViewAction();
 	
