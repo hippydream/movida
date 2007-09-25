@@ -1298,9 +1298,10 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 		iLog() << QString("'%1' plugin user data store: ").arg(info.name).append(dataStorePath);
 
 		// Create global data store
-		dataStorePath = paths().resourcesDir(Movida::SystemScope).append("Plugins/").append(fi.completeBaseName());
-		if (dataStorePath != iface->dataStore(Movida::UserScope))
+		dataStorePath = paths().resourcesDir(Movida::SystemScope);
+		if (!dataStorePath.isEmpty())
 		{
+			dataStorePath.append("Plugins/").append(fi.completeBaseName());
 			bool ok = true;
 			if (!QFile::exists(dataStorePath))
 			{
