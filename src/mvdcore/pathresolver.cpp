@@ -124,7 +124,7 @@ MvdPathResolver_P::MvdPathResolver_P()
 		QDir dir(appData);
 		appData = dir.absolutePath();
 		if (!dir.exists() && !dir.mkpath(appData))
-			qDebug() << "MvdPathResolver: Failed to create directory" << appData;
+			qDebug() << "MvdPathResolver: Failed to create/locate directory" << appData;
 		else
 		{
 			appData = MvdCore::toLocalFilePath(appData, true);
@@ -150,7 +150,7 @@ MvdPathResolver_P::MvdPathResolver_P()
 	root = dir.absolutePath();
 	if (!dir.exists() && !dir.mkpath(root))
 	{
-		qDebug() << "MvdPathResolver: failed to create directory" << root;
+		qDebug() << "MvdPathResolver: failed to create/locate directory" << root;
 		return;
 	}
 	root = MvdCore::toLocalFilePath(root, true);
@@ -206,7 +206,7 @@ MvdPathResolver_P::MvdPathResolver_P()
 			root = dir.absolutePath();
 			if (!dir.exists() && !dir.mkpath(root))
 			{
-				qDebug() << "MvdPathResolver: failed to create directory" << root;
+				qDebug() << "MvdPathResolver: failed to create/locate directory" << root;
 				continue;
 			}
 			root = MvdCore::toLocalFilePath(root, true);
@@ -227,7 +227,7 @@ MvdPathResolver_P::MvdPathResolver_P()
 		root = dir.absolutePath();
 		if (!dir.exists() && !dir.mkpath(root))
 		{
-			qDebug() << "MvdPathResolver: failed to create directory" << root;
+			qDebug() << "MvdPathResolver: failed to create/locate directory" << root;
 			return;
 		}
 		root = MvdCore::toLocalFilePath(root, true);
@@ -240,7 +240,7 @@ MvdPathResolver_P::MvdPathResolver_P()
 	userResources = dir.absolutePath();
 	if (!QDir::exists(userResources) && !dir.mkpath(userResources))
 	{
-		qDebug() << "MvdPathResolver: failed to create directory" << userResources;
+		qDebug() << "MvdPathResolver: failed to create/locate directory" << userResources;
 		return;
 	}
 	
@@ -266,7 +266,7 @@ MvdPathResolver_P::MvdPathResolver_P()
 	userResources = dir.absolutePath();
 	if (!dir.exists() && !dir.mkpath(userResources))
 	{
-		qDebug() << "MvdPathResolver: failed to create directory" << userResources;
+		qDebug() << "MvdPathResolver: failed to create/locate directory" << userResources;
 		return;
 	}
 	this->resourcesDirUser = MvdCore::toLocalFilePath(userResources, true);
@@ -275,7 +275,7 @@ MvdPathResolver_P::MvdPathResolver_P()
 	dir = QDir(sysResources);
 	sysResources = dir.absolutePath();
 	if (!dir.exists() && !dir.mkpath(sysResources))
-		qDebug() << "MvdPathResolver: failed to create directory" << sysResources;
+		qDebug() << "MvdPathResolver: failed to create/locate directory" << sysResources;
 	else
 	{
 		sysResources = MvdCore::toLocalFilePath(sysResources, true);
