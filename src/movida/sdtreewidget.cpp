@@ -459,7 +459,7 @@ void MvdSDTreeWidget::showContextMenu(QTreeWidgetItem* item, int col)
 		return;
 
 	int itemCount;
-	int maxMenuItems = MvdCore::parameter("mvdp://movida/max-menu-items").toInt();
+	int maxMenuItems = MvdCore::parameter("movida/max-menu-items").toInt();
 
 	QList<QTreeWidgetItem*> selected = filteredSelectedItems();
 	QMap<QString, ActionDescriptor> actions = generateActions(0, &itemCount, maxMenuItems);
@@ -796,8 +796,8 @@ Movida::ItemValidator MvdSDDelegate::validatorType(const QModelIndex& index,
 		if (data)
 		{
 			if (use == ValidationUse)
-				data->setValue(MvdCore::parameter("mvdp://mvdcore/imdb-id-regexp").toString());
-			else data->setValue(MvdCore::parameter("mvdp://mvdcore/imdb-id-mask").toString());
+				data->setValue(MvdCore::parameter("mvdcore/imdb-id-regexp").toString());
+			else data->setValue(MvdCore::parameter("mvdcore/imdb-id-mask").toString());
 		}
 		return Movida::RegExpValidator;
 	}

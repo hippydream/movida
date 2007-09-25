@@ -263,7 +263,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					QRegExp imdbRx(MvdCore::parameter("mvdp://mvdcore/imdb-id-regexp").toString());
+					QRegExp imdbRx(MvdCore::parameter("mvdcore/imdb-id-regexp").toString());
 					QString imdbId = QString::fromAscii((const char*)attr);
 					if (imdbRx.exactMatch(imdbId))
 						movie.setImdbId(imdbId);

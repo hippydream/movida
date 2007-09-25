@@ -716,7 +716,7 @@ QString MvdMovieCollection::addImage(const QString& path,
 	// Process image if necessary
 	if (category == MoviePosterImage)
 	{
-		int maxKB = MvdCore::parameter("mvdp://mvdcore/max-poster-kb").toInt();
+		int maxKB = MvdCore::parameter("mvdcore/max-poster-kb").toInt();
 		
 		QFileInfo fi(path);
 		if (fi.size() > maxKB)
@@ -727,7 +727,7 @@ QString MvdMovieCollection::addImage(const QString& path,
 			if (pm.isNull())
 				return QString();
 
-			QSize maxSize = MvdCore::parameter("mvdp://mvdcore/max-poster-size").toSize();
+			QSize maxSize = MvdCore::parameter("mvdcore/max-poster-size").toSize();
 			pm = pm.scaled(maxSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 			
 			if (!pm.save(d->dataPath + "/images/" + internalName, "PNG"))

@@ -60,21 +60,21 @@ public:
 	//! \internal
 	MvdCore_P()
 	{
-		parameters.insert("mvdp://mvdcore/max-rating", 5);
-		parameters.insert("mvdp://mvdcore/max-running-time", 999);
-		parameters.insert("mvdp://mvdcore/imdb-id-length", 7);
-		parameters.insert("mvdp://mvdcore/imdb-id-regexp", "[0-9]{7}");
-		parameters.insert("mvdp://mvdcore/imdb-id-mask", "9999999;0");
+		parameters.insert("mvdcore/max-rating", 5);
+		parameters.insert("mvdcore/max-running-time", 999);
+		parameters.insert("mvdcore/imdb-id-length", 7);
+		parameters.insert("mvdcore/imdb-id-regexp", "[0-9]{7}");
+		parameters.insert("mvdcore/imdb-id-mask", "9999999;0");
 
 		// The Oberammergau Passion Play of 1898 was the first commercial
 		// motion picture ever produced. :)
 		// It's quite hard that someone will add it to Movida, but its a
 		// nice date ;)
-		parameters.insert("mvdp://mvdcore/min-movie-year", 1898);
+		parameters.insert("mvdcore/min-movie-year", 1898);
 
 		// Movie posters bigger than this will be scaled.
-		parameters.insert("mvdp://mvdcore/max-poster-kb", 512);
-		parameters.insert("mvdp://mvdcore/max-poster-size", QSize(400, 150));
+		parameters.insert("mvdcore/max-poster-kb", 512);
+		parameters.insert("mvdcore/max-poster-size", QSize(400, 150));
 	}
 
 	QHash<QString,QVariant> parameters;
@@ -175,12 +175,11 @@ QVariant MvdCore::parameter(const QString& name)
 	Registers application parameters.
 	Please use a library unique prefix for the names.
 	movida uses the following format, so consider using the same pattern for consistency:
-	"mvdp://LIBRARY/SOME-PARAMETER-NAME" (i.e. "mvdp://mvdcore/imdb-id-regexp")
+	"LIBRARY/SOME-PARAMETER-NAME" (i.e. "mvdcore/imdb-id-regexp" or "movida/imdb-id-regexp")
 */
 void MvdCore::registerParameters(const QHash<QString,QVariant>& p)
 {
 	Q_ASSERT(d);
-
 	d->parameters.unite(p);
 }
 

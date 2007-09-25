@@ -46,8 +46,8 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 : MvdMovieEditorPage(c, parent), mDefaultRunningTime(0), mDefaultRating(0), mStatusTimer(new QTimer(this))
 {
 	setupUi(this);
-	int w = MvdCore::parameter("mvdp://movida/poster-default-width").toInt();
-	qreal ar = MvdCore::parameter("mvdp://movida/poster-aspect-ratio").toDouble();
+	int w = MvdCore::parameter("movida/poster-default-width").toInt();
+	qreal ar = MvdCore::parameter("movida/poster-aspect-ratio").toDouble();
 	int h = int(w / ar);
 	Ui::MvdMainInfoPage::poster->setFixedSize(w, h);
 
@@ -55,8 +55,8 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::UnratedRole, QPixmap(":/images/misc/rating-unrated.png") );
 	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::HoveredRole, QPixmap(":/images/misc/rating-hovered.png") );
 	
-	quint8 maxRating = MvdCore::parameter("mvdp://mvdcore/max-rating").toUInt();
-	quint16 maxRuntime = MvdCore::parameter("mvdp://mvdcore/max-running-time").toUInt();
+	quint8 maxRating = MvdCore::parameter("mvdcore/max-rating").toUInt();
+	quint16 maxRuntime = MvdCore::parameter("mvdcore/max-running-time").toUInt();
 
 	Ui::MvdMainInfoPage::ratingLabel->setMaximum(maxRating);
 
@@ -66,7 +66,7 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 
 	QDate date = QDate::currentDate();
 
-	int minYear = MvdCore::parameter("mvdp://mvdcore/min-movie-year").toUInt() - 1;
+	int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
 
 	mDefaultPYear = mDefaultRYear = minYear;
 
@@ -150,7 +150,7 @@ void MvdMainInfoPage::setMovieImpl(const MvdMovie& movie)
 	mDefaultStorageId = movie.storageId();
 	storageID->setText(mDefaultStorageId);
 	
-	int minYear = MvdCore::parameter("mvdp://mvdcore/min-movie-year").toUInt() - 1;
+	int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
 
 	//! \todo convert year values to uint
 	QString s = movie.productionYear();
@@ -306,7 +306,7 @@ void MvdMainInfoPage::setMoviePoster(const QString& path)
 		if (!path.isEmpty())
 		{
 			posterStatus->setText(tr("Failed to load image file."));
-			mStatusTimer->start(MvdCore::parameter("mvdp://movida/message-timeout-ms").toUInt());
+			mStatusTimer->start(MvdCore::parameter("movida/message-timeout-ms").toUInt());
 			return;
 		}
 	}

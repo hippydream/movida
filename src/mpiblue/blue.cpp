@@ -43,7 +43,7 @@ MpiBlue::MpiBlue(QObject* parent)
 : MvdPluginInterface(parent)
 {
 	QHash<QString,QVariant> parameters;
-	parameters.insert("mvdp://blue.mpi/script-signature", "## movida blue.mpi plugin script ##");
+	parameters.insert("blue.mpi/script-signature", "## movida blue.mpi plugin script ##");
 	MvdCore::registerParameters(parameters);
 }
 

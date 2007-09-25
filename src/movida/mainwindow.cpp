@@ -270,13 +270,13 @@ MvdMainWindow::MvdMainWindow(QWidget* parent)
 	
 	// Set some GUI related constants
 	QHash<QString,QVariant> parameters;
-	parameters.insert("mvdp://movida/maximum-recent-files", 10);
-	parameters.insert("mvdp://movida/default-recent-files", 5);
-	parameters.insert("mvdp://movida/max-menu-items", 10);
-	parameters.insert("mvdp://movida/message-timeout-ms", 5 * 1000);
-	parameters.insert("mvdp://movida/poster-default-width", 70);
-	parameters.insert("mvdp://movida/poster-aspect-ratio", qreal(0.7));
-	parameters.insert("mvdp://movida/imdb-movie-url", "http://akas.imdb.com/title/tt%1");
+	parameters.insert("movida/maximum-recent-files", 10);
+	parameters.insert("movida/default-recent-files", 5);
+	parameters.insert("movida/max-menu-items", 10);
+	parameters.insert("movida/message-timeout-ms", 5 * 1000);
+	parameters.insert("movida/poster-default-width", 70);
+	parameters.insert("movida/poster-aspect-ratio", qreal(0.7));
+	parameters.insert("movida/imdb-movie-url", "http://akas.imdb.com/title/tt%1");
 	MvdCore::registerParameters(parameters);
 
 	MvdCore::loadStatus();
