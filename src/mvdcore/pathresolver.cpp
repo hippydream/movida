@@ -145,19 +145,24 @@ MvdPathResolver_P::MvdPathResolver_P()
 		this->settingsDir = root;
 	}
 #else
-	QString root = QDir::homePath().append("/.config");
+	QString root = QDir::homePath();
 	QDir dir(root);
 	root = dir.absolutePath();
-	if (!dir.exists() && !dir.mkpath(root))
+	if (!dir.exists())
 	{
-		qDebug() << "MvdPathResolver: failed to create/locate directory" << root;
+		qDebug() << "MvdPathResolver: failed to locate directory" << root;
 		return;
 	}
 	root = MvdCore::toLocalFilePath(root, true);
 	this->settingsDir = root;
 #endif
 
+#if defined(Q_WS_WIN)
 	QString sd(QString(this->settingsDir).append(org).append(QDir::separator()).append(app).append(".xml"));
+#else
+	// Hack for QSettings. See settings.cpp file.
+	QString sd(QString(this->settingsDir).append(".").append(org).append(QDir::separator()).append(app).append(".xml"));
+#endif
 	qDebug() << "MvdPathResolver: storing application settings in" << sd << ".";
 
 
