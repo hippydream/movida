@@ -184,6 +184,19 @@ void MvdXmlWriter::writeString(const QString& string)
 	(*d->stream) << d->escape(string);
 }
 
+//! Convenience method.
+void MvdXmlWriter::writeOpenTag(const QString& name, const Attribute& a1, const Attribute& a2, const Attribute& a3)
+{
+	AttributeMap a;
+	if (!a1.first.isEmpty())
+		a.insert(a1.first, a1.second);
+	if (!a2.first.isEmpty())
+		a.insert(a2.first, a2.second);
+	if (!a3.first.isEmpty())
+		a.insert(a3.first, a3.second);
+	writeOpenTag(name, a);
+}
+
 /*!
 	Writes an opening tag named \p name containing attributes from the
 	\p attrs hash.
@@ -220,6 +233,19 @@ void MvdXmlWriter::writeCloseTag(const QString& name)
 		(*d->stream) << d->lineBreak;
 }
 
+//! Convenience method.
+void MvdXmlWriter::writeAtomTag(const QString& name, const Attribute& a1, const Attribute& a2, const Attribute& a3)
+{
+	AttributeMap a;
+	if (!a1.first.isEmpty())
+		a.insert(a1.first, a1.second);
+	if (!a2.first.isEmpty())
+		a.insert(a2.first, a2.second);
+	if (!a3.first.isEmpty())
+		a.insert(a3.first, a3.second);
+	writeAtomTag(name, a);
+}
+
 /*!
 	Writes an atom named \p name with attributes from hash \p attrs.
 	Example: \verbatim <itemName attr1="value1"/> \endverbatim
@@ -236,6 +262,20 @@ void MvdXmlWriter::writeAtomTag(const QString& name, const AttributeMap& attrs)
 
 	if (d->autoLineBreak)
 		(*d->stream) << d->lineBreak;
+}
+
+//! Convenience method.
+void MvdXmlWriter::writeTaggedString(const QString& name, const QString& string,
+	const Attribute& a1, const Attribute& a2, const Attribute& a3)
+{
+	AttributeMap a;
+	if (!a1.first.isEmpty())
+		a.insert(a1.first, a1.second);
+	if (!a2.first.isEmpty())
+		a.insert(a2.first, a2.second);
+	if (!a3.first.isEmpty())
+		a.insert(a3.first, a3.second);
+	writeTaggedString(name, string, a);
 }
 
 /*!
