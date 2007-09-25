@@ -1,5 +1,5 @@
 *** Author: Fabrizio Angius
-*** Version: 1
+*** Version: 1.1
 *** Title: How to write a plugin for movida.
 
 
@@ -8,8 +8,23 @@ The DLL must link the mvdcore library and export pluginInterface() method:
 
 extern "C" MY_EXPORT_MACRO MvdPluginInterface* pluginInterface(QObject* parent);
 
-Plugin files (we will often call them MPI files - Movida Plug-In) must be placed in the "plugins" subdirectory inside the directory containing the movida application.
-This is a temporary solution. Future releases will allow to place per-user plugins in some other directory.
+Plugin files (we will often call them MPI files - Movida Plug-In) must be placed in the "Plugins" subdirectory inside the 
+user or system resources directory, and they must have the lower case prefix "mpi" (i.e. "mpiblue.so" and "mpiblue.dll").
+
+The resources directory can be found in these locations:
+
+Platform     | Scope      | Path
+--------------------------------
+Windows      | User       | %APP_DATA%\BlueSoft\Movida\Resources
+Windows      | System     | %COMMON_APP_DATA%\BlueSoft\Movida\Resources
+Linux        | User       | $HOME/.BlueSoft/Movida/Resources
+Linux        | System     | /etc/BlueSoft/Movida/Resources
+Mac OS X     | User       | $HOME/Library/Movida/Resources
+Mac OS X     | System     | {Bundle}/Contents/Resources
+
+%APP_DATA% usually refers to "c:\documents and settings\username\application data",
+%COMMON_APP_DATA% usually refers to "c:\documents and settings\all users\application data",
+{Bundle} is the path of the application bundle (i.e. "/Applications/Movida.app").
 
 The plugin can link the mvdshared library to access some convenience widgets or classes that are not part of mvdcore.
 
@@ -56,8 +71,11 @@ mImportDialog->exec();
 For details on the MvdPluginInterface methods that need to be implemented, please refer to the doxygen documentation for the MvdPluginInterface class.
 
 The plugin can store/load per-user application settings using the Movida::settings() singleton. Please refer to the MvdSettings documentation for details.
-Other per-user data (i.e. additional configuration files) can be stored in the the path returned by MvdPluginInterface::dataStore().
-The directory is ensured to exist after the plugin has been loaded and right before init() is called.
+Other user specific or system wide data (i.e. skins, audio files or additional configuration files) can be stored in the the path returned by MvdPluginInterface::dataStore().
+The user data store is ensured to exist after the plugin has been loaded and right before init() is called, but the system data store might not exist or it might not have write permission.
+The system data store should be used to place some files during the installation of the plugin. The user data store can be used by each user to update or extend the plugin by adding/updating data files.
+
+For the exact location of the data stores, please refer to the above table, as the data store is located inside of the Resources directory, in a subdirectory called "Plugins/{PluginFile}/", where {PluginFile} is the name of the plugin library file without any extension (i.e. with no ".dll").
 
 The init() method will be called as soon as the plugin is loaded into movida. Use this method to initialize the plugin and load settings from the data store.
 Please use care when accessing the data store from the constructor as the directory might not have been created yet.
