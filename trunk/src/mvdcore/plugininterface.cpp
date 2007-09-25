@@ -24,7 +24,8 @@
 class MvdPluginInterface_P
 {
 public:
-	QString dataStore;
+	QString userDataStore;
+	QString globalDataStore;
 };
 
 MvdPluginInterface::MvdPluginInterface(QObject* parent)
@@ -43,17 +44,23 @@ void MvdPluginInterface::actionTriggered(const QString& name)
 }
 
 //! Returns the data store path for this plugin. The directory is ensured to exist.
-QString MvdPluginInterface::dataStore() const
+QString MvdPluginInterface::dataStore(Scope scope) const
 {
-	return d->dataStore;
+	return scope == UserScope ? d->userDataStore : d->globalDataStore;
 }
 
 /*!
-	Sets the path of the directory where user-specific data can be stored.
+	Sets the path of the directory where plugin-specific data can be stored.
 	Do not set this value from the plugin. Movida will initialize it and
-	create the appropriate directories.
+	create the appropriate directories if necessary.
+
+	Scope specifies whether the data store is in the user's home directory
+	(i.e. ~/mike/.bluesoft/movida/plugins/mpiblue) or in the global plug-in
+	directory (i.e. c:\program files\bluesoft\movida\plugins\mpiblue).
 */
-void MvdPluginInterface::setDataStore(const QString& path)
+void MvdPluginInterface::setDataStore(const QString& path, Scope scope)
 {
-	d->dataStore = path;
+	if (scope == UserScope)
+		d->userDataStore = path;
+	else d->globalDataStore = path;
 }

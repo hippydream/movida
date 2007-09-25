@@ -21,17 +21,28 @@
 
 #include "pathresolver.h"
 #include "global.h"
-#include "logger.h"
+#include "core.h"
 #include <QDir>
 #include <QString>
 #include <QCoreApplication>
 #include <QtGlobal>
+#include <QUuid>
 #ifdef Q_WS_WIN
-#include <qt_windows.h>
+#include "qt_windows.h"
+#include "qlibrary.h"
+#ifndef CSIDL_COMMON_APPDATA
+#define CSIDL_COMMON_APPDATA 0x0023 // All Users\Application Data
+#endif
+#ifndef CSIDL_APPDATA
+#define CSIDL_APPDATA 0x001a // <username>\Application Data
+#endif
 #else
 #include <unistd.h>
 #endif
 #include <time.h>
+
+// We cannot use the logger here because this class needs to compute the log file path first!!
+#include <QtDebug>
 
 using namespace Movida;
 
@@ -40,10 +51,32 @@ using namespace Movida;
 	\ingroup MvdCore Singletons
 
 	\brief Handles platform-specific directory or file paths.
+	The returned paths always end with a directory separator.
+
+	Please refer to the individual methods for the location of the path on
+	each platform.
+	
+	Values between curly brackets (i.e. "{PATH}") refer to environment variables, with the following
+	exceptions:
+	\verbatim
+		{Org} refers to QCoreApplication::organizationName
+		{App} refers to QCoreApplication::applicationName
+		{Dom} refers to QCoreApplication::organizationDomain
+		{AppDir} refers to QCoreApplication::applicationDirPath()
+		{Pid} refers to the process ID
+		{Idx} refers to a unique numeric ID
+		{Bundle} refers to the path of the application bundle on Mac OS X (i.e. /Applications/Movida.app)
+	\endverbatim
+
+	Values between double curly brackets (i.e. "{{SSF\Common AppData}}" refer to Windows registry entries,
+	with the following abbreviations being used:
+	\verbatim
+		SSF = "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\"
+		USF = "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\"
+	\endverbatim
 
 	<b>Movida::paths()</b> can be used as a convenience method to access the singleton.
-
-	\todo MAC OS X: ~/Library/Application Support/APPLICATIONNAME
+	<b>Movida::pid()</b> can be used to retrieve the process ID.
 */
 
 
@@ -58,195 +91,199 @@ public:
 
 	bool initialized;
 
+	QString settingsDir;
 	QString logFile;
-	QString preferencesFile;
-	QString preferencesDir;
-	QString companyDir; // Always empty WIN9X platforms
-	QString tempBaseDir;
 	QString tempDir;
+	QString appDir;
+	QString resourcesDirUser;
+	QString resourcesDirSystem;
 
 #ifdef Q_WS_WIN
-	QString getShellFolder(const QString& folder);
-	QString getEnvVariable(const QString& var);
-	QString getHomeDir();
-	QString getWinTemp();
-	QString getSystemRoot();
-
+	QString specialFolder(int type);
 	bool isNtBased;
 #endif
-
-	static int pid;
 };
-
-#ifdef Q_WS_WIN
-int MvdPathResolver_P::pid = (int) GetCurrentProcessId();
-#else
-int MvdPathResolver_P::pid = (int) getpid();
-#endif // Q_WS_WIN
 
 //! \internal Initializes paths.
 MvdPathResolver_P::MvdPathResolver_P()
 {
 	initialized = false;
-
-	QString root;
-
 #ifdef Q_WS_WIN
-
 	isNtBased = (bool)(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based);
+#endif
 
+	QString org = QCoreApplication::organizationName();
+	QString app = QCoreApplication::applicationName();
+	QString dom = QCoreApplication::organizationDomain();
+
+	//// 0. settings dir
+#if defined(Q_WS_WIN)
 	if (isNtBased)
 	{
-		root = getShellFolder("AppData");
-		if (!root.isEmpty())
+		QString appData = specialFolder(CSIDL_APPDATA);
+		QDir dir(appData);
+		appData = dir.absolutePath();
+		if (!dir.exists() && !dir.mkpath(appData))
+			qDebug() << "MvdPathResolver: Failed to create directory" << appData;
+		else
 		{
-			QDir d(root);
-			if (!d.exists())
-				root.clear();
+			appData = MvdCore::toLocalFilePath(appData, true);
+			this->settingsDir = appData;
 		}
-
-		if (root.isEmpty())
-			root = getHomeDir();
 	}
-
-	if (!root.isEmpty())
+	if (this->settingsDir.isEmpty())
 	{
-		QDir d(root);
-		if (!d.exists())
-			root.clear();
-	}
-
-	// Store settings in directory containing our binary (it's the only option with WIN9x)
-	if (root.isEmpty())
-		root = QString(QCoreApplication::applicationDirPath());
-
-	QChar c = root.at(root.length() - 1);
-	if (c != '/' && c != '\\')
-		root.append("\\");
-
-#else
-
-	root = QDir::homePath();
-
-	QChar c = root.at(root.length() - 1);
-	if (c != '/' && c != '\\')
-		root.append("/");
-
-#endif // Q_WS_WIN
-
-#ifdef Q_WS_WIN
-
-	if (isNtBased)
-	{
-		companyDir = QString(QString("%1%2\\").arg(root).arg(MVD_COMPANY_DIR));
-		preferencesDir = QString(QString("%1%2\\%3\\").arg(root).arg(MVD_COMPANY_DIR).arg(MVD_APP_DIR));
-	}
-	else preferencesDir = QString(QString("%1%2").arg(root).arg(MVD_APP_DIR));
-
-#else
-
-	companyDir = QString(QString("%1%2/").arg(root).arg(MVD_COMPANY_DIR));
-	preferencesDir = QString(QString("%1%2/%3").arg(root).arg(MVD_COMPANY_DIR).arg(MVD_APP_DIR));
-
-#endif // Q_WS_WIN
-
-	preferencesFile = QDir::cleanPath(QString(QString("%1/%2").arg(preferencesDir).arg(MVD_PREF_FILENAME)));
-	logFile = QDir::cleanPath(QString(QString("%1/%2").arg(preferencesDir).arg(MVD_LOG_FILENAME)));
-
-	root.clear();
-
-#ifdef Q_WS_WIN
-	if (isNtBased)
-	{
-		root = getWinTemp();
-		if (!root.isEmpty())
+		QString root = QCoreApplication::applicationDirPath();
+		QDir dir(root);
+		root = dir.absolutePath();
+		if (!dir.exists())
 		{
-			QDir d(root);
-			if (!d.exists())
-				root.clear();
+			qDebug() << "MvdPathResolver: failed to locate directory" << root;
+			return;
 		}
-
-		if (root.isEmpty())
-			root = getShellFolder("Local Settings");
+		root = MvdCore::toLocalFilePath(root, true);
+		this->settingsDir = root;
 	}
+#else
+	//! \todo Linux and mac settings!
+#endif
 
-	if (!root.isEmpty())
+	QString sd(QString(this->settingsDir).append(org).append(QDir::separator()).append(app).append(".xml"));
+	qDebug() << "MvdPathResolver: storing application settings in" << sd << ".";
+
+
+	//// 1. temp dir
+	QString tempRoot = QDir::tempPath().append("/").append(org).append("/").append(app).append(".");
+	QString tempDirPath = tempRoot.append(QString::number(Movida::pid()));
+	QFileInfo tempDirInfo(tempDirPath);
+	tempDirPath = tempDirInfo.absolutePath();
+	if (tempDirInfo.exists())
 	{
-		QDir d(root);
-		if (!d.exists())
-			root.clear();
+		bool failed = false;
+		if (tempDirInfo.isFile())
+			failed = !QFile::remove(tempDirPath);
+		else failed = !MvdPathResolver::removeDirectoryTree(tempDirPath);
+		if (failed)
+		{
+			qDebug() << "MvdPathResolver: Failed to create a temporary directory" << tempDirPath;
+			return; // initialized is false and the app is supposed to terminate
+		}
+	}
+	
+	QDir tempDir(tempDirPath);
+	tempDir.mkpath(tempDirPath);
+	if (!tempDir.exists())
+	{
+		qDebug() << "MvdPathResolver: Failed to create a temporary directory" << tempDirPath;
+		return; // initialized is false and the app is supposed to terminate
 	}
 
-	if (root.isEmpty())
+	this->tempDir = MvdCore::toLocalFilePath(tempDirPath, true);
+	qDebug() << "MvdPathResolver: using" << this->tempDir << "as temporary directory.";
+
+	
+	//// 2. resources dir
+
+#if defined(Q_WS_WIN)
+	bool resourcesOk = false;
+	if (isNtBased)
 	{
-		root = getSystemRoot();
-		c = root.at(root.length() - 1);
-		if (c != '/' && c != '\\')
-			root.append("\\");
-		tempBaseDir = QString(root.append("temp\\"));
+		for (int i = 0; i < 2; ++i) {
+			QString root = i == 0 ? specialFolder(CSIDL_APPDATA) : specialFolder(CSIDL_COMMON_APPDATA);
+			if (root.isEmpty())
+				continue;
+			root.append("/").append(org).append("/").append(app).append("/Resources");
+			QDir dir(root);
+			root = dir.absolutePath();
+			if (!dir.exists() && !dir.mkpath(root))
+			{
+				qDebug() << "MvdPathResolver: failed to create directory" << root;
+				continue;
+			}
+			root = MvdCore::toLocalFilePath(root, true);
+			if (i == 0)
+				this->resourcesDirUser = root;
+			else
+				this->resourcesDirSystem = root;
+		}
+		resourcesOk = !this->resourcesDirSystem.isEmpty() && !this->resourcesDirUser.isEmpty();
 	}
+
+	if (!resourcesOk)
+	{
+		// Either Win9x or some problem occurred. Fall back to "{AppDir}\Resources\".
+		QString root = QCoreApplication::applicationDirPath();
+		root.append("/Resources");
+		QDir dir(root);
+		root = dir.absolutePath();
+		if (!dir.exists() && !dir.mkpath(root))
+		{
+			qDebug() << "MvdPathResolver: failed to create directory" << root;
+			return;
+		}
+		root = MvdCore::toLocalFilePath(root, true);
+		if (this->resourcesDirSystem.isEmpty())
+			this->resourcesDirSystem = root;
+		if (this->resourcesDirUser.isEmpty())
+			this->resourcesDirUser = root;
+	}
+#endif
+#if defined(Q_WS_MAC)
+	QString userResources = QDir::homePath().append("/Library/").append(app).append("/Resources");
+	QDir dir(userResources);
+	userResources = dir.absolutePath();
+	if (!QDir::exists(userResources) && !dir.mkpath(userResources))
+		qDebug() << "MvdPathResolver: failed to create directory" << userResources;
 	else
+		this->resourcesDirUser = MvdCore::toLocalFilePath(userResources, true);
+
+	QString sysResources = QCoreApplication::applicationDirPath().append("/../Resources");
+	sysResources = QDir::cleanPath(sysResources);
+	QDir sysResourcesDir(sysResources);
+	sysResources = sysResourcesDir.absolutePath();
+	if (sysResourcesDir.exists())
 	{
-		c = root.at(root.length() - 1);
-		if (c != '/' && c != '\\')
-			root.append("\\");
-		tempBaseDir = QString(root);
+		qDebug() << "MvdPathResolver: failed to locate directory" << sysResources;
+		return;
 	}
+	sysResources = MvdCore::toLocalFilePath(sysResources, true);
+	if (this->resourcesDirUser.isEmpty())
+		this->resourcesDirUser = sysResources;
+	this->resourcesDirSystem = sysResources;
+#endif
+#if defined(Q_WS_X11)
+	QString userResources = QDir::homeDirPath().append("/.").append(org).append("/").append(app).append("/Resources");
+	QDir dir(userResources);
+		userResources = dir.absolutePath();
+	if (!QDir::exists(userResources) && !dir.mkpath(userResources))
+		qDebug() << "MvdPathResolver: failed to create directory" << userResources;
+	else
+		this->resourcesDirUser = MvdCore::toLocalFilePath(userResources, true);
 
-	tempDir = QString(QString("%1%2\\%3.%4\\").arg(tempBaseDir).arg(MVD_COMPANY_DIR).arg(MVD_APP_DIR).arg(pid));
-
-#else
-
-	tempBaseDir = "/tmp/";
-	tempDir = QString("%1%2/%3.%4/").arg(tempBaseDir).arg(MVD_COMPANY_DIR).arg(MVD_APP_DIR).arg(pid);
-
-#endif // Q_WS_WIN
-
-
-	// CREATE MISSING DIRECTORIES
-
-	QDir d(companyDir);
-	if (!d.exists())
+	QString sysResources = QString("/etc/").append(org).append("/").append(app).append("/Resources");
+	dir = QDir(sysResources);
+	sysResources = sysResourcesDir.absolutePath();
+	if (!QDir::exists(sysResources) && !dir.mkpath(sysResources))
 	{
-		if (!d.mkdir(companyDir))
-		{
-			eLog() << QCoreApplication::translate("MvdPathResolver", "Unable to create directory: %1").arg(companyDir);
-			return;
-		}
+		qDebug() << "MvdPathResolver: failed to create directory" << sysResources;
+		return;
 	}
+	sysResources = MvdCore::toLocalFilePath(sysResources, true);
+	if (this->resourcesDirUser.isEmpty())
+		this->>resourcesDirUser = sysResources;
+	this->resourcesDirSystem = sysResources;
+#endif
 
-	d = QDir(preferencesDir);
-	if (!d.exists())
-	{
-		if (!d.mkdir(preferencesDir))
-		{
-			eLog() << QCoreApplication::translate("MvdPathResolver", "Unable to create directory: %1").arg(preferencesDir);
-			return;
-		}
-	}
+	qDebug() << "MvdPathResolver: using" << this->resourcesDirUser << "as user resources directory.";
+	qDebug() << "MvdPathResolver: using" << this->resourcesDirSystem << "as system resources directory.";
 
-	QString dname = QString("%1%2").arg(tempBaseDir).arg(MVD_COMPANY_DIR);
 
-	d = QDir(dname);
-	if (!d.exists(dname))
-	{
-		if (!d.mkdir(dname))
-		{
-			eLog() << QCoreApplication::translate("MvdPathResolver", "Unable to create directory: %1").arg(dname);
-			return;
-		}
-	}
+	//// 3. log file
 
-	dname = QString("%1%2/%3.%4/").arg(tempBaseDir).arg(MVD_COMPANY_DIR).arg(MVD_APP_DIR).arg(pid);
-	d = QDir(dname);
-	if (!d.exists())
-	{
-		if (!d.mkdir(dname))
-		{
-			eLog() << QCoreApplication::translate("MvdPathResolver", "Unable to create directory: %1").arg(dname);
-			return;
-		}
-	}
+	QString log = this->resourcesDirUser;
+	log.append(app).append(".log");
+	qDebug() << "MvdPathResolver: writing log to" << log << ".";
+	this->logFile = log;
 
 	initialized = true;
 }
@@ -254,135 +291,49 @@ MvdPathResolver_P::MvdPathResolver_P()
 #ifdef Q_WS_WIN
 
 /*!
-	\internal Returns the path to a system shell folder by retrieving it
-	from the registry.
+	\internal Returns the path to a system shell folder using SHGetSpecialFolderPathW or
+	SHGetSpecialFolderPathA from shell32.dll.
 */
-QString MvdPathResolver_P::getShellFolder(const QString& folder)
+QString MvdPathResolver_P::specialFolder(int type)
 {
-	HKEY hkey = NULL;
-	int res;
-	char buf[1024];
-	DWORD bsz = sizeof(buf);
+	QString result;
 
-	QT_WA(
-	{
-		res = RegOpenKeyExW(
-			HKEY_CURRENT_USER,
-			reinterpret_cast<const wchar_t *>(QString("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders").utf16()),
-			0, KEY_READ, &hkey );
-	},
-	{
-		res = RegOpenKeyExA(
-			HKEY_CURRENT_USER,
-			QString("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders").toLocal8Bit(),
-			0, KEY_READ, &hkey );
+	QLibrary library(QLatin1String("shell32"));
+	QT_WA( {
+		typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
+		GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathW");
+		if (SHGetSpecialFolderPath) {
+			TCHAR path[MAX_PATH];
+			SHGetSpecialFolderPath(0, path, type, FALSE);
+			result = QString::fromUtf16((ushort*)path);
+		}
+	} , {
+		typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);
+		GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathA");
+		if (SHGetSpecialFolderPath) {
+			char path[MAX_PATH];
+			SHGetSpecialFolderPath(0, path, type, FALSE);
+			result = QString::fromLocal8Bit(path);
+		}
+	} );
+
+	if (result.isEmpty()) {
+		switch (type) {
+		case CSIDL_COMMON_APPDATA:
+			result = QLatin1String("C:\\temp\\qt-common");
+			break;
+		case CSIDL_APPDATA:
+			result = QLatin1String("C:\\temp\\qt-user");
+			break;
+		default:
+			;
+		}
 	}
-	);
 
-	if (res != ERROR_SUCCESS)
-	{
-		wLog() << QCoreApplication::translate("MvdPathResolver", "Unable to read shell folders from registry");
-		return QString();
-	}
-
-	QT_WA(
-	{
-		res = RegQueryValueExW(hkey, reinterpret_cast<const wchar_t *>(folder.utf16()),
-			0, 0, (LPBYTE)buf, &bsz);
-		if (res == ERROR_SUCCESS)
-			return QString::fromUtf16((unsigned short*) buf);
-	},
-	{
-		res = RegQueryValueExA(hkey, folder.toLocal8Bit(), 0, 0, (LPBYTE)buf, &bsz);
-		if (res == ERROR_SUCCESS)
-			return QString::fromLatin1(buf);
-	}
-	);
-
-	return QString();
+	return result;
 }
 
-/*!
-	\internal Returns the value of an environment variable.
-*/
-QString MvdPathResolver_P::getEnvVariable(const QString& var)
-{
-	int res;
-	char buf[1024];
-	DWORD bsz = sizeof(buf);
-
-	QT_WA(
-	{
-		res = GetEnvironmentVariable(reinterpret_cast<const wchar_t *>(var.utf16()),
-			(LPWSTR)buf, bsz);
-		if (res > 0)
-			return QString::fromUtf16((unsigned short*) buf);
-		else return QString();
-	},
-	{
-		res = GetEnvironmentVariable((LPWSTR)var.toLocal8Bit().data(),
-			(LPWSTR)buf, bsz);
-		if (res > 0)
-			return QString::fromLatin1(buf);
-		else return QString();
-	}
-	);
-
-	return QString();
-}
-
-/*!
-	\internal Returns the path to the users home directory (returns an empty
-	string on single-user platforms like Windows 9x).
-*/
-QString MvdPathResolver_P::getHomeDir()
-{
-	QString base;
-	QString path;
-
-	base = getEnvVariable("HOMEDRIVE");
-	if (base.isEmpty())
-		return QString();
-
-	path = getEnvVariable("HOMEPATH");
-	if (path.isEmpty())
-		return QString();
-
-	base.append(path);
-	return base;
-}
-
-/*!
-	\internal Returns the path to the temporary system directory.
-*/
-QString MvdPathResolver_P::getWinTemp()
-{
-	QString tmp = getEnvVariable("TEMP");
-	return tmp.isEmpty() ? getEnvVariable("TMP") : tmp;
-}
-
-/*!
-	\internal Returns the path to the system root. This is usually
-	c:\\windows on Windows XP and Windows 9x
-	and c:\\winnt on Windows NT and Windows 2000
-*/
-QString MvdPathResolver_P::getSystemRoot()
-{
-	QString sysRoot = getEnvVariable("SystemRoot");
-	if (!sysRoot.isEmpty())
-		return sysRoot;
-
-	sysRoot = getEnvVariable("windir");
-	if (!sysRoot.isEmpty())
-		return sysRoot;
-
-	bool isNt = (QSysInfo::WindowsVersion & QSysInfo::WV_2000) ||
-		(QSysInfo::WindowsVersion & QSysInfo::WV_NT);
-
-	return isNt ? "c:\\winnt\\" : "c:\\windows\\";
-}
-
-#endif // WIN32
+#endif
 
 
 /************************************************************************
@@ -424,21 +375,26 @@ bool MvdPathResolver::isInitialized() const
 }
 
 /*!
-	Returns the full path to the application preferences file, which is
-	%LOCALSETTINGS_SHELL_FOLDER%\Company\Application.ini on Windows NT based OSes,
-	%APPLICATION_PATH%\Application.ini on Windows 9x,
-	%USER_HOME%/.company/application/application.rc on Unix based OSes.
+	Returns the absolute path of a directory that contains the user specific settings
+	file.
+
+	<table>
+		<tr><th>Platform</th><th>Scope</th><th>Location</th><th>Notes</th></tr>
+		<tr><td>Windows NT</td><td></td><td>{{USF\AppData}}\{Org}\{App}\</td><td></td>
+		<tr><td>Windows 9x</td><td></td><td>{AppDir}\</td><td></td>
+		<tr><td>Unix / Mac OS X</td><td></td><td>{HOME}/.{Org}/{App}/</td><td></td>
+	</table>
 */
-QString MvdPathResolver::preferencesFile() const
+QString MvdPathResolver::settingsDir() const
 {
-	return d->preferencesFile;
+	return d->settingsDir;
 }
 
 /*!
-	Returns the full path to the application log file, which is
-	%LOCALSETTINGS_SHELL_FOLDER%\Company\Application.log on Windows NT based OSes,
-	%APPLICATION_PATH%\Application.log on Windows 9x,
-	%USER_HOME%/.company/application/application.log on Unix based OSes.
+	Returns the full path to the application log file.
+	The file is placed in the user's resources directory, so please refer to
+	MvdPathResolver::resourcesDir() for details.
+
 */
 QString MvdPathResolver::logFile() const
 {
@@ -446,29 +402,16 @@ QString MvdPathResolver::logFile() const
 }
 
 /*!
-	Returns the full path to the application preferences directory.
-	\sa preferencesFile()
-*/
-QString MvdPathResolver::preferencesDir() const
-{
-	return d->preferencesDir;
-}
+	Returns the full path to the application wide temporary directory, which is usually
+	in a sub folder of the system's temporary directory.
 
-/*!
-	Returns the full path to the company preferences directory.
-	\sa MvdPathResolver::preferencesFile()
-	\warning The company directory is not defined on Windows 9x!
-*/
-QString MvdPathResolver::companyDir() const
-{
-	return d->companyDir;
-}
+	<table>
+		<tr><th>Platform</th><th>Scope</th><th>Location</th><th>Notes</th></tr>
+		<tr><td>Windows</td><td></td><td>{TEMP}\{Org}\{App}.{Pid}\ or {TMP}\{Org}\{App}.{Pid}\</td><td></td>
+		<tr><td>Unix/Mac</td><td></td><td>/tmp/{Org}/{App}.{Pid}/</td><td></td>
+	</table>
 
-/*!
-	Returns the full path to the OS temporary directory, which is
-	%LOCALSETTINGS_SHELL_FOLDER%\Temp on Windows NT based OSes,
-	%WINDOWS_DIR%\Temp on Windows 9x,
-	/tmp on Unix based platforms.
+	If a directory with the same name already exists it is removed with all its contents.
 */
 QString MvdPathResolver::tempDir() const
 {
@@ -476,39 +419,82 @@ QString MvdPathResolver::tempDir() const
 }
 
 /*!
-	Generates a new unique directory in the system temporary directory.
-	The directory name is partially generated using this pattern:
-	APPLICATION_NAME.APPLICATION_PID.RANDOM_NUMBER
+	Generates a new unique directory inside of the MvdPathResolver::tempDir() directory.
+	The directory name is a unique random string.
 */
 QString MvdPathResolver::generateTempDir() const
 {
-	srand(time(NULL) ^ 3141592654UL);
-	bool dirCreated = false;
+#define MVD_PATHRESOLVER_MAX_RETRIES 20
 
 	QString path;
-
-	while (!dirCreated)
+	int count = 0;
+	do
 	{
-		path = QString("%1%2.%3.%4/").arg(d->tempDir).arg(MVD_APP_DIR)
-			.arg(d->pid).arg(rand() % 10000);
+		count++;
+		path = tempDir().append(QUuid::createUuid().toString()).append("/");
 		QDir dir(path);
-
 		if (!dir.exists())
 		{
 			dir.mkpath(path);
-			dirCreated = true;
+			count = -1;
 		}
 	}
+	while (count >= 0 && count <= MVD_PATHRESOLVER_MAX_RETRIES);
 
-	return path.append("/");
+	if (count == MVD_PATHRESOLVER_MAX_RETRIES) {
+		Q_ASSERT_X(false, "MvdPathResolver::generateTempDir()", "Failed to generate a unique filename.");
+	}
+
+	return MvdCore::toLocalFilePath(path, true);
+}
+
+/*!
+	Returns the absolute path of the directory containing the application executable.
+	On Mac OS X, it returns the path of the directory containing the bundle if a bundle
+	is detected.
+*/
+QString MvdPathResolver::applicationDirPath()
+{
+	QString path = QCoreApplication::applicationDirPath();
+#ifdef Q_WS_MAC
+	//! \todo The following code needs to be tested on a Mac!
+	// We might be in a bundle: Movida.app/Contents/MacOS/Movida
+	QDir d(path);
+	d.cdUp();
+	d.cdUp();
+	QFileInfo fi(d);
+	if (fi.isBundle())
+		path = fi.absolutePath();
+#endif
+	return MvdCore::toLocalFilePath(path, true);
+}
+
+/*!
+	Returns the absolute path of a directory that can be used to store
+	user specific or system wide resources, such as skins, configuration files
+	and more.
+
+	<table>
+		<tr><th>Platform</th><th>Scope</th><th>Location</th><th>Notes</th></tr>
+		<tr><td>Windows NT</td><td>System</td><td>{{SSF\Common AppData}}\{Org}\{App}\Resources\</td><td></td>
+		<tr><td>Windows NT</td><td>User</td><td>{{USF\AppData}}\{Org}\{App}\Resources\</td><td></td>
+		<tr><td>Windows 9x</td><td></td><td>{AppDir}\Resources\</td><td></td>
+		<tr><td>Unix</td><td>System</td><td>/etc/{Org}/{App}/Resources/</td><td></td>
+		<tr><td>Unix</td><td>User</td><td>{HOME}/.{Org}/{App}/Resources/</td><td></td>
+		<tr><td>Mac OS X</td><td>System</td><td>{Bundle}/Contents/Resources/</td><td></td>
+		<tr><td>Mac OS X</td><td>User</td><td>{HOME}/Library/{App}/Resources/</td><td></td>
+	</table>
+*/
+QString MvdPathResolver::resourcesDir(Movida::Scope scope) const
+{
+	return scope == UserScope ? d->resourcesDirUser : d->resourcesDirSystem;
 }
 
 /*!
 	Removes the directory with given path and all its contents,
-	excluding any directory	named \p excludeDir.
+	excluding any directory named \p excludeDir.
  */
-bool MvdPathResolver::removeDirectoryTree(const QString& path,
-	const QString& excludeDir) const
+bool MvdPathResolver::removeDirectoryTree(const QString& path, const QString& excludeDir)
 {
 	// CleanPath needs to be called or dirName() might fail.
 	// This is because of the current (Qt 4.2.x) implementation
@@ -545,9 +531,13 @@ bool MvdPathResolver::removeDirectoryTree(const QString& path,
 }
 
 //! Returns the application process ID.
-int MvdPathResolver::pid()
+int Movida::pid()
 {
-	return MvdPathResolver_P::pid;
+#ifdef Q_WS_WIN
+	return (int) GetCurrentProcessId();
+#else
+	return (int) getpid();
+#endif // Q_WS_WIN
 }
 
 //! Convenience method to access the MvdPathResolver singleton.

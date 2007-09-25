@@ -104,13 +104,15 @@ bool MvdCore::initCore()
 	if (d != 0)
 		return MvdCoreInitOk;
 
+	QCoreApplication::setApplicationName("Movida");
+	QCoreApplication::setOrganizationName("BlueSoft");
+	QCoreApplication::setOrganizationDomain("movida.sourceforge.net");
+
 	// Pre-initialize MvdPathResolver to create missing application directories
 	if (!paths().isInitialized())
 		return false;
 
 	d = new MvdCore_P;
-
-	QString prefDir = paths().preferencesDir();
 
 	//! \todo check library versions?
 
@@ -125,39 +127,21 @@ bool MvdCore::initCore()
 	Call this once on application startup to load application preferences,
 	and more.
 	Subsequent calls to this method have no effect.
-	Set non-core default settings in the MvdSettings singleton before
-	calling this method so that they can be possibly overwritten by user
-	defined settings.
 */
 void MvdCore::loadStatus()
 {
 	// Load application preferences. Set defaults and overwrite with user settings.
-	MvdSettings& s = settings();
-
-	QString prefFile = paths().preferencesFile();
-	iLog() << QString("MvdCore: Loading preferences from %1").arg(prefFile);
-
-	if (!s.load(prefFile))
-		wLog() << QString("MvdCore: No preferences loaded. Using default settings.");
+	Q_UNUSED(settings());
 }
 
 /*!
 	Call this once on application termination to store application preferences
 	and more.
 	Subsequent calls to this method have no effect.
-	Write non-core settings in the MvdSettings singleton before calling
-	this method as it will write the settings to the preferences file!
 */
 void MvdCore::storeStatus()
 {
 	Q_ASSERT(d);
-
-	QString prefFile = paths().preferencesFile();
-	iLog() << QString("MvdCore: Storing preferences in %1").arg(prefFile);
-
-	if (!settings().save(prefFile))
-		eLog() << QString("MvdCore: Unable to store preferences.");
-
 	delete d;
 	d = 0;
 }

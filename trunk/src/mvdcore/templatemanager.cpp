@@ -105,7 +105,7 @@ QStringList MvdTemplateManager::movieTemplates() const
 		names << files.at(i).fileName();
 	}
 
-	dir = QDir(paths().preferencesDir().append("/templates/movie"));
+	dir = QDir(paths().resourcesDir().append("Templates/Movie"));
 	files = dir.entryInfoList();
 
 	for (int i = 0; i < files.size(); ++i)
@@ -360,9 +360,9 @@ QString MvdTemplateManager::movieToHtml(const MvdMovie& movie,
 	if (!movie.isValid())
 		return QString();
 
-	QString path = QString(":/templates/movie/default/").append(templateName);
+	QString path = QString(":/Templates/Movie/Default/").append(templateName);
 	if (!QFile::exists(path))
-		path = paths().preferencesDir().append("/templates/movie/").append(templateName);
+		path = paths().resourcesDir().append("Templates/Movie/").append(templateName);
 
 	MvdXsltProc xsl(path);
 	return xsl.processText(movieToXml(movie, collection));

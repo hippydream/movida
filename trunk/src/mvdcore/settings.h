@@ -23,116 +23,44 @@
 #define MVD_SETTINGS_H
 
 #include "global.h"
-#include <QtGlobal>
-#include <QString>
-
-class QIODevice;
-class QByteArray;
-class QBitArray;
-class QStringList;
-class QRect;
-class QPoint;
-class QSize;
-
-#ifndef MVD_QTCORE_ONLY
-class QColor;
-#endif
-
-class MvdSettings_P;
+#include <QVariant>
 
 class MVD_EXPORT MvdSettings
 {
 public:
-	static const quint8 version = 1;
-
-	enum BinaryEncoding { CsvEncoding, Base64Encoding };
-
-	enum ErrorCode
+	enum Status
 	{
 		NoError = 0,
-		FileNotFoundError,
-		FileOpenError,
-		FileVersionError,
-		ProductVersionError
+		AccessError,
+		FormatError
 	};
 
 	static MvdSettings& instance();
 	virtual ~MvdSettings();
 
-
-	/************************************************************************
-	Misc methods
-	*************************************************************************/
-
-	bool isEmpty();
-
-	bool load(const QString& file);
-	bool save(const QString& file);
-
 	void clear();
-	void clearSection(const QString& section = QString());
 
-	void setProductInfo(const QString& company, const QString& product);
-	void setProductVersion(quint8 version);
+	void beginGroup(const QString& prefix);
+	void endGroup();
+	QString group() const;
 
-	void setIgnoreMissingProductInfo(bool ignore);
-	void setIgnoreMissingProductVersion(bool ignore);
+	int beginReadArray(const QString& prefix);
+	void beginWriteArray(const QString& prefix, int size = -1);
+	void setArrayIndex(int i);
+	void endArray();
 
-	void setDefaultSectionName(const QString& name);
+	bool contains(const QString& key) const;
 
-	bool autoAddSections() const;
-	void setAutoAddSections(bool enable);
+	void remove(const QString& key);
+	void setDefaultValue(const QString& key, const QVariant& value);
+	void setValue(const QString& key, const QVariant& value);
+	QVariant value(const QString& key, const QVariant& defaultValue = QVariant()) const;
 
-	void setBinaryEncodingType(BinaryEncoding encoding);
-	BinaryEncoding binaryEncodingType() const;
-
-	ErrorCode lastErrorCode() const;
-	QString lastErrorString() const;
-
-
-	/************************************************************************
-	Getters
-	*************************************************************************/
-
-	QString getString(const QString& name, const QString& section = QString());
-	QStringList getStringList(const QString& name, const QString& section = QString());
-	bool getBool(const QString& name, const QString& section = QString(), bool* ok = 0);
-	int getInt(const QString& name, const QString& section = QString(), bool* ok = 0);
-	qint64 getInt64(const QString& name, const QString& section = QString(), bool* ok = 0);
-	QBitArray getBitArray(const QString& name, const QString& section = QString());
-	QByteArray getByteArray(const QString& name, const QString& section = QString());
-	QRect getRect(const QString& name, const QString& section = QString());
-	QPoint getPoint(const QString& name, const QString& section = QString());
-	QSize getSize(const QString& name, const QString& section = QString());
-
-#ifndef MVD_QTCORE_ONLY
-	QColor getColor(const QString& name, const QString& section = QString());
-#endif
-
-
-	/************************************************************************
-	Setters
-	*************************************************************************/
-
-	void setString(const QString& name, const QString& value, const QString& section = QString());
-	void setStringList(const QString& name, const QStringList& value, const QString& section = QString());
-	void setBool(const QString& name, bool value, const QString& section = QString());
-	void setInt(const QString& name, int value, const QString& section = QString());
-	void setInt64(const QString& name, qint64 value, const QString& section = QString());
-	void setBitArray(const QString& name, const QBitArray& value, const QString& section = QString());
-	void setByteArray(const QString& name, const QByteArray& value, const QString& section = QString());
-	void setRect(const QString& name, const QRect& value, const QString& section = QString());
-	void setSize(const QString& name, const QSize& value, const QString& section = QString());
-	void setPoint(const QString& name, const QPoint& value, const QString& section = QString());
-
-#ifndef MVD_QTCORE_ONLY
-	void setColor(const QString& name, const QColor& value, const QString& section = QString());
-#endif
+	Status status() const;
 
 private:
 	static MvdSettings* mInstance;
 	MvdSettings();
-	MvdSettings_P* d;
 };
 
 namespace Movida

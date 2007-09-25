@@ -119,8 +119,6 @@ private:
 
 	void retranslateUi();
 	void setupConnections();
-	QRect defaultWindowRect() const;
-	void setWindowRect(QRect rect);
 	void createNewCollection();
 	quint32 modelIndexToId(const QModelIndex& index) const;
 

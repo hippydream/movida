@@ -43,6 +43,12 @@ public:
 		CollectionExportAction
 	};
 
+	enum Scope
+	{
+		UserScope,
+		GlobalScope
+	};
+
 	struct PluginInfo
 	{
 		QString name;
@@ -76,8 +82,8 @@ public:
 
 	virtual void actionTriggeredImplementation(const QString& name) = 0;
 
-	QString dataStore() const;
-	void setDataStore(const QString& path);
+	QString dataStore(Scope scope = UserScope) const;
+	void setDataStore(const QString& path, Scope scope = UserScope);
 
 public slots:
 	void actionTriggered(const QString& name);

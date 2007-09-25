@@ -36,17 +36,14 @@ public:
 
 	bool isInitialized() const;
 
-	QString preferencesFile() const;
-	QString preferencesDir() const;
+	QString settingsDir() const;
 	QString logFile() const;
-	QString companyDir() const;
 	QString tempDir() const;
-
+	QString resourcesDir(Movida::Scope scope = Movida::UserScope) const;
 	QString generateTempDir() const;
-	bool removeDirectoryTree(const QString& dir, const QString& excludeDir
-		= QString()) const;
 
-	static int pid();
+	static QString applicationDirPath();
+	static bool removeDirectoryTree(const QString& dir, const QString& excludeDir = QString());
 
 private:
 	MvdPathResolver();
@@ -57,6 +54,7 @@ private:
 namespace Movida
 {
 	MVD_EXPORT extern MvdPathResolver& paths();
+	MVD_EXPORT extern int pid();
 }
 
 #endif // MVD_PATHRESOLVER_H
