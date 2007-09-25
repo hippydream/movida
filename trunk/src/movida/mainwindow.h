@@ -166,6 +166,7 @@ private slots:
 	void externalActionTriggered(const QString& id, const QVariant& data);
 
 	void loadPlugins();
+	void loadPluginsFromDir(const QString& path);
 	void movieViewToggled(QAction*);
 	void cycleMovieView();
 };

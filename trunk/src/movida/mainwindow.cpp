@@ -1215,8 +1215,22 @@ void MvdMainWindow::loadPlugins()
 	// Clear old plugin menus if any
 	mMN_Plugins->clear();
 
-	// Load plugins
-	QDir pluginDir(paths().resourcesDir().append("Plugins"));
+	QString up = paths().resourcesDir(Movida::UserScope).append("Plugins");
+	loadPluginsFromDir(up);
+	QString sp = paths().resourcesDir(Movida::SystemScope).append("Plugins");
+	if (sp != up)
+		loadPluginsFromDir(sp);
+
+	// Add the RELOAD action
+	if (!mMN_Plugins->isEmpty())
+		mMN_Plugins->addSeparator();
+	mMN_Plugins->addAction(mA_PluginLoad);
+}
+
+//! \internal
+void MvdMainWindow::loadPluginsFromDir(const QString& path)
+{
+	QDir pluginDir(path);
 
 #if defined(Q_WS_WIN)
 	QString ext = "*.dll";
@@ -1230,6 +1244,11 @@ void MvdMainWindow::loadPlugins()
 	for (int i = 0; i < list.size(); ++i)
 	{
 		QFileInfo& fi = list[i];
+		QString name = fi.completeBaseName();
+
+		if (!name.startsWith("mpi"))
+			continue;
+
 		QLibrary myLib(fi.absoluteFilePath());
 		if (!myLib.load())
 		{
@@ -1263,8 +1282,7 @@ void MvdMainWindow::loadPlugins()
 		if (actions.isEmpty())
 			continue;
 
-		//! \todo Check if completeBaseName() works with .so.1.xyz linux libraries!!
-		QString dataStorePath = paths().resourcesDir().append("Plugins/").append(fi.completeBaseName());
+		QString dataStorePath = paths().resourcesDir(Movida::UserScope).append("Plugins/").append(fi.completeBaseName());
 		if (!QFile::exists(dataStorePath))
 		{
 			QDir d;
@@ -1275,11 +1293,32 @@ void MvdMainWindow::loadPlugins()
 			}
 		}
 
-		iface->setDataStore(dataStorePath, MvdPluginInterface::UserScope);
-		iLog() << QString("'%1' plugin user data store created: ").arg(info.name).append(dataStorePath);
+		dataStorePath = MvdCore::toLocalFilePath(dataStorePath, true);
+		iface->setDataStore(dataStorePath, Movida::UserScope);
+		iLog() << QString("'%1' plugin user data store: ").arg(info.name).append(dataStorePath);
 
-		// Create global data store (if possible)
-		dataStorePath = "";// QCoreApplication::
+		// Create global data store
+		dataStorePath = paths().resourcesDir(Movida::SystemScope).append("Plugins/").append(fi.completeBaseName());
+		if (dataStorePath != iface->dataStore(Movida::UserScope))
+		{
+			bool ok = true;
+			if (!QFile::exists(dataStorePath))
+			{
+				QDir d;
+				if (!d.mkpath(dataStorePath))
+				{
+					wLog() << "Failed to create global data store for plugin: " << dataStorePath;
+					ok = false;
+				}
+			} else ok = true;
+
+			if (ok)
+			{
+				dataStorePath = MvdCore::toLocalFilePath(dataStorePath, true);
+				iface->setDataStore(dataStorePath, Movida::SystemScope);
+				iLog() << QString("'%1' plugin system data store: ").arg(info.name).append(dataStorePath);
+			}
+		}
 
 		// Initialize plugin
 		iface->init();
@@ -1306,11 +1345,6 @@ void MvdMainWindow::loadPlugins()
 		connect( signalMapper, SIGNAL(mapped(const QString&)), 
 			iface, SLOT(actionTriggered(const QString&)) );
 	}
-
-	// Add the RELOAD action
-	if (!mMN_Plugins->isEmpty())
-		mMN_Plugins->addSeparator();
-	mMN_Plugins->addAction(mA_PluginLoad);	
 }
 
 void MvdMainWindow::movieViewToggled(QAction* a)

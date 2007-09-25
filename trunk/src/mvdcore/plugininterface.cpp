@@ -44,9 +44,9 @@ void MvdPluginInterface::actionTriggered(const QString& name)
 }
 
 //! Returns the data store path for this plugin. The directory is ensured to exist.
-QString MvdPluginInterface::dataStore(Scope scope) const
+QString MvdPluginInterface::dataStore(Movida::Scope scope) const
 {
-	return scope == UserScope ? d->userDataStore : d->globalDataStore;
+	return scope == Movida::UserScope ? d->userDataStore : d->globalDataStore;
 }
 
 /*!
@@ -58,9 +58,9 @@ QString MvdPluginInterface::dataStore(Scope scope) const
 	(i.e. ~/mike/.bluesoft/movida/plugins/mpiblue) or in the global plug-in
 	directory (i.e. c:\program files\bluesoft\movida\plugins\mpiblue).
 */
-void MvdPluginInterface::setDataStore(const QString& path, Scope scope)
+void MvdPluginInterface::setDataStore(const QString& path, Movida::Scope scope)
 {
-	if (scope == UserScope)
+	if (scope == Movida::UserScope)
 		d->userDataStore = path;
 	else d->globalDataStore = path;
 }

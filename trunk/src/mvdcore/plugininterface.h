@@ -43,12 +43,6 @@ public:
 		CollectionExportAction
 	};
 
-	enum Scope
-	{
-		UserScope,
-		GlobalScope
-	};
-
 	struct PluginInfo
 	{
 		QString name;
@@ -82,8 +76,8 @@ public:
 
 	virtual void actionTriggeredImplementation(const QString& name) = 0;
 
-	QString dataStore(Scope scope = UserScope) const;
-	void setDataStore(const QString& path, Scope scope = UserScope);
+	QString dataStore(Movida::Scope scope = Movida::UserScope) const;
+	void setDataStore(const QString& path, Movida::Scope scope = Movida::UserScope);
 
 public slots:
 	void actionTriggered(const QString& name);
