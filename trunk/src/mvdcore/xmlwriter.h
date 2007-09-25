@@ -24,6 +24,7 @@
 
 #include "global.h"
 #include <QHash>
+#include <QPair>
 
 class QIODevice;
 class QTextCodec;
@@ -35,6 +36,7 @@ class MVD_EXPORT MvdXmlWriter
 public:
 	// Fix a bug with GCC not able to parse the template class default parameters
 	typedef QHash<QString,QString> AttributeMap;
+	typedef QPair<QString,QString> Attribute;
 
 	enum Option { NoOptions = 0x0, WriteEncodingOption };
 	Q_DECLARE_FLAGS(Options, Option)
@@ -47,11 +49,13 @@ public:
 	void writeString(const QString& string);
 	void writeLine();
 
+	void writeOpenTag(const QString& name, const Attribute& a1, const Attribute& a2 = Attribute(), const Attribute& a3 = Attribute());
 	void writeOpenTag(const QString& name, const AttributeMap& attrs = AttributeMap());
 	void writeCloseTag(const QString& name);
+	void writeAtomTag(const QString& name, const Attribute& a1, const Attribute& a2 = Attribute(), const Attribute& a3 = Attribute());
 	void writeAtomTag(const QString& name, const AttributeMap& attrs = AttributeMap());
-	void writeTaggedString(const QString& name, const QString& string,
-		const AttributeMap& attrs = AttributeMap());
+	void writeTaggedString(const QString& name, const QString& string, const Attribute& a1, const Attribute& a2 = Attribute(), const Attribute& a3 = Attribute());
+	void writeTaggedString(const QString& name, const QString& string, const AttributeMap& attrs = AttributeMap());
 
 	void writeComment(const QString& comment);
 	void startComment();
