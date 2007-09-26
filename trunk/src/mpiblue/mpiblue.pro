@@ -22,8 +22,13 @@ CONFIG += plugin
 DEFINES += MPI_BUILD_BLUE_DLL
 QT += network
 
-DESTDIR = $${ROOT}/bin/plugins
-DLLDESTDIR = $${ROOT}/bin/plugins
+win32 {
+	# Place .lib and Visual Studio crap in the bin directory and copy the dll to "plugins"
+	DESTDIR = $${ROOT}/bin
+	DLLDESTDIR = $${ROOT}/bin/plugins
+} else {
+	DESTDIR = $${ROOT}/bin/plugins
+}
 
 INCLUDEPATH += . ../mvdcore ../mvdshared
 
