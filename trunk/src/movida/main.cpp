@@ -61,8 +61,8 @@ int main( int argc, char ** argv )
 
 		if (!MvdCore::initCore())
 		{
-			QMessageBox::warning(0, 
-				QCoreApplication::translate("Main", "Application Error"), 
+			QMessageBox::warning(0,
+				QCoreApplication::translate("Main", "Application Error"),
 				QCoreApplication::translate("Main", "Failed to initialize the application.\nPlease see the log file for details."));
 			exit(MVD_ERROR_INIT);
 		}
@@ -74,7 +74,7 @@ int main( int argc, char ** argv )
 		{
 			w.loadCollection(argv[argc - 1]);
 		}
-		
+
 		errcode = a.exec();
 
 		Movida::paths().removeDirectoryTree(Movida::paths().tempDir());
@@ -96,6 +96,6 @@ void movidaExit(int)
 {
 	//! \todo popup some message box
 	QMessageBox::warning(0, QCoreApplication::translate("Crash Handler", "%1 crash report").arg(MVD_CAPTION), QCoreApplication::translate("Crash Handler", "Removing temporary files after application crash."));
-	Movida::paths().removeDirectoryTree(Movida::paths().tempDir());
+	MvdCore::storeStatus();
 	exit(-1);
 }

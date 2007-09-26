@@ -147,7 +147,7 @@ void MvdCore::loadStatus()
 	and more.
 	Subsequent calls to this method have no effect.
 	Please do not access any movida singleton (i.e. the MvdLogger) after calling this method,
-	to avoid any unpredictable 
+	to avoid any unpredictable
 	behaviour.
 */
 void MvdCore::storeStatus()
@@ -155,6 +155,9 @@ void MvdCore::storeStatus()
 	Q_ASSERT(d);
 	delete d;
 	d = 0;
+
+	Movida::paths().removeDirectoryTree(Movida::paths().tempDir());
+
 	delete &(MvdSettings::instance());
 	delete &(MvdLogger::instance());
 }
@@ -375,7 +378,7 @@ MvdCore::LabelAction MvdCore::parseLabelAction(const QString& url)
 	Attempts to locate an application with the given name.
 	\p name must not include platform dependent suffixes (i.e. ".exe").
 
-	The application is first searched in the movida application directory 
+	The application is first searched in the movida application directory
 	(unless \p searchInAppDirPath is true) and then
 	in the directories included in the PATH environment variable.
 
@@ -394,7 +397,7 @@ QString MvdCore::locateApplication(QString name, bool searchInAppDirPath)
 		//cs = Qt::CaseInsensitive;
 #endif
 
-	//! \todo On Mac OS X this will point to the directory actually containing the executable, which may be inside of an application bundle (if the application is bundled). 
+	//! \todo On Mac OS X this will point to the directory actually containing the executable, which may be inside of an application bundle (if the application is bundled).
 	QString appPath = searchInAppDirPath ? QCoreApplication::applicationDirPath() : QString();
 	if (!appPath.isEmpty())
 	{
