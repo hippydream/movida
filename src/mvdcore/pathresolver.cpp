@@ -167,14 +167,13 @@ MvdPathResolver_P::MvdPathResolver_P()
 
 
 	//// 1. temp dir
-	QString tempRoot = QDir::tempPath().append("/").append(org).append("/").append(app).append(".");
-	QString tempDirPath = tempRoot.append(QString::number(Movida::pid()));
-	QFileInfo tempDirInfo(tempDirPath);
-	tempDirPath = tempDirInfo.absolutePath();
-	if (tempDirInfo.exists())
+	QString tempDirPath = QDir::tempPath().append("/").append(org).append("/").append(app).append(".").append(QString::number(Movida::pid()));
+	QDir tempDir(tempDirPath);
+	tempDirPath = tempDir.absolutePath();
+	if (tempDir.exists())
 	{
 		bool failed = false;
-		if (tempDirInfo.isFile())
+		if (QFile::exists(tempDirPath))
 			failed = !QFile::remove(tempDirPath);
 		else failed = !MvdPathResolver::removeDirectoryTree(tempDirPath);
 		if (failed)
@@ -184,7 +183,6 @@ MvdPathResolver_P::MvdPathResolver_P()
 		}
 	}
 	
-	QDir tempDir(tempDirPath);
 	tempDir.mkpath(tempDirPath);
 	if (!tempDir.exists())
 	{
