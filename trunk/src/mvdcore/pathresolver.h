@@ -37,6 +37,7 @@ public:
 	bool isInitialized() const;
 
 	QString settingsDir() const;
+	QString settingsFile() const;
 	QString logFile() const;
 	QString tempDir() const;
 	QString resourcesDir(Movida::Scope scope = Movida::UserScope) const;

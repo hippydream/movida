@@ -112,6 +112,14 @@ bool MvdCore::initCore()
 	if (!paths().isInitialized())
 		return false;
 
+	QString appPaths;
+	appPaths.append(MVD_LINEBREAK).append("  Log file: ").append(paths().logFile());
+	appPaths.append(MVD_LINEBREAK).append("  Settings file: ").append(paths().settingsFile());
+	appPaths.append(MVD_LINEBREAK).append("  User resources directory: ").append(paths().resourcesDir(Movida::UserScope));
+	appPaths.append(MVD_LINEBREAK).append("  System resources directory: ").append(paths().resourcesDir(Movida::SystemScope));
+	appPaths.append(MVD_LINEBREAK).append("  Temporary directory: ").append(paths().tempDir());
+	iLog() << "MvdCore: Application paths:" << appPaths;
+
 	d = new MvdCore_P;
 
 	//! \todo check library versions?
@@ -138,12 +146,17 @@ void MvdCore::loadStatus()
 	Call this once on application termination to store application preferences
 	and more.
 	Subsequent calls to this method have no effect.
+	Please do not access any movida singleton (i.e. the MvdLogger) after calling this method,
+	to avoid any unpredictable 
+	behaviour.
 */
 void MvdCore::storeStatus()
 {
 	Q_ASSERT(d);
 	delete d;
 	d = 0;
+	delete &(MvdSettings::instance());
+	delete &(MvdLogger::instance());
 }
 
 /*!
