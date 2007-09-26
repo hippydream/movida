@@ -56,7 +56,9 @@ int main( int argc, char ** argv )
 #ifdef Q_WS_WIN
 	try {
 #endif
-		
+
+		MvdLogger::setUseHtml(true);
+
 		if (!MvdCore::initCore())
 		{
 			QMessageBox::warning(0, 
@@ -64,8 +66,6 @@ int main( int argc, char ** argv )
 				QCoreApplication::translate("Main", "Failed to initialize the application.\nPlease see the log file for details."));
 			exit(MVD_ERROR_INIT);
 		}
-
-		MvdLogger::instance().setUseHtml(true);
 
 		MvdMainWindow w;
 		w.show();

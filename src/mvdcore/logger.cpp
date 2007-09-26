@@ -51,12 +51,13 @@ public:
 
 	QTextStream* stream;
 	QFile* file;
-	bool html;
+	static bool html;
 };
+bool MvdLogger_P::html = false;
 
 //! \internal
 MvdLogger_P::MvdLogger_P()
-: stream(0), file(0), html(false)
+: stream(0), file(0)
 {
 }
 
@@ -66,7 +67,7 @@ MvdLogger_P::~MvdLogger_P()
 	if (stream)
 	{
 		if (html)
-			*stream << "</body>" << MVD_LINEBREAK << "</html>";
+			*stream << MVD_LINEBREAK << "</body>" << MVD_LINEBREAK << "</html>";
 		stream->flush();
 	}
 	delete stream;
@@ -93,15 +94,18 @@ MvdLogger::MvdLogger()
 	{
 		d->stream = new QTextStream(d->file);
 
-		if (d->html)
+		QString sep(MVD_LINEBREAK);
+		if (MvdLogger::isUsingHtml()) {
 			*(d->stream) << "<html>" << MVD_LINEBREAK << "<body>" << MVD_LINEBREAK;
+			sep.prepend("<br />");
+		}
 
 		QDateTime dt = QDateTime::currentDateTime();
 		QString header = tr("Movida log: application started at %1")
-			.arg(dt.toString(Qt::ISODate)).append(MVD_LINEBREAK);
+			.arg(dt.toString(Qt::ISODate)).append(sep);
 		*(d->stream) << header;
 		header = QString().fill('-', header.length());
-		*(d->stream) << header << MVD_LINEBREAK;
+		*(d->stream) << header << sep;
 	}
 }
 
@@ -127,13 +131,13 @@ MvdLogger::~MvdLogger()
 //! Sets whether the log should be written in HTML or plain text.
 void MvdLogger::setUseHtml(bool useHtml)
 {
-	d->html = useHtml;
+	MvdLogger_P::html = useHtml;
 }
 
 //! Returns true if HTML is used when writing the log.
-bool MvdLogger::isUsingHtml() const
+bool MvdLogger::isUsingHtml()
 {
-	return d->html;
+	return MvdLogger_P::html;
 }
 
 //! Writes a single char to the log file.
@@ -243,7 +247,9 @@ MvdLogger& MvdLogger::operator<< (double t)
 //! Writes a string to the log file.
 MvdLogger& MvdLogger::operator<< (const char* t)
 {
-	*(d->stream) << t;
+	if (MvdLogger::isUsingHtml())
+		*(d->stream) << QString(t).replace(MVD_LINEBREAK, QString("<br />").append(MVD_LINEBREAK));
+	else *(d->stream) << t;
 	d->stream->flush();
 	return *this;
 }
@@ -251,7 +257,9 @@ MvdLogger& MvdLogger::operator<< (const char* t)
 //! Writes a string to the log file.
 MvdLogger& MvdLogger::operator<< (const QString& t)
 {
-	*(d->stream) << t;
+	if (MvdLogger::isUsingHtml())
+		*(d->stream) << QString(t).replace(MVD_LINEBREAK, QString("<br />").append(MVD_LINEBREAK));
+	else *(d->stream) << t;
 	d->stream->flush();
 	return *this;
 }
@@ -259,7 +267,9 @@ MvdLogger& MvdLogger::operator<< (const QString& t)
 //! Writes a string to the log file.
 MvdLogger& MvdLogger::operator<< (const QLatin1String& t)
 {
-	*(d->stream) << t.latin1();
+	if (MvdLogger::isUsingHtml())
+		*(d->stream) << QString(t).replace(MVD_LINEBREAK, QString("<br />").append(MVD_LINEBREAK));
+	else *(d->stream) << t.latin1();
 	d->stream->flush();
 	return *this;
 }
@@ -298,7 +308,7 @@ MvdLogger& MvdLogger::operator<< (QTextStreamFunction f)
 MvdLogger& MvdLogger::appendTimestamp(const QString& message)
 {
 	QString timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-	*(d->stream) << (d->html ? QString("<br />").append(MVD_LINEBREAK) : MVD_LINEBREAK) << (message.isEmpty() ?
+	*(d->stream) << (MvdLogger::isUsingHtml() ? QString("<br />").append(MVD_LINEBREAK) : MVD_LINEBREAK) << (message.isEmpty() ?
 		QString("[%1] ").arg(timestamp) :
 		QString("[%1 - %2] ").arg(timestamp).arg(message));
 	return *this;

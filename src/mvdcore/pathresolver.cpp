@@ -92,6 +92,7 @@ public:
 	bool initialized;
 
 	QString settingsDir;
+	QString settingsFile;
 	QString logFile;
 	QString tempDir;
 	QString appDir;
@@ -158,12 +159,13 @@ MvdPathResolver_P::MvdPathResolver_P()
 #endif
 
 #if defined(Q_WS_WIN)
-	QString sd(QString(this->settingsDir).append(org).append(QDir::separator()).append(app).append(".xml"));
+	this->settingsFile = QString(this->settingsDir).append(org).append(QDir::separator()).append(app).append(".xml");
 #else
 	// Hack for QSettings. See settings.cpp file.
-	QString sd(QString(this->settingsDir).append(".").append(org).append(QDir::separator()).append(app).append(".xml"));
+	this->settingsFile = QString(this->settingsDir).append(".").append(org).append(QDir::separator()).append(app).append(".xml");
 #endif
-	qDebug() << "MvdPathResolver: storing application settings in" << sd << ".";
+
+	qDebug() << "MvdPathResolver: storing application settings in" << this->settingsFile << ".";
 
 
 	//// 1. temp dir
@@ -401,6 +403,14 @@ bool MvdPathResolver::isInitialized() const
 QString MvdPathResolver::settingsDir() const
 {
 	return d->settingsDir;
+}
+
+/*!
+	Convenience method, returns the absolute path to the settings file.
+*/
+QString MvdPathResolver::settingsFile() const
+{
+	return d->settingsFile;
 }
 
 /*!
