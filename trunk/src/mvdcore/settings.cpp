@@ -360,9 +360,9 @@ namespace MvdSettings_P {
 						map->insert(QString(path).append("/").append(name), v);
 					else map->insert(name, v);
 
-					if (!path.isEmpty())
-						qDebug("Loading key %s", QString(path).append("/").append(name).toLatin1().constData());
-					else qDebug("Loading key %s", name.toLatin1().constData());
+					//if (!path.isEmpty())
+					//	qDebug("Loading key %s", QString(path).append("/").append(name).toLatin1().constData());
+					//else qDebug("Loading key %s", name.toLatin1().constData());
 				}
 			}
 
@@ -430,7 +430,7 @@ namespace MvdSettings_P {
 			const QString& key = it.key();
 			const QVariant& value = it.value();
 
-			qDebug("Writing key %s", key.toLatin1().constData());
+			// qDebug("Writing key %s", key.toLatin1().constData());
 
 			QStringList path = key.split("/");
 			SettingsGroup* node = &root;
