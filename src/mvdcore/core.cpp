@@ -75,6 +75,8 @@ public:
 		// Movie posters bigger than this will be scaled.
 		parameters.insert("mvdcore/max-poster-kb", 512);
 		parameters.insert("mvdcore/max-poster-size", QSize(400, 150));
+
+		parameters.insert("mvdcore/website-url", "http://movida.sourceforge.net");
 	}
 
 	QHash<QString,QVariant> parameters;
