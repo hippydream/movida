@@ -51,11 +51,14 @@ private slots:
 	void performSearch(const QString& query, MpiBlue::Engine* engine, int engineId);
 	void import(const QList<int>& list);
 
-	void requestFinished(int id, bool error);
+	void httpRequestFinished(int id, bool error);
 	void httpResponseHeader(const QHttpResponseHeader& responseHeader);
+	void httpStateChanged(int state);
 
 	void interpreterFinished(int exitCode, QProcess::ExitStatus exitStatus);
 	void interpreterStateChanged(QProcess::ProcessState state);
+
+	void parseQueryResponse();
 
 private:
 	enum HttpStatusClass
@@ -102,12 +105,24 @@ private:
 		FetchingDataState
 	};
 
+	enum ScriptStatus {
+		InvalidScript= 0,
+		ValidScript,
+		NoUpdatedScript
+	};
+
+	enum {
+		HttpNotModified = 304
+	};
+
 	MvdImportDialog* mImportDialog;
 	QHttp* mHttpHandler;
 	int mRequestId;
 	QTemporaryFile* mTempFile;
 	QString mCurrentLocation;
 	int mCurrentEngine;
+	bool mHttpNotModified;
+	QString mCurrentQuery;
 	QProcess* mInterpreter;
 	State mCurrentState;
 	QString mNextUrl;
@@ -118,13 +133,13 @@ private:
 
 	void processNextImport();
 	void parseImdbMoviePage(SearchResult& job);
-	void parseQueryResponse();
 	void deleteTemporaryFile(QTemporaryFile** file, bool removeFile = true);
 	QTemporaryFile* createTemporaryFile();
 	void initHttpHandler();
 	void setScriptPaths(MpiBlue::Engine* engine);
-	QString locateScriptPath(const QString& name);
-	bool isValidScriptFile(const QString& path) const;
+	QString locateScriptPath(const QString& name) const;
+	QString scriptDate(const QString& name) const;
+	ScriptStatus isValidScriptFile(const QString& path = QString()) const;
 };
 
 #endif // MPI_MOVIEIMPORT_H

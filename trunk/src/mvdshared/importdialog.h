@@ -41,9 +41,17 @@ class MVD_EXPORT_SHARED MvdImportDialog : public QWizard
 	Q_OBJECT
 
 public:
+	enum MessageType {
+		InfoMessage = 0,
+		WarningMessage,
+		ErrorMessage
+	};
+
 	MvdImportDialog(QWidget* parent = 0);
 
 	int registerEngine(const MvdSearchEngine& engine);
+
+	void showMessage(const QString& msg, MessageType type = InfoMessage);
 
 	int addMatch(const QString& title, const QString& year, const QString& notes = QString());
 

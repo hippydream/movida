@@ -63,7 +63,7 @@ void MvdImportFinalPage::setLock(bool lock)
 }
 
 //! Override.
-void MvdImportFinalPage::showMessage(const QString& msg, MvdImportPage::MessageType t)
+void MvdImportFinalPage::showMessage(const QString& msg, MvdImportDialog::MessageType t)
 {
 	Q_UNUSED(t);
 	ui.stack->setCurrentIndex(0);
@@ -76,7 +76,8 @@ void MvdImportFinalPage::initializePage()
 	setBusyStatus(true);
 	setLock(true);
 
-	showMessage(tr("No movies have been imported.\nPlease press the Back button to repeat the search."));
+	showMessage(tr("No movies have been imported.\nPlease press the Back button to repeat the search."), 
+		MvdImportDialog::InfoMessage);
 }
 
 void MvdImportFinalPage::cleanupPage()

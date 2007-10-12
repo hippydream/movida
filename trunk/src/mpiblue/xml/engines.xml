@@ -4,8 +4,8 @@
     <display-name>IMDb</display-name>
     <update-url>http://movida.sourceforge.net/scripts/engines/imdb</update-url>
     <interpreter>perl</interpreter>
-    <results-script>imdb_results.pl</results-script>
-    <import-script>imdb_import.pl</import-script>
+    <results-script update-name="results">imdb_results.pl</results-script>
+    <import-script update-name="import">imdb_import.pl</import-script>
     <search-url>http://us.imdb.com/find?s=tt%26q={QUERY}</search-url>
   </engine>
 </mpi-blue-engines>

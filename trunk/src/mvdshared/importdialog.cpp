@@ -100,6 +100,14 @@ int MvdImportDialog::registerEngine(const MvdSearchEngine& engine)
 	return startPage->registerEngine(engine);
 }
 
+//! Shows a status message if the current page supports it.
+void MvdImportDialog::showMessage(const QString& msg, MessageType type)
+{
+	MvdImportPage* p = dynamic_cast<MvdImportPage*>(currentPage());
+	if (p)
+		p->showMessage(msg, type);
+}
+
 /*! Adds a search result to the results list. \p notes can contain additional data used
 	to help the user distinguish between similar results.
 	Returns a unique identifier used to refer to this search result later on (i.e. in the

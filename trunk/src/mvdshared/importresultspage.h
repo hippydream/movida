@@ -47,7 +47,7 @@ public:
 	int countMatches() const;
 	QList<int> jobs() const;
 
-	void showMessage(const QString& msg, MvdImportPage::MessageType t = MvdImportPage::InfoMessage);
+	void showMessage(const QString& msg, MvdImportDialog::MessageType t);
 	void setBusyStatus(bool busy);
 
 private slots:

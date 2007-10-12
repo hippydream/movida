@@ -31,6 +31,9 @@
 #include <QTextStream>
 #include <QTemporaryFile>
 #include <QProcess>
+#include <QHttpRequestHeader>
+#include <QDateTime>
+#include <QLocale>
 #include <math.h>
 
 using namespace Movida;
@@ -43,7 +46,8 @@ mInterpreter(0), mCurrentState(NoState)
 
 MpiMovieImport::~MpiMovieImport()
 {
-
+	if (mHttpHandler)
+		mHttpHandler->abort();
 }
 
 //! Entry point for the "imdb-import" action.
@@ -58,7 +62,7 @@ void MpiMovieImport::runImdbImport(const QList<MpiBlue::Engine*>& engines)
 		mvdEngine.name = e->displayName;
 		int id = mImportDialog->registerEngine(mvdEngine);
 		mRegisteredEngines.insert(id, e);
-		iLog() << QString("MpiBlue: Engine %1 registered with id %2.").arg(e->name).arg(id);
+		iLog() << QString("MpiMovieImport: Engine %1 registered with id %2.").arg(e->name).arg(id);
 	}
 
 	connect( mImportDialog, SIGNAL(engineConfigurationRequest(int)),
@@ -87,21 +91,28 @@ void MpiMovieImport::configureEngine(int engine)
 void MpiMovieImport::search(const QString& query, int engineId)
 {
 	MpiBlue::Engine* engine = mRegisteredEngines.value(engineId);
+	Q_ASSERT(engine);
 
 	if (mCurrentState == NoState)
 	{
-		iLog() << QString("MpiBlue: search request for query '%1' and engine %2").arg(query).arg(engineId);
+		iLog() << QString("MpiMovieImport: Search request for query '%1' and engine '%2'").arg(query).arg(engine->name);
 
 		mSearchResults.clear();
 		mImportsQueue.clear();
 
 		mCurrentEngine = engineId;
+		mCurrentQuery = query;
 
 		if (!engine->scriptsFetched)
 		{
+			QString path = MpiBluePlugin::instance->dataStore(Movida::UserScope);
+			if (path.isEmpty())
+				path = MpiBluePlugin::instance->dataStore(Movida::SystemScope);
+			QFileInfo fi(path);
+
 			// We need to check for possible script updates and
 			// replace the script file names with absolute, clean and localized paths.
-			if (engine->updateUrl.startsWith("http://"))
+			if (fi.isDir() && fi.isWritable() && engine->updateUrl.startsWith("http://"))
 			{
 				// Check for updates.
 				int rep = engine->updateUrl.indexOf("{SCRIPT}");
@@ -139,7 +150,8 @@ void MpiMovieImport::search(const QString& query, int engineId)
 				Q_ASSERT(mHttpHandler);
 
 				QUrl url(currentUrl);
-				mHttpHandler->setHost(url.host(), url.port());
+				iLog() << QString("MpiMovieImport: Attempting a connection with %1:%2").arg(url.host()).arg(url.port() < 0 ? 80 : url.port());
+				mHttpHandler->setHost(url.host(), url.port() < 0 ? 80 : url.port());
 
 				mCurrentLocation = url.path();
 				if (url.hasQuery())
@@ -147,19 +159,62 @@ void MpiMovieImport::search(const QString& query, int engineId)
 
 				mCurrentState = FetchingResultsScriptState;
 
-				iLog() << "MpiBlue: Attempting to update results script: " << mCurrentLocation;
-				mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
+				mImportDialog->showMessage(tr("Looking for updated scripts."));
+
+				QString date = scriptDate(engine->importScript);
+				if (date.isEmpty()) {
+					iLog() << "MpiMovieImport: Attempting to update results script: " << mCurrentLocation;
+					mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
+				} else {
+					iLog() << "MpiMovieImport: Attempting to update results script (if-mod-since " << date << "): " << mCurrentLocation;
+					QHttpRequestHeader header(QLatin1String("GET"), mCurrentLocation);
+					header.setValue(QLatin1String("Host"), url.host());
+					header.setValue(QLatin1String("Connection"), QLatin1String("Keep-Alive"));
+					header.setValue(QLatin1String("If-Modified-Since"), date);
+					mRequestId = mHttpHandler->request(header, 0, mTempFile);
+				}
 			}
-			else setScriptPaths(engine);
-		}
+			else {
+				// Cannot update scripts. Set absolute paths and go!
+				engine->scriptsFetched = true;
+				setScriptPaths(engine);
+				performSearch(query, engine, engineId);
+			}
 
 		// Scripts fetched. We have the latest versions and absolute paths!
-		performSearch(query, engine, engineId);
+		} else performSearch(query, engine, engineId);
 	}
 	else if (mCurrentState == FetchingResultsScriptState)
 	{
-		// Temp file possibly contains the results parser script
-		// CHECK FILE, & COPY TO SOME PATH
+		QString path = MpiBluePlugin::instance->dataStore(Movida::UserScope);
+		if (path.isEmpty())
+			path = MpiBluePlugin::instance->dataStore(Movida::SystemScope);
+		QFileInfo fi(path);
+
+		ScriptStatus ss = isValidScriptFile();
+
+		if (ss == InvalidScript || !fi.isDir() || !fi.isWritable()) {
+			engine->scriptsFetched = true;
+			setScriptPaths(engine);
+			deleteTemporaryFile(&mTempFile, true);
+			performSearch(query, engine, engineId);
+			return;
+		} else if (ss == ValidScript) {
+			// copy the file to the user's script directory
+			path.append(engine->resultsScript);
+			QFile::remove(path);
+			if (!mTempFile->rename(path)) {
+				wLog() << "MpiMovieImport: Failed to save results script file:" << path;
+				engine->scriptsFetched = true;
+				setScriptPaths(engine);
+				deleteTemporaryFile(&mTempFile, true);
+				performSearch(query, engine, engineId);
+				return;
+			} else {
+				mImportDialog->showMessage(tr("Results parsing script updated."));
+				iLog() << "MpiMovieImport: Results script file saved: " << path;
+			}
+		} else iLog() << "MpiMovieImport: No updated results script found.";
 
 		deleteTemporaryFile(&mTempFile, true);
 
@@ -175,7 +230,9 @@ void MpiMovieImport::search(const QString& query, int engineId)
 
 		QUrl url(mNextUrl);
 		mNextUrl.clear();
-		mHttpHandler->setHost(url.host(), url.port());
+
+		iLog() << QString("MpiMovieImport: Attempting a connection with %1:%2").arg(url.host()).arg(url.port() < 0 ? 80 : url.port());
+		mHttpHandler->setHost(url.host(), url.port() < 0 ? 80 : url.port());
 
 		mCurrentLocation = url.path();
 		if (url.hasQuery())
@@ -183,15 +240,55 @@ void MpiMovieImport::search(const QString& query, int engineId)
 
 		mCurrentState = FetchingImportScriptState;
 
-		iLog() << "MpiBlue: Attempting to update import script: " << mCurrentLocation;
-		mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
+		QString date = scriptDate(engine->importScript);
+		if (date.isEmpty()) {
+			iLog() << "MpiMovieImport: Attempting to update import script: " << mCurrentLocation;
+			mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
+		} else {
+			iLog() << "MpiMovieImport: Attempting to update import script (if-mod-since " << date << "): " << mCurrentLocation;
+			QHttpRequestHeader header(QLatin1String("GET"), mCurrentLocation);
+			header.setValue(QLatin1String("Host"), url.host());
+			header.setValue(QLatin1String("Connection"), QLatin1String("Keep-Alive"));
+			header.setValue(QLatin1String("If-Modified-Since"), date);
+			mRequestId = mHttpHandler->request(header, 0, mTempFile);
+		}
 	}
 	else if (mCurrentState == FetchingImportScriptState)
 	{
-		// Temp file possibly contains the import parser script
-		// CHECK FILE, & COPY TO SOME PATH
+		QString path = MpiBluePlugin::instance->dataStore(Movida::UserScope);
+		if (path.isEmpty())
+			path = MpiBluePlugin::instance->dataStore(Movida::SystemScope);
+		QFileInfo fi(path);
+
+		ScriptStatus ss = isValidScriptFile();
+
+		if (ss == InvalidScript || !fi.isDir() || !fi.isWritable()) {
+			engine->scriptsFetched = true;
+			setScriptPaths(engine);
+			deleteTemporaryFile(&mTempFile, true);
+			performSearch(query, engine, engineId);
+			return;
+		} else if (ss == ValidScript) {
+			// copy the file to the user's script directory
+			path.append(engine->importScript);
+			QFile::remove(path);
+			if (!mTempFile->rename(path)) {
+				wLog() << "MpiMovieImport: Failed to save import script file:" << path;
+				engine->scriptsFetched = true;
+				setScriptPaths(engine);
+				deleteTemporaryFile(&mTempFile, true);
+				performSearch(query, engine, engineId);
+				return;
+			} else {
+				mImportDialog->showMessage(tr("Import script updated."));
+				iLog() << "MpiMovieImport: Import script file saved: " << path;
+			}
+		} else iLog() << "MpiMovieImport: No updated import script found.";
 
 		deleteTemporaryFile(&mTempFile, true);
+
+		mCurrentState = FetchingResultsState;
+
 		engine->scriptsFetched = true;
 		setScriptPaths(engine);
 		performSearch(query, engine, engineId);
@@ -201,9 +298,11 @@ void MpiMovieImport::search(const QString& query, int engineId)
 //! Do not call this directly. Use search() as it will perform some initialization.
 void MpiMovieImport::performSearch(const QString& query, MpiBlue::Engine* engine, int engineId)
 {
-	Q_ASSERT(engine);
+	Q_ASSERT(engine && !mTempFile);
 
-	iLog() << QString("MpiBlue: performing search for query '%1' and engine %2").arg(query).arg(engine->name);
+	mImportDialog->showMessage(tr("All scripts updated. Sending query."));
+
+	iLog() << QString("MpiMovieImport: performing search for query '%1' and engine %2").arg(query).arg(engine->name);
 	Q_ASSERT(engine->scriptsFetched);
 
 	QString searchUrlString = engine->searchUrl;
@@ -213,13 +312,10 @@ void MpiMovieImport::performSearch(const QString& query, MpiBlue::Engine* engine
 
 	if (searchUrl.host().isEmpty())
 	{
-		eLog() << "MpiBlue: Invalid search engine host";
+		eLog() << "MpiMovieImport: Invalid search engine host";
 		mImportDialog->done();
 		return;
 	}
-
-	if (mTempFile)
-		deleteTemporaryFile(&mTempFile);
 
 	mTempFile = createTemporaryFile();
 	if (!mTempFile)
@@ -233,14 +329,14 @@ void MpiMovieImport::performSearch(const QString& query, MpiBlue::Engine* engine
 	initHttpHandler();
 	Q_ASSERT(mHttpHandler);
 
-	iLog() << QString("MpiBlue: Connecting to %1:%2").arg(searchUrl.host()).arg(searchUrl.port() < 0 ? 80 : searchUrl.port());
+	iLog() << QString("MpiMovieImport: Attempting a connection with %1:%2").arg(searchUrl.host()).arg(searchUrl.port() < 0 ? 80 : searchUrl.port());
 	mHttpHandler->setHost(searchUrl.host(), searchUrl.port() < 0 ? 80 : searchUrl.port());
  	
 	mCurrentLocation = searchUrl.path();
 	if (searchUrl.hasQuery())
 		mCurrentLocation.append("?").append(searchUrl.encodedQuery());
 
-	iLog() << QString("MpiBlue: Sending http request for '%1'").arg(mCurrentLocation);
+	iLog() << QString("MpiMovieImport: Sending http request for '%1'").arg(mCurrentLocation);
 	mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
 }
 
@@ -254,7 +350,7 @@ void MpiMovieImport::setScriptPaths(MpiBlue::Engine* engine)
 }
 
 //! Returns the absolute, localized, clean path of the possibly most updated version of a script. (phew!)
-QString MpiMovieImport::locateScriptPath(const QString& name)
+QString MpiMovieImport::locateScriptPath(const QString& name) const
 {
 	Q_ASSERT(MpiBluePlugin::instance);
 
@@ -263,34 +359,79 @@ QString MpiMovieImport::locateScriptPath(const QString& name)
 	QString filename;
 
 	// plugin's user data store
-	QString dataStore = MpiBluePlugin::instance->dataStore();
-	filename = QString("%1/").arg(dataStore).append(name);
-	if (QFile::exists(filename) && isValidScriptFile(filename))
+	QString dataStore = MpiBluePlugin::instance->dataStore(Movida::UserScope);
+	filename = QString(dataStore).append(name);
+	if (QFile::exists(filename) && isValidScriptFile(filename) == ValidScript)
 		return MvdCore::toLocalFilePath(filename);
 
 	// global data store
-	dataStore = MpiBluePlugin::instance->dataStore();
-	filename = QString("%1/").arg(dataStore).append(name);
-	if (QFile::exists(filename) && isValidScriptFile(filename))
+	dataStore = MpiBluePlugin::instance->dataStore(Movida::SystemScope);
+	filename = QString(dataStore).append(name);
+	if (QFile::exists(filename) && isValidScriptFile(filename) == ValidScript)
 		return MvdCore::toLocalFilePath(filename);
 
 	return QString();
 }
 
-bool MpiMovieImport::isValidScriptFile(const QString& path) const
+/*! Returns the file modification time of the script with the given name or an
+	empty string if the script could not be found.
+	The date is returned in HTTP-DATE format (see RFC 2616, section 3.3.1).
+*/
+QString MpiMovieImport::scriptDate(const QString& name) const
 {
-	QFile file(path);
-	if (!file.open(QIODevice::ReadOnly))
-	{
-		eLog() << "MpiMovieImport: Failed to open script file: " << path;
-		return false;
+	QString script = locateScriptPath(name);
+	if (script.isEmpty())
+		return QString();
+
+	QFileInfo fi(script);
+	QDateTime dt = fi.lastModified().toTimeSpec(Qt::UTC);
+	QLocale locale(QLocale::English, QLocale::UnitedStates);
+	QString date = locale.toString(dt.date(), MvdCore::parameter("plugins/blue/http-date").toString());
+	QString time = locale.toString(dt.time(), MvdCore::parameter("plugins/blue/http-time").toString());
+	return date.append(" ").append(time);
+}
+
+//! Checks whether \p path points to a (possibly) valid script file by verifying the signature.
+MpiMovieImport::ScriptStatus MpiMovieImport::isValidScriptFile(const QString& path) const
+{
+	QTextStream stream;
+	QFile* file = 0;
+
+	if (path.isNull()) {
+		if (mHttpNotModified)
+			return NoUpdatedScript;
+		stream.setDevice(mTempFile);
 	}
-	QTextStream stream(&file);
-	QString line = stream.readLine().trimmed();
-	bool valid = line.contains(MvdCore::parameter("blue.mpi/script-signature").toString());
-	if (!valid)
-		eLog() << "MpiMovieImport: Invalid script file: " << path;
-	return valid;
+	else {
+		file = new QFile(path);
+		if (!file->open(QIODevice::ReadOnly))
+		{
+			eLog() << "MpiMovieImport: Failed to open script file: " << path;
+			delete file;
+			return InvalidScript;
+		}
+		stream.setDevice(file);
+	}
+
+	QString signature = MvdCore::parameter("plugins/blue/script-signature").toString();
+	
+	QString line;
+	bool valid = false;
+	int maxLines = 10;
+	int lineCount = 0;
+	while (++lineCount <= maxLines && !valid && !(line = stream.readLine()).isNull()) {
+		valid = line.contains(signature);
+	}
+
+	delete file;
+
+	if (!valid) {
+		if (path.isNull())
+			eLog() << "MpiMovieImport: Downloaded file is not a valid script file.";
+		else eLog() << "MpiMovieImport: Invalid script file: " << path;
+	}
+
+	return valid ? ValidScript : InvalidScript;
 }
 
 //! \internale Downloads and imports the specified search results.
@@ -321,12 +462,12 @@ void MpiMovieImport::processNextImport()
 	QHash<int,SearchResult>::Iterator it = mSearchResults.find(id);
 	if (it == mSearchResults.end())
 	{
-		wLog() << "MpiBlue: Skipping invalid job";
+		wLog() << "MpiMovieImport: Skipping invalid job";
 		processNextImport();
 		return;
 	}
 
-	iLog() << "MpiBlue: Processing job " << id;
+	iLog() << "MpiMovieImport: Processing job " << id;
 	SearchResult& job = it.value();
 	
 	if (job.sourceType == CachedSource)
@@ -343,36 +484,64 @@ void MpiMovieImport::parseImdbMoviePage(SearchResult& job)
 		return;
 }
 
-//! \internal Handles a QHttp::requestFinished() signal.
-void MpiMovieImport::requestFinished(int id, bool error)
+//! \internal Handles a QHttp::httpRequestFinished() signal.
+void MpiMovieImport::httpRequestFinished(int id, bool error)
 {
 	Q_ASSERT(mHttpHandler);
+	bool hasPending = mHttpHandler->hasPendingRequests();
+	Q_UNUSED(hasPending);
 
 	if (error)
 	{
 		if (mHttpHandler->error() == QHttp::Aborted)
-			wLog() << "MpiBlue: Request aborted.";
-		else eLog() << "MpiBlue: Request failed: " << mHttpHandler->errorString();
+			wLog() << "MpiMovieImport: Request aborted.";
+		else eLog() << "MpiMovieImport: Request failed: " << mHttpHandler->errorString();
 
 		if (mTempFile)
 			deleteTemporaryFile(&mTempFile);
 
-		mImportDialog->done();
+		if (mHttpHandler->error() == QHttp::Aborted)
+			return;
+
+		if (mCurrentState != FetchingResultsScriptState &&
+			mCurrentState != FetchingImportScriptState)
+			mImportDialog->done();
+		else {
+			MpiBlue::Engine* engine = mRegisteredEngines.value(mCurrentEngine);
+			engine->scriptsFetched = true;
+			engine->updateUrl.clear(); // Avoid to perform another update attempt.
+			mCurrentState = NoState;
+			search(mCurrentQuery, mCurrentEngine);
+		}
 		return;
 	}
 
+	int status = mHttpHandler->lastResponse().statusCode();
+	if (status == HttpNotModified)
+		mHttpNotModified = true;
+
+	// Host lookup or some side request.
 	if (id != mRequestId)
 		return;
 
 	if (!mTempFile)
 	{
-		eLog() << "MpiBlue: No temporary file!";
+		eLog() << "MpiMovieImport: No temporary file found!";
 		return;
 	}
 
 	mTempFile->seek(0);
-	parseQueryResponse();
-	mImportDialog->done();
+
+	switch (mCurrentState) {
+		case FetchingResultsScriptState:
+		case FetchingImportScriptState:
+			Q_ASSERT(QMetaObject::invokeMethod(this, "search", Qt::QueuedConnection,
+				Q_ARG(QString, mCurrentQuery), 
+				Q_ARG(int, mCurrentEngine)));
+			break;
+		default: 
+			Q_ASSERT(QMetaObject::invokeMethod(this, "parseQueryResponse", Qt::QueuedConnection));
+	}
 }
 
 void MpiMovieImport::httpResponseHeader(const QHttpResponseHeader& responseHeader)
@@ -386,7 +555,9 @@ void MpiMovieImport::httpResponseHeader(const QHttpResponseHeader& responseHeade
 	{
 	case RedirectionClass:
 		// Redirect example: "Location: http://akas.imdb.com/title/tt0469754/"
-		{
+		if (status == HttpNotModified) {
+			iLog() << "MpiMovieImport: File not modified.";
+		} else {
 			QString location = responseHeader.value("Location");
 			QUrl locationUrl(location);
 
@@ -405,15 +576,36 @@ void MpiMovieImport::httpResponseHeader(const QHttpResponseHeader& responseHeade
 			mCurrentLocation = locationUrl.path();
 			if (!query.isEmpty())
 				mCurrentLocation.append("?").append(query);
-			iLog() << "MpiBlue: Redirecting to " << mCurrentLocation;
+			iLog() << "MpiMovieImport: Redirecting to " << mCurrentLocation;
 			mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
 		}
 		break;
 	case SuccessClass:
-		iLog() << "MpiBlue: Download finished.";
+		iLog() << "MpiMovieImport: Download finished.";
 		break;
 	default:
-		; // Errors will be handled in the requestFinished() handler
+		; // Errors will be handled in the httpRequestFinished() handler
+	}
+}
+
+//! Logs http status changes.
+void MpiMovieImport::httpStateChanged(int state)
+{
+	switch (state)
+	{
+	case QHttp::HostLookup:
+		iLog() << "MpiMovieImport: Performing host name lookup.";
+		break;
+	case QHttp::Connecting:
+		iLog() << "MpiMovieImport: Started establishing a connection.";
+		break;
+	case QHttp::Connected:
+		iLog() << "MpiMovieImport: Connection established.";
+		break;
+	case QHttp::Closing:
+		iLog() << "MpiMovieImport: Socket is about to close.";
+		break;
+	default: ;
 	}
 }
 
@@ -424,13 +616,18 @@ void MpiMovieImport::httpResponseHeader(const QHttpResponseHeader& responseHeade
 void MpiMovieImport::parseQueryResponse()
 {
 	Q_ASSERT(mTempFile);
-	iLog() << "MpiBlue: MpiMovieImport::parseQueryResponse()";
+	iLog() << "MpiMovieImport: MpiMovieImport::parseQueryResponse()";
+	mImportDialog->showMessage(tr("Attempting to parse search results."));
+
+	// temp
+	mImportDialog->done();
+	return;
 
 	MpiBlue::Engine* engine = mRegisteredEngines[mCurrentEngine];
 	QString interpreter = MvdCore::locateApplication(engine->interpreter);
 	if (interpreter.isEmpty())
 	{
-		eLog () << "MpiBlue: Failed to locate interpreter: " << engine->interpreter;
+		eLog () << "MpiMovieImport: Failed to locate interpreter: " << engine->interpreter;
 		mImportDialog->done();
 		return;
 	}
@@ -478,7 +675,7 @@ QTemporaryFile* MpiMovieImport::createTemporaryFile()
 	}
 	
 	if (!file)
-		eLog() << "MpiBlue: Failed to create a temporary file";
+		eLog() << "MpiMovieImport: Failed to create a temporary file";
 
 	return file;
 }
@@ -493,19 +690,22 @@ void MpiMovieImport::interpreterStateChanged(QProcess::ProcessState state)
 
 }
 
-//! \internal Creates a new http handler or ensures the existing one is not active.
+//! \internal Creates a new http handler if necessary and clears any pending requests.
 void MpiMovieImport::initHttpHandler()
 {
-	if (mHttpHandler)
-		mHttpHandler->abort();
-	else
+	if (!mHttpHandler)
 	{
 		//! \todo Handle proxy in the main application (best with Qt >= 4.3)
 		mHttpHandler = new QHttp(this);
 
 		connect(mHttpHandler, SIGNAL(requestFinished(int, bool)),
-			this, SLOT(requestFinished(int, bool)));
+			this, SLOT(httpRequestFinished(int, bool)));
 		connect(mHttpHandler, SIGNAL(responseHeaderReceived(const QHttpResponseHeader&)),
 			this, SLOT(httpResponseHeader(const QHttpResponseHeader&)));
-	}
+		connect(mHttpHandler, SIGNAL(stateChanged(int)),
+			this, SLOT(httpStateChanged(int)));
+
+	} else mHttpHandler->clearPendingRequests();
+
+	mHttpNotModified = false;
 }

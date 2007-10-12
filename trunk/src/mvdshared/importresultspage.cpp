@@ -130,7 +130,7 @@ void MvdImportResultsPage::cleanupPage()
 }
 
 //! Override.
-void MvdImportResultsPage::showMessage(const QString& msg, MvdImportPage::MessageType t)
+void MvdImportResultsPage::showMessage(const QString& msg, MvdImportDialog::MessageType t)
 {
 	Q_UNUSED(t);
 	infoLabel->setText(msg);
@@ -334,11 +334,11 @@ void MvdImportResultsPage::resultsSelectionChanged()
 	{
 		int matches = countMatches();
 		if (matches == 0)
-			showMessage(tr("No matches found."));
+			showMessage(tr("No matches found."), MvdImportDialog::InfoMessage);
 		else
-			showMessage(tr("%1 match(es) found.", "Found results", matches).arg(matches));
+			showMessage(tr("%1 match(es) found.", "Found results", matches).arg(matches), MvdImportDialog::InfoMessage);
 	}
-	else showMessage(text);
+	else showMessage(text, MvdImportDialog::InfoMessage);
 }
 
 //! Returns a list containing the requested jobs.
