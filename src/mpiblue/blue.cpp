@@ -31,6 +31,9 @@
 
 using namespace Movida;
 
+//! \internal
+MpiBlue* MpiBluePlugin::instance = 0;
+
 //! Public interface for this plugin.
 MvdPluginInterface* pluginInterface(QObject* parent)
 {
@@ -43,7 +46,9 @@ MpiBlue::MpiBlue(QObject* parent)
 : MvdPluginInterface(parent)
 {
 	QHash<QString,QVariant> parameters;
-	parameters.insert("blue.mpi/script-signature", "## movida blue.mpi plugin script ##");
+	parameters.insert("plugins/blue/script-signature", "movida blue plugin script");
+	parameters.insert("plugins/blue/http-date", "ddd, dd MMM yyyy");
+	parameters.insert("plugins/blue/http-time", "hh:mm:ss UTC");
 	MvdCore::registerParameters(parameters);
 }
 
@@ -108,11 +113,18 @@ void MpiBlue::actionTriggeredImplementation(const QString& name)
 
 void MpiBlue::loadEngines(bool loadBundled)
 {
-	//! \todo Problem: we need to check for updated scripts *and* set the absolute file path (script might be in user or in global directory). AND we would like to do a LAZY update! Problem is that we need to remember what script has been fetched in the plugin (i.e. HERE) and not in the MpiMovieImport class, which is created only when necessary.
+	//! \todo Problem: we need to check for updated scripts *and* set the absolute file path 
+	// (script might be in user or in global directory). AND we would like to do a LAZY update! 
+	// Problem is that we need to remember what script has been fetched in the plugin (i.e. HERE) 
+	// and not in the MpiMovieImport class, which is created only when necessary.
 	if (loadBundled && !settings().value("plugins/blue/disableBundledEngines").toBool())
 		loadEnginesFromFile(":/xml/engines.xml");
 
-	QString externalEngines = dataStore().append("/engines.xml");
+	QString externalEngines = dataStore(Movida::SystemScope).append("/engines.xml");
+	if (QFile::exists(externalEngines))
+		loadEnginesFromFile(externalEngines);
+
+	externalEngines = dataStore(Movida::UserScope).append("/engines.xml");
 	if (QFile::exists(externalEngines))
 		loadEnginesFromFile(externalEngines);
 
@@ -218,7 +230,7 @@ void MpiBlue::loadEnginesFromFile(const QString& path)
 			else if (!xmlStrcmp(engineNode->name, (const xmlChar*) "results-script"))
 			{
 				engine.resultsScript = QString((const char*)xmlNodeListGetString(doc, engineNode->xmlChildrenNode, 1)).trimmed();
-				xmlChar* attr = xmlGetProp(engineNode, (const xmlChar*)"updateUrl");
+				xmlChar* attr = xmlGetProp(engineNode, (const xmlChar*)"update-name");
 				if (attr)
 				{
 					engine.resultsUrl = QString::fromLatin1((const char*)attr);
@@ -228,7 +240,7 @@ void MpiBlue::loadEnginesFromFile(const QString& path)
 			else if (!xmlStrcmp(engineNode->name, (const xmlChar*) "import-script"))
 			{
 				engine.importScript = QString((const char*)xmlNodeListGetString(doc, engineNode->xmlChildrenNode, 1)).trimmed();
-				xmlChar* attr = xmlGetProp(engineNode, (const xmlChar*)"updateUrl");
+				xmlChar* attr = xmlGetProp(engineNode, (const xmlChar*)"update-name");
 				if (attr)
 				{
 					engine.importUrl = QString::fromLatin1((const char*)attr);
@@ -243,6 +255,14 @@ void MpiBlue::loadEnginesFromFile(const QString& path)
 
 		if (engine.name.isEmpty())
 			engine.name = tr("Unnamed engine");
+		if (engine.importScript.isEmpty())
+			engine.importScript = engine.resultsScript;
+		if (engine.importUrl.isEmpty())
+			engine.importUrl = engine.resultsUrl;
+		if (engine.resultsScript.isEmpty())
+			engine.resultsScript = engine.importScript;
+		if (engine.resultsUrl.isEmpty())
+			engine.resultsUrl = engine.importUrl;
 
 		if (isValidEngine(engine))
 		{

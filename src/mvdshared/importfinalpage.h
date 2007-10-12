@@ -34,7 +34,7 @@ class MvdImportFinalPage : public MvdImportPage
 public:
 	MvdImportFinalPage(QWidget* parent = 0);
 
-	void showMessage(const QString& msg, MvdImportPage::MessageType t = MvdImportPage::InfoMessage);
+	void showMessage(const QString& msg, MvdImportDialog::MessageType t);
 
 	void initializePage();
 	void cleanupPage();

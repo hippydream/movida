@@ -22,6 +22,7 @@
 #ifndef MVD_IMPORTPAGE_H
 #define MVD_IMPORTPAGE_H
 
+#include "importdialog.h"
 #include <QWizardPage>
 
 /*!
@@ -36,8 +37,6 @@ class MvdImportPage : public QWizardPage
 	Q_OBJECT
 
 public:
-	enum MessageType { InfoMessage, ErrorMessage };
-
 	MvdImportPage(QWidget* parent = 0)
 	: QWizardPage(parent), busy(false) { }
 	
@@ -46,7 +45,7 @@ public:
 
 	bool busyStatus() const { return busy; }
 
-	virtual void showMessage(const QString& msg, MessageType t = InfoMessage)
+	virtual void showMessage(const QString& msg, MvdImportDialog::MessageType t)
 	{ Q_UNUSED(msg); Q_UNUSED(t); }
 
 	//! Re-implements the superclass method to ensure that the status is not busy.

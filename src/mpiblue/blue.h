@@ -90,7 +90,7 @@ private:
 };
 
 namespace MpiBluePlugin {
-	static MpiBlue* instance = 0;
+	extern MpiBlue* instance;
 };
 
 extern "C" MPI_EXPORT_BLUE MvdPluginInterface* pluginInterface(QObject* parent);
