@@ -354,8 +354,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="RCC mpiblue.qrc"
-						CommandLine="C:\Qt\4.3.0\bin\rcc.exe -name mpiblue mpiblue.qrc -o ..\..\tmp\rcc\qrc_mpiblue.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="C:\Qt\4.3.0\bin\rcc.exe;mpiblue.qrc;xml\engines.xml"
+						CommandLine="$(QTDIR)\bin\rcc.exe -name mpiblue mpiblue.qrc -o ..\..\tmp\rcc\qrc_mpiblue.cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;mpiblue.qrc;xml\engines.xml"
 						Outputs="..\..\tmp\rcc\qrc_mpiblue.cpp"
 					/>
 				</FileConfiguration>

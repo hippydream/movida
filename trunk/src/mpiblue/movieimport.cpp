@@ -35,6 +35,8 @@
 #include <QDateTime>
 #include <QLocale>
 #include <math.h>
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
 
 using namespace Movida;
 
@@ -336,6 +338,8 @@ void MpiMovieImport::performSearch(const QString& query, MpiBlue::Engine* engine
 	if (searchUrl.hasQuery())
 		mCurrentLocation.append("?").append(searchUrl.encodedQuery());
 
+	mCurrentState = FetchingResultsState;
+
 	iLog() << QString("MpiMovieImport: Sending http request for '%1'").arg(mCurrentLocation);
 	mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
 }
@@ -460,8 +464,7 @@ void MpiMovieImport::processNextImport()
 
 	int id = mImportsQueue.takeFirst();
 	QHash<int,SearchResult>::Iterator it = mSearchResults.find(id);
-	if (it == mSearchResults.end())
-	{
+	if (it == mSearchResults.end()) {
 		wLog() << "MpiMovieImport: Skipping invalid job";
 		processNextImport();
 		return;
@@ -470,8 +473,7 @@ void MpiMovieImport::processNextImport()
 	iLog() << "MpiMovieImport: Processing job " << id;
 	SearchResult& job = it.value();
 	
-	if (job.sourceType == CachedSource)
-	{
+	if (job.sourceType == CachedSource) {
 		parseImdbMoviePage(job);
 	}
 }
@@ -619,15 +621,13 @@ void MpiMovieImport::parseQueryResponse()
 	iLog() << "MpiMovieImport: MpiMovieImport::parseQueryResponse()";
 	mImportDialog->showMessage(tr("Attempting to parse search results."));
 
-	// temp
-	mImportDialog->done();
-	return;
-
 	MpiBlue::Engine* engine = mRegisteredEngines[mCurrentEngine];
 	QString interpreter = MvdCore::locateApplication(engine->interpreter);
 	if (interpreter.isEmpty())
 	{
 		eLog () << "MpiMovieImport: Failed to locate interpreter: " << engine->interpreter;
+		mImportDialog->showMessage(tr("Failed to locate '%1' interpreter.").arg(engine->interpreter),
+			MvdImportDialog::ErrorMessage);
 		mImportDialog->done();
 		return;
 	}
@@ -643,12 +643,12 @@ void MpiMovieImport::parseQueryResponse()
 	iLog() << QString("Starting the '%1' interpreter with the '%2' script on: ")
 		.arg(interpreter).arg(engine->resultsScript).append(MvdCore::toLocalFilePath(mTempFile->fileName()));
 
-	// mInterpreter->start(interpreter, QStringList() << engine->resultsScript << mTempFile->fileName());
+	QFileInfo intFi(interpreter);
+	mInterpreterName = intFi.baseName();
+	mInterpreter->start(interpreter, QStringList() << engine->resultsScript << MvdCore::toLocalFilePath(mTempFile->fileName()));
 
 	// Move to interpreterFinished()
 	// deleteTemporaryFile(&mTempFile);
-
-	mImportDialog->done();
 }
 
 //! Deletes a file and sets its pointer to 0. Asserts that file is not null.
@@ -682,12 +682,71 @@ QTemporaryFile* MpiMovieImport::createTemporaryFile()
 
 void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
+	Q_ASSERT(mInterpreter);
+	Q_ASSERT(mTempFile);
 
+	QFileInfo info(mTempFile->fileName());
+	QString dataPath = info.absolutePath();
+	deleteTemporaryFile(&mTempFile);
+
+	// Log interpreter output
+	QString line;
+
+	QByteArray buffer = mInterpreter->readAllStandardError();
+	{
+		QTextStream bufferIn(buffer);
+		while ( !(line = bufferIn.readLine()).isNull() ) {
+			eLog() << mInterpreterName << ": " << line;
+		}
+	}
+
+	buffer = mInterpreter->readAllStandardOutput();
+	{
+		QTextStream bufferIn(buffer);
+		while ( !(line = bufferIn.readLine()).isNull() ) {
+			iLog() << mInterpreterName << ": " << line;
+		}
+	}
+
+	if (exitStatus != QProcess::NormalExit) {
+		mImportDialog->showMessage(tr("Script interpreter crashed."), 
+			MvdImportDialog::ErrorMessage);
+		eLog() << "MpiMovieImport: Interpreter crashed.";
+		mImportDialog->done();
+		return;
+	}
+
+	QString dataFileName = mCurrentState == FetchingResultsState ? "/mvdresults.xml" : "/mvddata.xml";
+
+	if (!QFile::exists(dataPath.append(dataFileName))) {
+		mImportDialog->showMessage(tr("Failed to parse search results."), 
+			MvdImportDialog::ErrorMessage);
+		eLog() << "MpiMovieImport: No search results file found.";
+		mImportDialog->done();
+		return;
+	}
+
+	if (mCurrentState == FetchingResultsState)
+		processResultsFile(dataPath);
+	// else processDataFile(&dataFile);
+
+	QFile::remove(dataPath);
+	mImportDialog->done();
 }
 
 void MpiMovieImport::interpreterStateChanged(QProcess::ProcessState state)
 {
+	Q_ASSERT(mInterpreter);
 
+	QString s = "unknown state";
+	switch (state) {
+		case QProcess::NotRunning: s = "not running"; break;
+		case QProcess::Running: s = "running"; break;
+		case QProcess::Starting: s = "starting"; break;
+		default: ;
+	}
+
+	iLog() << "MpiMovieImport: Interpreter state changed to " << s;
 }
 
 //! \internal Creates a new http handler if necessary and clears any pending requests.
@@ -708,4 +767,84 @@ void MpiMovieImport::initHttpHandler()
 	} else mHttpHandler->clearPendingRequests();
 
 	mHttpNotModified = false;
+}
+
+//! Parses a mvdresults.xml file and queues import jobs (if any).
+void MpiMovieImport::processResultsFile(const QString& path)
+{
+	xmlDocPtr doc = xmlParseFile(path.toLatin1().constData());
+	if (!doc) {
+		eLog() << "MpiMovieImport: Invalid search results file.";
+		return;
+	}
+
+	xmlNodePtr node = xmlDocGetRootElement(doc);
+	if (xmlStrcmp(node->name, (const xmlChar*) "mpi-blue-results")) {
+		eLog() << "MpiMovieImport: Invalid search results file.";
+		return;
+	}
+
+	node = node->xmlChildrenNode;
+	while (node) {
+		if (node->type != XML_ELEMENT_NODE || xmlStrcmp(node->name, (const xmlChar*) "result")) {
+			node = node->next;
+			continue;
+		}
+
+		SearchResult result;
+
+		xmlNodePtr resultNode = node->xmlChildrenNode;
+		while (resultNode) {
+			if (resultNode->type != XML_ELEMENT_NODE) {
+				resultNode = resultNode->next;
+				continue;
+			}
+
+			if (!xmlStrcmp(resultNode->name, (const xmlChar*) "source")) {
+				xmlChar* attr = xmlGetProp(resultNode, (const xmlChar*) "type");
+				if (attr) {
+					if (!xmlStrcmp(attr, (const xmlChar*) "remote"))
+						result.sourceType = RemoteSource;
+					else if (!xmlStrcmp(attr, (const xmlChar*) "cached"))
+						result.sourceType = CachedSource;
+					xmlFree(attr);
+				}
+			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "title")) {
+				xmlChar* text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
+				if (text)
+					result.data.title = QString::fromUtf8((const char*)text).trimmed();
+			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "year")) {
+				xmlChar* text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
+				if (text)
+					result.data.productionYear = QString::fromLatin1((const char*)text).trimmed();
+			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "url")) {
+				xmlChar* text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
+				if (text)
+					result.dataSource = QString::fromLatin1((const char*)text).trimmed();
+			}
+
+			resultNode = resultNode->next;
+		}
+
+		if (isValidResult(result, path)) {
+			int id = mImportDialog->addMatch(result.data.title, result.data.productionYear);
+			mSearchResults.insert(id, result);
+		}
+
+		node = node->next;
+	}
+}
+
+//! Returns true if the search result contains all required values and possibly sets the data source for cached sources.
+bool MpiMovieImport::isValidResult(SearchResult& result, const QString& path)
+{
+	if (result.data.title.isEmpty())
+		return false;
+	if (result.sourceType == CachedSource) {
+		if (result.dataSource.isEmpty())
+			result.dataSource = path;
+	} else if (result.dataSource.isEmpty())
+		return false;
+
+	return true;
 }

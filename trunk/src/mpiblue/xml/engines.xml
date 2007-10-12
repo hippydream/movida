@@ -6,6 +6,6 @@
     <interpreter>perl</interpreter>
     <results-script update-name="results">imdb_results.pl</results-script>
     <import-script update-name="import">imdb_import.pl</import-script>
-    <search-url>http://us.imdb.com/find?s=tt%26q={QUERY}</search-url>
+    <search-url>http://us.imdb.com/find?s=tt&amp;q={QUERY}</search-url>
   </engine>
 </mpi-blue-engines>
