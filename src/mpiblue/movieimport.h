@@ -124,6 +124,7 @@ private:
 	bool mHttpNotModified;
 	QString mCurrentQuery;
 	QProcess* mInterpreter;
+	QString mInterpreterName;
 	State mCurrentState;
 	QString mNextUrl;
 	
@@ -140,6 +141,8 @@ private:
 	QString locateScriptPath(const QString& name) const;
 	QString scriptDate(const QString& name) const;
 	ScriptStatus isValidScriptFile(const QString& path = QString()) const;
+	void processResultsFile(const QString& path);
+	bool isValidResult(SearchResult& result, const QString& path);
 };
 
 #endif // MPI_MOVIEIMPORT_H
