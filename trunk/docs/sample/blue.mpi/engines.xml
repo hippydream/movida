@@ -19,7 +19,7 @@
 			URL protocol must be HTTP - this means that the string must start with "http://"!
 			
 			The url can contain the string {SCRIPT}. In this case, it will be replaced with the name of the
-			required script (as entered in the following tags) or with the value of its "updateUrl" attribute.
+			required script (as entered in the following tags) or with the value of its "update-name" attribute.
 			
 			If no {SCRIPT} place holder is found, the script name is simply appended to the url.
 			
@@ -41,10 +41,10 @@
 		<interpreter>perl</interpreter>
 
 		<!-- The results-script is the script used to parse the search results -->
-		<results-script updateUrl="results">imdb_results.pl</results-script>
+		<results-script update-name="results">imdb_results.pl</results-script>
 
 		<!-- The results-script is the script used to parse an import page -->
-		<import-script updateUrl="import">imdb_import.pl<import-script>
+		<import-script update-name="import">imdb_import.pl<import-script>
 
 		<!-- Both file:// and http:// protocols are supported. Use "{QUERY}" as a place holder for the query string -->
 		<search-url>http://us.imdb.com/find?s=tt%26q={QUERY}</search-url>
