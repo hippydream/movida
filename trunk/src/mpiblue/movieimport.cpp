@@ -462,11 +462,22 @@ void MpiMovieImport::processNextImport()
 		return;
 	}
 
-	int id = mImportsQueue.takeFirst();
-	QHash<int,SearchResult>::Iterator it = mSearchResults.find(id);
-	if (it == mSearchResults.end()) {
-		wLog() << "MpiMovieImport: Skipping invalid job";
-		processNextImport();
+	bool ok = false;
+	int id;
+	QHash<int,SearchResult>::Iterator it;
+
+	while (!ok && !mImportsQueue.isEmpty()) {
+		id = mImportsQueue.takeFirst();
+		it = mSearchResults.find(id);
+		if (it == mSearchResults.end()) {
+			wLog() << "MpiMovieImport: Skipping invalid job";
+			continue;
+		}
+		ok = true;
+	}
+
+	if (!ok) {
+		mImportDialog->done();
 		return;
 	}
 
@@ -474,12 +485,36 @@ void MpiMovieImport::processNextImport()
 	SearchResult& job = it.value();
 	
 	if (job.sourceType == CachedSource) {
-		parseImdbMoviePage(job);
+		parseCachedMoviePage(job);
+	} else {
+		// download movie page
+		QUrl url(job.dataSource);
+
+		mTempFile = createTemporaryFile();
+		if (!mTempFile) {
+			mImportDialog->done();
+			return;
+		}
+
+		initHttpHandler();
+		Q_ASSERT(mHttpHandler);
+
+		iLog() << QString("MpiMovieImport: Attempting a connection with %1:%2").arg(url.host()).arg(url.port() < 0 ? 80 : url.port());
+		mHttpHandler->setHost(url.host(), url.port() < 0 ? 80 : url.port());
+	 	
+		mCurrentLocation = url.path();
+		if (url.hasQuery())
+			mCurrentLocation.append("?").append(url.encodedQuery());
+
+		mCurrentState = FetchingMovieDataState;
+
+		iLog() << QString("MpiMovieImport: Sending http request for '%1'").arg(mCurrentLocation);
+		mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
 	}
 }
 
 //! \internal Parses a local IMDb movie page.
-void MpiMovieImport::parseImdbMoviePage(SearchResult& job)
+void MpiMovieImport::parseCachedMoviePage(SearchResult& job)
 {
 	QFile file(job.dataSource);
 	if (!file.open(QIODevice::ReadOnly))
@@ -541,8 +576,14 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 				Q_ARG(QString, mCurrentQuery), 
 				Q_ARG(int, mCurrentEngine)));
 			break;
+		case FetchingResultsState:
+			Q_ASSERT(QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection));
+			break;
+		case FetchingMovieDataState:
+			Q_ASSERT(QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection));
+			break;
 		default: 
-			Q_ASSERT(QMetaObject::invokeMethod(this, "parseQueryResponse", Qt::QueuedConnection));
+			mImportDialog->done();
 	}
 }
 
@@ -615,10 +656,10 @@ void MpiMovieImport::httpStateChanged(int state)
 	Parses a query response. The response is stored in "mTempFile", the associated URL
 	in "mCurrentLocation".
 */
-void MpiMovieImport::parseQueryResponse()
+void MpiMovieImport::processResponseFile()
 {
 	Q_ASSERT(mTempFile);
-	iLog() << "MpiMovieImport: MpiMovieImport::parseQueryResponse()";
+	iLog() << "MpiMovieImport: MpiMovieImport::processResponseFile()";
 	mImportDialog->showMessage(tr("Attempting to parse search results."));
 
 	MpiBlue::Engine* engine = mRegisteredEngines[mCurrentEngine];
@@ -640,15 +681,14 @@ void MpiMovieImport::parseQueryResponse()
 	}
 	Q_ASSERT(mInterpreter && mInterpreter->state() == QProcess::NotRunning);
 
+	QString script = mCurrentState == FetchingResultsState ? engine->resultsScript : engine->importScript;
+
 	iLog() << QString("Starting the '%1' interpreter with the '%2' script on: ")
-		.arg(interpreter).arg(engine->resultsScript).append(MvdCore::toLocalFilePath(mTempFile->fileName()));
+		.arg(interpreter).arg(script).append(MvdCore::toLocalFilePath(mTempFile->fileName()));
 
 	QFileInfo intFi(interpreter);
 	mInterpreterName = intFi.baseName();
-	mInterpreter->start(interpreter, QStringList() << engine->resultsScript << MvdCore::toLocalFilePath(mTempFile->fileName()));
-
-	// Move to interpreterFinished()
-	// deleteTemporaryFile(&mTempFile);
+	mInterpreter->start(interpreter, QStringList() << script << MvdCore::toLocalFilePath(mTempFile->fileName()));
 }
 
 //! Deletes a file and sets its pointer to 0. Asserts that file is not null.
@@ -716,19 +756,19 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 		return;
 	}
 
-	QString dataFileName = mCurrentState == FetchingResultsState ? "/mvdresults.xml" : "/mvddata.xml";
+	QString dataFileName = mCurrentState == FetchingResultsState ? "/mvdresults.xml" : "/mvdmovies.xml";
 
 	if (!QFile::exists(dataPath.append(dataFileName))) {
 		mImportDialog->showMessage(tr("Failed to parse search results."), 
 			MvdImportDialog::ErrorMessage);
-		eLog() << "MpiMovieImport: No search results file found.";
+		eLog() << "MpiMovieImport: No search results file found (" << dataFileName << ").";
 		mImportDialog->done();
 		return;
 	}
 
 	if (mCurrentState == FetchingResultsState)
 		processResultsFile(dataPath);
-	// else processDataFile(&dataFile);
+	else processMovieDataFile(dataPath);
 
 	QFile::remove(dataPath);
 	mImportDialog->done();
@@ -835,6 +875,11 @@ void MpiMovieImport::processResultsFile(const QString& path)
 	}
 }
 
+//! Parses a mvdmovies.xml file and queues import jobs (if any).
+void MpiMovieImport::processMovieDataFile(const QString& path)
+{
+}
+
 //! Returns true if the search result contains all required values and possibly sets the data source for cached sources.
 bool MpiMovieImport::isValidResult(SearchResult& result, const QString& path)
 {
@@ -845,6 +890,11 @@ bool MpiMovieImport::isValidResult(SearchResult& result, const QString& path)
 			result.dataSource = path;
 	} else if (result.dataSource.isEmpty())
 		return false;
+	else {
+		QUrl url(result.dataSource);
+		if (url.scheme() != "http")
+			return false;
+	}
 
 	return true;
 }
