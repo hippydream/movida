@@ -23,15 +23,19 @@ DEFINES += MPI_BUILD_BLUE_DLL
 QT += network
 
 win32 {
-	# Place .lib and Visual Studio crap in the bin directory and copy the dll to "plugins"
+	# Place .lib and Visual Studio crap in the bin directory and copy the dll to "Plugins"
 	DESTDIR = $${ROOT}/bin
-	DLLDESTDIR = $$(APPDATA)/BlueSoft/Movida/Resources/Plugins
-} macx {
-	DESTDIR = $$(HOME)/Library/Movida/Reources/Pugins
-} else {
-	DESTDIR = $$(HOME)/.BlueSoft/Movida/Reources/Pugins
+	DLLDESTDIR = "$$(APPDATA)/BlueSoft/Movida/Resources/Plugins"
+	message(Building plugin in \"$$DLLDESTDIR\")
 }
-message(Building plugin in \"$$DESTDIR\")
+macx {
+	DESTDIR = $$(HOME)/Library/Movida/Reources/Pugins
+	message(Building plugin in \"$$DESTDIR\")
+}
+unix {
+	DESTDIR = $$(HOME)/.BlueSoft/Movida/Reources/Pugins
+	message(Building plugin in \"$$DESTDIR\")
+}
 
 INCLUDEPATH += . ../mvdcore ../mvdshared
 
