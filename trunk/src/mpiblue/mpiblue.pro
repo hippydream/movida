@@ -25,10 +25,13 @@ QT += network
 win32 {
 	# Place .lib and Visual Studio crap in the bin directory and copy the dll to "plugins"
 	DESTDIR = $${ROOT}/bin
-	DLLDESTDIR = $${ROOT}/bin/plugins
+	DLLDESTDIR = $$(APPDATA)/BlueSoft/Movida/Resources/Plugins
+} macx {
+	DESTDIR = $$(HOME)/Library/Movida/Reources/Pugins
 } else {
-	DESTDIR = $${ROOT}/bin/plugins
+	DESTDIR = $$(HOME)/.BlueSoft/Movida/Reources/Pugins
 }
+message(Building plugin in \"$$DESTDIR\")
 
 INCLUDEPATH += . ../mvdcore ../mvdshared
 
