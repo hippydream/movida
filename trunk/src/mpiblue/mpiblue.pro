@@ -29,11 +29,11 @@ win32 {
 	message(Building plugin in \"$$DLLDESTDIR\")
 }
 macx {
-	DESTDIR = $$(HOME)/Library/Movida/Resources/Pugins
+	DESTDIR = $$(HOME)/Library/Movida/Resources/Plugins
 	message(Building plugin in \"$$DESTDIR\")
 }
 unix {
-	DESTDIR = $$(HOME)/.BlueSoft/Movida/Resources/Pugins
+	DESTDIR = $$(HOME)/.BlueSoft/Movida/Resources/Plugins
 	message(Building plugin in \"$$DESTDIR\")
 }
 
