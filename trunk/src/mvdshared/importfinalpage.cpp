@@ -22,6 +22,7 @@
 #include "importfinalpage.h"
 #include "importdialog.h"
 #include "core.h"
+#include "templatemanager.h"
 #include <QLabel>
 #include <QGridLayout>
 
@@ -111,5 +112,5 @@ void MvdImportFinalPage::visibleJobChanged()
 	ui.importMovie->setChecked(job.import);
 
 	const MvdMovieData& d = job.data;
-	ui.jobPreview->setText(QString("%1 (%2)").arg(d.title).arg(d.productionYear));
+	ui.jobPreview->setHtml(Movida::tmanager().movieDataToHtml(d));
 }

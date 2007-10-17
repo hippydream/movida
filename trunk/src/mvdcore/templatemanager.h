@@ -26,6 +26,7 @@ class MvdTemplateManager_P;
 
 #include "global.h"
 #include "movie.h"
+#include "moviedata.h"
 #include "moviecollection.h"
 
 class MVD_EXPORT MvdTemplateManager
@@ -39,6 +40,10 @@ public:
 	QString movieToXml(const MvdMovie& movie, const MvdMovieCollection& collection);
 	QString movieToHtml(const MvdMovie& movie, const MvdMovieCollection& collection, 
 		const QString& templateName = QString());
+
+	QString movieDataToHtml(const MvdMovieData& movieData, const QString& templateName = QString());
+	QString movieDataFileToHtml(const QString& movieDataFile, const QString& templateName = QString());
+	QString movieDataStringToHtml(const QString& movieDataString, const QString& templateName = QString());
 
 private:
 	MvdTemplateManager();
