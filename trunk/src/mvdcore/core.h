@@ -60,6 +60,8 @@ public:
 
 	static QString toLocalFilePath(QString s, bool considerDirectory = false);
 
+	static bool isValidYear(QString s);
+
 private:
 	static MvdCore_P* d;
 	static bool MvdCoreInitOk;

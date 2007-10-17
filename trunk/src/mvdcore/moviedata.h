@@ -37,10 +37,6 @@
 class MVD_EXPORT MvdMovieData
 {
 public:
-	MvdMovieData()
-	: runningTime(0), rating(0), colorMode(MvdMovie::UnknownColorMode)
-	{}
-
 	struct UrlData
 	{
 		UrlData() : isDefault(false) {}
@@ -54,8 +50,13 @@ public:
 	{
 		QString name;
 		QString imdbId;
-		QString roles;
+		QStringList roles;
 		QList<UrlData> urls;
+
+		inline bool operator==(const PersonData& pd) const;
+		inline bool operator<(const PersonData& pd) const;
+		inline void merge(const PersonData& pd);
+		inline void mergeRoles(const QStringList& roles);
 	};
 
 	enum PropertyName
@@ -66,6 +67,19 @@ public:
 		Countries, Tags, Genres, Directors, Producers, CrewMembers, Actors,
 		Urls, SpecialContents, PosterPath
 	};
+
+	enum Option
+	{
+		NoOption = 0,
+		StopAtFirstMovie = 0x01
+	};
+	Q_DECLARE_FLAGS(Options, Option);
+
+	MvdMovieData()
+	: runningTime(0), rating(0), colorMode(MvdMovie::UnknownColorMode)
+	{}
+
+	bool loadFromXml(const QString& path, Options options = NoOption);
 
 	QString title;
 	QString originalTitle;
@@ -91,5 +105,6 @@ public:
 	QStringList specialContents;
 	QString posterPath;
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(MvdMovieData::Options);
 
 #endif // MVD_MOVIEDATA_H

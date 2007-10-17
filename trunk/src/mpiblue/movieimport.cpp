@@ -101,6 +101,7 @@ void MpiMovieImport::search(const QString& query, int engineId)
 
 		mSearchResults.clear();
 		mImportsQueue.clear();
+		mCurrentImportJob = -1;
 
 		mCurrentEngine = engineId;
 		mCurrentQuery = query;
@@ -482,6 +483,7 @@ void MpiMovieImport::processNextImport()
 	}
 
 	iLog() << "MpiMovieImport: Processing job " << id;
+	mCurrentImportJob = id;
 	SearchResult& job = it.value();
 	
 	if (job.sourceType == CachedSource) {
@@ -724,6 +726,7 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 {
 	Q_ASSERT(mInterpreter);
 	Q_ASSERT(mTempFile);
+	Q_UNUSED(exitCode);
 
 	QFileInfo info(mTempFile->fileName());
 	QString dataPath = info.absolutePath();
@@ -756,7 +759,7 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 		return;
 	}
 
-	QString dataFileName = mCurrentState == FetchingResultsState ? "/mvdresults.xml" : "/mvdmovies.xml";
+	QString dataFileName = mCurrentState == FetchingResultsState ? "/mvdmres.xml" : "/mvdmdata.xml";
 
 	if (!QFile::exists(dataPath.append(dataFileName))) {
 		mImportDialog->showMessage(tr("Failed to parse search results."), 
@@ -812,6 +815,8 @@ void MpiMovieImport::initHttpHandler()
 //! Parses a mvdresults.xml file and queues import jobs (if any).
 void MpiMovieImport::processResultsFile(const QString& path)
 {
+	mImportDialog->showMessage(tr("Processing search results."));
+
 	xmlDocPtr doc = xmlParseFile(path.toLatin1().constData());
 	if (!doc) {
 		eLog() << "MpiMovieImport: Invalid search results file.";
@@ -819,7 +824,7 @@ void MpiMovieImport::processResultsFile(const QString& path)
 	}
 
 	xmlNodePtr node = xmlDocGetRootElement(doc);
-	if (xmlStrcmp(node->name, (const xmlChar*) "mpi-blue-results")) {
+	if (xmlStrcmp(node->name, (const xmlChar*) "movida-movie-results")) {
 		eLog() << "MpiMovieImport: Invalid search results file.";
 		return;
 	}
@@ -873,11 +878,27 @@ void MpiMovieImport::processResultsFile(const QString& path)
 
 		node = node->next;
 	}
+
+	mImportDialog->showMessage(tr("Done."));
+	mImportDialog->done();
 }
 
-//! Parses a mvdmovies.xml file and queues import jobs (if any).
+//! Parses a mvdmovies.xml file and adds the movie to the import queue.
 void MpiMovieImport::processMovieDataFile(const QString& path)
 {
+	mImportDialog->showMessage(tr("Processing movie data."));
+	Q_ASSERT(mSearchResults.contains(mCurrentImportJob));
+	SearchResult& result = mSearchResults[mCurrentImportJob];
+	if (!result.data.loadFromXml(path, MvdMovieData::StopAtFirstMovie)) {
+		mSearchResults.remove(mCurrentImportJob);
+		mImportDialog->showMessage(tr("Discarding invalid movie data."));
+		return;
+	}
+
+	QString s = result.data.title.isEmpty() ? result.data.originalTitle : result.data.title;
+	mImportDialog->showMessage(tr("Movie '%1' processed.").arg(s));
+	mImportDialog->addMovieData(result.data);
+	mSearchResults.remove(mCurrentImportJob);
 }
 
 //! Returns true if the search result contains all required values and possibly sets the data source for cached sources.

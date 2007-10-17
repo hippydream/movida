@@ -127,6 +127,7 @@ private:
 	QString mInterpreterName;
 	State mCurrentState;
 	QString mNextUrl;
+	int mCurrentImportJob;
 	
 	QHash<int,MpiBlue::Engine*> mRegisteredEngines;
 	QHash<int,SearchResult> mSearchResults;

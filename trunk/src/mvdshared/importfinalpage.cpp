@@ -33,7 +33,7 @@
 */
 
 MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
-: MvdImportPage(parent), locked(false)
+: MvdImportPage(parent), locked(false), currentVisibleJob(-1)
 {
 	setTitle(tr("Import finished"));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
@@ -51,6 +51,12 @@ void MvdImportFinalPage::setBusyStatus(bool busy)
 	MvdImportPage::setBusyStatus(busy);
 }
 
+//! Adds a movie data object to the import list.
+void MvdImportFinalPage::addMovieData(const MvdMovieData& md)
+{
+	jobs.append(ImportJob(md));
+}
+
 //! Locks or unlocks (part of) the GUI.
 void MvdImportFinalPage::setLock(bool lock)
 {
@@ -59,7 +65,16 @@ void MvdImportFinalPage::setLock(bool lock)
 	locked = lock;
 	if (locked)
 		qDebug("Locked");
-	else qDebug("Unlocked");
+	else {
+		if (jobs.isEmpty()) {
+			showMessage(tr("No movies have been imported.\nPlease press the Back button to repeat the search."),
+				MvdImportDialog::InfoMessage);
+			return;
+		}
+		ui.stack->setCurrentIndex(1);
+		currentVisibleJob = 0;
+		visibleJobChanged();
+	}
 }
 
 //! Override.
@@ -76,11 +91,25 @@ void MvdImportFinalPage::initializePage()
 	setBusyStatus(true);
 	setLock(true);
 
-	showMessage(tr("No movies have been imported.\nPlease press the Back button to repeat the search."), 
+	showMessage(tr("Downloading movie data."), 
 		MvdImportDialog::InfoMessage);
 }
 
 void MvdImportFinalPage::cleanupPage()
 {
 	//setBusyStatus(false);
+}
+
+//! Updates the job preview area with the current job.
+void MvdImportFinalPage::visibleJobChanged()
+{
+	//! \todo Remember previous job and store the import checkbox value
+
+	Q_ASSERT(currentVisibleJob >= 0 && currentVisibleJob < jobs.size());
+
+	const ImportJob& job = jobs.at(currentVisibleJob);
+	ui.importMovie->setChecked(job.import);
+
+	const MvdMovieData& d = job.data;
+	ui.jobPreview->setText(QString("%1 (%2)").arg(d.title).arg(d.productionYear));
 }

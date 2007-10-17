@@ -40,14 +40,30 @@ public:
 	void cleanupPage();
 	void setBusyStatus(bool busy);
 
+	void addMovieData(const MvdMovieData& md);
+
 signals:
 	void importRequest(const QList<int>&);
 
+private slots:
+	void visibleJobChanged();
+
 private:
+	struct ImportJob {
+		inline ImportJob() : import(true) {}
+		inline ImportJob(const MvdMovieData& md) : data(md), import(true) {}
+
+		MvdMovieData data;
+		bool import;
+	};
+
 	Ui::MvdImportFinalPage ui;
 	bool locked;
 
 	void setLock(bool lock);
+
+	QList<ImportJob> jobs;
+	int currentVisibleJob;
 };
 
 #endif // MVD_IMPORTFINAL_H
