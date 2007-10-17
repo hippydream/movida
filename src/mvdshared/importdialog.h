@@ -24,6 +24,7 @@
 
 #include "sharedglobal.h"
 #include "searchengine.h"
+#include "moviedata.h"
 #include <QDialog>
 #include <QHash>
 #include <QVariant>
@@ -31,7 +32,7 @@
 #include <QWizard>
 #include <QStringList>
 
-class QPushButton;
+class MvdImportDialog_P;
 class MvdImportStartPage;
 class MvdImportResultsPage;
 class MvdImportFinalPage;
@@ -54,6 +55,7 @@ public:
 	void showMessage(const QString& msg, MessageType type = InfoMessage);
 
 	int addMatch(const QString& title, const QString& year, const QString& notes = QString());
+	void addMovieData(const MvdMovieData& md);
 
 	void addSection(const QString& title, const QString& notes = QString());
 	void addSubSection(const QString& title, const QString& notes = QString());
@@ -71,10 +73,7 @@ private slots:
 	void pageChanged(int newPage);
 
 private:
-	MvdImportStartPage* startPage;
-	MvdImportResultsPage* resultsPage;
-	MvdImportFinalPage* finalPage;
-	int startPageId, resultsPageId, finalPageId;
+	MvdImportDialog_P* d;
 };
 
 #endif // MVD_IMPORTDIALOG_H

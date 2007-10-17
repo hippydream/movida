@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>337</width>
-    <height>299</height>
+    <width>296</width>
+    <height>316</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -36,8 +36,7 @@
        <item row="1" column="0" >
         <widget class="QLabel" name="noResultsLabel" >
          <property name="text" >
-          <string>No movies have been imported.
-Please press the Back button to repeat the search.</string>
+          <string/>
          </property>
          <property name="wordWrap" >
           <bool>true</bool>
@@ -71,8 +70,24 @@ p, li { white-space: pre-wrap; }
          </property>
         </widget>
        </item>
+       <item row="1" column="0" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>66</width>
+           <height>16</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="2" column="0" colspan="2" >
-        <widget class="QCheckBox" name="importResult" >
+        <widget class="QCheckBox" name="importMovie" >
          <property name="text" >
           <string>Import this movie</string>
          </property>
@@ -82,20 +97,7 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item row="3" column="0" colspan="3" >
-        <widget class="QFrame" name="resultContainer" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="frameShape" >
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow" >
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
+        <widget class="QTextBrowser" name="jobPreview" />
        </item>
        <item row="4" column="0" >
         <widget class="QLabel" name="previousResult" >
@@ -129,22 +131,6 @@ p, li { white-space: pre-wrap; }
           <string>&lt;a href="movida://result/next">Next movie&lt;/a></string>
          </property>
         </widget>
-       </item>
-       <item row="1" column="0" >
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType" >
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" >
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>

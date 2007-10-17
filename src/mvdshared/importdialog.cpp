@@ -33,6 +33,18 @@
 	\brief Wizard dialog to import movies from a local or remote source.
 */
 
+
+//! \internal
+class MvdImportDialog_P
+{
+public:
+	MvdImportStartPage* startPage;
+	MvdImportResultsPage* resultsPage;
+	MvdImportFinalPage* finalPage;
+	int startPageId, resultsPageId, finalPageId;
+};
+
+
 /*!
 	Creates a new Movida import wizard for the search engines listed in \p engines.
 	The dialog is a QWizard subclass so you can use the superclass methods to customize
@@ -48,21 +60,21 @@
 	Please refer to the QWizard documentation for further details.
 */
 MvdImportDialog::MvdImportDialog(QWidget* parent)
-: QWizard(parent)
+: QWizard(parent), d(new MvdImportDialog_P)
 {
 	//! \todo Check for supported engine URLs and handle file:// protocol with a QFileBrowser and a query-like filter instead of a standard query input widget
 
-	startPage = new MvdImportStartPage;
-	startPageId = addPage(startPage);
-	connect( startPage, SIGNAL(engineConfigurationRequest(int)), 
+	d->startPage = new MvdImportStartPage;
+	d->startPageId = addPage(d->startPage);
+	connect( d->startPage, SIGNAL(engineConfigurationRequest(int)), 
 		this, SIGNAL(engineConfigurationRequest(int)) );
 	connect( this, SIGNAL(currentIdChanged(int)),
 		this, SLOT(pageChanged(int)) );
 
-	resultsPage = new MvdImportResultsPage;
-	resultsPageId = addPage(resultsPage);
-	finalPage = new MvdImportFinalPage;
-	finalPageId = addPage(finalPage);
+	d->resultsPage = new MvdImportResultsPage;
+	d->resultsPageId = addPage(d->resultsPage);
+	d->finalPage = new MvdImportFinalPage;
+	d->finalPageId = addPage(d->finalPage);
 
 	setPixmap(QWizard::LogoPixmap, QPixmap(":/images/import/logo.png"));
 	setPixmap(QWizard::BannerPixmap, QPixmap(":/images/import/banner.png"));
@@ -97,7 +109,7 @@ void MvdImportDialog::done()
 */
 int MvdImportDialog::registerEngine(const MvdSearchEngine& engine)
 {
-	return startPage->registerEngine(engine);
+	return d->startPage->registerEngine(engine);
 }
 
 //! Shows a status message if the current page supports it.
@@ -112,10 +124,19 @@ void MvdImportDialog::showMessage(const QString& msg, MessageType type)
 	to help the user distinguish between similar results.
 	Returns a unique identifier used to refer to this search result later on (i.e. in the
 	importRequest() signal).
+	The caller is supposed to invoke done() after the last match has been added.
 */
 int MvdImportDialog::addMatch(const QString& title, const QString& year, const QString& notes)
 {
-	return resultsPage->addMatch(title, year, notes);
+	return d->resultsPage->addMatch(title, year, notes);
+}
+
+/*! Adds a movie data object to the import list.
+	The caller is supposed to invoke done() after the last movie data has been added.
+*/
+void MvdImportDialog::addMovieData(const MvdMovieData& md)
+{
+	d->finalPage->addMovieData(md);
 }
 
 /*!
@@ -125,7 +146,7 @@ int MvdImportDialog::addMatch(const QString& title, const QString& year, const Q
 */
 void MvdImportDialog::addSection(const QString& title, const QString& notes)
 {
-	resultsPage->addSection(title, notes);
+	d->resultsPage->addSection(title, notes);
 }
 
 /*!
@@ -135,7 +156,7 @@ void MvdImportDialog::addSection(const QString& title, const QString& notes)
 */
 void MvdImportDialog::addSubSection(const QString& title, const QString& notes)
 {
-	resultsPage->addSubSection(title, notes);
+	d->resultsPage->addSubSection(title, notes);
 }
 
 //!
@@ -146,14 +167,14 @@ void MvdImportDialog::accept()
 
 void MvdImportDialog::pageChanged(int id)
 {
-	if (id == resultsPageId && startPage)
+	if (id == d->resultsPageId && d->startPage)
 	{
 		qDebug("emitting queryRequest");
-		emit searchRequest(startPage->query(), startPage->engine());
+		emit searchRequest(d->startPage->query(), d->startPage->engine());
 	}
-	else if (id == finalPageId && resultsPage)
+	else if (id == d->finalPageId && d->resultsPage)
 	{
 		qDebug("emitting importRequest");
-		emit importRequest(resultsPage->jobs());
+		emit importRequest(d->resultsPage->jobs());
 	}
 }

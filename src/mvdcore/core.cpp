@@ -453,3 +453,17 @@ QString MvdCore::toLocalFilePath(QString s, bool considerDirectory)
 		s.append(QDir::separator());
 	return s;
 }
+
+//! Returns true if the string represents a valid movie year.
+bool MvdCore::isValidYear(QString s)
+{
+	bool ok;
+	int n = s.toInt(&ok);
+	if (!ok)
+		return false;
+
+	int minY = MvdCore::parameter("mvdcore/min-movie-year").toInt();
+	int maxY = QDate::currentDate().year();
+
+	return !(n < minY || n > maxY);
+}
