@@ -44,6 +44,7 @@ public:
 	enum LineBreakType { UnixLineBreak, WindowsLineBreak, MacLineBreak };
 
 	MvdXmlWriter(QIODevice* device, QTextCodec* codec = 0, Options = WriteEncodingOption);
+	MvdXmlWriter(QString* string, QTextCodec* codec = 0, Options = WriteEncodingOption);
 	virtual ~MvdXmlWriter();
 
 	void writeString(const QString& string);

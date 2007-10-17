@@ -44,6 +44,8 @@ class MvdXmlWriter_P
 public:
 	MvdXmlWriter_P(QIODevice* device, QTextCodec* codec,
 		MvdXmlWriter::Options options);
+	MvdXmlWriter_P(QString* string, QTextCodec* codec,
+		MvdXmlWriter::Options options);
 	~MvdXmlWriter_P();
 
 	QString escape(const QString& str) const;
@@ -64,7 +66,34 @@ public:
 MvdXmlWriter_P::MvdXmlWriter_P(QIODevice* device, QTextCodec* codec,
 	MvdXmlWriter::Options options)
 {
+	Q_ASSERT(device);
 	stream = new QTextStream(device);
+	if (codec == 0)
+		stream->setCodec("UTF-8");
+	else
+		stream->setCodec(codec);
+
+	indentString = "\t";
+	autoLineBreak = true;
+	lineBreak = "\r\n";
+	indentLevel = 0;
+	pauseIndent = false;
+	skipEmptyTags = false;
+	skipEmptyAttributes = false;
+
+	// <?xml version="1.0" encoding="SELECTED_ENCODING"?>
+	if (options.testFlag(MvdXmlWriter::WriteEncodingOption))
+		(*stream) << "<?xml version=\"1.0\" encoding=\"" <<
+		escape(QString(stream->codec()->name())) << "\"?>" <<
+		lineBreak << lineBreak;
+}
+
+//! \internal
+MvdXmlWriter_P::MvdXmlWriter_P(QString* string, QTextCodec* codec,
+	MvdXmlWriter::Options options)
+{
+	Q_ASSERT(string);
+	stream = new QTextStream(string);
 	if (codec == 0)
 		stream->setCodec("UTF-8");
 	else
@@ -141,6 +170,14 @@ MvdXmlWriter
 */
 MvdXmlWriter::MvdXmlWriter(QIODevice* device, QTextCodec* codec, Options options)
 : d(new MvdXmlWriter_P(device, codec, options))
+{
+}
+
+/*!
+	Convenience constructor, builds a new XML writer that writes to a string.
+*/
+MvdXmlWriter::MvdXmlWriter(QString* string, QTextCodec* codec, Options options)
+: d(new MvdXmlWriter_P(string, codec, options))
 {
 }
 
