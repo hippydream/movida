@@ -1146,7 +1146,7 @@ void MvdMainWindow::updateDetailsView()
 	}
 
 	MvdMovie movie = mCollection->movie(current);
-	QString html = tmanager().movieToHtml(movie, *mCollection, "blue.xsl");
+	QString html = tmanager().movieToHtml(movie, *mCollection);
 	mDetailsView->setHtml(html);
 }
 
