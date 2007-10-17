@@ -37,6 +37,7 @@ public:
 	bool loadXslFile(const QString& xslpath);
 
 	QString processText(const QString& txt);
+	QString processFile(const QString& file);
 
 private:
 	MvdXsltProc_P* d;

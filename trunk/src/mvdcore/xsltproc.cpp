@@ -82,7 +82,7 @@ MvdXsltProc_P::MvdXsltProc_P()
 //! \internal
 bool MvdXsltProc_P::loadXslt(const QString& path)
 {
-	if (stylesheet != 0)
+	if (stylesheet)
 	{
 		xsltFreeStylesheet(stylesheet);
 		stylesheet = 0;
@@ -97,11 +97,11 @@ bool MvdXsltProc_P::loadXslt(const QString& path)
 		return false;
 
 	xmlDocPtr doc = xmlParseMemory(buffer.data(), buffer.size());
-	if (doc == 0)
+	if (!doc)
 		return false;
 
 	stylesheet = xsltParseStylesheetDoc(doc);
-	return stylesheet != 0;
+	return stylesheet;
 }
 
 
@@ -127,7 +127,7 @@ MvdXsltProc::MvdXsltProc(const QString& xslpath)
 //! Returns true if the processor is valid (a stylesheet has been correctly loaded).
 bool MvdXsltProc::isOk() const
 {
-	return d->stylesheet != 0;
+	return d->stylesheet;
 }
 
 //! Attempts to load a XSL stylesheet from a file.
@@ -147,11 +147,35 @@ QString MvdXsltProc::processText(const QString& txt)
 		return QString();
 
 	xmlDocPtr doc = xmlParseMemory(buffer.data(), buffer.size());
-	if (doc == 0)
+	if (!doc)
 		return QString();
 
 	xmlDocPtr res = xsltApplyStylesheet(d->stylesheet, doc, NULL);
-	if (res == 0)
+	if (!res)
+		return QString();
+
+	xmlChar* outString = NULL;
+	int outStringLength = 0;
+
+	xsltSaveResultToString(&outString, &outStringLength, res, d->stylesheet);
+	if (!outString || !outStringLength)
+		return QString();
+
+	return QString::fromUtf8(reinterpret_cast<const char*>(outString), outStringLength);
+}
+
+//! Applies XSL transformations to the file using the previously loaded stylesheet.
+QString MvdXsltProc::processFile(const QString& file)
+{
+	if (!isOk())
+		return QString();
+
+	xmlDocPtr doc = xmlParseFile(file.toLatin1().constData());
+	if (!doc)
+		return QString();
+
+	xmlDocPtr res = xsltApplyStylesheet(d->stylesheet, doc, NULL);
+	if (!res)
 		return QString();
 
 	xmlChar* outString = NULL;
