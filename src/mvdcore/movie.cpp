@@ -1107,3 +1107,26 @@ void MvdMovie::setPoster(const QString& filename)
 {
 	d->poster = filename;
 }
+
+//! Returns a color mode as a string compatible with the movida XML movie descriptions.
+QString MvdMovie::colorModeToString(ColorMode m)
+{
+	switch (m)
+	{
+	case Color: return "color";
+	case BlackWhite: return "bw";
+	default: ;
+	}
+	return QString();
+}
+
+//! Parses a color mode string as in a movida XML movie description.
+MvdMovie::ColorMode MvdMovie::colorModeFromString(QString s)
+{
+	s = s.trimmed().toLower();
+	if (s == "color")
+		return Color;
+	else if (s == "bw")
+		return BlackWhite;
+	return UnknownColorMode;
+}

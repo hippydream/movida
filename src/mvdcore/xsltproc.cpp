@@ -20,6 +20,7 @@
 **************************************************************************/
 
 #include "xsltproc.h"
+#include "logger.h"
 #include <QFile>
 #include <libxml/tree.h>
 #include <libxslt/xsltInternals.h>
@@ -27,6 +28,8 @@
 #include <libxslt/transform.h>
 #include <libxslt/xsltutils.h>
 #include <libxslt/extensions.h>
+
+using namespace Movida;
 
 /*!
 	\class MvdXsltProc xsltproc.h
@@ -89,18 +92,26 @@ bool MvdXsltProc_P::loadXslt(const QString& path)
 	}
 
 	QFile file(path);
-	if (!file.open(QIODevice::ReadOnly))
+	if (!file.open(QIODevice::ReadOnly)) {
+		eLog() << "MvdXsltProc_P: Failed to open " << path << " for reading (" << file.errorString() << ").";
 		return false;
+	}
 
 	QByteArray buffer = file.readAll();
-	if (buffer.isEmpty())
+	if (buffer.isEmpty()) {
+		eLog() << "MvdXsltProc_P: Failed to read " << path << ".";
 		return false;
+	}
 
 	xmlDocPtr doc = xmlParseMemory(buffer.data(), buffer.size());
-	if (!doc)
+	if (!doc) {
+		eLog() << "MvdXsltProc_P: Invalid XML file: " << path;
 		return false;
+	}
 
 	stylesheet = xsltParseStylesheetDoc(doc);
+	if (!stylesheet)
+		eLog() << "MvdXsltProc_P: Invalid XSL file: " << path;
 	return stylesheet;
 }
 

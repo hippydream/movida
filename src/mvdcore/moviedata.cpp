@@ -22,6 +22,8 @@
 #include "moviedata.h"
 #include "logger.h"
 #include "core.h"
+#include "xmlwriter.h"
+#include <QFile>
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 
@@ -38,7 +40,9 @@ using namespace Movida;
 //! \internal
 namespace MvdMovieData_P {
 	static QList<MvdMovieData::PersonData> extractPersonData(xmlNodePtr parent, xmlDocPtr doc);
+	static QList<MvdMovieData::UrlData> extractUrlData(xmlNodePtr parent, xmlDocPtr doc);
 	static QStringList extractStringList(xmlNodePtr parent, xmlDocPtr doc, const char* tag);
+	static void writeToXml(MvdXmlWriter* writer, const MvdMovieData& movie);
 };
 
 /*!	Extracts a list of person descriptions from an xml node.
@@ -114,6 +118,47 @@ QList<MvdMovieData::PersonData> MvdMovieData_P::extractPersonData(xmlNodePtr par
 	return persons;
 }
 
+/*!	Extracts a list of url descriptions from an xml node.
+	
+	\verbatim
+	<url description="some url" default="true">http://www.somehost.com</url>
+	\endverbatim
+*/
+QList<MvdMovieData::UrlData> MvdMovieData_P::extractUrlData(xmlNodePtr parent, xmlDocPtr doc)
+{
+	QList<MvdMovieData::UrlData> urls;
+
+	xmlNodePtr node = parent->xmlChildrenNode;
+	while (node) {
+		if (node->type != XML_ELEMENT_NODE || xmlStrcmp(node->name, (const xmlChar*) "url")) {
+			node = node->next;
+			continue;
+		}
+
+		MvdMovieData::UrlData ud;
+		ud.url = QString::fromUtf8((const char*)xmlNodeListGetString(
+			doc, node->xmlChildrenNode, 1)).trimmed();
+
+		xmlChar* attr = xmlGetProp(node, (const xmlChar*) "description");
+		if (attr) {
+			ud.description = QString::fromUtf8((const char*)attr);
+			xmlFree(attr);
+		}
+
+		attr = xmlGetProp(node, (const xmlChar*) "default");
+		if (attr) {
+			ud.isDefault = !xmlStrcmp(attr, (const xmlChar*) "true");
+			xmlFree(attr);
+		}
+
+		urls.append(ud);
+
+		node = node->next;
+	}
+
+	return urls;
+}
+
 /*!	Extracts a list of simple string tags. Excludes duplicates (case insensitive comparison).
 	
 	\verbatim
@@ -141,6 +186,120 @@ QStringList MvdMovieData_P::extractStringList(xmlNodePtr parent, xmlDocPtr doc, 
 	}
 
 	return list;
+}
+
+void MvdMovieData_P::writeToXml(MvdXmlWriter* writer, const MvdMovieData& movie)
+{
+	Q_ASSERT(writer);
+
+	if (!movie.isValid())
+		return;
+
+	writer->writeOpenTag("movie");
+
+	writer->writeTaggedString("title", movie.title);
+	writer->writeTaggedString("original-title", movie.originalTitle);
+	writer->writeTaggedString("release-year", movie.releaseYear);
+	writer->writeTaggedString("production-year", movie.productionYear);
+	writer->writeTaggedString("edition", movie.edition);
+	writer->writeTaggedString("imdb-id", movie.imdbId);
+	writer->writeTaggedString("plot", QString(movie.plot).prepend("<![CDATA[").append("]]>"));
+	writer->writeTaggedString("notes", QString(movie.notes).prepend("<![CDATA[").append("]]>"));
+	writer->writeTaggedString("storage-id", movie.storageId);
+	writer->writeTaggedString("rating", QString::number(movie.rating), 
+		MvdXmlWriter::Attribute("maximum", MvdCore::parameter("mvdcore/max-rating").toString()));
+	writer->writeTaggedString("running-time", QString::number(movie.runningTime));
+	writer->writeTaggedString("color-mode", MvdMovie::colorModeToString(movie.colorMode));
+	writer->writeOpenTag("languages");
+	for (int i = 0; i < movie.languages.size(); ++i)
+		writer->writeTaggedString("language", movie.languages.at(i));
+	writer->writeCloseTag("languages");
+	writer->writeOpenTag("countries");
+	for (int i = 0; i < movie.countries.size(); ++i)
+		writer->writeTaggedString("country", movie.countries.at(i));
+	writer->writeCloseTag("countries");
+	writer->writeOpenTag("tags");
+	for (int i = 0; i < movie.tags.size(); ++i)
+		writer->writeTaggedString("tag", movie.tags.at(i));
+	writer->writeCloseTag("tags");
+	writer->writeOpenTag("genres");
+	for (int i = 0; i < movie.genres.size(); ++i)
+		writer->writeTaggedString("genre", movie.genres.at(i));
+	writer->writeCloseTag("genres");
+
+	writer->writeOpenTag("directors");
+	for (int i = 0; i < movie.directors.size(); ++i) {
+		const MvdMovieData::PersonData& pd = movie.directors.at(i);
+		writer->writeOpenTag("person");
+		writer->writeTaggedString("name", pd.name);
+		writer->writeTaggedString("imdb-id", pd.imdbId);
+		writer->writeCloseTag("person");
+	}
+	writer->writeCloseTag("directors");
+
+	writer->writeOpenTag("producers");
+	for (int i = 0; i < movie.producers.size(); ++i) {
+		const MvdMovieData::PersonData& pd = movie.producers.at(i);
+		writer->writeOpenTag("person");
+		writer->writeTaggedString("name", pd.name);
+		writer->writeTaggedString("imdb-id", pd.imdbId);
+		writer->writeCloseTag("person");
+	}
+	writer->writeCloseTag("producers");
+
+	writer->writeOpenTag("cast");
+	for (int i = 0; i < movie.actors.size(); ++i) {
+		const MvdMovieData::PersonData& pd = movie.actors.at(i);
+		writer->writeOpenTag("person");
+		writer->writeTaggedString("name", pd.name);
+		writer->writeTaggedString("imdb-id", pd.imdbId);
+		if (!pd.roles.isEmpty()) {
+			writer->writeOpenTag("roles");
+			for (int j = 0; j < pd.roles.size(); ++j) {
+				writer->writeTaggedString("role", pd.roles.at(j));
+			}
+			writer->writeCloseTag("roles");
+		}
+		writer->writeCloseTag("person");
+	}
+	writer->writeCloseTag("cast");
+
+	writer->writeOpenTag("crew");
+	for (int i = 0; i < movie.crewMembers.size(); ++i) {
+		const MvdMovieData::PersonData& pd = movie.crewMembers.at(i);
+		writer->writeOpenTag("person");
+		writer->writeTaggedString("name", pd.name);
+		writer->writeTaggedString("imdb-id", pd.imdbId);
+		if (!pd.roles.isEmpty()) {
+			writer->writeOpenTag("roles");
+			for (int j = 0; j < pd.roles.size(); ++j) {
+				writer->writeTaggedString("role", pd.roles.at(j));
+			}
+			writer->writeCloseTag("roles");
+		}
+		writer->writeCloseTag("person");
+	}
+	writer->writeCloseTag("crew");
+
+	writer->writeOpenTag("urls");
+	for (int i = 0; i < movie.urls.size(); ++i) {
+		const MvdMovieData::UrlData& ud = movie.urls.at(i);
+			if (!ud.description.isEmpty()) {
+				if (ud.isDefault)
+					writer->writeTaggedString("url", ud.url, MvdXmlWriter::Attribute("description", ud.description),
+						MvdXmlWriter::Attribute("default", "true"));
+				else writer->writeTaggedString("url", ud.url, MvdXmlWriter::Attribute("description", ud.description));
+			} else writer->writeTaggedString("url", ud.url);
+	}
+	writer->writeCloseTag("urls");
+
+	writer->writeOpenTag("special-contents");
+	for (int i = 0; i < movie.specialContents.size(); ++i) {
+			writer->writeTaggedString("item", movie.specialContents.at(i));
+	}
+	writer->writeCloseTag("special-contents");
+
+	writer->writeCloseTag("movie");
 }
 
 //! \internal
@@ -176,6 +335,11 @@ void MvdMovieData::PersonData::mergeRoles(const QStringList& roles)
 	}
 }
 
+//! Returns true if the movie has at least a localized or an original title.
+bool MvdMovieData::isValid() const
+{
+	return !title.isEmpty() || !originalTitle.isEmpty();
+}
 
 //! Loads a movie data description from a movida-movie-data XML file.
 bool MvdMovieData::loadFromXml(const QString& path, Options options)
@@ -306,6 +470,9 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "title")) {
 				title = QString::fromUtf8((const char*)xmlNodeListGetString(
 					doc, resultNode->xmlChildrenNode, 1)).trimmed();
+			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "urls")) {
+				QList<UrlData> pd = MvdMovieData_P::extractUrlData(resultNode, doc);
+				urls = pd;
 			}
 
 			resultNode = resultNode->next;
@@ -316,4 +483,32 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 	}
 
 	return true;
+}
+
+//! Writes this movie data object to a movida-movie-data XML file.
+bool MvdMovieData::writeToXmlFile(const QString& path, Options options) const
+{
+	Q_UNUSED(options);
+
+	QFile file(path);
+	if (!file.open(QIODevice::WriteOnly)) {
+		eLog() << "MvdMovieData: Failed to open " << path << " for writing (" << file.errorString() << ").";
+		return false;
+	}
+
+	MvdXmlWriter writer(&file);
+	MvdMovieData_P::writeToXml(&writer, *this);
+	return true;
+}
+
+//! Writes this movie data object as a movida-movie-data XML structure to a file.
+void MvdMovieData::writeToXmlString(QString* string, Options options) const
+{
+	Q_UNUSED(options);
+
+	if (!string)
+		return;
+
+	MvdXmlWriter writer(string);
+	MvdMovieData_P::writeToXml(&writer, *this);
 }

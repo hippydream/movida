@@ -79,7 +79,10 @@ public:
 	: runningTime(0), rating(0), colorMode(MvdMovie::UnknownColorMode)
 	{}
 
+	bool isValid() const;
 	bool loadFromXml(const QString& path, Options options = NoOption);
+	bool writeToXmlFile(const QString& path, Options options = NoOption) const;
+	void writeToXmlString(QString* string, Options options = NoOption) const;
 
 	QString title;
 	QString originalTitle;

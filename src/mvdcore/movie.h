@@ -139,6 +139,9 @@ public:
 	QString poster() const;
 	void setPoster(const QString& path);
 
+	static QString colorModeToString(ColorMode m);
+	static ColorMode colorModeFromString(QString s);
+
 private:
 	MvdMovie_P* d;
 public:
