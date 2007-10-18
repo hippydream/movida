@@ -47,6 +47,8 @@ signals:
 
 private slots:
 	void visibleJobChanged();
+	void previewPreviousJob();
+	void previewNextJob();
 
 private:
 	struct ImportJob {
@@ -63,7 +65,10 @@ private:
 	void setLock(bool lock);
 
 	QList<ImportJob> jobs;
+	int previousVisibleJob;
 	int currentVisibleJob;
+	int previousResultId;
+	int nextResultId;
 };
 
 #endif // MVD_IMPORTFINAL_H

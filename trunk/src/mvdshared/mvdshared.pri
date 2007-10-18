@@ -1,4 +1,6 @@
 HEADERS += \
+	actionlabel.h \
+	actionlabel_p.h \
 	expandinglineedit.h \
 	importdialog.h \
 	importfinalpage.h \
@@ -13,6 +15,7 @@ HEADERS += \
 	sharedglobal.h
 	
 SOURCES += \
+	actionlabel.cpp \
 	expandinglineedit.cpp \
 	importdialog.cpp \
 	importfinalpage.cpp \
