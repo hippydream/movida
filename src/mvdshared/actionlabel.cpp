@@ -49,7 +49,7 @@
 
 //! \internal
  MvdActionLabel_P::MvdActionLabel_P(MvdActionLabel* label)
- : QObject(label), q(label)
+ : QObject(label), ids(0), q(label)
  {
  }
 
@@ -116,15 +116,17 @@ int MvdActionLabel::addControl(const QString& text, bool enabled)
 	MvdActionLabel_P::AdvancedControl ac(d->ids++, text.trimmed(), enabled);
 	d->controls.append(ac);
 	d->layoutAdvancedControls();
-	return d->controls.size() - 1;
+	return ac.id;
 }
 
 //! Enables or disables a control.
 void MvdActionLabel::setControlEnabled(int control, bool enabled)
 {
 	int i = d->controls.indexOf(MvdActionLabel_P::AdvancedControl(control));
-	if (i < 0)
+	if (i < 0) {
+		qDebug("MvdActionLabel::setControlEnabled: invalid control id %d.", control);
 		return;
+	}
 
 	MvdActionLabel_P::AdvancedControl& ac = d->controls[i];
 	if (ac.enabled == enabled)

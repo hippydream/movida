@@ -95,8 +95,6 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 */
 void MvdImportDialog::done()
 {
-	qDebug("MvdImportDialog::done()");
-
 	MvdImportPage* p = dynamic_cast<MvdImportPage*>(currentPage());
 	if (p)
 		p->setBusyStatus(false);
@@ -167,14 +165,9 @@ void MvdImportDialog::accept()
 
 void MvdImportDialog::pageChanged(int id)
 {
-	if (id == d->resultsPageId && d->startPage)
-	{
-		qDebug("emitting queryRequest");
+	if (id == d->resultsPageId && d->startPage) {
 		emit searchRequest(d->startPage->query(), d->startPage->engine());
-	}
-	else if (id == d->finalPageId && d->resultsPage)
-	{
-		qDebug("emitting importRequest");
+	} else if (id == d->finalPageId && d->resultsPage) {
 		emit importRequest(d->resultsPage->jobs());
 	}
 }

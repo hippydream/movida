@@ -24,8 +24,11 @@
 #include "core.h"
 #include "actionlabel.h"
 #include "templatemanager.h"
+#include "logger.h"
 #include <QLabel>
 #include <QGridLayout>
+
+using namespace Movida;
 
 /*!
 	\class MvdImportFinalPage importfinalpage.h
@@ -42,10 +45,10 @@ MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
 
 	ui.setupUi(this);
 	
-	previousResultId = ui.previousResult->addControl(tr("Preview previous"), false);
-	connect(ui.previousResult, SIGNAL(controlTriggered(int)), this, SIGNAL(previewPreviousJob()));
-	nextResultId = ui.nextResult->addControl(tr("Preview next"), false);
-	connect(ui.nextResult, SIGNAL(controlTriggered(int)), this, SIGNAL(previewNextJob()));
+	previousResultId = ui.previousResult->addControl(tr("Previous movie"), false);
+	connect(ui.previousResult, SIGNAL(controlTriggered(int)), this, SLOT(previewPreviousJob()));
+	nextResultId = ui.nextResult->addControl(tr("Next movie"), false);
+	connect(ui.nextResult, SIGNAL(controlTriggered(int)), this, SLOT(previewNextJob()));
 }
 
 
@@ -61,6 +64,7 @@ void MvdImportFinalPage::setBusyStatus(bool busy)
 //! Adds a movie data object to the import list.
 void MvdImportFinalPage::addMovieData(const MvdMovieData& md)
 {
+	iLog() << "MvdImportFinalPage: Movie data added: " << (md.title.isEmpty() ? md.originalTitle : md.title);
 	jobs.append(ImportJob(md));
 }
 
@@ -70,14 +74,13 @@ void MvdImportFinalPage::setLock(bool lock)
 	if (lock == locked)
 		return;
 	locked = lock;
-	if (locked)
-		qDebug("Locked");
-	else {
+	if (!locked) {
 		if (jobs.isEmpty()) {
 			showMessage(tr("No movies have been imported.\nPlease press the Back button to repeat the search."),
 				MvdImportDialog::InfoMessage);
 			return;
 		}
+		iLog() << "MvdImportFinalPage: Movie data downloaded. Preparing import previews.";
 		ui.stack->setCurrentIndex(1);
 		previousVisibleJob = -1;
 		currentVisibleJob = 0;
@@ -124,24 +127,26 @@ void MvdImportFinalPage::visibleJobChanged()
 
 	const MvdMovieData& d = job.data;
 	ui.jobPreview->setHtml(Movida::tmanager().movieDataToHtml(d));
-	
+
 	ui.nextResult->setControlEnabled(nextResultId, currentVisibleJob < jobs.size() - 1);
 	ui.previousResult->setControlEnabled(previousResultId, currentVisibleJob > 0);
 	
-	ui.currentResultLabel->setText(tr("Showing movie %1 out of %2.").arg(currentVisibleJob - 1).arg(jobs.size())
+	ui.currentResultLabel->setText(tr("Showing movie %1 out of %2.").arg(currentVisibleJob + 1).arg(jobs.size())
 			.prepend("<b>").append("</b>"));
 }
 
 //! Shows the previous import job in the preview area.
 void MvdImportFinalPage::previewPreviousJob()
 {
-	previousResultId = currentVisibleJob;
-	++currentVisibleJob;
+	previousVisibleJob = currentVisibleJob;
+	--currentVisibleJob;
+	visibleJobChanged();
 }
 
 //! Shows the next import job in the preview area.
 void MvdImportFinalPage::previewNextJob()
 {
-	previousResultId = currentVisibleJob;
-	--currentVisibleJob;
+	previousVisibleJob = currentVisibleJob;
+	++currentVisibleJob;
+	visibleJobChanged();
 }
