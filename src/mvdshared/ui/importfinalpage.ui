@@ -100,12 +100,12 @@ p, li { white-space: pre-wrap; }
         <widget class="QTextBrowser" name="jobPreview" />
        </item>
        <item row="4" column="0" >
-        <widget class="QLabel" name="previousResult" >
+        <widget class="MvdActionLabel" name="previousResult" >
          <property name="toolTip" >
           <string>Shows the details for the previous movie that has been selected for import</string>
          </property>
          <property name="text" >
-          <string>&lt;a href="movida://result/previous">Previus movie&lt;/a></string>
+          <string/>
          </property>
         </widget>
        </item>
@@ -123,12 +123,12 @@ p, li { white-space: pre-wrap; }
         </spacer>
        </item>
        <item row="4" column="2" >
-        <widget class="QLabel" name="nextResult" >
+        <widget class="MvdActionLabel" name="nextResult" >
          <property name="toolTip" >
           <string>Shows the details for the next movie that has been selected for import</string>
          </property>
          <property name="text" >
-          <string>&lt;a href="movida://result/next">Next movie&lt;/a></string>
+          <string/>
          </property>
         </widget>
        </item>
@@ -138,6 +138,13 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MvdActionLabel</class>
+   <extends>QLabel</extends>
+   <header>actionlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

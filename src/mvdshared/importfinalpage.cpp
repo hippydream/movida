@@ -22,6 +22,7 @@
 #include "importfinalpage.h"
 #include "importdialog.h"
 #include "core.h"
+#include "actionlabel.h"
 #include "templatemanager.h"
 #include <QLabel>
 #include <QGridLayout>
@@ -34,12 +35,17 @@
 */
 
 MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
-: MvdImportPage(parent), locked(false), currentVisibleJob(-1)
+: MvdImportPage(parent), locked(false), previousVisibleJob(-1), currentVisibleJob(-1)
 {
 	setTitle(tr("Import finished"));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
 
 	ui.setupUi(this);
+	
+	previousResultId = ui.previousResult->addControl(tr("Preview previous"), false);
+	connect(ui.previousResult, SIGNAL(controlTriggered(int)), this, SIGNAL(previewPreviousJob()));
+	nextResultId = ui.nextResult->addControl(tr("Preview next"), false);
+	connect(ui.nextResult, SIGNAL(controlTriggered(int)), this, SIGNAL(previewNextJob()));
 }
 
 
@@ -73,6 +79,7 @@ void MvdImportFinalPage::setLock(bool lock)
 			return;
 		}
 		ui.stack->setCurrentIndex(1);
+		previousVisibleJob = -1;
 		currentVisibleJob = 0;
 		visibleJobChanged();
 	}
@@ -104,13 +111,37 @@ void MvdImportFinalPage::cleanupPage()
 //! Updates the job preview area with the current job.
 void MvdImportFinalPage::visibleJobChanged()
 {
-	//! \todo Remember previous job and store the import checkbox value
-
 	Q_ASSERT(currentVisibleJob >= 0 && currentVisibleJob < jobs.size());
+
+	// Store current status (if any)
+	if (previousVisibleJob >= 0) {
+		ImportJob& job = jobs[previousVisibleJob];
+		job.import = ui.importMovie->isChecked();
+	}
 
 	const ImportJob& job = jobs.at(currentVisibleJob);
 	ui.importMovie->setChecked(job.import);
 
 	const MvdMovieData& d = job.data;
 	ui.jobPreview->setHtml(Movida::tmanager().movieDataToHtml(d));
+	
+	ui.nextResult->setControlEnabled(nextResultId, currentVisibleJob < jobs.size() - 1);
+	ui.previousResult->setControlEnabled(previousResultId, currentVisibleJob > 0);
+	
+	ui.currentResultLabel->setText(tr("Showing movie %1 out of %2.").arg(currentVisibleJob - 1).arg(jobs.size())
+			.prepend("<b>").append("</b>"));
+}
+
+//! Shows the previous import job in the preview area.
+void MvdImportFinalPage::previewPreviousJob()
+{
+	previousResultId = currentVisibleJob;
+	++currentVisibleJob;
+}
+
+//! Shows the next import job in the preview area.
+void MvdImportFinalPage::previewNextJob()
+{
+	previousResultId = currentVisibleJob;
+	--currentVisibleJob;
 }
