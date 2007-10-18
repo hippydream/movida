@@ -449,6 +449,7 @@ void MpiMovieImport::import(const QList<int>& list)
 	}
 
 	mImportsQueue = list;
+	iLog() << "MvdMovieImport: Received import request for " << list.size() << " movies.";
 	processNextImport();
 }
 
@@ -584,8 +585,7 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 		case FetchingMovieDataState:
 			Q_ASSERT(QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection));
 			break;
-		default: 
-			mImportDialog->done();
+		default: ; 
 	}
 }
 
@@ -774,7 +774,6 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 	else processMovieDataFile(dataPath);
 
 	QFile::remove(dataPath);
-	mImportDialog->done();
 }
 
 void MpiMovieImport::interpreterStateChanged(QProcess::ProcessState state)
@@ -899,6 +898,8 @@ void MpiMovieImport::processMovieDataFile(const QString& path)
 	mImportDialog->showMessage(tr("Movie '%1' processed.").arg(s));
 	mImportDialog->addMovieData(result.data);
 	mSearchResults.remove(mCurrentImportJob);
+	
+	processNextImport();
 }
 
 //! Returns true if the search result contains all required values and possibly sets the data source for cached sources.

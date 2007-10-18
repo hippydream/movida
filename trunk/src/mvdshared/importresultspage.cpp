@@ -104,8 +104,6 @@ void MvdImportResultsPage::setLock(bool lock)
 	if (lock == locked)
 		return;
 	locked = lock;
-	if (locked)
-		qDebug("Locked");
 }
 
 //! Initialize page each time it is shown.
