@@ -171,7 +171,7 @@ int MvdMultiPageDialog::addAdvancedControl(const QString& text, bool enabled)
 	AdvancedControl ac(mIds++, text.trimmed(), enabled);
 	mAdvanced.append(ac);
 	layoutAdvancedControls();
-	return mAdvanced.size() - 1;
+	return ac.id;
 }
 
 //! \internal
