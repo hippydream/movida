@@ -516,14 +516,6 @@ void MpiMovieImport::processNextImport()
 	}
 }
 
-//! \internal Parses a local IMDb movie page.
-void MpiMovieImport::parseCachedMoviePage(SearchResult& job)
-{
-	QFile file(job.dataSource);
-	if (!file.open(QIODevice::ReadOnly))
-		return;
-}
-
 //! \internal Handles a QHttp::httpRequestFinished() signal.
 void MpiMovieImport::httpRequestFinished(int id, bool error)
 {
@@ -661,8 +653,9 @@ void MpiMovieImport::httpStateChanged(int state)
 void MpiMovieImport::processResponseFile()
 {
 	Q_ASSERT(mTempFile);
-	iLog() << "MpiMovieImport: MpiMovieImport::processResponseFile()";
-	mImportDialog->showMessage(tr("Attempting to parse search results."));
+	if (mCurrentState == FetchingResultsState)
+		mImportDialog->showMessage(tr("Attempting to parse search results."));
+	else mImportDialog->showMessage(tr("Attempting to parse movie data."));
 
 	MpiBlue::Engine* engine = mRegisteredEngines[mCurrentEngine];
 	QString interpreter = MvdCore::locateApplication(engine->interpreter);
@@ -725,12 +718,14 @@ QTemporaryFile* MpiMovieImport::createTemporaryFile()
 void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
 	Q_ASSERT(mInterpreter);
-	Q_ASSERT(mTempFile);
 	Q_UNUSED(exitCode);
 
-	QFileInfo info(mTempFile->fileName());
+	QString filePath = mTempFile ? mTempFile->fileName() : mSearchResults[mCurrentImportJob].dataSource;
+	QFileInfo info(filePath);
 	QString dataPath = info.absolutePath();
-	deleteTemporaryFile(&mTempFile);
+
+	if (mTempFile)
+		deleteTemporaryFile(&mTempFile);
 
 	// Log interpreter output
 	QString line;
@@ -880,6 +875,41 @@ void MpiMovieImport::processResultsFile(const QString& path)
 
 	mImportDialog->showMessage(tr("Done."));
 	mImportDialog->done();
+}
+
+//! \internal Parses a local IMDb movie page.
+void MpiMovieImport::parseCachedMoviePage(SearchResult& job)
+{
+	mImportDialog->showMessage(tr("Attempting to parse movie data."));
+
+	MpiBlue::Engine* engine = mRegisteredEngines[mCurrentEngine];
+	QString interpreter = MvdCore::locateApplication(engine->interpreter);
+	if (interpreter.isEmpty())
+	{
+		eLog () << "MpiMovieImport: Failed to locate interpreter: " << engine->interpreter;
+		mImportDialog->showMessage(tr("Failed to locate '%1' interpreter.").arg(engine->interpreter),
+			MvdImportDialog::ErrorMessage);
+		mImportDialog->done();
+		return;
+	}
+
+	if (!mInterpreter)
+	{
+		mInterpreter = new QProcess(this);
+		connect(mInterpreter, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(interpreterFinished(int,QProcess::ExitStatus)));
+		connect(mInterpreter, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(interpreterStateChanged(QProcess::ProcessState)));
+	}
+	Q_ASSERT(mInterpreter && mInterpreter->state() == QProcess::NotRunning);
+
+	mCurrentState = FetchingMovieDataState;
+	QString script = engine->importScript;
+
+	iLog() << QString("Starting the '%1' interpreter with the '%2' script on: ")
+		.arg(interpreter).arg(script).append(MvdCore::toLocalFilePath(job.dataSource));
+
+	QFileInfo intFi(interpreter);
+	mInterpreterName = intFi.baseName();
+	mInterpreter->start(interpreter, QStringList() << script << MvdCore::toLocalFilePath(job.dataSource));
 }
 
 //! Parses a mvdmovies.xml file and adds the movie to the import queue.
