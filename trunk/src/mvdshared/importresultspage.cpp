@@ -58,7 +58,10 @@ MvdImportResultsPage::MvdImportResultsPage(QWidget* parent)
 	
 	results = new QTreeWidget(this);
 	results->setHeaderLabels(QStringList() << tr("Title") << tr("Year"));
-	// results->setRootIsDecorated(false);
+	results->setRootIsDecorated(false);
+	
+	results->header()->setResizeMode(0, QHeaderView::Stretch);
+	results->header()->setStretchLastSection(false);
 
 	QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	sizePolicy.setHorizontalStretch(5);
