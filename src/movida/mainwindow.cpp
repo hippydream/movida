@@ -289,6 +289,8 @@ MvdMainWindow::MvdMainWindow(QWidget* parent)
 	p.setDefaultValue("movida/directories/use-last-collection", true);
 	p.setDefaultValue("movida/movie-list/initials", false);
 
+	p.setDefaultValue("movida/use-history", true);
+
 	// Initialize core library && load user settings
 	QStringList recentFiles = p.value("movida/recent-files").toStringList();
 	int max = p.value("movida/maximum-recent-files").toInt();

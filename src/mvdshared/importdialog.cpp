@@ -24,6 +24,7 @@
 #include "importstartpage.h"
 #include "importresultspage.h"
 #include "importfinalpage.h"
+#include "settings.h"
 #include <QPushButton>
 
 /*!
@@ -166,7 +167,16 @@ void MvdImportDialog::accept()
 void MvdImportDialog::pageChanged(int id)
 {
 	if (id == d->resultsPageId && d->startPage) {
-		emit searchRequest(d->startPage->query(), d->startPage->engine());
+		QString q = d->startPage->query();
+		if (Movida::settings().value("movida/use-history").toBool()) {
+		
+			QStringList history = Movida::settings().value("movida/history/movie-import").toStringList();
+			if (!history.contains(q, Qt::CaseInsensitive))
+				history.append(q);
+			Movida::settings().setValue("movida/history/movie-import", history);
+			d->startPage->updateCompleter(history);
+		}
+		emit searchRequest(q, d->startPage->engine());
 	} else if (id == d->finalPageId && d->resultsPage) {
 		emit importRequest(d->resultsPage->jobs());
 	}

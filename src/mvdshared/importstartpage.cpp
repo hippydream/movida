@@ -21,11 +21,13 @@
 
 #include "importstartpage.h"
 #include "queryvalidator.h"
+#include "settings.h"
 #include <QLabel>
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QCompleter>
 
 /*!
 	\class MvdImportStartPage importstartpage.h
@@ -83,6 +85,13 @@ MvdImportStartPage::MvdImportStartPage(QWidget* parent)
 	gridLayout->addItem(new QSpacerItem(60, 20, QSizePolicy::Expanding, QSizePolicy::Minimum), 4, 0, 1, 1);
 	gridLayout->addWidget(configButton, 4, 1, 1, 1);
 
+	if (Movida::settings().value("movida/use-history").toBool()) {
+	
+		QStringList history = Movida::settings().value("movida/history/movie-import").toStringList();
+		QCompleter* completer = new QCompleter(history, this);
+		queryInput->setCompleter(completer);
+	}
+
 	// Finish GUI setup
 	queryInput->setFocus(Qt::OtherFocusReason);
 }
@@ -137,4 +146,10 @@ int MvdImportStartPage::engine() const
 QString MvdImportStartPage::query() const
 {
 	return queryInput->text().trimmed();
+}
+
+//! Sets a new completer in the query input widget.
+void MvdImportStartPage::updateCompleter(const QStringList& history)
+{
+	queryInput->setCompleter(new QCompleter(history));
 }
