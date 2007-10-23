@@ -42,6 +42,8 @@ public:
 	int engine() const;
 	QString query() const;
 
+	void updateCompleter(const QStringList& history);
+
 signals:
 	void engineConfigurationRequest(int engine);
 
