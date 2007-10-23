@@ -50,6 +50,13 @@ MpiMovieImport::~MpiMovieImport()
 {
 	if (mHttpHandler)
 		mHttpHandler->abort();
+
+	for (int i = 0; i < mTemporaryData.size(); ++i) {
+		const QString& s = mTemporaryData.at(i);
+		if (!QFile::remove(s)) {
+			wLog() << "MpiMovieImport: failed to delete temporary file '" << s << "'.";
+		}
+	}
 }
 
 //! Entry point for the "imdb-import" action.
@@ -526,8 +533,8 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 	if (error)
 	{
 		if (mHttpHandler->error() == QHttp::Aborted)
-			wLog() << "MpiMovieImport: Request aborted.";
-		else eLog() << "MpiMovieImport: Request failed: " << mHttpHandler->errorString();
+			wLog() << "MpiMovieImport: Http request aborted.";
+		else eLog() << "MpiMovieImport: Http request failed: " << mHttpHandler->errorString();
 
 		if (mTempFile)
 			deleteTemporaryFile(&mTempFile);
@@ -535,15 +542,20 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 		if (mHttpHandler->error() == QHttp::Aborted)
 			return;
 
-		if (mCurrentState != FetchingResultsScriptState &&
-			mCurrentState != FetchingImportScriptState)
-			mImportDialog->done();
-		else {
+		// some states can be considered optionals. e.g. we don't care if a script or
+		// poster download failed.
+		if (mCurrentState == FetchingMoviePosterState) {
+			Q_ASSERT(QMetaObject::invokeMethod(this, "processMoviePoster", Qt::QueuedConnection));
+		} else if (mCurrentState == FetchingResultsScriptState || mCurrentState == FetchingImportScriptState) {
 			MpiBlue::Engine* engine = mRegisteredEngines.value(mCurrentEngine);
 			engine->scriptsFetched = true;
 			engine->updateUrl.clear(); // Avoid to perform another update attempt.
 			mCurrentState = NoState;
-			search(mCurrentQuery, mCurrentEngine);
+			Q_ASSERT(QMetaObject::invokeMethod(this, "search", Qt::QueuedConnection,
+				Q_ARG(QString, mCurrentQuery), 
+				Q_ARG(int, mCurrentEngine)));
+		} else {
+			Q_ASSERT(QMetaObject::invokeMethod(this, "done", Qt::QueuedConnection));
 		}
 		return;
 	}
@@ -553,12 +565,18 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 		mHttpNotModified = true;
 
 	// Host lookup or some side request.
-	if (id != mRequestId)
+	if (id != mRequestId) {
+		iLog() << "MpiMovieImport: Http host lookup finished.";
 		return;
+	} else {
+		iLog() << "MpiMovieImport: Http request finished.";
+	}
 
 	if (!mTempFile)
 	{
 		eLog() << "MpiMovieImport: No temporary file found!";
+		mImportDialog->showMessage(tr("Sorry, but some internal error occurred."), MvdImportDialog::ErrorMessage);
+		mImportDialog->done();
 		return;
 	}
 
@@ -576,6 +594,9 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 			break;
 		case FetchingMovieDataState:
 			Q_ASSERT(QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection));
+			break;
+		case FetchingMoviePosterState:
+			Q_ASSERT(QMetaObject::invokeMethod(this, "processMoviePoster", Qt::QueuedConnection));
 			break;
 		default: ; 
 	}
@@ -618,9 +639,10 @@ void MpiMovieImport::httpResponseHeader(const QHttpResponseHeader& responseHeade
 		}
 		break;
 	case SuccessClass:
-		iLog() << "MpiMovieImport: Download finished.";
+		iLog() << "MpiMovieImport: Successful request header received.";
 		break;
 	default:
+		wLog() << "MpiMovieImport: Unsuccessful request header received. Http status code " << status;
 		; // Errors will be handled in the httpRequestFinished() handler
 	}
 }
@@ -686,6 +708,29 @@ void MpiMovieImport::processResponseFile()
 	mInterpreter->start(interpreter, QStringList() << script << MvdCore::toLocalFilePath(mTempFile->fileName()));
 }
 
+/*!
+	Sets the movie poster path in the current job and completes the job.
+*/
+void MpiMovieImport::processMoviePoster()
+{
+	if (!mTempFile) {
+		mImportDialog->showMessage(tr("Failed to download movie poster."), 
+			MvdImportDialog::ErrorMessage);
+		completeJob();
+		return;
+	}
+
+	Q_ASSERT(mSearchResults.contains(mCurrentImportJob));
+	SearchResult& result = mSearchResults[mCurrentImportJob];
+
+	result.data.posterPath = mTempFile->fileName();
+	mTemporaryData.append(mTempFile->fileName());
+	deleteTemporaryFile(&mTempFile, false);
+
+	mImportDialog->showMessage(tr("Movie poster downloaded."));
+	completeJob();
+}
+
 //! Deletes a file and sets its pointer to 0. Asserts that file is not null.
 void MpiMovieImport::deleteTemporaryFile(QTemporaryFile** file, bool removeFile)
 {
@@ -720,13 +765,6 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 	Q_ASSERT(mInterpreter);
 	Q_UNUSED(exitCode);
 
-	QString filePath = mTempFile ? mTempFile->fileName() : mSearchResults[mCurrentImportJob].dataSource;
-	QFileInfo info(filePath);
-	QString dataPath = info.absolutePath();
-
-	if (mTempFile)
-		deleteTemporaryFile(&mTempFile);
-
 	// Log interpreter output
 	QString line;
 
@@ -747,6 +785,9 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 	}
 
 	if (exitStatus != QProcess::NormalExit) {
+		if (mTempFile)
+			deleteTemporaryFile(&mTempFile);
+
 		mImportDialog->showMessage(tr("Script interpreter crashed."), 
 			MvdImportDialog::ErrorMessage);
 		eLog() << "MpiMovieImport: Interpreter crashed.";
@@ -754,21 +795,30 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 		return;
 	}
 
-	QString dataFileName = mCurrentState == FetchingResultsState ? "/mvdmres.xml" : "/mvdmdata.xml";
+	// Cached sources do not use the temporary file for the import process.
+	QString filePath = mTempFile ? mTempFile->fileName() : mSearchResults[mCurrentImportJob].dataSource;
 
-	if (!QFile::exists(dataPath.append(dataFileName))) {
+	QFileInfo info(filePath);
+	QString xmlPath = info.absolutePath().append(mCurrentState == FetchingResultsState ? "/mvdmres.xml" : "/mvdmdata.xml");
+
+	if (!QFile::exists(xmlPath)) {
+		if (mTempFile)
+			deleteTemporaryFile(&mTempFile);
+
 		mImportDialog->showMessage(tr("Failed to parse search results."), 
 			MvdImportDialog::ErrorMessage);
-		eLog() << "MpiMovieImport: No search results file found (" << dataFileName << ").";
+		eLog() << "MpiMovieImport: No search results file found (" << xmlPath << ").";
 		mImportDialog->done();
 		return;
 	}
 
-	if (mCurrentState == FetchingResultsState)
-		processResultsFile(dataPath);
-	else processMovieDataFile(dataPath);
-
-	QFile::remove(dataPath);
+	if (mCurrentState == FetchingResultsState) {
+		// Control returns to the wizard by calling done()
+		processResultsFile(xmlPath);
+	} else {
+		// Control returns to this plugin by asynchronously calling processNextImport()
+		processMovieDataFile(xmlPath);
+	}
 }
 
 void MpiMovieImport::interpreterStateChanged(QProcess::ProcessState state)
@@ -813,15 +863,25 @@ void MpiMovieImport::processResultsFile(const QString& path)
 
 	xmlDocPtr doc = xmlParseFile(path.toLatin1().constData());
 	if (!doc) {
+		QFile::remove(path);
 		eLog() << "MpiMovieImport: Invalid search results file.";
+		mImportDialog->showMessage(tr("Invalid search results file."),
+			MvdImportDialog::ErrorMessage);
+		mImportDialog->done();
 		return;
 	}
 
 	xmlNodePtr node = xmlDocGetRootElement(doc);
 	if (xmlStrcmp(node->name, (const xmlChar*) "movida-movie-results")) {
+		QFile::remove(path);
 		eLog() << "MpiMovieImport: Invalid search results file.";
+		mImportDialog->showMessage(tr("Invalid search results file."),
+			MvdImportDialog::ErrorMessage);
+		mImportDialog->done();
 		return;
 	}
+
+	bool hasCachedResults = false;
 
 	node = node->xmlChildrenNode;
 	while (node) {
@@ -866,12 +926,19 @@ void MpiMovieImport::processResultsFile(const QString& path)
 		}
 
 		if (isValidResult(result, path)) {
+			if (result.sourceType == CachedSource)
+				hasCachedResults = true;
 			int id = mImportDialog->addMatch(result.data.title, result.data.productionYear);
 			mSearchResults.insert(id, result);
 		}
 
 		node = node->next;
 	}
+
+	QFile::remove(path);
+
+	if (!hasCachedResults && mTempFile)
+		deleteTemporaryFile(&mTempFile);
 
 	mImportDialog->showMessage(tr("Done."));
 	mImportDialog->done();
@@ -921,15 +988,55 @@ void MpiMovieImport::processMovieDataFile(const QString& path)
 	if (!result.data.loadFromXml(path, MvdMovieData::StopAtFirstMovie)) {
 		mSearchResults.remove(mCurrentImportJob);
 		mImportDialog->showMessage(tr("Discarding invalid movie data."));
+		Q_ASSERT(QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection));
 		return;
 	}
+
+	if (!result.data.posterPath.isEmpty() && result.data.posterPath.startsWith("http://")) {
+		mTempFile = createTemporaryFile();
+		if (!mTempFile)
+		{
+			//! \todo reset everything (eg. jobs) before calling done after an error.
+			mImportDialog->done();
+			return;
+		}
+
+		initHttpHandler();
+		Q_ASSERT(mHttpHandler);
+
+		QUrl url(result.data.posterPath);
+
+		iLog() << QString("MpiMovieImport: Attempting a connection with %1:%2").arg(url.host()).arg(url.port() < 0 ? 80 : url.port());
+		mHttpHandler->setHost(url.host(), url.port() < 0 ? 80 : url.port());
+	 	
+		mCurrentLocation = url.path();
+		if (url.hasQuery())
+			mCurrentLocation.append("?").append(url.encodedQuery());
+
+		mCurrentState = FetchingMoviePosterState;
+
+		QString s = result.data.title.isEmpty() ? result.data.originalTitle : result.data.title;
+		mImportDialog->showMessage(tr("Downloading movie poster for movie '%1'.").arg(s));
+		iLog() << "MpiMovieImport: Downloading movie poster for movie " << s << ".";
+		iLog() << QString("MpiMovieImport: Sending http request for '%1'").arg(mCurrentLocation);
+		mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
+	} else {
+		completeJob();
+	}
+}
+
+//! Adds the movie to the import wizard and starts the next job (if any).
+void MpiMovieImport::completeJob()
+{
+	Q_ASSERT(mSearchResults.contains(mCurrentImportJob));
+	SearchResult& result = mSearchResults[mCurrentImportJob];
 
 	QString s = result.data.title.isEmpty() ? result.data.originalTitle : result.data.title;
 	mImportDialog->showMessage(tr("Movie '%1' processed.").arg(s));
 	mImportDialog->addMovieData(result.data);
 	mSearchResults.remove(mCurrentImportJob);
 	
-	processNextImport();
+	Q_ASSERT(QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection));
 }
 
 //! Returns true if the search result contains all required values and possibly sets the data source for cached sources.

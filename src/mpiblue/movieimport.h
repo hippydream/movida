@@ -58,7 +58,11 @@ private slots:
 	void interpreterFinished(int exitCode, QProcess::ExitStatus exitStatus);
 	void interpreterStateChanged(QProcess::ProcessState state);
 
+	void processNextImport();
 	void processResponseFile();
+	void processMoviePoster();
+
+	void done() { mImportDialog->done(); }
 
 private:
 	enum HttpStatusClass
@@ -102,7 +106,8 @@ private:
 		FetchingResultsScriptState,
 		FetchingImportScriptState,
 		FetchingResultsState,
-		FetchingMovieDataState
+		FetchingMovieDataState,
+		FetchingMoviePosterState
 	};
 
 	enum ScriptStatus {
@@ -133,7 +138,10 @@ private:
 	QHash<int,SearchResult> mSearchResults;
 	QList<int> mImportsQueue;
 
-	void processNextImport();
+	// Files to be removed before we finish
+	QStringList mTemporaryData;
+
+	void completeJob();
 	void parseCachedMoviePage(SearchResult& job);
 	void deleteTemporaryFile(QTemporaryFile** file, bool removeFile = true);
 	QTemporaryFile* createTemporaryFile();
