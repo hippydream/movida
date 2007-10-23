@@ -43,6 +43,7 @@ protected:
 private:
 	QPixmap mPoster;
 	QString mPosterPath;
+	bool mDirty;
 
 	static const qreal IconAspectRatio;
 	static const QColor BorderColor;

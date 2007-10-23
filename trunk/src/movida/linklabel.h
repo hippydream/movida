@@ -47,6 +47,11 @@ public:
 	MvdLinkLabel(const QString& text, QWidget* parent = 0)
 		: QLabel(text, parent) { init(); }
 
+	//! The activa area rectangle can be set to limit the area where a clicked() event is valid.
+	void setActiveAreaRect(const QRect& rect) { activeRect = rect; }
+	//! Returns the rectangle containing the current active area or the whole widget area if none has been set.
+	QRect activeAreaRect() const { return activeRect.isNull() ? rect() : activeRect; }
+
 	/*!
 		Register a QObject as receiver of drag and drop actions.
 		\p dragEnter is called when the mouse (dragging something!) enters the widget.
@@ -105,10 +110,16 @@ protected:
 	{
 		if (event->button() == Qt::LeftButton)
 		{
-			QPoint p = this->mapFromGlobal(QCursor::pos());
-			if (p.x() >= 0 && p.y() >= 0 && p.x() < rect().width() && p.y() < rect().height())
+			QRect r = activeAreaRect();
+			if (r.contains(event->pos()))
 				emit clicked();
 		}
+	}
+
+	virtual void mouseMoveEvent(QMouseEvent* event)
+	{
+		QRect r = activeAreaRect();
+		setCursor(r.contains(event->pos()) ? Qt::PointingHandCursor : Qt::ArrowCursor);
 	}
 
 	void dragEnterEvent(QDragEnterEvent* event)
@@ -158,15 +169,15 @@ private:
 	void init()
 	{
 		dndHandler = 0;
-
 		setAcceptDrops(true);
-		setCursor(Qt::PointingHandCursor);
+		setMouseTracking(true);
 	}
 
 	QObject* dndHandler;
 	QString dragEnterMember;
 	QString dropMember;
 	QString dragLeaveMember;
+	QRect activeRect;
 
 signals:
 	void clicked();

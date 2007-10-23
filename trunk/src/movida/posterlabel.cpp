@@ -40,7 +40,7 @@ const int MvdPosterLabel::BorderWidth = 1;
 const int MvdPosterLabel::ShadowWidth = 4;
 
 MvdPosterLabel::MvdPosterLabel(QWidget* parent)
-: MvdLinkLabel(parent)
+: MvdLinkLabel(parent), mDirty(true)
 {
 }
 
@@ -56,6 +56,7 @@ bool MvdPosterLabel::setPoster(const QString& path)
 	if (!mPoster.isNull())
 	{
 		mPosterPath = path;
+		mDirty = true;
 		update();
 		return true;
 	}
@@ -143,4 +144,12 @@ void MvdPosterLabel::paintEvent(QPaintEvent* event)
 	// Draw pixmap
 	if (!pm.isNull())
 		painter.drawPixmap(pixmapRect, pm);
+
+	// Update viewport area
+	if (mDirty) {
+		QRect r = borderRect;
+		r.setWidth(r.width() + ShadowWidth);
+		r.setHeight(r.height() + ShadowWidth);
+		setActiveAreaRect(r);
+	}
 }
