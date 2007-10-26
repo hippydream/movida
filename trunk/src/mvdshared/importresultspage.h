@@ -53,6 +53,7 @@ public:
 private slots:
 	void resultsSelectionChanged();
 	void resultsCheckStateChanged();
+	void ensureItemVisible();
 
 private:
 	QTreeWidget* results;
