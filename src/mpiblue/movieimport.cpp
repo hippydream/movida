@@ -906,7 +906,7 @@ bool MpiMovieImport::parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QS
 			QString name;
 			xmlChar* attr = xmlGetProp(node, (const xmlChar*)"name");
 			if (attr) {
-				name = QString::fromUtf8((const char*)attr);
+				name = QString::fromUtf8((const char*)attr).trimmed();
 				xmlFree(attr);
 			}
 			if (parseSearchResults(doc, node->xmlChildrenNode, path, name))
@@ -919,6 +919,7 @@ bool MpiMovieImport::parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QS
 		}
 
 		SearchResult result;
+		QString notes;
 
 		xmlNodePtr resultNode = node->xmlChildrenNode;
 		while (resultNode) {
@@ -939,7 +940,7 @@ bool MpiMovieImport::parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QS
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "title")) {
 				xmlChar* text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
 				if (text)
-					result.data.title = QString::fromUtf8((const char*)text).trimmed();
+					result.data.title = MvdCore::decodeXmlEntities(QString::fromUtf8((const char*)text).trimmed());
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "year")) {
 				xmlChar* text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
 				if (text)
@@ -948,6 +949,10 @@ bool MpiMovieImport::parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QS
 				xmlChar* text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
 				if (text)
 					result.dataSource = QString::fromLatin1((const char*)text).trimmed();
+			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "notes")) {
+				xmlChar* text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
+				if (text)
+					notes = MvdCore::decodeXmlEntities(QString::fromUtf8((const char*)text).trimmed());
 			}
 
 			resultNode = resultNode->next;
@@ -960,7 +965,7 @@ bool MpiMovieImport::parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QS
 				mImportDialog->addSection(group);
 				groupAdded = true;
 			}
-			int id = mImportDialog->addMatch(result.data.title, result.data.productionYear);
+			int id = mImportDialog->addMatch(result.data.title, result.data.productionYear, notes);
 			mSearchResults.insert(id, result);
 		}
 

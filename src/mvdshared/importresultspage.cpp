@@ -39,8 +39,11 @@
 //! \todo Move to sharedglobal.h
 namespace MovidaShared
 {
-	static const int ItemTypeRole = Qt::UserRole + 1;
-	static const int JobIdRole = Qt::UserRole + 2;
+	enum {
+		ItemTypeRole = Qt::UserRole + 1,
+		JobIdRole,
+		NotesRole
+	};
 };
 using namespace MovidaShared;
 
@@ -176,7 +179,7 @@ int MvdImportResultsPage::addMatch(const QString& title, const QString& year, co
 	item->setText(0, title);
 	item->setText(1, year);
 	if (!notes.isEmpty())
-		item->setData(0, Qt::ToolTipRole, notes);
+		item->setData(0, NotesRole, notes);
 	item->setCheckState(0, Qt::Unchecked);
 
 	return id;
@@ -211,7 +214,7 @@ void MvdImportResultsPage::addSection(const QString& title, const QString& notes
 	else item->setText(0, title);
 
 	if (!notes.isEmpty())
-		item->setData(0, Qt::ToolTipRole, notes);
+		item->setData(0, NotesRole, notes);
 }
 
 /*!
@@ -268,7 +271,7 @@ void MvdImportResultsPage::addSubSection(const QString& title, const QString& no
 	else item->setText(0, title);
 
 	if (!notes.isEmpty())
-		item->setData(0, Qt::ToolTipRole, notes);
+		item->setData(0, NotesRole, notes);
 }
 
 int MvdImportResultsPage::countMatches() const
@@ -329,7 +332,7 @@ void MvdImportResultsPage::resultsSelectionChanged()
 		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
 		if (type == StandardItem)
 		{
-			text = item->data(0, Qt::ToolTipRole).toString();
+			text = item->data(0, NotesRole).toString();
 			showItemCount = text.isEmpty();
 		}
 		else showItemCount = true;
@@ -343,7 +346,19 @@ void MvdImportResultsPage::resultsSelectionChanged()
 		else
 			showMessage(tr("%1 match(es) found.", "Found results", matches).arg(matches), MvdImportDialog::InfoMessage);
 	}
-	else showMessage(text, MvdImportDialog::InfoMessage);
+	else {
+		showMessage(text, MvdImportDialog::InfoMessage);
+		Q_ASSERT(QMetaObject::invokeMethod(this, "ensureItemVisible", Qt::QueuedConnection));
+	}
+}
+
+//! \internal Ensures the selected item is visible in the results view.
+void MvdImportResultsPage::ensureItemVisible()
+{
+	QList<QTreeWidgetItem*> list = results->selectedItems();
+	if (list.isEmpty())
+		return;
+	results->scrollToItem(list.at(0));
 }
 
 //! Returns a list containing the requested jobs.
