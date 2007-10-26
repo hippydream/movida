@@ -35,8 +35,6 @@
 #include <QDateTime>
 #include <QLocale>
 #include <math.h>
-#include <libxml/xmlmemory.h>
-#include <libxml/parser.h>
 
 using namespace Movida;
 
@@ -881,11 +879,41 @@ void MpiMovieImport::processResultsFile(const QString& path)
 		return;
 	}
 
-	bool hasCachedResults = false;
+	bool hasCachedResults = parseSearchResults(doc, node->xmlChildrenNode, path);
+	QFile::remove(path);
 
-	node = node->xmlChildrenNode;
+	if (!hasCachedResults && mTempFile)
+		deleteTemporaryFile(&mTempFile);
+
+	mImportDialog->showMessage(tr("Done."));
+	mImportDialog->done();
+}
+
+//! Parses search result nodes, possibly using recursion on <group> nodes.
+bool MpiMovieImport::parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QString& path, const QString& group)
+{
+	bool hasCachedResults = false;
+	bool groupAdded = false;
+
 	while (node) {
-		if (node->type != XML_ELEMENT_NODE || xmlStrcmp(node->name, (const xmlChar*) "result")) {
+		if (node->type != XML_ELEMENT_NODE) {
+			node = node->next;
+			continue;
+		}
+
+		//! \todo Add a "expanded" attribute to force a group to be expanded in the tree view?
+		if (!xmlStrcmp(node->name, (const xmlChar*) "group")) {
+			QString name;
+			xmlChar* attr = xmlGetProp(node, (const xmlChar*)"name");
+			if (attr) {
+				name = QString::fromUtf8((const char*)attr);
+				xmlFree(attr);
+			}
+			if (parseSearchResults(doc, node->xmlChildrenNode, path, name))
+				hasCachedResults = true;
+			node = node->next;
+			continue;
+		} else if (xmlStrcmp(node->name, (const xmlChar*) "result")) {
 			node = node->next;
 			continue;
 		}
@@ -928,6 +956,10 @@ void MpiMovieImport::processResultsFile(const QString& path)
 		if (isValidResult(result, path)) {
 			if (result.sourceType == CachedSource)
 				hasCachedResults = true;
+			if (!groupAdded && !group.isEmpty()) {
+				mImportDialog->addSection(group);
+				groupAdded = true;
+			}
 			int id = mImportDialog->addMatch(result.data.title, result.data.productionYear);
 			mSearchResults.insert(id, result);
 		}
@@ -935,13 +967,7 @@ void MpiMovieImport::processResultsFile(const QString& path)
 		node = node->next;
 	}
 
-	QFile::remove(path);
-
-	if (!hasCachedResults && mTempFile)
-		deleteTemporaryFile(&mTempFile);
-
-	mImportDialog->showMessage(tr("Done."));
-	mImportDialog->done();
+	return hasCachedResults;
 }
 
 //! \internal Parses a local IMDb movie page.

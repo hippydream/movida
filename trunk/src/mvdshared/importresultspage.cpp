@@ -113,6 +113,7 @@ void MvdImportResultsPage::setLock(bool lock)
 void MvdImportResultsPage::initializePage()
 {
 	results->clear();
+	results->setRootIsDecorated(false);
 
 	// Wait until the search is done.
 	setBusyStatus(true);
@@ -123,6 +124,7 @@ void MvdImportResultsPage::initializePage()
 void MvdImportResultsPage::cleanupPage()
 {
 	results->clear();
+	results->setRootIsDecorated(false);
 
 	// Update status message
 	resultsSelectionChanged();
@@ -187,8 +189,10 @@ void MvdImportResultsPage::addSection(const QString& title, const QString& notes
 {
 	QTreeWidgetItem* item = new QTreeWidgetItem(results);
 	// Expand the first top-level section only
-	if (countSections() == 0)
+	if (countSections() == 0) {
 		results->expandItem(item);
+		results->setRootIsDecorated(true);
+	}
 	item->setFirstColumnSpanned(true);
 
 	QFont font = item->font(0);

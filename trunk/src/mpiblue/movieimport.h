@@ -29,6 +29,8 @@
 #include <QHash>
 #include <QList>
 #include <QProcess>
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
 
 class MvdMovieData;
 class MvdImportDialog;
@@ -153,6 +155,7 @@ private:
 	void processResultsFile(const QString& path);
 	void processMovieDataFile(const QString& path);
 	bool isValidResult(SearchResult& result, const QString& path);
+	bool parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QString& path, const QString& group = QString());
 };
 
 #endif // MPI_MOVIEIMPORT_H
