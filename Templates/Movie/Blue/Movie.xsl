@@ -22,6 +22,10 @@
 					<xsl:text>)</xsl:text>
 				</xsl:if>
 			</title>
+
+      <style>
+        background-color:#DBECED;
+      </style>
 		</head>
 
 		<body>

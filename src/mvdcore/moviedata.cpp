@@ -383,7 +383,7 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 				else if (s == "bw")
 					colorMode = MvdMovie::BlackWhite;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "countries")) {
-				QStringList sl = MvdMovieData_P::extractStringList(resultNode, doc, "countries");
+				QStringList sl = MvdMovieData_P::extractStringList(resultNode, doc, "country");
 				countries = sl;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "crew")) {
 				QList<PersonData> pd = MvdMovieData_P::extractPersonData(resultNode, doc);
@@ -395,7 +395,7 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 				edition = QString::fromUtf8((const char*)xmlNodeListGetString(
 					doc, resultNode->xmlChildrenNode, 1)).trimmed();
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "genres")) {
-				QStringList sl = MvdMovieData_P::extractStringList(resultNode, doc, "genres");
+				QStringList sl = MvdMovieData_P::extractStringList(resultNode, doc, "genre");
 				genres = sl;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "imdb-id")) {
 				QString s = QString::fromUtf8((const char*)xmlNodeListGetString(
@@ -404,7 +404,7 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 				if (rx.exactMatch(s))
 					imdbId = s;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "languages")) {
-				QStringList sl = MvdMovieData_P::extractStringList(resultNode, doc, "languages");
+				QStringList sl = MvdMovieData_P::extractStringList(resultNode, doc, "language");
 				languages = sl;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "notes")) {
 				notes = QString::fromUtf8((const char*)xmlNodeListGetString(
@@ -439,12 +439,12 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 					if (ok && n > 0)
 						xmlMaximum = n;
 				}
-				int n = s.toInt(&ok);
+				float n = s.toFloat(&ok);
 				if (ok) {
 					n = (mvdMaximum * n) / xmlMaximum;
 					if (n > mvdMaximum)
 						n = mvdMaximum;
-					rating = n;
+					rating = (int)n;
 				}
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "release-year")) {
 				QString s = QString::fromUtf8((const char*)xmlNodeListGetString(
