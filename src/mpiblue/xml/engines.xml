@@ -7,5 +7,6 @@
     <results-script update-name="results">imdb_results.pl</results-script>
     <import-script update-name="import">imdb_import.pl</import-script>
     <search-url>http://us.imdb.com/find?s=tt&amp;q={QUERY}</search-url>
+    <update-interval>daily</update-interval>
   </engine>
 </mpi-blue-engines>

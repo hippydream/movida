@@ -25,9 +25,11 @@
 #include "movieimport.h"
 #include "settings.h"
 #include "pathresolver.h"
+#include <QDateTime>
 #include <QFile>
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
+#include <math.h>
 
 using namespace Movida;
 
@@ -249,6 +251,10 @@ void MpiBlue::loadEnginesFromFile(const QString& path)
 			}
 			else if (!xmlStrcmp(engineNode->name, (const xmlChar*) "search-url"))
 				engine.searchUrl = QString((const char*)xmlNodeListGetString(doc, engineNode->xmlChildrenNode, 1)).trimmed();
+			else if (!xmlStrcmp(engineNode->name, (const xmlChar*) "update-interval")) {
+				QString mode = QString((const char*)xmlNodeListGetString(doc, engineNode->xmlChildrenNode, 1)).trimmed();
+				engine.updateInterval = MpiBlue::updateIntervalFromString(mode, &(engine.updateIntervalHours));
+			}
 
 			engineNode = engineNode->next;
 		}
@@ -307,4 +313,109 @@ bool MpiBlue::isValidEngine(const Engine& engine) const
 		return false;
 	
 	return true;
+}
+
+//! Parses an update interval as defined in an engines.xml file and possibly sets the hours value of a custom interval.
+MpiBlue::UpdateInterval MpiBlue::updateIntervalFromString(QString s, quint8* hours)
+{
+	s = s.trimmed().toLower();
+	if (s == "always")
+		return UpdateAlways;
+	else if (s == "once")
+		return UpdateOnce;
+	else if (s == "daily")
+		return UpdateDaily;
+	else if (s == "weekly")
+		return UpdateWeekly;
+	else {
+		QRegExp rx("(\\d*)h");
+		if (rx.exactMatch(s)) {
+			int n = rx.cap(1).toInt();
+			if (hours && n > 0) {
+				*hours = n;
+				return UpdateCustom;
+			}
+		}
+	}
+
+	return UpdateOnce;
+}
+
+//! Converts an update interval to a string to be used in an engines.xml file.
+QString MpiBlue::updateIntervalToString(UpdateInterval i, quint8 hours)
+{
+	switch (i) {
+	case UpdateAlways: return "always";
+	case UpdateOnce: return "once";
+	case UpdateDaily: return "daily";
+	case UpdateWeekly: return "weekly";
+	case UpdateCustom: return QString::number(hours).append("h");
+	default: ;
+	}
+
+	return QLatin1String("once");
+}
+
+//! Returns true if an engine can be updated and requires an update.
+bool MpiBlue::engineRequiresUpdate(const Engine& engine)
+{
+	if (!engine.updateUrl.startsWith("http://"))
+		return false;
+
+	switch (engine.updateInterval) {
+	case UpdateAlways:
+	case UpdateOnce:
+		iLog() << "MpiBlue:: Engine " << engine.name << " has update interval set to 'always' or 'once'. Update check required.";
+		return true;
+	case UpdateDaily:
+	{
+		QDateTime lastUpdateDt = QDateTime::fromString(Movida::settings().value(QString("plugins/blue/engines/%1/updated").arg(engine.name)).toString(), Qt::ISODate);
+		if (!lastUpdateDt.isValid()) {
+			iLog() << "MpiBlue:: Engine " << engine.name << " has daily update interval but no previous update. Update check required.";
+			return true;
+		}
+
+		iLog() << "MpiBlue:: Engine " << engine.name << " has daily update interval and a previous update. Checking if an update is necessary.";
+
+		QDate today = QDate::currentDate();
+		QDate lastUpdate = lastUpdateDt.date();
+
+		return today != lastUpdate;
+	}
+	case UpdateWeekly:
+	{
+		QDateTime lastUpdateDt = QDateTime::fromString(Movida::settings().value(QString("plugins/blue/engines/%1/updated").arg(engine.name)).toString(), Qt::ISODate);
+		if (!lastUpdateDt.isValid()) {
+			iLog() << "MpiBlue:: Engine " << engine.name << " has weekly update interval but no previous update. Update check required.";
+			return true;
+		}
+
+		iLog() << "MpiBlue:: Engine " << engine.name << " has weekly update interval and a previous update. Checking if an update is necessary.";
+
+		QDate today = QDate::currentDate();
+		QDate lastUpdate = lastUpdateDt.date();
+
+		return !(today.year() == lastUpdate.year() && today.month() == lastUpdate.month() && today.weekNumber() == lastUpdate.weekNumber());
+	}
+	case UpdateCustom:
+	{
+		QDateTime lastUpdate = QDateTime::fromString(Movida::settings().value(QString("plugins/blue/engines/%1/updated").arg(engine.name)).toString(), Qt::ISODate);
+		if (!lastUpdate.isValid()) {
+			iLog() << "MpiBlue:: Engine " << engine.name << " has custom update interval of " << engine.updateIntervalHours << "h but no previous update. Update check required.";
+			return true;
+		}
+
+		iLog() << "MpiBlue:: Engine " << engine.name << " has custom update interval of " << engine.updateIntervalHours << "h and a previous update. Checking if an update is necessary.";
+
+		QDateTime now = QDateTime::currentDateTime();
+
+		int secDelta = lastUpdate.secsTo(now);
+		int secDeltaH = floor((float)secDelta / 3600.0f);
+
+		return secDeltaH >= engine.updateIntervalHours;
+	}
+	default: ;
+	}
+
+	return false;
 }
