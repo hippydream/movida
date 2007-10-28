@@ -44,11 +44,28 @@
 		<results-script update-name="results">imdb_results.pl</results-script>
 
 		<!-- The results-script is the script used to parse an import page -->
-		<import-script update-name="import">imdb_import.pl<import-script>
+		<import-script update-name="import">imdb_import.pl</import-script>
 
 		<!-- Both file:// and http:// protocols are supported. Use "{QUERY}" as a place holder for the query string -->
 		<search-url>http://us.imdb.com/find?s=tt%26q={QUERY}</search-url>
 
+		<!--
+			The update-interval specifies how often the plugin should look for updated scripts.
+			Possible values are:
+				- always (at every new search request)
+				- once (every time movida is started, at the first search request)
+				- daily (no more than once a day)
+				- weekly (no more than once a week)
+				- Nh (no more than every N hours)
+						
+			The default value is "once".
+			
+			Please note that this value might be ignored, as scripts are never updated if they are
+			not used. In other words, only a search request can trigger a possible update, according
+			to the value of this property.
+		-->
+		<update-interval>daily</update-interval>
+		
 	</engine>
-	
+
 </mpi-blue-engines>

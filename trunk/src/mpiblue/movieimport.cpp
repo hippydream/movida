@@ -22,6 +22,7 @@
 #include "movieimport.h"
 #include "core.h"
 #include "logger.h"
+#include "settings.h"
 #include "searchengine.h"
 #include <QMessageBox>
 #include <QRegExp>
@@ -120,7 +121,7 @@ void MpiMovieImport::search(const QString& query, int engineId)
 
 			// We need to check for possible script updates and
 			// replace the script file names with absolute, clean and localized paths.
-			if (fi.isDir() && fi.isWritable() && engine->updateUrl.startsWith("http://"))
+			if (fi.isDir() && fi.isWritable() && MpiBlue::engineRequiresUpdate(*engine))
 			{
 				// Check for updates.
 				int rep = engine->updateUrl.indexOf("{SCRIPT}");
@@ -219,6 +220,8 @@ void MpiMovieImport::search(const QString& query, int engineId)
 				performSearch(query, engine, engineId);
 				return;
 			} else {
+				Movida::settings().setValue(QString("plugins/blue/engines/%1/updated").arg(engine->name),
+					QDateTime::currentDateTime().toString(Qt::ISODate));
 				mImportDialog->showMessage(tr("Results parsing script updated."));
 				iLog() << "MpiMovieImport: Results script file saved: " << path;
 			}
@@ -288,6 +291,8 @@ void MpiMovieImport::search(const QString& query, int engineId)
 				performSearch(query, engine, engineId);
 				return;
 			} else {
+				Movida::settings().setValue(QString("plugins/blue/engines/%1/updated").arg(engine->name),
+					QDateTime::currentDateTime().toString(Qt::ISODate));
 				mImportDialog->showMessage(tr("Import script updated."));
 				iLog() << "MpiMovieImport: Import script file saved: " << path;
 			}
@@ -297,7 +302,8 @@ void MpiMovieImport::search(const QString& query, int engineId)
 
 		mCurrentState = FetchingResultsState;
 
-		engine->scriptsFetched = true;
+		if (engine->updateInterval != MpiBlue::UpdateAlways)
+			engine->scriptsFetched = true;
 		setScriptPaths(engine);
 		performSearch(query, engine, engineId);
 	}

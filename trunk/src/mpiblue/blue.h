@@ -30,10 +30,29 @@ class MpiBlue : public MvdPluginInterface
 	Q_OBJECT
 
 public:
+	enum UpdateInterval {
+		UpdateAlways,
+		UpdateOnce,
+		UpdateDaily,
+		UpdateWeekly,
+		UpdateCustom
+	};
+
 	struct Engine
 	{
-		inline Engine() : scriptsFetched(false) {}
-		inline Engine(const QString& n) : name(n), scriptsFetched(false) {}
+		inline Engine() : 
+			scriptsFetched(false), 
+			updateInterval(UpdateOnce), 
+			updateIntervalHours(0)
+		{}
+
+		inline Engine(const QString& n) : 
+			name(n), 
+			scriptsFetched(false), 
+			updateInterval(UpdateOnce), 
+			updateIntervalHours(0)
+		{}
+
 		inline Engine(const Engine& o)
 		{
 			name = o.name;
@@ -46,6 +65,8 @@ public:
 			importUrl = o.importUrl;
 			searchUrl = o.searchUrl;
 			scriptsFetched = o.scriptsFetched;
+			updateInterval = o.updateInterval;
+			updateIntervalHours = o.updateIntervalHours;
 		}
 
 		inline bool operator<(const Engine& o) const
@@ -68,6 +89,9 @@ public:
 		QString searchUrl;
 
 		bool scriptsFetched;
+
+		UpdateInterval updateInterval;
+		quint8 updateIntervalHours;
 	};
 
 	MpiBlue(QObject* parent = 0);
@@ -80,6 +104,11 @@ public:
 	PluginInfo info() const;
 	QList<PluginAction> actions() const;
 	void actionTriggeredImplementation(const QString& name);
+
+	static UpdateInterval updateIntervalFromString(QString s, quint8* hours);
+	static QString updateIntervalToString(UpdateInterval i, quint8 hours);
+
+	static bool engineRequiresUpdate(const Engine& engine);
 
 private:
 	void loadEngines(bool loadBundled = true);
