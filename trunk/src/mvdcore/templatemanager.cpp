@@ -186,7 +186,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 			mvdid id = idList.at(i);
 			const MvdSdItem& sd = collection.smd().item(id);
 			if (!sd.value.isEmpty())
-				xml.append(QString("\t\t<item>%1</item>\n").arg(sd.value));
+				xml.append(QString("\t\t<language>%1</language>\n").arg(sd.value));
 		}
 		xml.append("\t</languages>\n");
 	}
@@ -200,7 +200,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 			mvdid id = idList.at(i);
 			const MvdSdItem& sd = collection.smd().item(id);
 			if (!sd.value.isEmpty())
-				xml.append(QString("\t\t<item>%1</item>\n").arg(sd.value));
+				xml.append(QString("\t\t<country>%1</country>\n").arg(sd.value));
 		}
 		xml.append("\t</countries>\n");
 	}
@@ -214,7 +214,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 			mvdid id = idList.at(i);
 			const MvdSdItem& sd = collection.smd().item(id);
 			if (!sd.value.isEmpty())
-				xml.append(QString("\t\t<item>%1</item>\n").arg(sd.value));
+				xml.append(QString("\t\t<tag>%1</tag>\n").arg(sd.value));
 		}
 		xml.append("\t</tags>\n");
 	}
@@ -228,7 +228,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 			mvdid id = idList.at(i);
 			const MvdSdItem& sd = collection.smd().item(id);
 			if (!sd.value.isEmpty())
-				xml.append(QString("\t\t<item>%1</item>\n").arg(sd.value));
+				xml.append(QString("\t\t<genre>%1</genre>\n").arg(sd.value));
 		}
 		xml.append("\t</genres>\n");
 	}
@@ -243,8 +243,10 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 			const MvdSdItem& sd = collection.smd().item(id);
 			if (!sd.value.isEmpty())
 			{
-				xml.append(QString("\t\t<name>%1</name>\n").arg(sd.value));
-				xml.append(QString("\t\t<imdb-id>%1</imdb-id>\n").arg(sd.id));
+				xml.append(QString("\t\t<person>\n").arg(sd.value));
+				xml.append(QString("\t\t\t<name>%1</name>\n").arg(sd.value));
+				xml.append(QString("\t\t\t<imdb-id>%1</imdb-id>\n").arg(sd.id));
+				xml.append(QString("\t\t</person>\n").arg(sd.value));
 			}
 		}
 		xml.append("\t</directors>\n");
@@ -260,8 +262,10 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 			const MvdSdItem& sd = collection.smd().item(id);
 			if (!sd.value.isEmpty())
 			{
-				xml.append(QString("\t\t<name>%1</name>\n").arg(sd.value));
-				xml.append(QString("\t\t<imdb-id>%1</imdb-id>\n").arg(sd.id));
+				xml.append(QString("\t\t<person>\n").arg(sd.value));
+				xml.append(QString("\t\t\t<name>%1</name>\n").arg(sd.value));
+				xml.append(QString("\t\t\t<imdb-id>%1</imdb-id>\n").arg(sd.id));
+				xml.append(QString("\t\t</person>\n").arg(sd.value));
 			}
 		}
 		xml.append("\t</producers>\n");
@@ -279,16 +283,18 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 			const MvdSdItem& sd = collection.smd().item(id);
 			if (!sd.value.isEmpty())
 			{
-				xml.append(QString("\t\t<name>%1</name>\n").arg(sd.value));
-				xml.append(QString("\t\t<imdb-id>%1</imdb-id>\n").arg(sd.id));
+				xml.append(QString("\t\t<person>\n").arg(sd.value));
+				xml.append(QString("\t\t\t<name>%1</name>\n").arg(sd.value));
+				xml.append(QString("\t\t\t<imdb-id>%1</imdb-id>\n").arg(sd.id));
 				if (!roles.isEmpty())
 				{
 					xml.append("\t\t\t<roles>\n");
 					for (int i = 0; i < roles.size(); ++i)
 						if (!roles.at(i).isEmpty())
-							xml.append(QString("\t\t\t\t<item>%1</item>\n").arg(roles.at(i)));
+							xml.append(QString("\t\t\t\t<role>%1</role>\n").arg(roles.at(i)));
 					xml.append("\t\t\t</roles>\n");
 				}
+				xml.append(QString("\t\t</person>\n").arg(sd.value));
 			}
 		}
 		xml.append("\t</cast>\n");
@@ -306,16 +312,18 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 			const MvdSdItem& sd = collection.smd().item(id);
 			if (!sd.value.isEmpty())
 			{
-				xml.append(QString("\t\t<name>%1</name>\n").arg(sd.value));
-				xml.append(QString("\t\t<imdb-id>%1</imdb-id>\n").arg(sd.id));
+				xml.append(QString("\t\t<person>\n").arg(sd.value));
+				xml.append(QString("\t\t\t<name>%1</name>\n").arg(sd.value));
+				xml.append(QString("\t\t\t<imdb-id>%1</imdb-id>\n").arg(sd.id));
 				if (!roles.isEmpty())
 				{
 					xml.append("\t\t\t<roles>\n");
 					for (int i = 0; i < roles.size(); ++i)
 						if (!roles.at(i).isEmpty())
-							xml.append(QString("\t\t\t\t<item>%1</item>\n").arg(roles.at(i)));
+							xml.append(QString("\t\t\t\t<role>%1</role>\n").arg(roles.at(i)));
 					xml.append("\t\t\t</roles>\n");
 				}
+				xml.append(QString("\t\t</person>\n").arg(sd.value));
 			}
 		}
 		xml.append("\t</crew>\n");
@@ -330,9 +338,9 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 			MvdUrl url = urlList.at(i);
 
 			xml.append("\t\t<url>\n");
-			xml.append(QString("\t\t\t<url>%1</url>\n").arg(url.url));
-				if (!url.description.isEmpty())
-					xml.append(QString("\t\t\t<description>%1</description>\n").arg(url.description));
+			if (url.description.isEmpty())
+				xml.append(QString("\t\t\t<url>%1</url>\n").arg(url.url));
+			else xml.append(QString("\t\t\t<url description=\"%1\">%2</url>\n").arg(url.description).arg(url.url));
 			xml.append("\t\t</url>\n");
 		}
 		xml.append("\t</urls>\n");
