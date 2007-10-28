@@ -559,8 +559,7 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 	}
 
 	int status = mHttpHandler->lastResponse().statusCode();
-	if (status == HttpNotModified)
-		mHttpNotModified = true;
+	mHttpNotModified = status == HttpNotModified;
 
 	// Host lookup or some side request.
 	if (id != mRequestId) {
