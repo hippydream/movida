@@ -101,7 +101,12 @@ void MvdActionLabel_P::layoutAdvancedControls()
 MvdActionLabel::MvdActionLabel(QWidget* parent)
 : QLabel(parent), d(new MvdActionLabel_P(this))
 {
+	// This seems to fix a rendering bug where part of the focus rectangle will not be visible
+	// (at least on Qt 4.3.2 and Windows XP style)
+	setStyleSheet("padding-left:2px;padding-right:2px;");
+
 	setContextMenuPolicy(Qt::NoContextMenu);
+	setTextInteractionFlags(textInteractionFlags() | Qt::LinksAccessibleByKeyboard);
 	connect(this, SIGNAL(linkActivated(QString)), d, SLOT(linkActivated(QString)));
 }
 
