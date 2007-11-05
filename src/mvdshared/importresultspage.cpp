@@ -92,8 +92,8 @@ MvdImportResultsPage::MvdImportResultsPage(QWidget* parent)
 		this, SLOT(resultsCheckStateChanged()) );
 
 	// Register fields
-	registerField("resultsCount", this, "resultsCount", "resultsCountChanged");
-	registerField("selectedResultsCount", this, "selectedResultsCount", "selectedResultsCountChanged");
+	registerField("resultsCount", this, "resultsCount", SIGNAL("resultsCountChanged()"));
+	registerField("selectedResultsCount", this, "selectedResultsCount", SIGNAL("selectedResultsCountChanged()"));
 }
 
 //! Returns the current number of found results.

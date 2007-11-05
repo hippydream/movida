@@ -23,8 +23,10 @@
 #define MVD_IMPORTFINAL_H
 
 #include "importpage.h"
+#include "ui_importfinalpage.h"
 
 class QLabel;
+class QRadioButton;
 
 class MvdImportFinalPage : public MvdImportPage
 {
@@ -39,9 +41,16 @@ public:
 	void cleanupPage();
 	void setBusyStatus(bool busy);
 
+	virtual bool validatePage();
+
+private slots:
+	void restartWizardToggled();
+
 private:
+	Ui::MvdImportFinalPage ui;
+
 	bool locked;
-	QLabel* messageLabel;
+	QString finishButtonText;
 
 	void setLock(bool lock);
 };
