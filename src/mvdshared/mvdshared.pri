@@ -7,6 +7,7 @@ HEADERS += \
 	importpage.h \
 	importresultspage.h \
 	importstartpage.h \
+	importsummarypage.h \
 	labelanimator.h \
 	queryvalidator.h \
 	richtexteditor.h \
@@ -21,10 +22,11 @@ SOURCES += \
 	importfinalpage.cpp \
 	importresultspage.cpp \
 	importstartpage.cpp \
+	importsummarypage.cpp \
 	richtexteditor.cpp
 
 RESOURCES += \
 	mvdshared.qrc
 	
 FORMS += \
-	ui/importfinalpage.ui
+	ui/importsummarypage.ui

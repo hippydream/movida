@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="mvdshared"
-	ProjectGUID="{5D282ECF-AC03-3A4A-8873-404AD04EA2C3}"
+	ProjectGUID="{237C256A-64FA-3EFA-8B34-E9B7BA3644A0}"
 	Keyword="Qt4VSv1.0"
 	>
 	<Platforms>
@@ -235,6 +235,10 @@
 				>
 			</File>
 			<File
+				RelativePath="importsummarypage.cpp"
+				>
+			</File>
+			<File
 				RelativePath="richtexteditor.cpp"
 				>
 			</File>
@@ -453,6 +457,32 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="importsummarypage.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="MOC importsummarypage.h"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_SHARED_DLL -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;.&quot; -I&quot;.\..\mvdcore&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\moc&quot; -I&quot;.\..\..\tmp\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;importsummarypage.h&quot; -o &quot;..\..\tmp\moc\moc_importsummarypage.cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;importsummarypage.h"
+						Outputs="..\..\tmp\moc\moc_importsummarypage.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="MOC importsummarypage.h"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_SHARED_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;.&quot; -I&quot;.\..\mvdcore&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\moc&quot; -I&quot;.\..\..\tmp\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;importsummarypage.h&quot; -o &quot;..\..\tmp\moc\moc_importsummarypage.cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;importsummarypage.h"
+						Outputs="..\..\tmp\moc\moc_importsummarypage.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="labelanimator.h"
 				>
 				<FileConfiguration
@@ -581,6 +611,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\tmp\moc\moc_importsummarypage.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tmp\moc\moc_labelanimator.cpp"
 				>
 			</File>
@@ -597,7 +631,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\tmp\ui\ui_importfinalpage.h"
+				RelativePath="..\..\tmp\ui\ui_importsummarypage.h"
 				>
 			</File>
 		</Filter>
@@ -608,17 +642,17 @@
 			ParseFiles="false"
 			>
 			<File
-				RelativePath="ui\importfinalpage.ui"
+				RelativePath="ui\importsummarypage.ui"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="UIC ui\importfinalpage.ui"
-						CommandLine="$(QTDIR)\bin\uic.exe ui\importfinalpage.ui -o ..\..\tmp\ui\ui_importfinalpage.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;ui\importfinalpage.ui"
-						Outputs="..\..\tmp\ui\ui_importfinalpage.h"
+						Description="UIC ui\importsummarypage.ui"
+						CommandLine="$(QTDIR)\bin\uic.exe ui\importsummarypage.ui -o ..\..\tmp\ui\ui_importsummarypage.h&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;actionlabel.h;ui\importsummarypage.ui"
+						Outputs="..\..\tmp\ui\ui_importsummarypage.h"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -626,10 +660,10 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="UIC ui\importfinalpage.ui"
-						CommandLine="$(QTDIR)\bin\uic.exe ui\importfinalpage.ui -o ..\..\tmp\ui\ui_importfinalpage.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;ui\importfinalpage.ui"
-						Outputs="..\..\tmp\ui\ui_importfinalpage.h"
+						Description="UIC ui\importsummarypage.ui"
+						CommandLine="$(QTDIR)\bin\uic.exe ui\importsummarypage.ui -o ..\..\tmp\ui\ui_importsummarypage.h&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;actionlabel.h;ui\importsummarypage.ui"
+						Outputs="..\..\tmp\ui\ui_importsummarypage.h"
 					/>
 				</FileConfiguration>
 			</File>
@@ -670,7 +704,7 @@
 						Name="VCCustomBuildTool"
 						Description="RCC mvdshared.qrc"
 						CommandLine="$(QTDIR)\bin\rcc.exe -name mvdshared mvdshared.qrc -o ..\..\tmp\rcc\qrc_mvdshared.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;mvdshared.qrc"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\import\background.png;images\import\banner.png;images\import\logo.png;images\import\watermark.png;images\misc\bold.png;images\misc\italic.png;images\misc\underline.png;mvdshared.qrc"
 						Outputs="..\..\tmp\rcc\qrc_mvdshared.cpp"
 					/>
 				</FileConfiguration>
@@ -681,7 +715,7 @@
 						Name="VCCustomBuildTool"
 						Description="RCC mvdshared.qrc"
 						CommandLine="$(QTDIR)\bin\rcc.exe -name mvdshared mvdshared.qrc -o ..\..\tmp\rcc\qrc_mvdshared.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;mvdshared.qrc"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\import\background.png;images\import\banner.png;images\import\logo.png;images\import\watermark.png;images\misc\bold.png;images\misc\italic.png;images\misc\underline.png;mvdshared.qrc"
 						Outputs="..\..\tmp\rcc\qrc_mvdshared.cpp"
 					/>
 				</FileConfiguration>

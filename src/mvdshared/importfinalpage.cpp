@@ -38,17 +38,10 @@ using namespace Movida;
 */
 
 MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
-: MvdImportPage(parent), locked(false), previousVisibleJob(-1), currentVisibleJob(-1)
+: MvdImportPage(parent), locked(false)
 {
 	setTitle(tr("Import finished"));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
-
-	ui.setupUi(this);
-	
-	previousResultId = ui.previousResult->addControl(tr("Previous movie"), false);
-	connect(ui.previousResult, SIGNAL(controlTriggered(int)), this, SLOT(previewPreviousJob()));
-	nextResultId = ui.nextResult->addControl(tr("Next movie"), false);
-	connect(ui.nextResult, SIGNAL(controlTriggered(int)), this, SLOT(previewNextJob()));
 }
 
 
@@ -61,13 +54,6 @@ void MvdImportFinalPage::setBusyStatus(bool busy)
 	MvdImportPage::setBusyStatus(busy);
 }
 
-//! Adds a movie data object to the import list.
-void MvdImportFinalPage::addMovieData(const MvdMovieData& md)
-{
-	iLog() << "MvdImportFinalPage: Movie data added: " << (md.title.isEmpty() ? md.originalTitle : md.title);
-	jobs.append(ImportJob(md));
-}
-
 //! Locks or unlocks (part of) the GUI.
 void MvdImportFinalPage::setLock(bool lock)
 {
@@ -75,25 +61,15 @@ void MvdImportFinalPage::setLock(bool lock)
 		return;
 	locked = lock;
 	if (!locked) {
-		if (jobs.isEmpty()) {
-			showMessage(tr("No movies have been imported.\nPlease press the Back button to repeat the search."),
-				MvdImportDialog::InfoMessage);
-			return;
-		}
-		iLog() << "MvdImportFinalPage: Movie data downloaded. Preparing import previews.";
-		ui.stack->setCurrentIndex(1);
-		previousVisibleJob = -1;
-		currentVisibleJob = 0;
-		visibleJobChanged();
+		
 	}
 }
 
 //! Override.
 void MvdImportFinalPage::showMessage(const QString& msg, MvdImportDialog::MessageType t)
 {
+	Q_UNUSED(msg);
 	Q_UNUSED(t);
-	ui.stack->setCurrentIndex(0);
-	ui.noResultsLabel->setText(msg);
 }
 
 void MvdImportFinalPage::initializePage()
@@ -102,51 +78,11 @@ void MvdImportFinalPage::initializePage()
 	setBusyStatus(true);
 	setLock(true);
 
-	showMessage(tr("Downloading movie data."), 
+	showMessage(tr("Import completed with success."), 
 		MvdImportDialog::InfoMessage);
 }
 
 void MvdImportFinalPage::cleanupPage()
 {
 	//setBusyStatus(false);
-}
-
-//! Updates the job preview area with the current job.
-void MvdImportFinalPage::visibleJobChanged()
-{
-	Q_ASSERT(currentVisibleJob >= 0 && currentVisibleJob < jobs.size());
-
-	// Store current status (if any)
-	if (previousVisibleJob >= 0) {
-		ImportJob& job = jobs[previousVisibleJob];
-		job.import = ui.importMovie->isChecked();
-	}
-
-	const ImportJob& job = jobs.at(currentVisibleJob);
-	ui.importMovie->setChecked(job.import);
-
-	const MvdMovieData& d = job.data;
-	ui.jobPreview->setHtml(Movida::tmanager().movieDataToHtml(d));
-
-	ui.nextResult->setControlEnabled(nextResultId, currentVisibleJob < jobs.size() - 1);
-	ui.previousResult->setControlEnabled(previousResultId, currentVisibleJob > 0);
-	
-	ui.currentResultLabel->setText(tr("Showing movie %1 out of %2.").arg(currentVisibleJob + 1).arg(jobs.size())
-			.prepend("<b>").append("</b>"));
-}
-
-//! Shows the previous import job in the preview area.
-void MvdImportFinalPage::previewPreviousJob()
-{
-	previousVisibleJob = currentVisibleJob;
-	--currentVisibleJob;
-	visibleJobChanged();
-}
-
-//! Shows the next import job in the preview area.
-void MvdImportFinalPage::previewNextJob()
-{
-	previousVisibleJob = currentVisibleJob;
-	++currentVisibleJob;
-	visibleJobChanged();
 }

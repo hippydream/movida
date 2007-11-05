@@ -31,6 +31,8 @@ class QTreeWidgetItem;
 class MvdImportResultsPage : public MvdImportPage
 {
 	Q_OBJECT
+	Q_PROPERTY(int resultsCount READ resultsCount)
+	Q_PROPERTY(int selectedResultsCount READ selectedResultsCount)
 
 public:
 	enum ItemType { StandardItem, SectionItem };
@@ -44,11 +46,17 @@ public:
 	void initializePage();
 	void cleanupPage();
 
-	int countMatches() const;
 	QList<int> jobs() const;
 
 	void showMessage(const QString& msg, MvdImportDialog::MessageType t);
 	void setBusyStatus(bool busy);
+
+	int resultsCount() const;
+	int selectedResultsCount() const;
+
+signals:
+	void resultsCountChanged(int count = 0);
+	void selectedResultsCountChanged(int count = 0);
 
 private slots:
 	void resultsSelectionChanged();
@@ -59,8 +67,10 @@ private:
 	QTreeWidget* results;
 	QLabel* infoLabel;
 	int matchId;
+	int lastSelectedMatches;
 	bool locked;
 
+	int countMatches(int* selected = 0) const;
 	int countSections(const QTreeWidgetItem* section = 0) const;
 	void setLock(bool lock);
 };

@@ -22,12 +22,14 @@
 #include "importstartpage.h"
 #include "queryvalidator.h"
 #include "settings.h"
+#include "actionlabel.h"
 #include <QLabel>
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QCompleter>
+#include <QMessageBox>
 
 /*!
 	\class MvdImportStartPage importstartpage.h
@@ -77,13 +79,13 @@ MvdImportStartPage::MvdImportStartPage(QWidget* parent)
 
 	gridLayout->addItem(new QSpacerItem(20, 60, QSizePolicy::Minimum, QSizePolicy::Expanding), 3, 0, 1, 1);
 
-	configButton = new QPushButton(this);
-	configButton->setText(tr("&Options"));
-	configButton->setDisabled(true);
-	connect( configButton, SIGNAL(clicked()), this, SLOT(configButtonTriggered()) );
+	controls = new MvdActionLabel(this);
+	configureEngineId = controls->addControl(tr("Configure engine"), false);
+	configurePluginId = controls->addControl(tr("Configure plugin"), true);
+	connect( controls, SIGNAL(controlTriggered(int)), this, SLOT(controlTriggered(int)) );
 
 	gridLayout->addItem(new QSpacerItem(60, 20, QSizePolicy::Expanding, QSizePolicy::Minimum), 4, 0, 1, 1);
-	gridLayout->addWidget(configButton, 4, 1, 1, 1);
+	gridLayout->addWidget(controls, 4, 1, 1, 1);
 
 	if (Movida::settings().value("movida/use-history").toBool()) {
 	
@@ -127,13 +129,17 @@ void MvdImportStartPage::engineChanged()
 	QRegExp rx(e.validator);
 	queryInput->setValidator(new MvdQueryValidator(this));
 
-	configButton->setEnabled(e.canConfigure);
+	controls->setControlEnabled(configureEngineId, e.canConfigure);
 }
 
 //! \internal
-void MvdImportStartPage::configButtonTriggered()
+void MvdImportStartPage::controlTriggered(int id)
 {
-	emit engineConfigurationRequest(engineCombo->currentIndex());
+	if (id == configureEngineId) {
+		emit engineConfigurationRequest(engineCombo->currentIndex());
+	} else if (id == configurePluginId) {
+		QMessageBox::information(this, "Movida blue plugin", "Sorry, this feature has not been implemented yet.");
+	}
 }
 
 //! Returns the ID of the currently selected search engine.

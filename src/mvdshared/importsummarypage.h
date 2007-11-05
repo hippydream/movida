@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: importstartpage.h
+** Filename: importsummarypage.h
 ** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
@@ -19,48 +19,56 @@
 **
 **************************************************************************/
 
-#ifndef MVD_IMPORTSTARTPAGE_H
-#define MVD_IMPORTSTARTPAGE_H
+#ifndef MVD_IMPORTSUMMARY_H
+#define MVD_IMPORTSUMMARY_H
 
+#include "ui_importsummarypage.h"
 #include "importpage.h"
-#include "searchengine.h"
 
-class MvdActionLabel;
-class QLabel;
-class QComboBox;
-class QLineEdit;
-class QPushButton;
+class QTemporaryFile;
 
-class MvdImportStartPage : public MvdImportPage
+class MvdImportSummaryPage : public MvdImportPage
 {
 	Q_OBJECT
 
 public:
-	MvdImportStartPage(QWidget* parent = 0);
+	MvdImportSummaryPage(QWidget* parent = 0);
 
-	int registerEngine(const MvdSearchEngine& engine);
+	void showMessage(const QString& msg, MvdImportDialog::MessageType t);
 
-	int engine() const;
-	QString query() const;
+	void initializePage();
+	void cleanupPage();
+	void setBusyStatus(bool busy);
 
-	void updateCompleter(const QStringList& history);
+	void addMovieData(const MvdMovieData& md);
 
 signals:
-	void engineConfigurationRequest(int engine);
+	void importRequest(const QList<int>&);
 
 private slots:
-	void engineChanged();
-	void controlTriggered(int);
+	void visibleJobChanged();
+	void previewPreviousJob();
+	void previewNextJob();
 
 private:
-	QList<MvdSearchEngine> engines;
+	struct ImportJob {
+		inline ImportJob() : import(true) {}
+		inline ImportJob(const MvdMovieData& md) : data(md), import(true) {}
 
-	QLabel* infoLabel;
-	QComboBox* engineCombo;
-	QLineEdit* queryInput;
-	MvdActionLabel* controls;
-	int configureEngineId;
-	int configurePluginId;
+		MvdMovieData data;
+		bool import;
+	};
+
+	Ui::MvdImportSummaryPage ui;
+	bool locked;
+
+	void setLock(bool lock);
+
+	QList<ImportJob> jobs;
+	int previousVisibleJob;
+	int currentVisibleJob;
+	int previousResultId;
+	int nextResultId;
 };
 
-#endif // MVD_IMPORTSTARTPAGE_H
+#endif // MVD_IMPORTSUMMARY_H

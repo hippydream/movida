@@ -23,6 +23,7 @@
 #include "labelanimator.h"
 #include "importstartpage.h"
 #include "importresultspage.h"
+#include "importsummarypage.h"
 #include "importfinalpage.h"
 #include "settings.h"
 #include <QPushButton>
@@ -39,10 +40,12 @@
 class MvdImportDialog_P
 {
 public:
+	enum { StartPage, ResultsPage, SummaryPage, FinalPage };
+
 	MvdImportStartPage* startPage;
 	MvdImportResultsPage* resultsPage;
+	MvdImportSummaryPage* summaryPage;
 	MvdImportFinalPage* finalPage;
-	int startPageId, resultsPageId, finalPageId;
 };
 
 
@@ -65,21 +68,46 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 {
 	//! \todo Check for supported engine URLs and handle file:// protocol with a QFileBrowser and a query-like filter instead of a standard query input widget
 
+	// Add pages
+
 	d->startPage = new MvdImportStartPage;
-	d->startPageId = addPage(d->startPage);
+	setPage(MvdImportDialog_P::StartPage, d->startPage);
+	d->resultsPage = new MvdImportResultsPage;
+	setPage(MvdImportDialog_P::ResultsPage, d->resultsPage);
+	d->summaryPage = new MvdImportSummaryPage;
+	setPage(MvdImportDialog_P::SummaryPage, d->summaryPage);
+	d->finalPage = new MvdImportFinalPage;
+	setPage(MvdImportDialog_P::FinalPage, d->finalPage);
+
+	setStartId(MvdImportDialog_P::StartPage);
+
 	connect( d->startPage, SIGNAL(engineConfigurationRequest(int)), 
 		this, SIGNAL(engineConfigurationRequest(int)) );
 	connect( this, SIGNAL(currentIdChanged(int)),
 		this, SLOT(pageChanged(int)) );
 
-	d->resultsPage = new MvdImportResultsPage;
-	d->resultsPageId = addPage(d->resultsPage);
-	d->finalPage = new MvdImportFinalPage;
-	d->finalPageId = addPage(d->finalPage);
-
 	setPixmap(QWizard::LogoPixmap, QPixmap(":/images/import/logo.png"));
 	setPixmap(QWizard::BannerPixmap, QPixmap(":/images/import/banner.png"));
 	setWindowTitle(tr("Movida import wizard"));
+}
+
+//! Handles the page order.
+int MvdImportDialog::nextId() const
+{
+	switch (currentId()) {
+	case MvdImportDialog_P::StartPage:
+		return MvdImportDialog_P::ResultsPage;
+	case MvdImportDialog_P::ResultsPage:
+		if (field("selectedResultsCount").toInt() == 0)
+			return MvdImportDialog_P::FinalPage;
+		return MvdImportDialog_P::SummaryPage;
+	case MvdImportDialog_P::SummaryPage:
+		return MvdImportDialog_P::FinalPage;
+	default:
+		return -1;
+	}
+
+	return -1;
 }
 
 /*!
@@ -135,7 +163,7 @@ int MvdImportDialog::addMatch(const QString& title, const QString& year, const Q
 */
 void MvdImportDialog::addMovieData(const MvdMovieData& md)
 {
-	d->finalPage->addMovieData(md);
+	d->summaryPage->addMovieData(md);
 }
 
 /*!
@@ -164,9 +192,10 @@ void MvdImportDialog::accept()
 	QDialog::accept();
 }
 
+//! \p id is the new page to be showed.
 void MvdImportDialog::pageChanged(int id)
 {
-	if (id == d->resultsPageId && d->startPage) {
+	if (id == MvdImportDialog_P::ResultsPage && d->startPage) {
 		QString q = d->startPage->query();
 		if (Movida::settings().value("movida/use-history").toBool()) {
 		
@@ -177,7 +206,7 @@ void MvdImportDialog::pageChanged(int id)
 			d->startPage->updateCompleter(history);
 		}
 		emit searchRequest(q, d->startPage->engine());
-	} else if (id == d->finalPageId && d->resultsPage) {
+	} else if (id == MvdImportDialog_P::SummaryPage && d->summaryPage) {
 		emit importRequest(d->resultsPage->jobs());
 	}
 }
