@@ -25,8 +25,10 @@
 #include "core.h"
 #include "actionlabel.h"
 #include "templatemanager.h"
+#include "settings.h"
 #include "logger.h"
 #include <QLabel>
+#include <QRadioButton>
 #include <QGridLayout>
 
 using namespace Movida;
@@ -44,13 +46,12 @@ MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
 	setTitle(tr("We are all done!"));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
 
-	QGridLayout* gridLayout = new QGridLayout(this);
+	ui.setupUi(this);
 
-	messageLabel = new QLabel;
-	messageLabel->setWordWrap(true);
-	gridLayout->addWidget(messageLabel, 0, 0);
+	ui.filterMovies->setChecked(settings().value("movida/import-wizard/auto-create-filter", true).toBool());
+
+	connect(ui.restartWizard, SIGNAL(toggled(bool)), this, SLOT(restartWizardToggled()));
 }
-
 
 //! Override. Unlocks the UI if it was locked.
 void MvdImportFinalPage::setBusyStatus(bool busy)
@@ -77,7 +78,7 @@ void MvdImportFinalPage::showMessage(const QString& msg, MvdImportDialog::Messag
 {
 	Q_UNUSED(t);
 
-	messageLabel->setText(msg);
+	ui.messageLabel->setText(msg);
 }
 
 void MvdImportFinalPage::initializePage()
@@ -85,7 +86,9 @@ void MvdImportFinalPage::initializePage()
 	int totalMatches = field("resultsCount").toInt();
 	int selectedMatches = field("selectedResultsCount").toInt();
 	int importedMovies =  field("importedMoviesCount").toInt();
+
 	QString msg;
+	bool hasSomeImport = importedMovies > 0;
 
 	// wizard()->hasVisitedPage(MvdImportDialog_P::ResultsPage)
 	if (totalMatches == 0) {
@@ -97,9 +100,39 @@ void MvdImportFinalPage::initializePage()
 	}
 
 	showMessage(msg, MvdImportDialog::InfoMessage);
+	ui.filterMovies->setEnabled(hasSomeImport);
 }
 
 void MvdImportFinalPage::cleanupPage()
 {
 	//setBusyStatus(false);
+}
+
+//! Toggles the finish/new_search button.
+void MvdImportFinalPage::restartWizardToggled()
+{
+	if (finishButtonText.isEmpty())
+		finishButtonText = wizard()->buttonText(QWizard::FinishButton);
+
+	wizard()->setButtonText(QWizard::FinishButton, ui.restartWizard->isChecked() ? tr("&New search") : finishButtonText);
+
+	int importedMovies =  field("importedMoviesCount").toInt();
+	bool hasSomeImports = importedMovies > 0;
+
+	ui.filterMovies->setEnabled(hasSomeImports && ui.closeWizard->isChecked());
+}
+
+/*! Returns false and calls QWizard::restart() if a new search is to be performed. Returns true, causing the wizard to
+	close (as this is supposed to be the last page) otherwise.
+*/
+bool MvdImportFinalPage::validatePage()
+{
+	if (ui.restartWizard->isChecked()) {
+		Q_ASSERT(QMetaObject::invokeMethod(wizard(), "restart", Qt::QueuedConnection));
+		return false;
+	}
+
+	settings().setValue("movida/import-wizard/auto-create-filter", ui.filterMovies->isChecked());
+
+	return true;
 }

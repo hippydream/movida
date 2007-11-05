@@ -30,4 +30,5 @@ RESOURCES += \
 	mvdshared.qrc
 	
 FORMS += \
+	ui/importfinalpage.ui \
 	ui/importsummarypage.ui
