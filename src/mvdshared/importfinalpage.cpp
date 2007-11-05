@@ -21,6 +21,7 @@
 
 #include "importfinalpage.h"
 #include "importdialog.h"
+#include "importdialog_p.h"
 #include "core.h"
 #include "actionlabel.h"
 #include "templatemanager.h"
@@ -40,8 +41,14 @@ using namespace Movida;
 MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
 : MvdImportPage(parent), locked(false)
 {
-	setTitle(tr("Import finished"));
+	setTitle(tr("We are all done!"));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
+
+	QGridLayout* gridLayout = new QGridLayout(this);
+
+	messageLabel = new QLabel;
+	messageLabel->setWordWrap(true);
+	gridLayout->addWidget(messageLabel, 0, 0);
 }
 
 
@@ -68,18 +75,28 @@ void MvdImportFinalPage::setLock(bool lock)
 //! Override.
 void MvdImportFinalPage::showMessage(const QString& msg, MvdImportDialog::MessageType t)
 {
-	Q_UNUSED(msg);
 	Q_UNUSED(t);
+
+	messageLabel->setText(msg);
 }
 
 void MvdImportFinalPage::initializePage()
 {
-	// Wait until the search is done.
-	setBusyStatus(true);
-	setLock(true);
+	int totalMatches = field("resultsCount").toInt();
+	int selectedMatches = field("selectedResultsCount").toInt();
+	int importedMovies =  field("importedMoviesCount").toInt();
+	QString msg;
 
-	showMessage(tr("Import completed with success."), 
-		MvdImportDialog::InfoMessage);
+	// wizard()->hasVisitedPage(MvdImportDialog_P::ResultsPage)
+	if (totalMatches == 0) {
+		msg = tr("No movie has been found matching your search criteria.\n\nPlease try to check your spelling, use a different engine or use different key words.");
+	} else if (selectedMatches == 0 || importedMovies == 0) {
+		msg = tr("No movie has been selected for import.\n\nYou can use the wizard for a different search or just continue having fun with movida.");
+	} else {
+		msg = tr("%1 movie(s) have been imported with success.", "Number of actually imported movies", importedMovies).arg(importedMovies);
+	}
+
+	showMessage(msg, MvdImportDialog::InfoMessage);
 }
 
 void MvdImportFinalPage::cleanupPage()

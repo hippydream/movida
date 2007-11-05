@@ -20,11 +20,8 @@
 **************************************************************************/
 
 #include "importdialog.h"
+#include "importdialog_p.h"
 #include "labelanimator.h"
-#include "importstartpage.h"
-#include "importresultspage.h"
-#include "importsummarypage.h"
-#include "importfinalpage.h"
 #include "settings.h"
 #include <QPushButton>
 
@@ -34,19 +31,6 @@
 
 	\brief Wizard dialog to import movies from a local or remote source.
 */
-
-
-//! \internal
-class MvdImportDialog_P
-{
-public:
-	enum { StartPage, ResultsPage, SummaryPage, FinalPage };
-
-	MvdImportStartPage* startPage;
-	MvdImportResultsPage* resultsPage;
-	MvdImportSummaryPage* summaryPage;
-	MvdImportFinalPage* finalPage;
-};
 
 
 /*!

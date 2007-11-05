@@ -55,7 +55,7 @@ MvdImportResultsPage::MvdImportResultsPage(QWidget* parent)
 : MvdImportPage(parent), matchId(0), lastSelectedMatches(0), locked(false)
 {
 	setTitle(tr("Search results"));
-	setSubTitle(tr("Please select the items you want to import."));
+	setSubTitle(tr("Please select the items you want to import.\nYou can confirm each single import after viewing all the movie details in the next page."));
 
 	QGridLayout* gridLayout = new QGridLayout(this);
 	

@@ -16,7 +16,7 @@
    <item row="0" column="0" >
     <widget class="QStackedWidget" name="stack" >
      <property name="currentIndex" >
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="noResultsPage" >
       <layout class="QGridLayout" >
@@ -107,6 +107,9 @@ p, li { white-space: pre-wrap; }
          <property name="text" >
           <string/>
          </property>
+         <property name="indent" >
+          <number>0</number>
+         </property>
         </widget>
        </item>
        <item row="4" column="1" >
@@ -129,6 +132,12 @@ p, li { white-space: pre-wrap; }
          </property>
          <property name="text" >
           <string/>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="indent" >
+          <number>0</number>
          </property>
         </widget>
        </item>
