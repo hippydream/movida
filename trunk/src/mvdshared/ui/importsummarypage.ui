@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>MvdImportFinalPage</class>
- <widget class="QWidget" name="MvdImportFinalPage" >
+ <class>MvdImportSummaryPage</class>
+ <widget class="QWidget" name="MvdImportSummaryPage" >
   <property name="geometry" >
    <rect>
     <x>0</x>

@@ -50,6 +50,8 @@ public:
 
 	MvdImportDialog(QWidget* parent = 0);
 
+	virtual int nextId() const;
+
 	int registerEngine(const MvdSearchEngine& engine);
 
 	void showMessage(const QString& msg, MessageType type = InfoMessage);
@@ -61,7 +63,6 @@ public:
 	void addSubSection(const QString& title, const QString& notes = QString());
 
 	void done();
-
 	void accept();
 
 signals:

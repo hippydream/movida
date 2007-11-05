@@ -22,7 +22,6 @@
 #ifndef MVD_IMPORTFINAL_H
 #define MVD_IMPORTFINAL_H
 
-#include "ui_importfinalpage.h"
 #include "importpage.h"
 
 class QTemporaryFile;
@@ -40,35 +39,10 @@ public:
 	void cleanupPage();
 	void setBusyStatus(bool busy);
 
-	void addMovieData(const MvdMovieData& md);
-
-signals:
-	void importRequest(const QList<int>&);
-
-private slots:
-	void visibleJobChanged();
-	void previewPreviousJob();
-	void previewNextJob();
-
 private:
-	struct ImportJob {
-		inline ImportJob() : import(true) {}
-		inline ImportJob(const MvdMovieData& md) : data(md), import(true) {}
-
-		MvdMovieData data;
-		bool import;
-	};
-
-	Ui::MvdImportFinalPage ui;
 	bool locked;
 
 	void setLock(bool lock);
-
-	QList<ImportJob> jobs;
-	int previousVisibleJob;
-	int currentVisibleJob;
-	int previousResultId;
-	int nextResultId;
 };
 
 #endif // MVD_IMPORTFINAL_H

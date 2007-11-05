@@ -52,7 +52,7 @@ using namespace MovidaShared;
 	select what to import.
 */
 MvdImportResultsPage::MvdImportResultsPage(QWidget* parent)
-: MvdImportPage(parent), matchId(0), locked(false)
+: MvdImportPage(parent), matchId(0), lastSelectedMatches(0), locked(false)
 {
 	setTitle(tr("Search results"));
 	setSubTitle(tr("Please select the items you want to import."));
@@ -90,6 +90,24 @@ MvdImportResultsPage::MvdImportResultsPage(QWidget* parent)
 		this, SLOT(resultsSelectionChanged()) );
 	connect( results, SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
 		this, SLOT(resultsCheckStateChanged()) );
+
+	// Register fields
+	registerField("resultsCount", this, "resultsCount", "resultsCountChanged");
+	registerField("selectedResultsCount", this, "selectedResultsCount", "selectedResultsCountChanged");
+}
+
+//! Returns the current number of found results.
+int MvdImportResultsPage::resultsCount() const
+{
+	return countMatches();
+}
+
+//! Returns the current number of selected results.
+int MvdImportResultsPage::selectedResultsCount() const
+{
+	int s;
+	(void)countMatches(&s);
+	return s;
 }
 
 //! Override. Unlocks the UI if it was locked.
@@ -133,6 +151,7 @@ void MvdImportResultsPage::cleanupPage()
 	resultsSelectionChanged();
 
 	matchId = 0;
+	lastSelectedMatches = 0;
 }
 
 //! Override.
@@ -181,6 +200,9 @@ int MvdImportResultsPage::addMatch(const QString& title, const QString& year, co
 	if (!notes.isEmpty())
 		item->setData(0, NotesRole, notes);
 	item->setCheckState(0, Qt::Unchecked);
+
+	emit resultsCountChanged();
+	emit resultsCountChanged(matchId);
 
 	return id;
 }
@@ -274,9 +296,10 @@ void MvdImportResultsPage::addSubSection(const QString& title, const QString& no
 		item->setData(0, NotesRole, notes);
 }
 
-int MvdImportResultsPage::countMatches() const
+int MvdImportResultsPage::countMatches(int* selected) const
 {
 	int c = 0;
+	int s = 0;
 	for (int i = 0; i < results->topLevelItemCount(); ++i)
 	{
 		QTreeWidgetItem* item = results->topLevelItem(i);
@@ -289,11 +312,23 @@ int MvdImportResultsPage::countMatches() const
 				ItemType subType = ItemType(subItem->data(0, ItemTypeRole).toUInt());
 				if (subType == SectionItem)
 					c += subItem->childCount();
-				else c++;
+				else {
+					c++;
+					if (selected && subItem->checkState(0) == Qt::Checked)
+						s++;
+				}
 			}
 		}
-		else c++;
+		else {
+			c++;
+			if (selected && item->checkState(0) == Qt::Checked)
+				s++;
+		}
 	}
+	
+	if (selected)
+		*selected = s;
+
 	return c;
 }
 
@@ -320,6 +355,9 @@ void MvdImportResultsPage::resultsSelectionChanged()
 	if (busyStatus())
 		return;
 
+	int selectedMatches;
+	int matches = countMatches(&selectedMatches);
+
 	bool showItemCount = false;
 	QString text;
 
@@ -340,15 +378,23 @@ void MvdImportResultsPage::resultsSelectionChanged()
 
 	if (showItemCount)
 	{
-		int matches = countMatches();
 		if (matches == 0)
 			showMessage(tr("No matches found."), MvdImportDialog::InfoMessage);
-		else
-			showMessage(tr("%1 match(es) found.", "Found results", matches).arg(matches), MvdImportDialog::InfoMessage);
+		else if (selectedMatches == 0)
+			showMessage(tr("%1 match(es) found. None have been selected for import.", "Found results", matches).arg(matches), MvdImportDialog::InfoMessage);
+		else if (selectedMatches == matches)
+			showMessage(tr("%1 match(es) found and selected for import.", "Found results.", matches).arg(matches), MvdImportDialog::InfoMessage);
+		else showMessage(tr("%1 of %2 matches have been selected for import.", "Found results. # of selected messages is given for plural form.", selectedMatches).arg(selectedMatches).arg(matches), MvdImportDialog::InfoMessage);
 	}
 	else {
 		showMessage(text, MvdImportDialog::InfoMessage);
 		Q_ASSERT(QMetaObject::invokeMethod(this, "ensureItemVisible", Qt::QueuedConnection));
+	}
+
+	if (selectedMatches != lastSelectedMatches) {
+		lastSelectedMatches = selectedMatches;
+		emit selectedResultsCountChanged();
+		emit selectedResultsCountChanged(selectedMatches);
 	}
 }
 
@@ -399,4 +445,6 @@ QList<int> MvdImportResultsPage::jobs() const
 //! \internal
 void MvdImportResultsPage::resultsCheckStateChanged()
 {
+	// Update selected item count
+	resultsSelectionChanged();
 }
