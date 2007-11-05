@@ -48,6 +48,8 @@ public:
 	void runImdbImport(const QList<MpiBlue::Engine*>& engines);
 
 private slots:
+	void reset();
+
 	void configureEngine(int engine);
 	void search(const QString& query, int engineId);
 	void performSearch(const QString& query, MpiBlue::Engine* engine, int engineId);

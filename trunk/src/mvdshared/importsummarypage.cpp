@@ -51,7 +51,7 @@ MvdImportSummaryPage::MvdImportSummaryPage(QWidget* parent)
 	connect(ui.previousResult, SIGNAL(controlTriggered(int)), this, SLOT(previewPreviousJob()));
 	nextResultId = ui.nextResult->addControl(tr("Next movie"), false);
 	connect(ui.nextResult, SIGNAL(controlTriggered(int)), this, SLOT(previewNextJob()));
-	connect( ui.importMovie, SIGNAL(stateChanged(int)), this, SLOT(importMovieStateChanged(int)));
+	connect( ui.importMovie, SIGNAL(stateChanged(int)), this, SLOT(importMovieStateChanged()));
 
 	registerField("importedMoviesCount", this, "importedMoviesCount", SIGNAL("importedMoviesCountChanged()"));
 }

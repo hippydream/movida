@@ -69,6 +69,7 @@ signals:
 	void engineConfigurationRequest(int engine);
 	void searchRequest(const QString& query, int engine);
 	void importRequest(const QList<int>& matches);
+	void resetRequest();
 
 private slots:
 	void pageChanged(int newPage);

@@ -93,9 +93,6 @@ MvdImportStartPage::MvdImportStartPage(QWidget* parent)
 		QCompleter* completer = new QCompleter(history, this);
 		queryInput->setCompleter(completer);
 	}
-
-	// Finish GUI setup
-	queryInput->setFocus(Qt::OtherFocusReason);
 }
 
 //! See MvdImportDialog::registerEngine(const MvdSearchEngine&)
@@ -158,4 +155,10 @@ QString MvdImportStartPage::query() const
 void MvdImportStartPage::updateCompleter(const QStringList& history)
 {
 	queryInput->setCompleter(new QCompleter(history));
+}
+
+//! Resets anything before the page is shown.
+void MvdImportStartPage::initializePage()
+{
+	queryInput->setFocus(Qt::ActiveWindowFocusReason);
 }
