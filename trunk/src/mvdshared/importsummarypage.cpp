@@ -41,17 +41,37 @@ using namespace Movida;
 MvdImportSummaryPage::MvdImportSummaryPage(QWidget* parent)
 : MvdImportPage(parent), locked(false), previousVisibleJob(-1), currentVisibleJob(-1)
 {
-	setTitle(tr("Movie have been downloaded and ready for import."));
+	setTitle(tr("Import summary."));
+	setSubTitle(tr("This page shows a preview of the movies you have selected for import.\nIf you have changed your mind, you can still exclude some movie from the import process."));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
 
 	ui.setupUi(this);
-	
+
 	previousResultId = ui.previousResult->addControl(tr("Previous movie"), false);
 	connect(ui.previousResult, SIGNAL(controlTriggered(int)), this, SLOT(previewPreviousJob()));
 	nextResultId = ui.nextResult->addControl(tr("Next movie"), false);
 	connect(ui.nextResult, SIGNAL(controlTriggered(int)), this, SLOT(previewNextJob()));
+	connect( ui.importMovie, SIGNAL(stateChanged(int)), this, SLOT(importMovieStateChanged(int)));
+
+	registerField("importedMoviesCount", this, "importedMoviesCount", "importedMoviesCountChanged");
 }
 
+//! Returns the current number of movies selected for final import.
+int MvdImportSummaryPage::importedMoviesCount() const
+{
+	int c = 0;
+	for (int i = 0; i < jobs.count(); ++i) {
+		if (i == currentVisibleJob) {
+			if (ui.importMovie->isChecked())
+				c++;
+		} else {
+			const ImportJob& j = jobs.at(i);
+			if (j.import)
+				c++;
+		}
+	}
+	return c;
+}
 
 //! Override. Unlocks the UI if it was locked.
 void MvdImportSummaryPage::setBusyStatus(bool busy)
@@ -151,4 +171,11 @@ void MvdImportSummaryPage::previewNextJob()
 	previousVisibleJob = currentVisibleJob;
 	++currentVisibleJob;
 	visibleJobChanged();
+}
+
+//! Emits the importedMoviesCountChanged() signals.
+void MvdImportSummaryPage::importMovieStateChanged()
+{
+	emit importedMoviesCountChanged();
+	emit importedMoviesCountChanged(importedMoviesCount());
 }

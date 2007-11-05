@@ -30,6 +30,7 @@ class QTemporaryFile;
 class MvdImportSummaryPage : public MvdImportPage
 {
 	Q_OBJECT
+	Q_PROPERTY(int importedMoviesCount READ importedMoviesCount)
 
 public:
 	MvdImportSummaryPage(QWidget* parent = 0);
@@ -42,13 +43,17 @@ public:
 
 	void addMovieData(const MvdMovieData& md);
 
+	int importedMoviesCount() const;
+
 signals:
 	void importRequest(const QList<int>&);
+	void importedMoviesCountChanged(int c = 0);
 
 private slots:
 	void visibleJobChanged();
 	void previewPreviousJob();
 	void previewNextJob();
+	void importMovieStateChanged();
 
 private:
 	struct ImportJob {

@@ -24,7 +24,7 @@
 
 #include "importpage.h"
 
-class QTemporaryFile;
+class QLabel;
 
 class MvdImportFinalPage : public MvdImportPage
 {
@@ -41,6 +41,7 @@ public:
 
 private:
 	bool locked;
+	QLabel* messageLabel;
 
 	void setLock(bool lock);
 };

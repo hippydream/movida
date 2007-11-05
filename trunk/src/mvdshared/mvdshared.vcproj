@@ -353,6 +353,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\importdialog_p.h"
+				>
+			</File>
+			<File
 				RelativePath="importfinalpage.h"
 				>
 				<FileConfiguration

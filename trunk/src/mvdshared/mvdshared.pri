@@ -3,6 +3,7 @@ HEADERS += \
 	actionlabel_p.h \
 	expandinglineedit.h \
 	importdialog.h \
+	importdialog_p.h \
 	importfinalpage.h \
 	importpage.h \
 	importresultspage.h \
