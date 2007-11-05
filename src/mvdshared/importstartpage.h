@@ -38,6 +38,8 @@ class MvdImportStartPage : public MvdImportPage
 public:
 	MvdImportStartPage(QWidget* parent = 0);
 
+	virtual void initializePage();
+
 	int registerEngine(const MvdSearchEngine& engine);
 
 	int engine() const;

@@ -47,15 +47,7 @@ mInterpreter(0), mCurrentState(NoState)
 
 MpiMovieImport::~MpiMovieImport()
 {
-	if (mHttpHandler)
-		mHttpHandler->abort();
-
-	for (int i = 0; i < mTemporaryData.size(); ++i) {
-		const QString& s = mTemporaryData.at(i);
-		if (!QFile::remove(s)) {
-			wLog() << "MpiMovieImport: failed to delete temporary file '" << s << "'.";
-		}
-	}
+	reset();
 }
 
 //! Entry point for the "imdb-import" action.
@@ -79,9 +71,50 @@ void MpiMovieImport::runImdbImport(const QList<MpiBlue::Engine*>& engines)
 		this, SLOT(search(const QString&, int)) );
 	connect( mImportDialog, SIGNAL(importRequest(const QList<int>&)),
 		this, SLOT(import(const QList<int>&)) );
+	connect( mImportDialog, SIGNAL(resetRequest()),
+		this, SLOT(reset()) );
 
 	mImportDialog->setWindowModality(Qt::WindowModal);
 	mImportDialog->exec();
+}
+
+//! Resets any internal state and becomes ready to start a new search.
+void MpiMovieImport::reset()
+{
+	if (mHttpHandler)
+		mHttpHandler->abort();
+	mRequestId = -1;
+	if (mTempFile)
+		deleteTemporaryFile(&mTempFile);
+	mCurrentLocation.clear();
+	mCurrentEngine = -1;
+	mCurrentQuery.clear();
+	if (mInterpreter && mInterpreter->state() != QProcess::NotRunning)
+		mInterpreter->kill();
+	mInterpreterName.clear();
+	mCurrentState = NoState;
+	mNextUrl.clear();
+	mCurrentImportJob = 0;
+
+	for (QHash<int,SearchResult>::ConstIterator it = mSearchResults.constBegin(); it != mSearchResults.constEnd(); ++it) {
+		const SearchResult& s = it.value();
+		if (!s.dataSource.isEmpty() && QFile::exists(s.dataSource)) {
+			if (!QFile::remove(s.dataSource)) {
+				wLog() << "MpiMovieImport: failed to delete temporary file '" << s.dataSource << "'.";
+			}
+		}
+	}
+	mSearchResults.clear();
+
+	mImportsQueue.clear();
+
+	for (int i = 0; i < mTemporaryData.size(); ++i) {
+		const QString& s = mTemporaryData.at(i);
+		if (!QFile::remove(s)) {
+			wLog() << "MpiMovieImport: failed to delete temporary file '" << s << "'.";
+		}
+	}
+	mTemporaryData.clear();
 }
 
 //! \todo Implement MpiMovieImport::configureEngine

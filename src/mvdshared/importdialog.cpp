@@ -179,7 +179,14 @@ void MvdImportDialog::accept()
 //! \p id is the new page to be showed.
 void MvdImportDialog::pageChanged(int id)
 {
-	if (id == MvdImportDialog_P::ResultsPage && d->startPage) {
+	switch (id) {
+	case MvdImportDialog_P::StartPage:
+	{
+		// Ensure the plugins will reset its internal state at each new search request.
+		emit resetRequest();
+	} break;
+	case MvdImportDialog_P::ResultsPage:
+	{
 		QString q = d->startPage->query();
 		if (Movida::settings().value("movida/use-history").toBool()) {
 		
@@ -190,7 +197,11 @@ void MvdImportDialog::pageChanged(int id)
 			d->startPage->updateCompleter(history);
 		}
 		emit searchRequest(q, d->startPage->engine());
-	} else if (id == MvdImportDialog_P::SummaryPage && d->summaryPage) {
+	} break;
+	case MvdImportDialog_P::SummaryPage:
+	{
 		emit importRequest(d->resultsPage->jobs());
+	} break;
+	default: ;
 	}
 }
