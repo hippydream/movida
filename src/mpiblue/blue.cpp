@@ -369,7 +369,8 @@ bool MpiBlue::engineRequiresUpdate(const Engine& engine)
 		return true;
 	case UpdateDaily:
 	{
-		QDateTime lastUpdateDt = QDateTime::fromString(Movida::settings().value(QString("plugins/blue/engines/%1/updated").arg(engine.name)).toString(), Qt::ISODate);
+		QString s = Movida::settings().value(QString("plugins/blue/engines/%1/updated").arg(engine.name)).toString();
+		QDateTime lastUpdateDt = s.isEmpty() ? QDateTime() : QDateTime::fromString(s, Qt::ISODate);
 		if (!lastUpdateDt.isValid()) {
 			iLog() << "MpiBlue:: Engine " << engine.name << " has daily update interval but no previous update. Update check required.";
 			return true;
@@ -384,7 +385,8 @@ bool MpiBlue::engineRequiresUpdate(const Engine& engine)
 	}
 	case UpdateWeekly:
 	{
-		QDateTime lastUpdateDt = QDateTime::fromString(Movida::settings().value(QString("plugins/blue/engines/%1/updated").arg(engine.name)).toString(), Qt::ISODate);
+		QString s = Movida::settings().value(QString("plugins/blue/engines/%1/updated").arg(engine.name)).toString();
+		QDateTime lastUpdateDt = s.isEmpty() ? QDateTime() : QDateTime::fromString(s, Qt::ISODate);
 		if (!lastUpdateDt.isValid()) {
 			iLog() << "MpiBlue:: Engine " << engine.name << " has weekly update interval but no previous update. Update check required.";
 			return true;
@@ -399,7 +401,8 @@ bool MpiBlue::engineRequiresUpdate(const Engine& engine)
 	}
 	case UpdateCustom:
 	{
-		QDateTime lastUpdate = QDateTime::fromString(Movida::settings().value(QString("plugins/blue/engines/%1/updated").arg(engine.name)).toString(), Qt::ISODate);
+		QString s = Movida::settings().value(QString("plugins/blue/engines/%1/updated").arg(engine.name)).toString();
+		QDateTime lastUpdate = s.isEmpty() ? QDateTime() : QDateTime::fromString(s, Qt::ISODate);
 		if (!lastUpdate.isValid()) {
 			iLog() << "MpiBlue:: Engine " << engine.name << " has custom update interval of " << engine.updateIntervalHours << "h but no previous update. Update check required.";
 			return true;
