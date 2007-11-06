@@ -114,12 +114,6 @@ private:
 		FetchingMoviePosterState
 	};
 
-	enum ScriptStatus {
-		InvalidScript= 0,
-		ValidScript,
-		NoUpdatedScript
-	};
-
 	enum {
 		HttpNotModified = 304
 	};
@@ -150,10 +144,7 @@ private:
 	void deleteTemporaryFile(QTemporaryFile** file, bool removeFile = true);
 	QTemporaryFile* createTemporaryFile();
 	void initHttpHandler();
-	void setScriptPaths(MpiBlue::Engine* engine);
-	QString locateScriptPath(const QString& name) const;
 	QString scriptDate(const QString& name) const;
-	ScriptStatus isValidScriptFile(const QString& path = QString()) const;
 	void processResultsFile(const QString& path);
 	void processMovieDataFile(const QString& path);
 	bool isValidResult(SearchResult& result, const QString& path);

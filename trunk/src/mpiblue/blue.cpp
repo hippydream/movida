@@ -27,6 +27,8 @@
 #include "pathresolver.h"
 #include <QDateTime>
 #include <QFile>
+#include <QTemporaryFile>
+#include <QTextStream>
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <math.h>
@@ -361,6 +363,11 @@ bool MpiBlue::engineRequiresUpdate(const Engine& engine)
 {
 	if (!engine.updateUrl.startsWith("http://"))
 		return false;
+		
+	if (locateScriptPath(engine.resultsScript).isEmpty() || locateScriptPath(engine.importScript).isEmpty()) {
+		iLog() << "MpiBlue:: Missing scripts. Forcing an update from the Internet.";
+		return true;
+	}
 
 	switch (engine.updateInterval) {
 	case UpdateAlways:
@@ -421,4 +428,85 @@ bool MpiBlue::engineRequiresUpdate(const Engine& engine)
 	}
 
 	return false;
+}
+
+//! Locates the latest version of an engine's scripts and sets the absolute path
+void MpiBlue::setScriptPaths(MpiBlue::Engine* engine)
+{
+	QString path = MpiBlue::locateScriptPath(engine->resultsScript);
+	engine->resultsScript = path;
+	path = MpiBlue::locateScriptPath(engine->importScript);
+	engine->importScript = path;
+}
+
+//! Returns the absolute, localized, clean path of the possibly most updated version of a script. (phew!)
+QString MpiBlue::locateScriptPath(const QString& name)
+{
+	Q_ASSERT(MpiBluePlugin::instance);
+
+	// Search order: plugin's user data store, plugin's global data store
+
+	QString filename;
+
+	// plugin's user data store
+	QString dataStore = MpiBluePlugin::instance->dataStore(Movida::UserScope);
+	filename = QString(dataStore).append(name);
+	if (QFile::exists(filename) && MpiBlue::isValidScriptFile(filename) == ValidScript)
+		return MvdCore::toLocalFilePath(filename);
+
+	// global data store
+	dataStore = MpiBluePlugin::instance->dataStore(Movida::SystemScope);
+	filename = QString(dataStore).append(name);
+	if (QFile::exists(filename) && MpiBlue::isValidScriptFile(filename) == ValidScript)
+		return MvdCore::toLocalFilePath(filename);
+
+	return QString();
+}
+
+//! Checks whether \p path points to a (possibly) valid script file by verifying the signature.
+MpiBlue::ScriptStatus MpiBlue::isValidScriptFile(const QString& path)
+{
+	QFile* file = new QFile(path);
+	if (!file->open(QIODevice::ReadOnly))
+	{
+		eLog() << "MpiMovieImport: Failed to open script file: " << path;
+		delete file;
+		return InvalidScript;
+	}
+	
+	QTextStream stream(file);
+	MpiBlue::ScriptStatus res = isValidScriptFile(stream);
+	delete file;
+	if (res != ValidScript)
+		eLog() << "MpiMovieImport: Invalid script file: " << path;
+	return res;
+}
+	
+//! Checks whether a temporary file points to a (possibly) valid script file by verifying the signature.
+MpiBlue::ScriptStatus MpiBlue::isValidScriptFile(QTemporaryFile* tempFile, bool httpNotModified)
+{
+	if (httpNotModified)
+		return NoUpdatedScript;
+	
+	QTextStream stream(tempFile);
+	MpiBlue::ScriptStatus res = isValidScriptFile(stream);
+	if (res != ValidScript)
+		eLog() << "MpiMovieImport: Downloaded file is not a valid script file.";
+	return res;
+}
+	
+//! \internal
+MpiBlue::ScriptStatus MpiBlue::isValidScriptFile(QTextStream& stream)
+{
+	QString signature = MvdCore::parameter("plugins/blue/script-signature").toString();
+	
+	QString line;
+	bool valid = false;
+	int maxLines = 10;
+	int lineCount = 0;
+	while (++lineCount <= maxLines && !valid && !(line = stream.readLine()).isNull()) {
+		valid = line.contains(signature);
+	}
+
+	return valid ? ValidScript : InvalidScript;
 }
