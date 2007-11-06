@@ -24,6 +24,8 @@
 #include "labelanimator.h"
 #include "settings.h"
 #include <QPushButton>
+#include <QKeyEvent>
+#include <QMessageBox>
 
 /*!
 	\class MvdImportDialog importdialog.h
@@ -32,6 +34,7 @@
 	\brief Wizard dialog to import movies from a local or remote source.
 */
 
+Q_DECLARE_METATYPE(MvdMovieDataList)
 
 /*!
 	Creates a new Movida import wizard for the search engines listed in \p engines.
@@ -73,6 +76,8 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 	setPixmap(QWizard::LogoPixmap, QPixmap(":/images/import/logo.png"));
 	setPixmap(QWizard::BannerPixmap, QPixmap(":/images/import/banner.png"));
 	setWindowTitle(tr("Movida import wizard"));
+
+	Q_UNUSED(qRegisterMetaType<MvdMovieDataList>());
 }
 
 //! Handles the page order.
@@ -202,6 +207,77 @@ void MvdImportDialog::pageChanged(int id)
 	{
 		emit importRequest(d->resultsPage->jobs());
 	} break;
+	case MvdImportDialog_P::FinalPage:
+	{
+		Q_ASSERT(QMetaObject::invokeMethod(d->finalPage, "importMovies", Qt::QueuedConnection,
+			Q_ARG(MvdMovieDataList, d->summaryPage->movies())));
+	} break;
 	default: ;
 	}
+
+	MvdImportPage* p = qobject_cast<MvdImportPage*>(page(id));
+	if (p)
+		p->updateButtons();
+}
+
+//! Convenience method. Returns true if the current page has the preventCloseWhenBusy property set to true.
+bool MvdImportDialog::preventCloseWhenBusy() const
+{
+	if (MvdImportPage* p = qobject_cast<MvdImportPage*>(currentPage()))
+		if (p->preventCloseWhenBusy())
+			return true;
+	return false;
+}
+
+//! Convenience method. Returns true if the current page is busy.
+bool MvdImportDialog::isBusy() const
+{
+	if (MvdImportPage* p = qobject_cast<MvdImportPage*>(currentPage()))
+		if (p->busyStatus())
+			return true;
+	return false;
+}
+
+//! Prevents the dialog to close if the current page is busy.
+void MvdImportDialog::closeEvent(QCloseEvent* e)
+{
+	Q_UNUSED(e);
+	if ((isBusy() && preventCloseWhenBusy()) || !confirmCloseWizard()) {
+		e->ignore();
+		return;
+	}
+
+	QWizard::closeEvent(e);
+}
+
+//! Prevents the dialog to close if the current page is busy.
+void MvdImportDialog::keyPressEvent(QKeyEvent* e)
+{
+	switch (e->key()) {
+	case Qt::Key_Escape: 
+		if ((isBusy() && preventCloseWhenBusy()) || !confirmCloseWizard()) {
+			return;
+		}
+	default: ;
+	}
+
+	QWizard::keyPressEvent(e);
+}
+
+//! Asks the user for confirmation before the wizard is closed aborting a progressing operation. Returns true if the wizard should close.
+bool MvdImportDialog::confirmCloseWizard()
+{
+	QString msg;
+	if (!isBusy()) {
+		msg = tr("Are you sure you want to close the wizard?");
+	} else {
+		switch (currentId()) {
+		case MvdImportDialog_P::ResultsPage: msg = tr("Movida is still searching for your query. Are you sure you want to close the wizard?"); break;
+		case MvdImportDialog_P::SummaryPage: msg = tr("Movida is still downloading the movie details. Are you sure you want to close the wizard?"); break;
+		case MvdImportDialog_P::FinalPage: msg = tr("Movida is still importing your new movies. Are you sure you want to close the wizard?"); break;
+		default: msg = tr("An operation is still in progress. Are you sure you want to close the wizard?");
+		}
+	}
+
+	return QMessageBox::question(this, MVD_CAPTION, msg, QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
 }

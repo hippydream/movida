@@ -110,4 +110,6 @@ public:
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(MvdMovieData::Options);
 
+typedef QList<MvdMovieData> MvdMovieDataList;
+
 #endif // MVD_MOVIEDATA_H

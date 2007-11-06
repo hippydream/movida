@@ -65,6 +65,15 @@ public:
 	void done();
 	void accept();
 
+	bool preventCloseWhenBusy() const;
+	bool isBusy() const;
+
+	bool confirmCloseWizard();
+
+protected:
+	void closeEvent(QCloseEvent* e);
+	void keyPressEvent(QKeyEvent* e);
+
 signals:
 	void engineConfigurationRequest(int engine);
 	void searchRequest(const QString& query, int engine);

@@ -45,6 +45,8 @@ public:
 
 	int importedMoviesCount() const;
 
+	MvdMovieDataList movies();
+
 signals:
 	void importRequest(const QList<int>&);
 	void importedMoviesCountChanged(int c = 0);
