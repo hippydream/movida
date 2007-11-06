@@ -571,7 +571,15 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 	{
 		if (mHttpHandler->error() == QHttp::Aborted)
 			wLog() << "MpiMovieImport: Http request aborted.";
-		else eLog() << "MpiMovieImport: Http request failed: " << mHttpHandler->errorString();
+		else {
+			eLog() << "MpiMovieImport: Http request failed: " << mHttpHandler->errorString();
+			QString msg;
+			switch (mHttpHandler->error()) {
+			case QHttp::ConnectionRefused: msg = tr("Sorry but the search engine refused the connection."); break;
+			default: msg = tr("Failed to connect to the Internet.");
+			}
+			mImportDialog->showMessage(msg, MvdImportDialog::ErrorMessage);
+		}
 
 		if (mTempFile)
 			deleteTemporaryFile(&mTempFile);
