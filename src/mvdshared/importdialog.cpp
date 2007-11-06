@@ -255,6 +255,15 @@ void MvdImportDialog::closeEvent(QCloseEvent* e)
 }
 
 //! Prevents the dialog to close if the current page is busy.
+void MvdImportDialog::reject()
+{
+	if ((isBusy() && preventCloseWhenBusy()) || !confirmCloseWizard()) {
+		return;
+	}
+	QWizard::reject();
+}
+
+//! Prevents the dialog to close if the current page is busy.
 void MvdImportDialog::keyPressEvent(QKeyEvent* e)
 {
 	switch (e->key()) {
