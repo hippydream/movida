@@ -91,6 +91,7 @@ MvdImportStartPage::MvdImportStartPage(QWidget* parent)
 	
 		QStringList history = Movida::settings().value("movida/history/movie-import").toStringList();
 		QCompleter* completer = new QCompleter(history, this);
+		completer->setCaseSensitivity(Qt::CaseInsensitive);
 		queryInput->setCompleter(completer);
 	}
 }
@@ -154,7 +155,9 @@ QString MvdImportStartPage::query() const
 //! Sets a new completer in the query input widget.
 void MvdImportStartPage::updateCompleter(const QStringList& history)
 {
-	queryInput->setCompleter(new QCompleter(history));
+	QCompleter* completer = new QCompleter(history);
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
+	queryInput->setCompleter(completer);
 }
 
 //! Resets anything before the page is shown.
