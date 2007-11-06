@@ -32,7 +32,7 @@
 #include <QGridLayout>
 
 #ifndef MVD_WINDOW_UTILS
-
+#define MVD_WINDOW_UTILS
 # ifdef Q_OS_WIN
 #  include <windows.h>
 #  define MVD_ENABLE_CLOSE_BTN(Enable) \
@@ -41,6 +41,8 @@
 		tlw = tlw->parentWidget(); \
 	HMENU hMenu = GetSystemMenu((HWND) tlw->winId(), FALSE); \
 	EnableMenuItem(hMenu, SC_CLOSE, Enable ? (MF_BYCOMMAND | MF_ENABLED) : (MF_BYCOMMAND | MF_GRAYED)); }
+# else
+#  define MVD_ENABLE_CLOSE_BTN(Enable)
 # endif // Q_OS_WIN
 
 #endif // MVD_WINDOW_UTILS
