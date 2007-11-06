@@ -18,7 +18,7 @@
 ** visit http://www.gnu.org/copyleft/gpl.html for GPL licensing information.
 **
 **************************************************************************/
-#include <windows.h>
+
 #include "importfinalpage.h"
 #include "importdialog.h"
 #include "importdialog_p.h"
@@ -181,7 +181,6 @@ void MvdImportFinalPage::importMovies(const MvdMovieDataList& movies)
 		}
 		
 		QCoreApplication::processEvents();
-		Sleep(2000);
 	}
 
 	setBusyStatus(false);
