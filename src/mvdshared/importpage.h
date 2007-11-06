@@ -66,6 +66,10 @@ public:
 	*/
 	virtual void updateButtons()
 	{ }
+	
+	//! This method is supposed to do what it tells.. reset the page and prepare for a new search.
+	virtual void reset()
+	{ }
 
 private:
 	bool busy;

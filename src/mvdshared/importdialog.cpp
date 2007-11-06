@@ -188,6 +188,10 @@ void MvdImportDialog::pageChanged(int id)
 	case MvdImportDialog_P::StartPage:
 	{
 		// Ensure the plugins will reset its internal state at each new search request.
+		d->startPage->reset();
+		d->resultsPage->reset();
+		d->summaryPage->reset();
+		d->finalPage->reset();
 		emit resetRequest();
 	} break;
 	case MvdImportDialog_P::ResultsPage:

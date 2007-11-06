@@ -165,3 +165,10 @@ void MvdImportStartPage::initializePage()
 {
 	queryInput->setFocus(Qt::ActiveWindowFocusReason);
 }
+
+//!
+void MvdImportStartPage::reset()
+{
+	setBusyStatus(false);
+	queryInput->clear();
+}

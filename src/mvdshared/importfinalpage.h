@@ -40,6 +40,7 @@ public:
 	void initializePage();
 	void cleanupPage();
 	void setBusyStatus(bool busy);
+	void reset();
 
 	virtual bool validatePage();
 	virtual void updateButtons();

@@ -100,7 +100,6 @@ void MvdImportFinalPage::setBusyStatus(bool busy)
 void MvdImportFinalPage::showMessage(const QString& msg, MvdImportDialog::MessageType t)
 {
 	Q_UNUSED(t);
-
 	ui.messageLabel->setText(msg);
 }
 
@@ -204,4 +203,10 @@ void MvdImportFinalPage::updateButtons()
 		if (QAbstractButton* b = wizard()->button(QWizard::FinishButton))
 			b->setEnabled(!locked);
 	}
+}
+
+//!
+void MvdImportFinalPage::reset()
+{
+	setBusyStatus(false);
 }

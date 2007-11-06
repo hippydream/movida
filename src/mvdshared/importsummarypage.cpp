@@ -190,3 +190,11 @@ MvdMovieDataList MvdImportSummaryPage::movies()
 	}
 	return l;
 }
+
+//!
+void MvdImportSummaryPage::reset()
+{
+	setBusyStatus(false);
+	ui.stack->setCurrentIndex(0);
+	jobs.clear();
+}

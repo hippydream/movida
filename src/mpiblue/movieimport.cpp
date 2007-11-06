@@ -81,6 +81,8 @@ void MpiMovieImport::runImdbImport(const QList<MpiBlue::Engine*>& engines)
 //! Resets any internal state and becomes ready to start a new search.
 void MpiMovieImport::reset()
 {
+	iLog() << "MpiMovieImport: Reset.";
+
 	if (mHttpHandler)
 		mHttpHandler->abort();
 	mRequestId = -1;
