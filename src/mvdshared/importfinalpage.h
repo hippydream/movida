@@ -42,17 +42,20 @@ public:
 	void setBusyStatus(bool busy);
 
 	virtual bool validatePage();
+	virtual void updateButtons();
+
+public slots:
+	virtual void importMovies(const MvdMovieDataList& movies);
 
 private slots:
 	void restartWizardToggled();
+	void initializePageInternal();
 
 private:
 	Ui::MvdImportFinalPage ui;
 
-	bool locked;
+	bool pendingButtonUpdates;
 	QString finishButtonText;
-
-	void setLock(bool lock);
 };
 
 #endif // MVD_IMPORTFINAL_H

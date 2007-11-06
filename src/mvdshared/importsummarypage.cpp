@@ -179,3 +179,14 @@ void MvdImportSummaryPage::importMovieStateChanged()
 	emit importedMoviesCountChanged();
 	emit importedMoviesCountChanged(importedMoviesCount());
 }
+
+//! Returns the list of movies confirmed for import.
+MvdMovieDataList MvdImportSummaryPage::movies()
+{
+	MvdMovieDataList l;
+	for (int i = 0; i < jobs.count(); ++i) {
+		const ImportJob& j = jobs.at(i);
+		l.append(j.data);
+	}
+	return l;
+}

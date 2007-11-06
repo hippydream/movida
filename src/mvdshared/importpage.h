@@ -38,7 +38,7 @@ class MvdImportPage : public QWizardPage
 
 public:
 	MvdImportPage(QWidget* parent = 0)
-	: QWizardPage(parent), busy(false) { }
+	: QWizardPage(parent), busy(false), preventCloseOnBusy(false) { }
 	
 	virtual void setBusyStatus(bool busy)
 	{ this->busy = busy; emit completeChanged(); }
@@ -52,8 +52,24 @@ public:
 	virtual bool isComplete() const
 	{ return !busy && QWizardPage::isComplete(); }
 
+	//! Set this property to prevent the wizard being closed on a busy page. Default is false.
+	bool preventCloseWhenBusy() const
+	{ return preventCloseOnBusy; }
+
+	void setPreventCloseWhenBusy(bool prevent)
+	{ preventCloseOnBusy = prevent; }
+
+	/*! Re-implement this method to force enabling or disabling of the wizard buttons.
+		Some of the wizard buttons (e.g. "Finish" and "Next"/"Back") cannot be disabled
+		with a simple QWidget::setEnabled() because the wizard will change their state, unless
+		it is done in this method.
+	*/
+	virtual void updateButtons()
+	{ }
+
 private:
 	bool busy;
+	bool preventCloseOnBusy;
 };
 
 #endif // MVD_IMPORTPAGE_H
