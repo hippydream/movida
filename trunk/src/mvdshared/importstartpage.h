@@ -39,6 +39,7 @@ public:
 	MvdImportStartPage(QWidget* parent = 0);
 
 	virtual void initializePage();
+	void reset();
 
 	int registerEngine(const MvdSearchEngine& engine);
 
