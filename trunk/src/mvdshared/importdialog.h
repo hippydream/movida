@@ -69,6 +69,9 @@ public:
 	bool isBusy() const;
 
 	bool confirmCloseWizard();
+	
+public slots:
+	virtual void reject();
 
 protected:
 	void closeEvent(QCloseEvent* e);
