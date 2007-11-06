@@ -219,7 +219,7 @@ void MpiMovieImport::search(const QString& query, int engineId)
 			else {
 				// Cannot update scripts. Set absolute paths and go!
 				engine->scriptsFetched = true;
-				setScriptPaths(engine);
+				MpiBlue::setScriptPaths(engine);
 				performSearch(query, engine, engineId);
 			}
 
@@ -233,22 +233,22 @@ void MpiMovieImport::search(const QString& query, int engineId)
 			path = MpiBluePlugin::instance->dataStore(Movida::SystemScope);
 		QFileInfo fi(path);
 
-		ScriptStatus ss = isValidScriptFile();
+		MpiBlue::ScriptStatus ss = MpiBlue::isValidScriptFile(mTempFile, mHttpNotModified);
 
-		if (ss == InvalidScript || !fi.isDir() || !fi.isWritable()) {
+		if (ss == MpiBlue::InvalidScript || !fi.isDir() || !fi.isWritable()) {
 			engine->scriptsFetched = true;
-			setScriptPaths(engine);
+			MpiBlue::setScriptPaths(engine);
 			deleteTemporaryFile(&mTempFile, true);
 			performSearch(query, engine, engineId);
 			return;
-		} else if (ss == ValidScript) {
+		} else if (ss == MpiBlue::ValidScript) {
 			// copy the file to the user's script directory
 			path.append(engine->resultsScript);
 			QFile::remove(path);
 			if (!mTempFile->rename(path)) {
 				wLog() << "MpiMovieImport: Failed to save results script file:" << path;
 				engine->scriptsFetched = true;
-				setScriptPaths(engine);
+				MpiBlue::setScriptPaths(engine);
 				deleteTemporaryFile(&mTempFile, true);
 				performSearch(query, engine, engineId);
 				return;
@@ -304,22 +304,22 @@ void MpiMovieImport::search(const QString& query, int engineId)
 			path = MpiBluePlugin::instance->dataStore(Movida::SystemScope);
 		QFileInfo fi(path);
 
-		ScriptStatus ss = isValidScriptFile();
+		MpiBlue::ScriptStatus ss = MpiBlue::isValidScriptFile(mTempFile, mHttpNotModified);
 
-		if (ss == InvalidScript || !fi.isDir() || !fi.isWritable()) {
+		if (ss == MpiBlue::InvalidScript || !fi.isDir() || !fi.isWritable()) {
 			engine->scriptsFetched = true;
-			setScriptPaths(engine);
+			MpiBlue::setScriptPaths(engine);
 			deleteTemporaryFile(&mTempFile, true);
 			performSearch(query, engine, engineId);
 			return;
-		} else if (ss == ValidScript) {
+		} else if (ss == MpiBlue::ValidScript) {
 			// copy the file to the user's script directory
 			path.append(engine->importScript);
 			QFile::remove(path);
 			if (!mTempFile->rename(path)) {
 				wLog() << "MpiMovieImport: Failed to save import script file:" << path;
 				engine->scriptsFetched = true;
-				setScriptPaths(engine);
+				MpiBlue::setScriptPaths(engine);
 				deleteTemporaryFile(&mTempFile, true);
 				performSearch(query, engine, engineId);
 				return;
@@ -337,7 +337,7 @@ void MpiMovieImport::search(const QString& query, int engineId)
 
 		if (engine->updateInterval != MpiBlue::UpdateAlways)
 			engine->scriptsFetched = true;
-		setScriptPaths(engine);
+		MpiBlue::setScriptPaths(engine);
 		performSearch(query, engine, engineId);
 	}
 }
@@ -389,46 +389,13 @@ void MpiMovieImport::performSearch(const QString& query, MpiBlue::Engine* engine
 	mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
 }
 
-//! Locates the latest version of an engine's scripts and sets the absolute path
-void MpiMovieImport::setScriptPaths(MpiBlue::Engine* engine)
-{
-	QString path = locateScriptPath(engine->resultsScript);
-	engine->resultsScript = path;
-	path = locateScriptPath(engine->importScript);
-	engine->importScript = path;
-}
-
-//! Returns the absolute, localized, clean path of the possibly most updated version of a script. (phew!)
-QString MpiMovieImport::locateScriptPath(const QString& name) const
-{
-	Q_ASSERT(MpiBluePlugin::instance);
-
-	// Search order: plugin's user data store, plugin's global data store
-
-	QString filename;
-
-	// plugin's user data store
-	QString dataStore = MpiBluePlugin::instance->dataStore(Movida::UserScope);
-	filename = QString(dataStore).append(name);
-	if (QFile::exists(filename) && isValidScriptFile(filename) == ValidScript)
-		return MvdCore::toLocalFilePath(filename);
-
-	// global data store
-	dataStore = MpiBluePlugin::instance->dataStore(Movida::SystemScope);
-	filename = QString(dataStore).append(name);
-	if (QFile::exists(filename) && isValidScriptFile(filename) == ValidScript)
-		return MvdCore::toLocalFilePath(filename);
-
-	return QString();
-}
-
 /*! Returns the file modification time of the script with the given name or an
 	empty string if the script could not be found.
 	The date is returned in HTTP-DATE format (see RFC 2616, section 3.3.1).
 */
 QString MpiMovieImport::scriptDate(const QString& name) const
 {
-	QString script = locateScriptPath(name);
+	QString script = MpiBlue::locateScriptPath(name);
 	if (script.isEmpty())
 		return QString();
 
@@ -438,49 +405,6 @@ QString MpiMovieImport::scriptDate(const QString& name) const
 	QString date = locale.toString(dt.date(), MvdCore::parameter("plugins/blue/http-date").toString());
 	QString time = locale.toString(dt.time(), MvdCore::parameter("plugins/blue/http-time").toString());
 	return date.append(" ").append(time);
-}
-
-//! Checks whether \p path points to a (possibly) valid script file by verifying the signature.
-MpiMovieImport::ScriptStatus MpiMovieImport::isValidScriptFile(const QString& path) const
-{
-	QTextStream stream;
-	QFile* file = 0;
-
-	if (path.isNull()) {
-		if (mHttpNotModified)
-			return NoUpdatedScript;
-		stream.setDevice(mTempFile);
-	}
-	else {
-		file = new QFile(path);
-		if (!file->open(QIODevice::ReadOnly))
-		{
-			eLog() << "MpiMovieImport: Failed to open script file: " << path;
-			delete file;
-			return InvalidScript;
-		}
-		stream.setDevice(file);
-	}
-
-	QString signature = MvdCore::parameter("plugins/blue/script-signature").toString();
-	
-	QString line;
-	bool valid = false;
-	int maxLines = 10;
-	int lineCount = 0;
-	while (++lineCount <= maxLines && !valid && !(line = stream.readLine()).isNull()) {
-		valid = line.contains(signature);
-	}
-
-	delete file;
-
-	if (!valid) {
-		if (path.isNull())
-			eLog() << "MpiMovieImport: Downloaded file is not a valid script file.";
-		else eLog() << "MpiMovieImport: Invalid script file: " << path;
-	}
-
-	return valid ? ValidScript : InvalidScript;
 }
 
 //! \internale Downloads and imports the specified search results.
@@ -783,8 +707,9 @@ void MpiMovieImport::deleteTemporaryFile(QTemporaryFile** file, bool removeFile)
 	QString path = (*file)->fileName();
 	delete *file;
 	*file = 0;
-	if (removeFile)
+	if (removeFile) {
 		QFile::remove(path);
+	}
 }
 
 //! Creates a new temporary file with AutoRemove = false. Returns 0 if an error occurs.
@@ -1063,11 +988,16 @@ void MpiMovieImport::processMovieDataFile(const QString& path)
 	Q_ASSERT(mSearchResults.contains(mCurrentImportJob));
 	SearchResult& result = mSearchResults[mCurrentImportJob];
 	if (!result.data.loadFromXml(path, MvdMovieData::StopAtFirstMovie)) {
+		if (!QFile::remove(path))
+			wLog() << "MpiMovieImport: failed to delete temporary file '" << path << "'.";
 		mSearchResults.remove(mCurrentImportJob);
 		mImportDialog->showMessage(tr("Discarding invalid movie data."));
 		Q_ASSERT(QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection));
 		return;
 	}
+	
+	if (!QFile::remove(path))
+		wLog() << "MpiMovieImport: failed to delete temporary file '" << path << "'.";
 
 	if (!result.data.posterPath.isEmpty() && result.data.posterPath.startsWith("http://")) {
 		mTempFile = createTemporaryFile();

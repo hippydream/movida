@@ -25,6 +25,9 @@
 #include "blueglobal.h"
 #include "plugininterface.h"
 
+class QTemporaryFile;
+class QTextStream;
+
 class MpiBlue : public MvdPluginInterface
 {
 	Q_OBJECT
@@ -36,6 +39,12 @@ public:
 		UpdateDaily,
 		UpdateWeekly,
 		UpdateCustom
+	};
+	
+	enum ScriptStatus {
+		InvalidScript= 0,
+		ValidScript,
+		NoUpdatedScript
 	};
 
 	struct Engine
@@ -109,11 +118,18 @@ public:
 	static QString updateIntervalToString(UpdateInterval i, quint8 hours);
 
 	static bool engineRequiresUpdate(const Engine& engine);
+	
+	static void setScriptPaths(Engine* engine);
+	static QString locateScriptPath(const QString& name);
+	static MpiBlue::ScriptStatus isValidScriptFile(const QString& path);
+	static MpiBlue::ScriptStatus isValidScriptFile(QTemporaryFile* tempFile, bool httpNotModified);
 
 private:
 	void loadEngines(bool loadBundled = true);
 	void loadEnginesFromFile(const QString& path);
 	inline bool isValidEngine(const Engine& engine) const;
+		
+	static MpiBlue::ScriptStatus isValidScriptFile(QTextStream& stream);
 
 	QList<Engine*> mEngines;
 };
