@@ -57,6 +57,8 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 
 	// Add pages
 
+	d->closing = false;
+
 	d->startPage = new MvdImportStartPage;
 	setPage(MvdImportDialog_P::StartPage, d->startPage);
 	d->resultsPage = new MvdImportResultsPage;
@@ -251,15 +253,19 @@ void MvdImportDialog::closeEvent(QCloseEvent* e)
 		return;
 	}
 
+	d->closing = true;
 	QWizard::closeEvent(e);
 }
 
 //! Prevents the dialog to close if the current page is busy.
 void MvdImportDialog::reject()
 {
-	if ((isBusy() && preventCloseWhenBusy()) || !confirmCloseWizard()) {
-		return;
+	if (!d->closing) {
+		if ((isBusy() && preventCloseWhenBusy()) || !confirmCloseWizard()) {
+			return;
+		}
 	}
+
 	QWizard::reject();
 }
 
@@ -270,7 +276,7 @@ void MvdImportDialog::keyPressEvent(QKeyEvent* e)
 	case Qt::Key_Escape: 
 		if ((isBusy() && preventCloseWhenBusy()) || !confirmCloseWizard()) {
 			return;
-		}
+		} else d->closing = true;
 	default: ;
 	}
 

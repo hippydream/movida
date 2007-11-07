@@ -49,6 +49,8 @@ public:
 	MvdImportResultsPage* resultsPage;
 	MvdImportSummaryPage* summaryPage;
 	MvdImportFinalPage* finalPage;
+
+	bool closing;
 };
 
 #endif // MVD_IMPORTDIALOG_P_H
