@@ -76,6 +76,8 @@ void MpiMovieImport::runImdbImport(const QList<MpiBlue::Engine*>& engines)
 
 	// data downloaded, data parsed, poster downloaded, MvdMovieData ready
 	mImportDialog->setImportSteps(4);
+	// [update scripts], results downloaded, results parsed
+	mImportDialog->setSearchSteps(3);
 	mImportDialog->setWindowModality(Qt::WindowModal);
 	mImportDialog->exec();
 }
@@ -351,6 +353,7 @@ void MpiMovieImport::performSearch(const QString& query, MpiBlue::Engine* engine
 {
 	Q_ASSERT(engine && !mTempFile);
 
+	mImportDialog->setNextSearchStep(); // Step 1
 	mImportDialog->showMessage(tr("All scripts updated. Sending query."));
 
 	iLog() << QString("MpiMovieImport: performing search for query '%1' and engine %2").arg(query).arg(engine->name);
@@ -562,6 +565,7 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 				Q_ARG(int, mCurrentEngine)));
 			break;
 		case FetchingResultsState:
+			mImportDialog->setNextSearchStep(); // Step 2
 			Q_ASSERT(QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection));
 			break;
 		case FetchingMovieDataState:
@@ -742,6 +746,8 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 
 	if (mCurrentState == FetchingMovieDataState) {
 		mImportDialog->setNextImportStep(); // Step 2
+	} else if (mCurrentState == FetchingResultsState) {
+		mImportDialog->setNextSearchStep(); // Step 3
 	}
 
 	// Log interpreter output
