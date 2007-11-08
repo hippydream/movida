@@ -49,7 +49,7 @@ using namespace MovidaShared;
 */
 MvdImportResultsPage::MvdImportResultsPage(QWidget* parent)
 : MvdImportPage(parent), matchId(0), lastSelectedMatches(0), locked(false)
-{QLabel* infoLabel;
+{
 	setTitle(tr("Search results"));
 	setSubTitle(tr("Please select the items you want to import.\nYou can confirm each single import after viewing all the movie details in the next page."));
 
@@ -239,7 +239,7 @@ void MvdImportResultsPage::addSubSection(const QString& title, const QString& no
 
 	if (!sectionItem)
 	{
-		sectionItem = new QTreeWidgetItem(results);
+		sectionItem = new QTreeWidgetItem(ui.results);
 		// Expand the first top-level section only
 		ui.results->expandItem(sectionItem);
 		QFont font = sectionItem->font(0);
