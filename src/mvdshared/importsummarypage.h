@@ -61,6 +61,7 @@ private slots:
 	void previewPreviousJob();
 	void previewNextJob();
 	void importMovieStateChanged();
+	void jumpToMovie(int index);
 
 private:
 	struct ImportJob {

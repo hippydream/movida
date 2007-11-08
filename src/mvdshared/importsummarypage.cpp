@@ -44,13 +44,20 @@ MvdImportSummaryPage::MvdImportSummaryPage(QWidget* parent)
 	setTitle(tr("Import summary."));
 	setSubTitle(tr("This page shows a preview of the movies you have selected for import.\nIf you have changed your mind, you can still exclude some movie from the import process."));
 	setCommitPage(true);
+
 	ui.setupUi(this);
 
 	previousResultId = ui.previousResult->addControl(tr("Previous movie"), false);
 	connect(ui.previousResult, SIGNAL(controlTriggered(int)), this, SLOT(previewPreviousJob()));
+
 	nextResultId = ui.nextResult->addControl(tr("Next movie"), false);
 	connect(ui.nextResult, SIGNAL(controlTriggered(int)), this, SLOT(previewNextJob()));
+
 	connect( ui.importMovie, SIGNAL(stateChanged(int)), this, SLOT(importMovieStateChanged()));
+
+	ui.jumpLabel->setEnabled(false);
+	ui.jumpInput->setEnabled(false);
+	connect(ui.jumpInput, SIGNAL(valueChanged(int)), this, SLOT(jumpToMovie(int)));
 
 	registerField("importedMoviesCount", this, "importedMoviesCount", SIGNAL("importedMoviesCountChanged()"));
 }
@@ -93,13 +100,23 @@ void MvdImportSummaryPage::setLock(bool lock)
 {
 	if (lock == locked)
 		return;
+	
 	locked = lock;
-	if (!locked) {
+
+	ui.jumpLabel->setEnabled(false);
+	ui.jumpInput->setEnabled(false);
+
+	if (!lock) {
 		if (jobs.isEmpty()) {
 			showMessage(tr("No movie has been selected for import.\nPlease press the %1 button to repeat the search.")
 				.arg(this->wizard()->buttonText(QWizard::BackButton)),
 				MvdImportDialog::InfoMessage);
 			return;
+		} else if (jobs.size() > 1) {
+			ui.jumpLabel->setEnabled(true);
+			ui.jumpInput->setEnabled(true);
+			ui.jumpInput->setMinimum(1);
+			ui.jumpInput->setMaximum(jobs.size());
 		}
 		iLog() << "MvdImportSummaryPage: Movie data downloaded. Preparing import previews.";
 		ui.stack->setCurrentIndex(1);
@@ -158,7 +175,7 @@ void MvdImportSummaryPage::previewPreviousJob()
 {
 	previousVisibleJob = currentVisibleJob;
 	--currentVisibleJob;
-	visibleJobChanged();
+	ui.jumpInput->setValue(currentVisibleJob + 1); // triggers visibleJobChanged();
 }
 
 //! Shows the next import job in the preview area.
@@ -166,7 +183,7 @@ void MvdImportSummaryPage::previewNextJob()
 {
 	previousVisibleJob = currentVisibleJob;
 	++currentVisibleJob;
-	visibleJobChanged();
+	ui.jumpInput->setValue(currentVisibleJob + 1); // triggers visibleJobChanged();
 }
 
 //! Emits the importedMoviesCountChanged() signals.
@@ -211,4 +228,12 @@ void MvdImportSummaryPage::setProgressMaximum(int m)
 int MvdImportSummaryPage::progress() const
 {
 	return ui.progressBar->value();
+}
+
+//!
+void MvdImportSummaryPage::jumpToMovie(int index)
+{
+	previousVisibleJob = currentVisibleJob;
+	currentVisibleJob = index - 1; // visible index differs from list index
+	visibleJobChanged();
 }
