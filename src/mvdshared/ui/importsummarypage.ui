@@ -28,7 +28,7 @@
    <item row="0" column="0" >
     <widget class="QStackedWidget" name="stack" >
      <property name="currentIndex" >
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="noResultsPage" >
       <layout class="QGridLayout" >
@@ -55,7 +55,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0" >
+       <item row="3" column="0" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -67,6 +67,16 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QProgressBar" name="progressBar" >
+         <property name="value" >
+          <number>100</number>
+         </property>
+         <property name="textVisible" >
+          <bool>false</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

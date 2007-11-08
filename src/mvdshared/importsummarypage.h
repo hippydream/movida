@@ -46,6 +46,10 @@ public:
 
 	int importedMoviesCount() const;
 
+	void setProgress(int v);
+	void setProgressMaximum(int m);
+	int progress() const;
+
 	MvdMovieDataList movies();
 
 signals:

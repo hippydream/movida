@@ -113,13 +113,15 @@ int MvdImportResultsPage::selectedResultsCount() const
 //! Override. Unlocks the UI if it was locked.
 void MvdImportResultsPage::setBusyStatus(bool busy)
 {
-	if (locked && !busy)
-	{
+	MvdImportPage::setBusyStatus(busy);
+
+	if (locked && !busy) {
 		setLock(false);
 		resultsSelectionChanged();
 	}
 
-	MvdImportPage::setBusyStatus(busy);
+	if (!busy && results->topLevelItemCount() == 0)
+		wizard()->next();
 }
 
 //! Locks or unlocks (part of) the GUI.

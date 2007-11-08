@@ -74,6 +74,8 @@ void MpiMovieImport::runImdbImport(const QList<MpiBlue::Engine*>& engines)
 	connect( mImportDialog, SIGNAL(resetRequest()),
 		this, SLOT(reset()) );
 
+	// data downloaded, data parsed, poster downloaded, MvdMovieData ready
+	mImportDialog->setImportSteps(4);
 	mImportDialog->setWindowModality(Qt::WindowModal);
 	mImportDialog->exec();
 }
@@ -563,9 +565,11 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 			Q_ASSERT(QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection));
 			break;
 		case FetchingMovieDataState:
+			mImportDialog->setNextImportStep(); // Step 1
 			Q_ASSERT(QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection));
 			break;
 		case FetchingMoviePosterState:
+			mImportDialog->setNextImportStep(); // Step 3
 			Q_ASSERT(QMetaObject::invokeMethod(this, "processMoviePoster", Qt::QueuedConnection));
 			break;
 		default: ; 
@@ -735,6 +739,10 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 {
 	Q_ASSERT(mInterpreter);
 	Q_UNUSED(exitCode);
+
+	if (mCurrentState == FetchingMovieDataState) {
+		mImportDialog->setNextImportStep(); // Step 2
+	}
 
 	// Log interpreter output
 	QString line;
@@ -989,17 +997,18 @@ void MpiMovieImport::processMovieDataFile(const QString& path)
 	mImportDialog->showMessage(tr("Processing movie data."));
 	Q_ASSERT(mSearchResults.contains(mCurrentImportJob));
 	SearchResult& result = mSearchResults[mCurrentImportJob];
-	if (!result.data.loadFromXml(path, MvdMovieData::StopAtFirstMovie)) {
-		if (!QFile::remove(path))
-			wLog() << "MpiMovieImport: failed to delete temporary file '" << path << "'.";
-		mSearchResults.remove(mCurrentImportJob);
+
+	bool res = result.data.loadFromXml(path, MvdMovieData::StopAtFirstMovie);
+	mImportDialog->setNextImportStep(); // Step 4
+
+	if (!QFile::remove(path))
+		wLog() << "MpiMovieImport: failed to delete temporary file '" << path << "'.";
+
+	if (!res) {
 		mImportDialog->showMessage(tr("Discarding invalid movie data."));
 		Q_ASSERT(QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection));
 		return;
 	}
-	
-	if (!QFile::remove(path))
-		wLog() << "MpiMovieImport: failed to delete temporary file '" << path << "'.";
 
 	if (!result.data.posterPath.isEmpty() && result.data.posterPath.startsWith("http://")) {
 		mTempFile = createTemporaryFile();

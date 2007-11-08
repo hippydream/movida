@@ -43,7 +43,7 @@ MvdImportSummaryPage::MvdImportSummaryPage(QWidget* parent)
 {
 	setTitle(tr("Import summary."));
 	setSubTitle(tr("This page shows a preview of the movies you have selected for import.\nIf you have changed your mind, you can still exclude some movie from the import process."));
-
+	setCommitPage(true);
 	ui.setupUi(this);
 
 	previousResultId = ui.previousResult->addControl(tr("Previous movie"), false);
@@ -193,4 +193,22 @@ void MvdImportSummaryPage::reset()
 	setBusyStatus(false);
 	ui.stack->setCurrentIndex(0);
 	jobs.clear();
+}
+
+//! Sets the current progress.
+void MvdImportSummaryPage::setProgress(int v)
+{
+	ui.progressBar->setValue(v);
+}
+
+//! Sets the maximum progress value.
+void MvdImportSummaryPage::setProgressMaximum(int m)
+{
+	ui.progressBar->setMaximum(m);
+}
+
+//! Returns the current progress value.
+int MvdImportSummaryPage::progress() const
+{
+	return ui.progressBar->value();
 }

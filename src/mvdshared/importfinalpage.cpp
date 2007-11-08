@@ -207,8 +207,6 @@ void MvdImportFinalPage::updateButtons()
 
 		if (QAbstractButton* b = wizard()->button(QWizard::CancelButton))
 			b->setEnabled(!locked);
-		if (QAbstractButton* b = wizard()->button(QWizard::BackButton))
-			b->setEnabled(!locked);
 		if (QAbstractButton* b = wizard()->button(QWizard::FinishButton))
 			b->setEnabled(!locked);
 	}
