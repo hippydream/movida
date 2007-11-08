@@ -59,6 +59,8 @@ public:
 	MvdSharedData_P(const MvdSharedData_P& s);
 	~MvdSharedData_P();
 
+	inline void logNewItem(const MvdSdItem& item);
+
 	QHash<mvdid,MvdSdItem> data;
 
 	mvdid nextId;
@@ -89,6 +91,15 @@ MvdSharedData_P::MvdSharedData_P(const MvdSharedData_P& s)
 //! \internal
 MvdSharedData_P::~MvdSharedData_P()
 {
+}
+
+//! \internal
+void MvdSharedData_P::logNewItem(const MvdSdItem& item)
+{
+	iLog() << "MvdSharedData: Item added: " << item.value << "("
+		<< (item.id.isEmpty() ? QString("no id; ") : QString("id: %1; ").arg(item.id))
+		<< (item.description.isEmpty() ? QString("no descr.") : QString("descr.: %1").arg(item.description))
+		<< ")";
 }
 
 /************************************************************************
@@ -287,8 +298,7 @@ mvdid MvdSharedData::addItem(const MvdSdItem& item)
 
 	mvdid newId = d->nextId++;
 	d->data.insert(newId, item);
-	iLog() << QString("MvdSharedData: Item added: %1 (id: %2, description: %3)")
-		.arg(item.value).arg(item.id).arg(item.description);
+	d->logNewItem(item);
 	emit itemAdded(newId);
 	return newId;
 }

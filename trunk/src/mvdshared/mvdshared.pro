@@ -27,7 +27,7 @@ win32 {
 }
 
 
-INCLUDEPATH += . ../mvdcore
+INCLUDEPATH += . ../mvdcore ../movida
 
 QMAKE_TARGET_DESCRIPTION = Utility library for Movida, the free movie collection manager.
 

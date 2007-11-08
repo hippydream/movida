@@ -72,8 +72,8 @@ public:
 	};
 
 	inline MvdSdItem() : role(Movida::NoRole) {}
-	inline MvdSdItem(Movida::DataRole arole, QString avalue, QString adescription = QString())
-		: role(arole), value(avalue), description(adescription) {}
+	inline MvdSdItem(Movida::DataRole arole, QString avalue, QString adescription = QString(), QString aid = QString())
+		: role(arole), value(avalue), description(adescription), id(aid) {}
 
 	inline bool operator==(const MvdSdItem& o) const
 	{

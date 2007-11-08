@@ -24,6 +24,7 @@
 #include "pathresolver.h"
 #include "logger.h"
 #include "shareddata.h"
+#include "plugininterface.h"
 #include <QCoreApplication>
 #include <QLocale>
 #include <QSize>
@@ -85,13 +86,13 @@ public:
 //! \internal
 MvdCore_P* MvdCore::d = 0;
 
-
 /************************************************************************
  MvdCore
 *************************************************************************/
 
 //! \internal
 bool MvdCore::MvdCoreInitOk = false;
+MvdPluginContext* MvdCore::PluginContext = 0;
 
 /*!
 	Possibly call this from the main() routine. It will attempt to initialize
@@ -466,4 +467,18 @@ bool MvdCore::isValidYear(QString s)
 	int maxY = QDate::currentDate().year();
 
 	return !(n < minY || n > maxY);
+}
+
+/*! Returns the application wide unique plugin context. The application using movida core
+	is supposed to initialize and keep the context up-to-date (e.g. set the collection pointer
+	to the currently open collection or to a new collection) before calling any plugin action.
+
+	\warning Remember that plugins are allowed to assert that the context is valid and contains
+	valid (non null) pointers only!
+*/
+MvdPluginContext* MvdCore::pluginContext()
+{
+	if (!MvdCore::PluginContext)
+		MvdCore::PluginContext = new MvdPluginContext;
+	return MvdCore::PluginContext;
 }

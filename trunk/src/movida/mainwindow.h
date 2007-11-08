@@ -37,7 +37,6 @@ class QMenu;
 class QGridLayout;
 class QTextBrowser;
 class QStackedWidget;
-
 class MvdSmartView;
 class MvdTreeView;
 class MvdDockWidget;
@@ -51,6 +50,8 @@ class MvdMainWindow : public QMainWindow
 public:
 	MvdMainWindow(QWidget* parent = 0);
 	virtual ~MvdMainWindow();
+
+	MvdMovieCollection* currentCollection();
 
 public slots:
 	bool loadCollection(const QString& file);
@@ -117,6 +118,7 @@ private:
 
 	QPointer<MvdMovieEditor> mMovieEditor;
 
+	void setupUi();
 	void retranslateUi();
 	void setupConnections();
 	void createNewCollection();
@@ -170,5 +172,9 @@ private slots:
 	void movieViewToggled(QAction*);
 	void cycleMovieView();
 };
+
+namespace Movida {
+	extern MvdMainWindow* MainWindow;
+}
 
 #endif // MVD_MAINWINDOW_H
