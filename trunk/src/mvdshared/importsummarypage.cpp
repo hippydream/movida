@@ -43,7 +43,6 @@ MvdImportSummaryPage::MvdImportSummaryPage(QWidget* parent)
 {
 	setTitle(tr("Import summary."));
 	setSubTitle(tr("This page shows a preview of the movies you have selected for import.\nIf you have changed your mind, you can still exclude some movie from the import process."));
-	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
 
 	ui.setupUi(this);
 
@@ -152,9 +151,6 @@ void MvdImportSummaryPage::visibleJobChanged()
 
 	ui.nextResult->setControlEnabled(nextResultId, currentVisibleJob < jobs.size() - 1);
 	ui.previousResult->setControlEnabled(previousResultId, currentVisibleJob > 0);
-	
-	ui.currentResultLabel->setText(tr("Showing movie %1 out of %2.").arg(currentVisibleJob + 1).arg(jobs.size())
-			.prepend("<b>").append("</b>"));
 }
 
 //! Shows the previous import job in the preview area.
