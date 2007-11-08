@@ -72,10 +72,6 @@ private slots:
 private:
 	Ui::MvdImportResultsPage ui;
 
-	QTreeWidget* results;
-	QLabel* infoLabel;
-	QLabel* stackedInfoLabel;
-	QStackedWidget* stack;
 	int matchId;
 	int lastSelectedMatches;
 	bool locked;
