@@ -852,7 +852,7 @@ void MpiMovieImport::processResultsFile(const QString& path)
 		return;
 	}
 
-	bool hasCachedResults = parseSearchResults(doc, node->xmlChildrenNode, path);
+	bool hasCachedResults = parseSearchResults(doc, node->xmlChildrenNode, mTempFile ? mTempFile->fileName() : QString());
 	QFile::remove(path);
 
 	if (!hasCachedResults && mTempFile)
