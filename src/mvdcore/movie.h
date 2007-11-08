@@ -83,8 +83,8 @@ public:
 	void setColorMode(ColorMode mode);
 
 	QList<mvdid> languages() const;
-	void addLanguage(mvdid countryID);
-	void setLanguages(const QList<mvdid>& countryIDs);
+	void addLanguage(mvdid languageID);
+	void setLanguages(const QList<mvdid>& languageIDs);
 	void clearLanguages();
 
 	QList<mvdid> countries() const;

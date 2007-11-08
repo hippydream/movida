@@ -28,6 +28,15 @@
 #include <QList>
 
 class MvdPluginInterface_P;
+class MvdMovieCollection;
+
+class MvdPluginContext
+{
+public:
+	MvdPluginContext() : collection(0) {}
+
+	MvdMovieCollection* collection;
+};
 
 class MVD_EXPORT MvdPluginInterface : public QObject
 {

@@ -37,6 +37,7 @@ SOURCES += \
 	main.cpp \
 	maininfopage.cpp \
 	mainwindow.cpp \
+	mainwindow_gui.cpp \
 	movieeditor.cpp \
 	notespage.cpp \
 	mainsettingspage.cpp \

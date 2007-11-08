@@ -19,16 +19,18 @@
 **
 **************************************************************************/
 
-#include "moviecollection.h"
-#include "movie.h"
-#include "logger.h"
-#include "global.h"
 #include "core.h"
-#include "pathresolver.h"
+#include "global.h"
+#include "logger.h"
 #include "md5.h"
+#include "movie.h"
+#include "moviecollection.h"
+#include "moviedata.h"
+#include "pathresolver.h"
+#include "sditem.h"
 #include <QDateTime>
-#include <QFileInfo>
 #include <QDir>
+#include <QFileInfo>
 #include <QPixmap>
 #include <QUuid>
 
@@ -355,6 +357,116 @@ mvdid MvdMovieCollection::addMovie(const MvdMovie& movie)
 	
 	emit movieAdded(d->id);
 	return d->id++;
+}
+
+/*!
+	Creates a new MvdMovie object from a movie data object, registering
+	shared data with the SD and then adds the movie to the collection.
+	MvdNull is returned if the movie could not be added.
+	A movieAdded() signal is emitted if the movie has been added.
+ */
+mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
+{
+	if (!movie.isValid())
+		return MvdNull;
+
+	MvdMovie m;
+	m.setTitle(movie.title);
+	m.setOriginalTitle(movie.originalTitle);
+	m.setReleaseYear(movie.releaseYear);
+	m.setProductionYear(movie.productionYear);
+	m.setEdition(movie.edition);
+	m.setImdbId(movie.imdbId);
+	m.setPlot(movie.plot);
+	m.setNotes(movie.notes);
+	m.setStorageId(movie.storageId);
+	m.setRunningTime(movie.runningTime);
+	m.setRating(movie.rating);
+	m.setColorMode(movie.colorMode);
+
+	for (int i = 0; i < movie.languages.size(); ++i) {
+		const QString& s = movie.languages.at(i);
+		mvdid id = smd().addItem(MvdSdItem(Movida::LanguageRole, s));
+		m.addLanguage(id);
+	}
+
+	for (int i = 0; i < movie.countries.size(); ++i) {
+		const QString& s = movie.countries.at(i);
+		mvdid id = smd().addItem(MvdSdItem(Movida::CountryRole, s));
+		m.addCountry(id);
+	}
+
+	for (int i = 0; i < movie.tags.size(); ++i) {
+		const QString& s = movie.tags.at(i);
+		mvdid id = smd().addItem(MvdSdItem(Movida::TagRole, s));
+		m.addTag(id);
+	}
+
+	for (int i = 0; i < movie.genres.size(); ++i) {
+		const QString& s = movie.genres.at(i);
+		mvdid id = smd().addItem(MvdSdItem(Movida::GenreRole, s));
+		m.addGenre(id);
+	}
+
+	for (int i = 0; i < movie.directors.size(); ++i) {
+		const MvdMovieData::PersonData& p = movie.directors.at(i);
+		MvdSdItem sdi(Movida::PersonRole, p.name);
+		sdi.id = p.imdbId;
+		for (int j = 0; j < p.urls.size(); ++j) {
+			const MvdMovieData::UrlData& ud = p.urls.at(j);
+			sdi.urls.append(MvdSdItem::Url(ud.url, ud.description, ud.isDefault));
+		}
+		mvdid id = smd().addItem(sdi);
+		m.addDirector(id);
+	}
+
+	for (int i = 0; i < movie.producers.size(); ++i) {
+		const MvdMovieData::PersonData& p = movie.producers.at(i);
+		MvdSdItem sdi(Movida::PersonRole, p.name);
+		sdi.id = p.imdbId;
+		for (int j = 0; j < p.urls.size(); ++j) {
+			const MvdMovieData::UrlData& ud = p.urls.at(j);
+			sdi.urls.append(MvdSdItem::Url(ud.url, ud.description, ud.isDefault));
+		}
+		mvdid id = smd().addItem(sdi);
+		m.addProducer(id);
+	}
+
+	for (int i = 0; i < movie.crewMembers.size(); ++i) {
+		const MvdMovieData::PersonData& p = movie.crewMembers.at(i);
+		MvdSdItem sdi(Movida::PersonRole, p.name);
+		sdi.id = p.imdbId;
+		for (int j = 0; j < p.urls.size(); ++j) {
+			const MvdMovieData::UrlData& ud = p.urls.at(j);
+			sdi.urls.append(MvdSdItem::Url(ud.url, ud.description, ud.isDefault));
+		}
+		mvdid id = smd().addItem(sdi);
+		m.addCrewMember(id, p.roles);
+	}
+
+	for (int i = 0; i < movie.actors.size(); ++i) {
+		const MvdMovieData::PersonData& p = movie.actors.at(i);
+		MvdSdItem sdi(Movida::PersonRole, p.name);
+		sdi.id = p.imdbId;
+		for (int j = 0; j < p.urls.size(); ++j) {
+			const MvdMovieData::UrlData& ud = p.urls.at(j);
+			sdi.urls.append(MvdSdItem::Url(ud.url, ud.description, ud.isDefault));
+		}
+		mvdid id = smd().addItem(sdi);
+		m.addActor(id, p.roles);
+	}
+
+	for (int i = 0; i < movie.urls.size(); ++i) {
+		const MvdMovieData::UrlData& u = movie.urls.at(i);
+		m.addUrl(MvdUrl(u.url, u.description, u.isDefault));
+	}
+
+	m.setSpecialContents(movie.specialContents);
+
+	if (!movie.posterPath.isEmpty())
+		m.setPoster(addImage(movie.posterPath, MoviePosterImage));
+
+	return addMovie(m);
 }
 
 /*!

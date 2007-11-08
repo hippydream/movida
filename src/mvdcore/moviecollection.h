@@ -24,14 +24,15 @@
 
 #include "global.h"
 #include "shareddata.h"
-#include <QList>
 #include <QHash>
+#include <QList>
 #include <QString>
 #include <QStringList>
 
-class MvdMovieCollection_P;
-class MvdMovie;
 class MvdLogger;
+class MvdMovie;
+class MvdMovieCollection_P;
+class MvdMovieData;
 
 class MVD_EXPORT MvdMovieCollection : public QObject
 {
@@ -69,6 +70,8 @@ public:
 	mvdid addMovie(const MvdMovie& movie);
 	void updateMovie(mvdid id, const MvdMovie& movie);
 	void removeMovie(mvdid id);
+
+	mvdid addMovie(const MvdMovieData& movie);
 	
 	bool contains(const QString& title, int year) const;
 	

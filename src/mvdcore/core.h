@@ -28,6 +28,7 @@
 #include <libxml/xmlerror.h>
 
 class MvdCore_P;
+class MvdPluginContext;
 
 class MVD_EXPORT MvdCore
 {
@@ -62,9 +63,12 @@ public:
 
 	static bool isValidYear(QString s);
 
+	static MvdPluginContext* pluginContext();
+
 private:
 	static MvdCore_P* d;
 	static bool MvdCoreInitOk;
+	static MvdPluginContext* PluginContext;
 };
 
 namespace Movida

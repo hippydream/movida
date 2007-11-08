@@ -23,10 +23,12 @@
 #include "importdialog.h"
 #include "importdialog_p.h"
 #include "core.h"
+#include "plugininterface.h"
 #include "actionlabel.h"
 #include "templatemanager.h"
 #include "settings.h"
 #include "logger.h"
+#include "guiglobal.h"
 #include <QLabel>
 #include <QRadioButton>
 #include <QGridLayout>
@@ -180,7 +182,12 @@ void MvdImportFinalPage::importMovies(const MvdMovieDataList& movies)
 				showMessage(tr("Importing the last movie: '%1'...").arg(s), MvdImportDialog::InfoMessage);
 			else showMessage(tr("Importing '%1'. %2 movie(s) remaining...", "# of movies not imported yet", movies.size() - 1 - i).arg(s).arg(movies.size() - 1 - i), MvdImportDialog::InfoMessage);
 		}
-		
+	
+		MvdMovieCollection* collection = MvdCore::pluginContext()->collection;
+		Q_ASSERT(collection);
+
+		collection->addMovie(m);
+
 		QCoreApplication::processEvents();
 	}
 
@@ -188,6 +195,7 @@ void MvdImportFinalPage::importMovies(const MvdMovieDataList& movies)
 	initializePageInternal();
 }
 
+//! \todo Remove this code if next Qt versions will allow to lock the wizard.
 //! Forces the buttons to lock or unlock.
 void MvdImportFinalPage::updateButtons()
 {
