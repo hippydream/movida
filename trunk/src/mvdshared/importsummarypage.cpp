@@ -199,7 +199,11 @@ MvdMovieDataList MvdImportSummaryPage::movies()
 	MvdMovieDataList l;
 	for (int i = 0; i < jobs.count(); ++i) {
 		const ImportJob& j = jobs.at(i);
-		l.append(j.data);
+		if (currentVisibleJob == i) {
+			if (ui.importMovie->isChecked())
+				l.append(j.data);
+		} else if (j.import)
+			l.append(j.data);
 	}
 	return l;
 }
