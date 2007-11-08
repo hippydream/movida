@@ -82,8 +82,6 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 	setPixmap(QWizard::BannerPixmap, QPixmap(":/images/import/banner.png"));
 	setWindowTitle(tr("Movida import wizard"));
 
-	setButtonText(QWizard::CommitButton, tr("&Import"));
-
 	Q_UNUSED(qRegisterMetaType<MvdMovieDataList>());
 }
 
@@ -245,6 +243,8 @@ void MvdImportDialog::pageChanged(int id)
 	} break;
 	case MvdImportDialog_P::ResultsPage:
 	{
+		setButtonText(QWizard::CommitButton, tr("&Next"));
+
 		QString q = d->startPage->query();
 		if (Movida::settings().value("movida/use-history").toBool()) {
 		
@@ -261,6 +261,8 @@ void MvdImportDialog::pageChanged(int id)
 	} break;
 	case MvdImportDialog_P::SummaryPage:
 	{
+		setButtonText(QWizard::CommitButton, tr("&Import"));
+
 		QList<int> jobs = d->resultsPage->jobs();
 		int count = jobs.size();
 		d->summaryPage->setProgress(0);

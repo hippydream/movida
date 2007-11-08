@@ -52,6 +52,7 @@ MvdImportResultsPage::MvdImportResultsPage(QWidget* parent)
 {
 	setTitle(tr("Search results"));
 	setSubTitle(tr("Please select the items you want to import.\nYou can confirm each single import after viewing all the movie details in the next page."));
+	setCommitPage(true);
 
 	ui.setupUi(this);
 	
