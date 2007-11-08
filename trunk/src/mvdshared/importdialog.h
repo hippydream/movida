@@ -56,6 +56,9 @@ public:
 
 	void showMessage(const QString& msg, MessageType type = InfoMessage);
 
+	void setImportSteps(quint8 s);
+	void setNextImportStep();
+
 	int addMatch(const QString& title, const QString& year, const QString& notes = QString());
 	void addMovieData(const MvdMovieData& md);
 

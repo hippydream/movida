@@ -58,6 +58,8 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 	// Add pages
 
 	d->closing = false;
+	d->importSteps = 1;
+	d->importCount = 0;
 
 	d->startPage = new MvdImportStartPage;
 	setPage(MvdImportDialog_P::StartPage, d->startPage);
@@ -78,6 +80,8 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 	setPixmap(QWizard::LogoPixmap, QPixmap(":/images/import/logo.png"));
 	setPixmap(QWizard::BannerPixmap, QPixmap(":/images/import/banner.png"));
 	setWindowTitle(tr("Movida import wizard"));
+
+	setButtonText(QWizard::CommitButton, tr("&Import"));
 
 	Q_UNUSED(qRegisterMetaType<MvdMovieDataList>());
 }
@@ -138,6 +142,16 @@ void MvdImportDialog::showMessage(const QString& msg, MessageType type)
 		p->showMessage(msg, type);
 }
 
+void MvdImportDialog::setImportSteps(quint8 s)
+{
+	d->importSteps = s == 0 ? 1 : s;
+}
+
+void MvdImportDialog::setNextImportStep()
+{
+	d->summaryPage->setProgress(d->summaryPage->progress() + 1);
+}
+
 /*! Adds a search result to the results list. \p notes can contain additional data used
 	to help the user distinguish between similar results.
 	Returns a unique identifier used to refer to this search result later on (i.e. in the
@@ -155,6 +169,7 @@ int MvdImportDialog::addMatch(const QString& title, const QString& year, const Q
 void MvdImportDialog::addMovieData(const MvdMovieData& md)
 {
 	d->summaryPage->addMovieData(md);
+	d->summaryPage->setProgress(++(d->importCount) * d->importSteps);
 }
 
 /*!
@@ -211,7 +226,10 @@ void MvdImportDialog::pageChanged(int id)
 	} break;
 	case MvdImportDialog_P::SummaryPage:
 	{
-		emit importRequest(d->resultsPage->jobs());
+		QList<int> jobs = d->resultsPage->jobs();
+		int count = jobs.size();
+		d->summaryPage->setProgressMaximum(d->importSteps * count);
+		emit importRequest(jobs);
 	} break;
 	case MvdImportDialog_P::FinalPage:
 	{

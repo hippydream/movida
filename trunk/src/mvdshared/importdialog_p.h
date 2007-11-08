@@ -51,6 +51,8 @@ public:
 	MvdImportFinalPage* finalPage;
 
 	bool closing;
+	quint8 importSteps;
+	quint32 importCount;
 };
 
 #endif // MVD_IMPORTDIALOG_P_H
