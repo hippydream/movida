@@ -53,6 +53,7 @@ public:
 	bool closing;
 	quint8 importSteps;
 	quint32 importCount;
+	quint8 searchSteps;
 };
 
 #endif // MVD_IMPORTDIALOG_P_H

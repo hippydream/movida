@@ -60,6 +60,7 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 	d->closing = false;
 	d->importSteps = 1;
 	d->importCount = 0;
+	d->searchSteps = 1;
 
 	d->startPage = new MvdImportStartPage;
 	setPage(MvdImportDialog_P::StartPage, d->startPage);
@@ -142,14 +143,45 @@ void MvdImportDialog::showMessage(const QString& msg, MessageType type)
 		p->showMessage(msg, type);
 }
 
+/*!
+	Each single import job is supposed to be made up of a certain number of steps
+	(e.g. download the movie data, parse the data, download the poster, etc.).
+	Plugins can provide a more detailed progress using this mechanism.
+	First off, the number of steps that makes up a job needs to be set using
+	this method. The best is to do this before calling MvdImportDialog::exec().
+
+	Then, after a step has been completed (e.g. after downloading the movie data),
+	call setNextImportStep().
+
+	Movida will show the current progress according to the steps and to the number
+	of movies that the user has selected for import.
+
+	Nothing happens if a step is skipped or if the steps mechanism is not used. The
+	progress indicator might just appear less fluid to the user.
+*/
 void MvdImportDialog::setImportSteps(quint8 s)
 {
 	d->importSteps = s == 0 ? 1 : s;
 }
 
+//! See MvdImportDialog::setImportSteps(quint8).
 void MvdImportDialog::setNextImportStep()
 {
 	d->summaryPage->setProgress(d->summaryPage->progress() + 1);
+}
+
+/*! This method is pretty similar to MvdImportDialog::setImportSteps(quint8), except it is
+	used to measure the progress of the search process.
+*/
+void MvdImportDialog::setSearchSteps(quint8 s)
+{
+	d->searchSteps = s == 0 ? 1 : s;
+}
+
+//! See MvdImportDialog::setSearchSteps(quint8).
+void MvdImportDialog::setNextSearchStep()
+{
+	d->resultsPage->setProgress(d->resultsPage->progress() + 1);
 }
 
 /*! Adds a search result to the results list. \p notes can contain additional data used
@@ -222,12 +254,16 @@ void MvdImportDialog::pageChanged(int id)
 			Movida::settings().setValue("movida/history/movie-import", history);
 			d->startPage->updateCompleter(history);
 		}
+		static const int QueryCount = 1; //! \todo Change this after multiple searches have been implemented
+		d->resultsPage->setProgress(0);
+		d->resultsPage->setProgressMaximum(d->searchSteps * QueryCount);
 		emit searchRequest(q, d->startPage->engine());
 	} break;
 	case MvdImportDialog_P::SummaryPage:
 	{
 		QList<int> jobs = d->resultsPage->jobs();
 		int count = jobs.size();
+		d->summaryPage->setProgress(0);
 		d->summaryPage->setProgressMaximum(d->importSteps * count);
 		emit importRequest(jobs);
 	} break;

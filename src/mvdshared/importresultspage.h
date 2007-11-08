@@ -23,9 +23,11 @@
 #define MVD_IMPORTRESULTSPAGE_H
 
 #include "importpage.h"
+#include "ui_importresultspage.h"
 
-class QTreeWidget;
 class QLabel;
+class QStackedWidget;
+class QTreeWidget;
 class QTreeWidgetItem;
 
 class MvdImportResultsPage : public MvdImportPage
@@ -51,6 +53,10 @@ public:
 	void showMessage(const QString& msg, MvdImportDialog::MessageType t);
 	void setBusyStatus(bool busy);
 
+	void setProgress(int v);
+	void setProgressMaximum(int m);
+	int progress() const;
+
 	int resultsCount() const;
 	int selectedResultsCount() const;
 
@@ -64,8 +70,12 @@ private slots:
 	void ensureItemVisible();
 
 private:
+	Ui::MvdImportResultsPage ui;
+
 	QTreeWidget* results;
 	QLabel* infoLabel;
+	QLabel* stackedInfoLabel;
+	QStackedWidget* stack;
 	int matchId;
 	int lastSelectedMatches;
 	bool locked;

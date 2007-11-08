@@ -59,6 +59,9 @@ public:
 	void setImportSteps(quint8 s);
 	void setNextImportStep();
 
+	void setSearchSteps(quint8 s);
+	void setNextSearchStep();
+
 	int addMatch(const QString& title, const QString& year, const QString& notes = QString());
 	void addMovieData(const MvdMovieData& md);
 

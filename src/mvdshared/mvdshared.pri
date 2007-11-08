@@ -31,4 +31,5 @@ RESOURCES += \
 	
 FORMS += \
 	ui/importfinalpage.ui \
+	ui/importresultspage.ui \
 	ui/importsummarypage.ui

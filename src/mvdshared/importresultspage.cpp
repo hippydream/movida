@@ -19,13 +19,9 @@
 **
 **************************************************************************/
 
-#include "importresultspage.h"
-#include "importdialog.h"
 #include "core.h"
-#include <QLabel>
-#include <QTreeWidget>
-#include <QGridLayout>
-#include <QPushButton>
+#include "importdialog.h"
+#include "importresultspage.h"
 #include <QHeaderView>
 #include <math.h>
 
@@ -53,42 +49,19 @@ using namespace MovidaShared;
 */
 MvdImportResultsPage::MvdImportResultsPage(QWidget* parent)
 : MvdImportPage(parent), matchId(0), lastSelectedMatches(0), locked(false)
-{
+{QLabel* infoLabel;
 	setTitle(tr("Search results"));
 	setSubTitle(tr("Please select the items you want to import.\nYou can confirm each single import after viewing all the movie details in the next page."));
 
-	QGridLayout* gridLayout = new QGridLayout(this);
+	ui.setupUi(this);
 	
-	results = new QTreeWidget(this);
-	results->setHeaderLabels(QStringList() << tr("Title") << tr("Year"));
-	results->setRootIsDecorated(false);
-	
-	results->header()->setResizeMode(0, QHeaderView::Stretch);
-	results->header()->setStretchLastSection(false);
+	ui.results->setHeaderLabels(QStringList() << tr("Title") << tr("Year"));
+	ui.results->header()->setResizeMode(0, QHeaderView::Stretch);
+	ui.results->header()->setStretchLastSection(false);
 
-	QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	sizePolicy.setHorizontalStretch(5);
-	sizePolicy.setVerticalStretch(0);
-	sizePolicy.setHeightForWidth(results->sizePolicy().hasHeightForWidth());
-	results->setSizePolicy(sizePolicy);
-	
-	gridLayout->addWidget(results, 0, 0, 1, 1);
-	
-	infoLabel = new QLabel(this);
-	infoLabel->setWordWrap(true);
-
-	sizePolicy = QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	sizePolicy.setHorizontalStretch(2);
-	sizePolicy.setVerticalStretch(0);
-	sizePolicy.setHeightForWidth(infoLabel->sizePolicy().hasHeightForWidth());
-	infoLabel->setSizePolicy(sizePolicy);
-	// infoLabel->setMargin(10);
-	
-	gridLayout->addWidget(infoLabel, 1, 0, 1, 1);
-
-	connect( results, SIGNAL(itemSelectionChanged()), 
+	connect( ui.results, SIGNAL(itemSelectionChanged()), 
 		this, SLOT(resultsSelectionChanged()) );
-	connect( results, SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
+	connect( ui.results, SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
 		this, SLOT(resultsCheckStateChanged()) );
 
 	// Register fields
@@ -120,8 +93,10 @@ void MvdImportResultsPage::setBusyStatus(bool busy)
 		resultsSelectionChanged();
 	}
 
-	if (!busy && results->topLevelItemCount() == 0)
+	if (!busy && ui.results->topLevelItemCount() == 0)
 		wizard()->next();
+
+	ui.stack->setCurrentIndex(busy ? 0 : 1);
 }
 
 //! Locks or unlocks (part of) the GUI.
@@ -135,8 +110,8 @@ void MvdImportResultsPage::setLock(bool lock)
 //! Initialize page each time it is shown.
 void MvdImportResultsPage::initializePage()
 {
-	results->clear();
-	results->setRootIsDecorated(false);
+	ui.results->clear();
+	ui.results->setRootIsDecorated(false);
 
 	// Wait until the search is done.
 	setBusyStatus(true);
@@ -146,8 +121,8 @@ void MvdImportResultsPage::initializePage()
 //! This method is called when the user hits the "back" button.
 void MvdImportResultsPage::cleanupPage()
 {
-	results->clear();
-	results->setRootIsDecorated(false);
+	ui.results->clear();
+	ui.results->setRootIsDecorated(false);
 
 	// Update status message
 	resultsSelectionChanged();
@@ -160,7 +135,9 @@ void MvdImportResultsPage::cleanupPage()
 void MvdImportResultsPage::showMessage(const QString& msg, MvdImportDialog::MessageType t)
 {
 	Q_UNUSED(t);
-	infoLabel->setText(msg);
+	if (ui.stack->currentIndex() == 1)
+		ui.infoLabel->setText(msg);
+	else ui.stackedInfoLabel->setText(msg);
 }
 
 /*!
@@ -170,9 +147,9 @@ int MvdImportResultsPage::addMatch(const QString& title, const QString& year, co
 {
 	// Get current section (if any)
 	QTreeWidgetItem* sectionItem = 0;
-	for (int i = results->topLevelItemCount() - 1; i >= 0 && !sectionItem; --i)
+	for (int i = ui.results->topLevelItemCount() - 1; i >= 0 && !sectionItem; --i)
 	{
-		QTreeWidgetItem* item = results->topLevelItem(i);
+		QTreeWidgetItem* item = ui.results->topLevelItem(i);
 		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
 		if (type == SectionItem)
 			sectionItem = item;
@@ -194,7 +171,7 @@ int MvdImportResultsPage::addMatch(const QString& title, const QString& year, co
 	int id = matchId++;
 
 	QTreeWidgetItem* item = sectionItem ? 
-		new QTreeWidgetItem(sectionItem) : new QTreeWidgetItem(results);
+		new QTreeWidgetItem(sectionItem) : new QTreeWidgetItem(ui.results);
 	item->setData(0, ItemTypeRole, quint32(StandardItem));
 	item->setData(0, JobIdRole, id);
 	item->setText(0, title);
@@ -214,11 +191,11 @@ int MvdImportResultsPage::addMatch(const QString& title, const QString& year, co
 */
 void MvdImportResultsPage::addSection(const QString& title, const QString& notes)
 {
-	QTreeWidgetItem* item = new QTreeWidgetItem(results);
+	QTreeWidgetItem* item = new QTreeWidgetItem(ui.results);
 	// Expand the first top-level section only
 	if (countSections() == 0) {
-		results->expandItem(item);
-		results->setRootIsDecorated(true);
+		ui.results->expandItem(item);
+		ui.results->setRootIsDecorated(true);
 	}
 	item->setFirstColumnSpanned(true);
 
@@ -249,9 +226,9 @@ void MvdImportResultsPage::addSubSection(const QString& title, const QString& no
 	// Get current top level section
 	QTreeWidgetItem* sectionItem = 0;
 	int topLevelItemIndex = 0;
-	for (int i = results->topLevelItemCount() - 1; i >= 0 && !sectionItem; --i)
+	for (int i = ui.results->topLevelItemCount() - 1; i >= 0 && !sectionItem; --i)
 	{
-		QTreeWidgetItem* item = results->topLevelItem(i);
+		QTreeWidgetItem* item = ui.results->topLevelItem(i);
 		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
 		if (type == SectionItem)
 		{
@@ -264,7 +241,7 @@ void MvdImportResultsPage::addSubSection(const QString& title, const QString& no
 	{
 		sectionItem = new QTreeWidgetItem(results);
 		// Expand the first top-level section only
-		results->expandItem(sectionItem);
+		ui.results->expandItem(sectionItem);
 		QFont font = sectionItem->font(0);
 		font.setBold(true);
 		sectionItem->setFont(0, font);
@@ -276,7 +253,7 @@ void MvdImportResultsPage::addSubSection(const QString& title, const QString& no
 	QTreeWidgetItem* item = new QTreeWidgetItem(sectionItem);
 	// Expand the first top-level section only
 	if (topLevelItemIndex == 0)
-		results->expandItem(item);
+		ui.results->expandItem(item);
 	item->setFirstColumnSpanned(true);
 
 	QFont font = item->font(0);
@@ -302,9 +279,9 @@ int MvdImportResultsPage::countMatches(int* selected) const
 {
 	int c = 0;
 	int s = 0;
-	for (int i = 0; i < results->topLevelItemCount(); ++i)
+	for (int i = 0; i < ui.results->topLevelItemCount(); ++i)
 	{
-		QTreeWidgetItem* item = results->topLevelItem(i);
+		QTreeWidgetItem* item = ui.results->topLevelItem(i);
 		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
 		if (type == SectionItem)
 		{
@@ -341,9 +318,9 @@ int MvdImportResultsPage::countMatches(int* selected) const
 int MvdImportResultsPage::countSections(const QTreeWidgetItem* section) const
 {
 	int c = 0;
-	for (int i = 0; i < (section ? section->childCount() : results->topLevelItemCount()); ++i)
+	for (int i = 0; i < (section ? section->childCount() : ui.results->topLevelItemCount()); ++i)
 	{
-		QTreeWidgetItem* item = section ? section->child(i) : results->topLevelItem(i);
+		QTreeWidgetItem* item = section ? section->child(i) : ui.results->topLevelItem(i);
 		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
 		if (type == SectionItem)
 			c++;
@@ -363,7 +340,7 @@ void MvdImportResultsPage::resultsSelectionChanged()
 	bool showItemCount = false;
 	QString text;
 
-	QList<QTreeWidgetItem*> list = results->selectedItems();
+	QList<QTreeWidgetItem*> list = ui.results->selectedItems();
 	if (list.isEmpty())
 		showItemCount = true;
 	else
@@ -403,19 +380,19 @@ void MvdImportResultsPage::resultsSelectionChanged()
 //! \internal Ensures the selected item is visible in the results view.
 void MvdImportResultsPage::ensureItemVisible()
 {
-	QList<QTreeWidgetItem*> list = results->selectedItems();
+	QList<QTreeWidgetItem*> list = ui.results->selectedItems();
 	if (list.isEmpty())
 		return;
-	results->scrollToItem(list.at(0));
+	ui.results->scrollToItem(list.at(0));
 }
 
 //! Returns a list containing the requested jobs.
 QList<int> MvdImportResultsPage::jobs() const
 {
 	QList<int> list;
-	for (int i = 0; i < results->topLevelItemCount(); ++i)
+	for (int i = 0; i <ui. results->topLevelItemCount(); ++i)
 	{
-		QTreeWidgetItem* topItem = results->topLevelItem(i);
+		QTreeWidgetItem* topItem = ui.results->topLevelItem(i);
 		ItemType topType = ItemType(topItem->data(0, ItemTypeRole).toUInt());
  		if (topType == SectionItem)
 		{
@@ -449,4 +426,22 @@ void MvdImportResultsPage::resultsCheckStateChanged()
 {
 	// Update selected item count
 	resultsSelectionChanged();
+}
+
+//! Sets the current progress.
+void MvdImportResultsPage::setProgress(int v)
+{
+	ui.progressBar->setValue(v);
+}
+
+//! Sets the maximum progress value.
+void MvdImportResultsPage::setProgressMaximum(int m)
+{
+	ui.progressBar->setMaximum(m);
+}
+
+//! Returns the current progress value.
+int MvdImportResultsPage::progress() const
+{
+	return ui.progressBar->value();
 }
