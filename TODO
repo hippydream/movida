@@ -1,0 +1,36 @@
+TODO-list for movida
+======================
+<nick>  == reported by
+-->nick == assigned to
+
+
+SHORT-TERM (URGENT):
+
+<blue_death>	Rename html view to something different than detials view (details == the 
+		tree widget view!)
+<blue_death>	Add double click to tiles view
+<blue_death>	Add sorting to tiles view
+<blue_death>	Add grouping to details and tree view (grouping in acdsee pro 2 looks very 
+		good ;-)
+<blue_death>	Add filters!
+
+
+MID-TERM:
+
+<blue_death>	Fix column width in the tree view and clean up the header and the context 
+		menu some how
+<blue_death>	5 star rating doesnt look fine. maybe 10 stars?
+<blue_death>	Design and implement import plugin script options!!
+		(command line par returns xml with config?)
+<blue_death>	Multiple movie editing
+<blue_death>	Use Qt 4.4 webkit! (wait until it's ready?)
+
+LONG-TERM:
+<blue_death>	Artwork
+<blue_death>	Metadata extraction from AVI and DVD
+
+
+DO-NOT-IMPLEMENT (stuff that was rejected):
+
+<ariya>		Add a CoverFlow view (movie covers are usually too small or low res)
+<cyril>		Browse local movies and extract info in realtime
