@@ -19,23 +19,24 @@
 **
 **************************************************************************/
 
+#include "core.h"
+#include "expandinglineedit.h"
+#include "guiglobal.h"
+#include "logger.h"
 #include "sdtreewidget.h"
 #include "settings.h"
-#include "logger.h"
-#include "core.h"
-#include "guiglobal.h"
-#include "expandinglineedit.h"
-#include <QtDebug>
 #include <QComboBox>
+#include <QComboBox>
+#include <QCompleter>
+#include <QDesktopServices>
+#include <QHeaderView>
+#include <QHeaderView>
 #include <QList>
 #include <QMenu>
 #include <QMessageBox>
-#include <QDesktopServices>
-#include <QUrl>
-#include <QComboBox>
-#include <QHeaderView>
-#include <QCompleter>
 #include <QStringListModel>
+#include <QUrl>
+#include <QtDebug>
 
 /*!
 	\class MvdSDTreeWidget sdtreewidget.h
@@ -116,6 +117,13 @@ void MvdSDTreeWidget::setDataSource(Movida::DataRole ds)
 		labels << Movida::sharedDataAttributeString(attributes.at(i));
 
 	setHeaderLabels(labels);
+
+	if (attributes.size() > 1) {
+		// Attempt to adjust column sizes - future releases might require some more logic here
+		header()->setResizeMode(0, QHeaderView::Stretch);
+		header()->setResizeMode(1, QHeaderView::Stretch);
+		header()->setStretchLastSection(false);
+	}
 
 	if (mCollection == 0 || !mMovie.isValid())
 		return;
