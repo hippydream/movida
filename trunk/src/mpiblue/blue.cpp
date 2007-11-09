@@ -81,7 +81,7 @@ MvdPluginInterface::PluginInfo MpiBlue::info() const
 	info.name = tr("Blue plugin");
 	info.description = tr("Basic import/export plugin");
 	info.author = "Fabrizio Angius";
-	info.version = "0.2";
+	info.version = "0.8";
 	return info;
 }
 
@@ -93,7 +93,7 @@ QList<MvdPluginInterface::PluginAction> MpiBlue::actions() const
 	a.text = tr("IMDb movie import");
 	a.helpText = tr("Import movies from the IMDb website.");
 	a.name = "imdb-import";
-	a.type = MvdPluginInterface::MovieImportAction;
+	a.type = MvdPluginInterface::ImportAction;
 	list << a;
 
 	a.text = tr("Reload engines");
