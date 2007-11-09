@@ -96,6 +96,7 @@ private:
 
 	QMenu* mMN_File;
 	QMenu* mMN_FileMRU;
+	QMenu* mMN_FileImport;
 	QMenu* mMN_View;
 	QMenu* mMN_Coll;
 	QMenu* mMN_Tool;
@@ -130,7 +131,7 @@ private slots:
 	
 	void openRecentFile(QAction* a);
 	void addRecentFile(const QString& file);
-	void updateRecentFilesMenu();
+	void updateFileMenu();
 	
 	void updateCaption();
 	

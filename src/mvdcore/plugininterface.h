@@ -46,11 +46,10 @@ public:
 	enum ActionType
 	{
 		GenericAction = 0,
-		MovieImportAction,
-		CollectionImportAction,
-		MovieExportAction,
-		CollectionExportAction
+		ImportAction,
+		ExportAction
 	};
+	Q_DECLARE_FLAGS(ActionTypes, ActionType);
 
 	struct PluginInfo
 	{
@@ -70,7 +69,7 @@ public:
 		QString text;
 		QString helpText;
 		QString name;
-		ActionType type;
+		ActionTypes type;
 	};
 
 	MvdPluginInterface(QObject* parent = 0);
@@ -94,5 +93,6 @@ public slots:
 private:
 	MvdPluginInterface_P* d;
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(MvdPluginInterface::ActionTypes)
 
 #endif // MVD_PLUGININTERFACE_H

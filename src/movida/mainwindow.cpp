@@ -263,13 +263,14 @@ void MvdMainWindow::addRecentFile(const QString& file)
 }
 
 /*!
-	Refreshes the MRU files menu removing non existing files.
+	Checks and updates the status of the File submenu (e.g. removing non existing
+	recent files and disabling empty menus).
 */
-void MvdMainWindow::updateRecentFilesMenu()
+void MvdMainWindow::updateFileMenu()
 {
+	// RECENT FILES
+
 	QStringList list = Movida::settings().value("movida/recent-files").toStringList();
-	
-	// Remove missing files
 	bool updateList = false;
 	for (int i = 0; i < list.size(); ++i)
 	{
@@ -292,6 +293,9 @@ void MvdMainWindow::updateRecentFilesMenu()
 		QAction* a = mMN_FileMRU->addAction(QString("&%1 %2").arg(i).arg(list.at(i)));
 		a->setData(QVariant(list.at(i)));
 	}
+
+	// IMPORT
+	mMN_FileImport->setDisabled(mMN_FileImport->isEmpty());
 }
 
 /*!
@@ -1016,6 +1020,10 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 			signalMapper->setMapping(qa, a.name);
 
 			pluginMenu->addAction(qa);
+
+			if (a.type.testFlag(MvdPluginInterface::ImportAction)) {
+				mMN_FileImport->addAction(qa);
+			}
 		}
 
 		connect( signalMapper, SIGNAL(mapped(const QString&)), 

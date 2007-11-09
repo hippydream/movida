@@ -137,6 +137,8 @@ void MvdMainWindow::setupUi()
 	mMN_File = new QMenu(this);
 	mMB_MenuBar->addMenu(mMN_File);
 
+	mMN_FileImport = new QMenu(mMN_File);
+
 	mMN_FileMRU = new QMenu(mMN_File);
 
 	mMN_View = new QMenu(this);
@@ -160,6 +162,7 @@ void MvdMainWindow::setupUi()
 	mMN_File->addSeparator();
 	mMN_File->addAction(mA_FileOpen);
 	mMN_File->addAction(mA_FileOpenLast);
+	mMN_File->addMenu(mMN_FileImport);
 	mMN_File->addMenu(mMN_FileMRU);
 	mMN_File->addSeparator();
 	mMN_File->addAction(mA_FileSave);
@@ -303,6 +306,7 @@ void MvdMainWindow::retranslateUi()
 	mTB_Help->setWindowTitle( tr( "Help" ) );
 
 	mMN_File->setTitle( tr( "&File" ) );
+	mMN_FileImport->setTitle( tr( "&Import" ) );
 	mMN_FileMRU->setTitle( tr( "&Recent files" ) );
 	mMN_View->setTitle( tr( "&View" ) );
 	mMN_Coll->setTitle( tr( "&Collection" ) );
@@ -335,7 +339,7 @@ void MvdMainWindow::setupConnections()
 	connect ( mDetailsDock, SIGNAL( toggled(bool) ), this, SLOT ( dockViewsToggled() ) );
 	
 	connect ( mMN_FileMRU, SIGNAL(triggered(QAction*)), this, SLOT(openRecentFile(QAction*)) );
-	connect ( mMN_File, SIGNAL(aboutToShow()), this, SLOT(updateRecentFilesMenu()) );
+	connect ( mMN_File, SIGNAL(aboutToShow()), this, SLOT(updateFileMenu()) );
 
 	connect ( mA_CollAddMovie, SIGNAL( triggered() ), this, SLOT ( addMovie() ) );
 	connect ( mA_CollRemMovie, SIGNAL( triggered() ), this, SLOT ( removeCurrentMovie() ) );
