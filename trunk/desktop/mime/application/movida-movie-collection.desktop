@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=MimeType
+MimeType=application/movida-movie-collection
+Patterns=*.mmc;*.MMC
+Icon=application-x-mplayer2
+Comment=Movida movie collection
+Comment[it]=Collezione di film per movida
+Commenr[de]=Film Kollektion für movida
