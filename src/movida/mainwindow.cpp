@@ -257,7 +257,7 @@ void MvdMainWindow::addRecentFile(const QString& file)
 	while (list.size() > max)
 		list.removeLast();
 	
-	Movida::settings().value("movida/recent-files", list).toStringList();
+	Movida::settings().setValue("movida/recent-files", list);
 
 	mA_FileOpenLast->setDisabled(list.isEmpty());
 }
@@ -452,6 +452,8 @@ bool MvdMainWindow::saveCollectionDlg()
 
 	if (!filename.endsWith(".mmc"))
 		filename.append(".mmc");
+
+	addRecentFile(filename);
 
 	int sep = filename.lastIndexOf("/");
 	if (sep > 0)
@@ -892,11 +894,6 @@ void MvdMainWindow::loadPlugins()
 	path = paths().resourcesDir(Movida::SystemScope).append("Plugins");
 	if (!path.isEmpty())
 		loadPluginsFromDir(path);
-
-	// Add the RELOAD action
-	if (!mMN_Plugins->isEmpty())
-		mMN_Plugins->addSeparator();
-	mMN_Plugins->addAction(mA_PluginLoad);
 }
 
 //! \internal

@@ -87,7 +87,6 @@ private:
 	QAction* mA_CollDupMovie;
 	QAction* mA_ToolPref;
 	QAction* mA_ToolLog;
-	QAction* mA_PluginLoad;
 	QAction* mA_HelpAbout;
 	QAction* mA_HelpContents;
 	QAction* mA_HelpIndex;

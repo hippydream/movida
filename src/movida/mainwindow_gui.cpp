@@ -113,8 +113,6 @@ void MvdMainWindow::setupUi()
 	mA_ToolLog = new QAction(this);
 	mA_ToolLog->setIcon(QIcon(":/images/32x32/log"));
 
-	mA_PluginLoad = new QAction(this);
-
 	mA_HelpContents = new QAction(this);
 	mA_HelpContents->setIcon(QIcon(":/images/32x32/help"));
 	mA_HelpIndex = new QAction(this);
@@ -285,11 +283,6 @@ void MvdMainWindow::retranslateUi()
 	mA_ToolLog->setWhatsThis( tr( "Shows the application log file" ) );
 	mA_ToolLog->setStatusTip( tr( "Shows the application log file" ) );
 
-	mA_PluginLoad->setText( tr( "&Reload plugins" ) );
-	mA_PluginLoad->setToolTip( tr( "Reloads all the available plugins" ) );
-	mA_PluginLoad->setWhatsThis( tr( "Reloads all the available plugins" ) );
-	mA_PluginLoad->setStatusTip( tr( "Reloads all the available plugins" ) );
-
 	mA_HelpContents->setText( tr( "&Contents" ) );
 	mA_HelpContents->setToolTip( tr( "Open the Movida user guide" ) );
 	mA_HelpContents->setWhatsThis( tr( "Open the Movida user guide" ) );
@@ -348,8 +341,6 @@ void MvdMainWindow::setupConnections()
 	connect ( mA_CollRemMovie, SIGNAL( triggered() ), this, SLOT ( removeCurrentMovie() ) );
 	connect ( mA_CollEdtMovie, SIGNAL( triggered() ), this, SLOT ( editCurrentMovie() ) );
 	connect ( mA_CollDupMovie, SIGNAL( triggered() ), this, SLOT ( duplicateCurrentMovie() ) );
-
-	connect ( mA_PluginLoad, SIGNAL( triggered() ), this, SLOT ( loadPlugins() ) );
 
 	connect ( mTreeView, SIGNAL( doubleClicked(const QModelIndex&) ), this, SLOT ( editMovie(const QModelIndex&) ) );
 	connect( mTreeView->selectionModel(), SIGNAL( selectionChanged(const QItemSelection&, const QItemSelection&) ), 
