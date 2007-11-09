@@ -3,15 +3,14 @@
 *** Title: How to write a plugin for movida.
 
 
-Movida plugins are simple dynamic/shared libraries (we will use the term DLL from now on).
-The DLL must link the mvdcore library and export pluginInterface() method:
+Movida plugins are simple dynamic/shared libraries (we will use the term DLL from now on, hoping that *nix and Mac users will bear with us).
+
+The DLL must link the mvdcore library and export the pluginInterface() method:
 
 extern "C" MY_EXPORT_MACRO MvdPluginInterface* pluginInterface(QObject* parent);
 
-Plugin files (we will often call them MPI files - Movida Plug-In) must be placed in the "Plugins" subdirectory inside the 
-user or system resources directory.
-Plugin files must have the lower case prefix "mpi" on Windows and "libmpi" on Linux and Mac OS X (i.e. "mpiblue.dll", "libmpiblue.so"
-and "libmpiblue.dylib").
+Plugin files (we will often call them MPI files - Movida Plug-In) must be placed in the "Plugins" subdirectory inside the user or system resources directory.
+Plugin files must have the lower case prefix "mpi" on Windows and "libmpi" on Linux and Mac OS X (i.e. "mpiblue.dll", "libmpiblue.so" and "libmpiblue.dylib").
 
 The resources directory can be found in these locations:
 
@@ -62,13 +61,9 @@ MvdPluginInterface* pluginInterface(QObject* parent)
 }
 
 Even though the method takes a QObject pointer, the official movida GUI application will pass a pointer to the main window to the plugin.
-This means that plugins can cast it to QWidget (qobject_cast<QWidget*>(parent)) and pass it to other widgets.
-You are encouraged to do so and to set the windowModality property of dialogs to Qt::WindowModal, allowing the log window to be always accessible.
+This means that plugins can cast it to QWidget (qobject_cast<QWidget*>(parent)) and pass it to other widgets:
 
 mImportDialog = new MvdImportDialog(qobject_cast<QWidget*>(parent()));
-// ...
-mImportDialog->setWindowModality(Qt::WindowModal);
-mImportDialog->exec();
 
 For details on the MvdPluginInterface methods that need to be implemented, please refer to the doxygen documentation for the MvdPluginInterface class.
 
@@ -101,3 +96,5 @@ QList<MvdPluginInterface::PluginAction> MpiBlue::actions() const
 The "name" member is used as an identifier. It will be passed to the actionTriggeredImplementation() when the user triggers that specific action.
 The "type" can be set to a value different from GenericAction if a plugin action is "special", meaning that it can be classified using one of the predefined ActionType enum values.
 If an action is not a GenericAction, it can be called from special menus (i.e. "File > Import > Movie" if it is of type MovieImportAction).
+
+Plugins can access the current collection by using MvdCore::pluginContext(). Please do not cache the values contained in the struct but call pluginContext() every time you are executing a plugin action, as movida will update the context if necessary.
