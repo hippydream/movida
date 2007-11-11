@@ -135,9 +135,11 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
 	painter->fillRect(option.rect, 
 		option.palette.brush(cg, isSelected ? QPalette::Highlight : QPalette::Base));
-
-	// Draw border
-	painter->drawRoundRect(option.rect, roundLevel, roundLevel);
+	
+	// Draw border - disable AA to fix a rendering issue with the dashed focus rectangle
+	painter->setRenderHint(QPainter::Antialiasing, false);
+	painter->drawRoundRect(option.rect.adjusted(0, 0, -1, -1), roundLevel, roundLevel);
+	painter->setRenderHint(QPainter::Antialiasing, true);
 
 	painter->setBrush(defaultBrush);
 
@@ -214,7 +216,7 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 		{
 			shadowRect.translate(1, 1);
 			painter->setOpacity(1 - opacityDelta * (i - 1));
-			painter->drawLine(shadowRect.topRight(), shadowRect.bottomRight());
+			painter->drawLine(shadowRect.topRight(), shadowRect.bottomRight() - QPoint(0, 1));
 			painter->drawLine(shadowRect.bottomLeft(), shadowRect.bottomRight());
 		}
 
