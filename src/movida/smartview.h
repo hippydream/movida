@@ -46,11 +46,12 @@ public:
 	qreal aspectRatio() const;
 	void setAspectRatio(qreal r);
 
-	QItemSelectionModel* setSelectionModel() const;
+	QItemSelectionModel* selectionModel() const;
 	void setSelectionModel(QItemSelectionModel* selectionModel);
 
 signals:
 	void contextMenuRequested(const QModelIndex& index);
+	void doubleClicked(const QModelIndex& index);
 
 protected:
 	bool eventFilter(QObject* o, QEvent* e);

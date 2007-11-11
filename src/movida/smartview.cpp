@@ -80,7 +80,7 @@ void MvdSmartView::setAspectRatio(qreal r)
 }
 
 //! Returns the selection model used by this view.
-QItemSelectionModel* MvdSmartView::setSelectionModel() const
+QItemSelectionModel* MvdSmartView::selectionModel() const
 {
 	return view->selectionModel();
 }
@@ -124,6 +124,7 @@ void MvdSmartView::init()
 	updateSliderStatus(true);
 
 	connect( slider, SIGNAL(valueChanged(int)), this, SLOT(resizeTiles(int)) );
+	connect( view, SIGNAL(doubleClicked(QModelIndex)), this, SIGNAL(doubleClicked(QModelIndex)) );
 }
 
 bool MvdSmartView::eventFilter(QObject* o, QEvent* e)
