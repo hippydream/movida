@@ -58,7 +58,7 @@ void MvdMainWindow::setupUi()
 	mMainViewStack->addWidget(mTreeView);
 	mMainViewStack->addWidget(mSmartView);	
 
-	mDetailsDock = new MvdDockWidget(tr("Details"), this);
+	mDetailsDock = new MvdDockWidget(tr("Details view"), this);
 	mDetailsDock->setObjectName("details-dock");
 
 	addDockWidget(Qt::BottomDockWidgetArea, mDetailsDock);
@@ -257,7 +257,7 @@ void MvdMainWindow::retranslateUi()
 	dockViewsToggled();
 
 	mA_SmartView->setText( tr("&Tiles") );
-	mA_TreeView->setText( tr("&Details") );
+	mA_TreeView->setText( tr("&List") );
 		
 	mA_CollAddMovie->setText( tr( "&Add a new movie" ) );
 	mA_CollAddMovie->setToolTip( tr( "Add a new movie to the collection" ) );
@@ -314,7 +314,7 @@ void MvdMainWindow::retranslateUi()
 	mMN_Plugins->setTitle( tr("&Plugins") );
 	mMN_Help->setTitle( tr( "&Help" ) );
 	
-	mDetailsDock->setWindowTitle( tr("Details") );
+	mDetailsDock->setWindowTitle( tr("Details view") );
 	
 	updateCaption();
 }
