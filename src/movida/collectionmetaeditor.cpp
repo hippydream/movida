@@ -53,4 +53,6 @@ void MvdCollectionMetaEditor::accept()
 	mCollection->setMetaData(MvdMovieCollection::EMailInfo, mail->text().trimmed());
 	mCollection->setMetaData(MvdMovieCollection::WebsiteInfo, website->text().trimmed());
 	mCollection->setMetaData(MvdMovieCollection::NotesInfo, notes->toPlainText().trimmed());
+
+	QDialog::accept();
 }
