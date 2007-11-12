@@ -353,23 +353,26 @@ void MvdMainWindow::updateCaption()
 {
 	/*! \todo setting: show full path on titlebar */
 
-	QString txt;
+	QString name;
+	if (mCollection)
+		name = mCollection->metaData(MvdMovieCollection::NameInfo);
 	
-	if (!mCollection || mCollection->fileName().isEmpty())
-	{
-		txt = QString("%1 - %4").arg(MVD_CAPTION).arg(tr("New Collection"));
-	}
-	else
-	{
+	if (mCollection && !name.isEmpty()) {
+		;
+	} else if (!mCollection || mCollection->fileName().isEmpty()) {
+		name = tr("New Collection");
+	} else {
 		if (!mCollection->path().isEmpty())
-			txt = QString("%1 - %4").arg(MVD_CAPTION).arg(mCollection->path());
-		else txt = QString("%1 - %4").arg(MVD_CAPTION).arg(mCollection->fileName());
+			name = mCollection->path();
+		else name = mCollection->fileName();
 	}
+
+	name = QString("%1 - %2").arg(MVD_CAPTION).arg(name);
 
 	if (mCollection && mCollection->isModified())
-		txt.append("*");
+		name.append("*");
 
-	setWindowTitle(txt);
+	setWindowTitle(name);
 }
 
 /*!
