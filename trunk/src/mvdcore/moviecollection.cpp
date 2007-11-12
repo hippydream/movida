@@ -233,6 +233,9 @@ void MvdMovieCollection::setMetaData(MetaDataType ci, const QString& val)
 	default:
 		;
 	}
+
+	d->modified = true;
+	emit modified();
 }
 
 /*!
