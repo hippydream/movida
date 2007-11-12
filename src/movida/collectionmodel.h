@@ -64,6 +64,11 @@ public:
 	virtual int sortColumn() const;
 	virtual Movida::MovieAttribute sortAttribute() const;
 
+	void emit_sorted() { emit sorted(); }
+	
+signals:
+	void sorted();
+
 private:
 	MvdCollectionModel_P* d;
 

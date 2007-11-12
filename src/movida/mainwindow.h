@@ -136,6 +136,7 @@ private slots:
 	bool saveCollectionDlg();
 	void addMovie();
 	void addRecentFile(const QString& file);
+	void collectionModelSorted();
 	void collectionModified();
 	void currentViewChanged();
 	void cycleMovieView();
@@ -166,7 +167,8 @@ private slots:
 	void updateCaption();
 	void updateDetailsView();
 	void updateFileMenu();
-	void updateViewSortMenu();};
+	void updateViewSortMenu();
+};
 
 namespace Movida {
 	extern MvdMainWindow* MainWindow;

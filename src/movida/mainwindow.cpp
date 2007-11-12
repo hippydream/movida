@@ -44,6 +44,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QHeaderView>
 #include <QInputDialog>
 #include <QLibrary>
 #include <QList>
@@ -1163,4 +1164,10 @@ void MvdMainWindow::treeViewSorted(int)
 
 	if (mA_SortDescending)
 		mA_SortDescending->setChecked(mMovieModel->sortOrder() == Qt::DescendingOrder);
+}
+
+//! Updates GUI elements after the collection model has been sorted.
+void MvdMainWindow::collectionModelSorted()
+{
+	mTreeView->header()->setSortIndicator((int)mMovieModel->sortAttribute(), mMovieModel->sortOrder());
 }
