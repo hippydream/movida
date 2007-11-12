@@ -26,6 +26,8 @@
 #include <QDialog>
 
 class MvdMovieCollection;
+class QCloseEvent;
+class QKeyEvent;
 
 class MvdCollectionMetaEditor : public QDialog, private Ui::MvdCollectionMetaEditor
 {
@@ -35,9 +37,15 @@ public:
 	MvdCollectionMetaEditor(QWidget* parent = 0);
 
 	void setCollection(MvdMovieCollection* c);
+	bool isModified() const;
+
+protected:
+	virtual void closeEvent(QCloseEvent* e);
+	virtual void keyPressEvent(QKeyEvent* e);
 
 public slots:
 	virtual void accept();
+	virtual void reject();
 
 private:
 	MvdMovieCollection* mCollection;

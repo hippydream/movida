@@ -21,6 +21,9 @@
 
 #include "collectionmetaeditor.h"
 #include "moviecollection.h"
+#include <QCloseEvent>
+#include <QKeyEvent>
+#include <QMessageBox>
 
 MvdCollectionMetaEditor::MvdCollectionMetaEditor(QWidget* parent)
 : QDialog(parent), mCollection(0)
@@ -55,4 +58,49 @@ void MvdCollectionMetaEditor::accept()
 	mCollection->setMetaData(MvdMovieCollection::NotesInfo, notes->toPlainText().trimmed());
 
 	QDialog::accept();
+}
+
+void MvdCollectionMetaEditor::reject()
+{
+	setResult(QDialog::Rejected);
+	close();
+}
+
+void MvdCollectionMetaEditor::keyPressEvent(QKeyEvent* e)
+{
+	switch (e->key())
+	{
+	case Qt::Key_Escape:
+		close();
+		e->ignore();
+		return;
+	}
+
+	QDialog::keyPressEvent(e);
+}
+
+void MvdCollectionMetaEditor::closeEvent(QCloseEvent* e)
+{
+	if (isModified()) {
+		if (QMessageBox::question(this, MVD_CAPTION, tr("The collection information has been modified. Are you sure you want to discard the changes?"), 
+			QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+			e->ignore();
+			return;
+	}
+
+	QDialog::closeEvent(e);
+}
+
+//!
+bool MvdCollectionMetaEditor::isModified() const
+{
+	if (!mCollection)
+		return false;
+
+	return
+		mCollection->metaData(MvdMovieCollection::NameInfo) != name->text().trimmed() ||
+		mCollection->metaData(MvdMovieCollection::OwnerInfo) != owner->text().trimmed() ||
+		mCollection->metaData(MvdMovieCollection::EMailInfo) != mail->text().trimmed() ||
+		mCollection->metaData(MvdMovieCollection::WebsiteInfo) != website->text().trimmed() ||
+		mCollection->metaData(MvdMovieCollection::NotesInfo) != notes->toPlainText().trimmed();
 }
