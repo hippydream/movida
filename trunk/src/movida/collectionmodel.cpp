@@ -64,13 +64,16 @@ public:
 		QVariant data;
 	};
 
-	MvdCollectionModel_P() : collection(0), sortOrder(Qt::AscendingOrder), sortAttribute(Movida::TitleAttribute) {}
+	MvdCollectionModel_P(MvdCollectionModel* c) : 
+		q(c), collection(0), sortOrder(Qt::AscendingOrder), sortAttribute(Movida::TitleAttribute) {}
 
 	MvdSharedData& smd(mvdid id) const;
 
 	QString dataList(const QList<mvdid>& list, Movida::DataRole dt) const;
 	void sort(Movida::MovieAttribute attribute, Qt::SortOrder order);
 
+	MvdCollectionModel* q;
+	
 	MvdMovieCollection* collection;
 	QList<mvdid> movies;
 	Qt::SortOrder sortOrder;
@@ -165,6 +168,8 @@ void MvdCollectionModel_P::sort(Movida::MovieAttribute attribute, Qt::SortOrder 
 		for (int i = sz - 1; i >= 0; --i)
 			movies.append( l.at(i).id );
 	}
+	
+	q->emit_sorted();
 }
 
 
@@ -177,7 +182,7 @@ void MvdCollectionModel_P::sort(Movida::MovieAttribute attribute, Qt::SortOrder 
 	to work correctly.
 */
 MvdCollectionModel::MvdCollectionModel(QObject* parent)
-: QAbstractTableModel(parent), d(new MvdCollectionModel_P)
+: QAbstractTableModel(parent), d(new MvdCollectionModel_P(this))
 {
 }
 
@@ -185,7 +190,7 @@ MvdCollectionModel::MvdCollectionModel(QObject* parent)
 	Creates a new model for the specified movie collection.
 */
 MvdCollectionModel::MvdCollectionModel(MvdMovieCollection* collection, QObject* parent)
-: QAbstractTableModel(parent), d(new MvdCollectionModel_P)
+: QAbstractTableModel(parent), d(new MvdCollectionModel_P(this))
 {
 	setMovieCollection(collection);
 }
