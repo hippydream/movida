@@ -77,6 +77,9 @@ private:
 	QAction* mA_FileSave;
 	QAction* mA_FileSaveAs;
 	
+	QActionGroup* mAG_SortActions;
+	QAction* mA_SortDescending;
+
 	QActionGroup* mAG_MovieView;
 	QAction* mA_SmartView;
 	QAction* mA_TreeView;
@@ -85,6 +88,7 @@ private:
 	QAction* mA_CollRemMovie;
 	QAction* mA_CollEdtMovie;
 	QAction* mA_CollDupMovie;
+	QAction* mA_CollMeta;
 	QAction* mA_ToolPref;
 	QAction* mA_ToolLog;
 	QAction* mA_HelpAbout;
@@ -98,6 +102,7 @@ private:
 	QMenu* mMN_FileMRU;
 	QMenu* mMN_FileImport;
 	QMenu* mMN_View;
+	QMenu* mMN_ViewSort;
 	QMenu* mMN_Coll;
 	QMenu* mMN_Tool;
 	QMenu* mMN_Help;
@@ -125,53 +130,43 @@ private:
 	quint32 modelIndexToId(const QModelIndex& index) const;
 
 private slots:
-	void showPreferences();
-	void dockViewsToggled();
-	void showLog();
-	
-	void openRecentFile(QAction* a);
-	void addRecentFile(const QString& file);
-	void updateFileMenu();
-	
-	void updateCaption();
-	
 	bool closeCollection();
-	void loadLastCollection();
-
 	bool loadCollectionDlg();
-	bool saveCollectionDlg();
 	bool saveCollection();
-
-	void newCollection();
-
-	void collectionModified();
-	void movieChanged(mvdid);
-
-	void movieViewSelectionChanged();
-	void updateDetailsView();
-
+	bool saveCollectionDlg();
 	void addMovie();
-
-	void editPreviousMovie();
-	void editCurrentMovie();
-	void editNextMovie();
-
+	void addRecentFile(const QString& file);
+	void collectionModified();
+	void currentViewChanged();
+	void cycleMovieView();
+	void dockViewsToggled();
 	void duplicateCurrentMovie();
-
+	void editCurrentMovie();
 	void editMovie(const QModelIndex& index);
+	void editNextMovie();
+	void editPreviousMovie();
+	void externalActionTriggered(const QString& id, const QVariant& data);
+	void loadLastCollection();
+	void loadPlugins();
+	void loadPluginsFromDir(const QString& path);
+	void movieChanged(mvdid);
+	void movieViewSelectionChanged();
+	void movieViewToggled(QAction*);
+	void newCollection();
+	void openRecentFile(QAction* a);
 	void removeCurrentMovie();
 	void removeMovie(const QModelIndex& index);
 	void removeMovies(const QModelIndexList& list);
-
+	void showLog();
+	void showMetaEditor();
 	void showMovieContextMenu(const QModelIndex& index);
-
-	void externalActionTriggered(const QString& id, const QVariant& data);
-
-	void loadPlugins();
-	void loadPluginsFromDir(const QString& path);
-	void movieViewToggled(QAction*);
-	void cycleMovieView();
-};
+	void showPreferences();
+	void sortActionTriggered(QAction* a = 0);
+	void treeViewSorted(int logicalIndex);
+	void updateCaption();
+	void updateDetailsView();
+	void updateFileMenu();
+	void updateViewSortMenu();};
 
 namespace Movida {
 	extern MvdMainWindow* MainWindow;

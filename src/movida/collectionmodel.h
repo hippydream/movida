@@ -23,6 +23,7 @@
 #define MVD_COLLECTIONMODEL_H
 
 #include "global.h"
+#include "guiglobal.h"
 #include <QAbstractTableModel>
 
 class MvdCollectionModel_P;
@@ -55,8 +56,13 @@ public:
 	bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
 
 	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+	virtual void sortByAttribute(Movida::MovieAttribute attribute, Qt::SortOrder order);
 
 	virtual void setMovieCollection(MvdMovieCollection* c);
+	
+	virtual Qt::SortOrder sortOrder() const;
+	virtual int sortColumn() const;
+	virtual Movida::MovieAttribute sortAttribute() const;
 
 private:
 	MvdCollectionModel_P* d;

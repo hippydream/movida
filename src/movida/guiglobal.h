@@ -40,7 +40,8 @@ namespace Movida
 		PlaceholderRole,
 		TextColorBackupRole,
 		FontBackupRole,
-		ValidationRole
+		ValidationRole,
+		MovieAttributeRole
 	};
 
 	enum ItemValidator
@@ -81,11 +82,18 @@ namespace Movida
 	enum AttributeFilter
 	{
 		NoAttributeFilter,
-		MainAttributeFilter
+		MainAttributeFilter,
+		SmartViewAttributeFilter
+	};
+
+	enum AttributeContext
+	{
+		NoAttributeContext,
+		SmartViewContext
 	};
 
 	QList<MovieAttribute> movieAttributes(AttributeFilter filter = NoAttributeFilter);
-	QString movieAttributeString(MovieAttribute attribute);
+	QString movieAttributeString(MovieAttribute attribute, AttributeContext context = NoAttributeContext);
 
 	QList<SharedDataAttribute> sharedDataAttributes(Movida::DataRole role, AttributeFilter filter = NoAttributeFilter);
 	QString sharedDataAttributeString(SharedDataAttribute attribute);

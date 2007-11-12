@@ -23,12 +23,20 @@
 
 using namespace Movida;
 
+//! Returns a list of movie attributes, ordered by relevance.
 QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 {
 	QList<MovieAttribute> list;
 	switch (filter)
 	{
 	case NoAttributeFilter:
+		list << TitleAttribute;
+		list << OriginalTitleAttribute;
+		list << ProductionYearAttribute;
+		list << ReleaseYearAttribute;
+		list << RunningTimeAttribute;
+		list << RatingAttribute;
+		list << StorageIdAttribute;
 		list << ProducersAttribute;
 		list << DirectorsAttribute;
 		list << CastAttribute;
@@ -39,6 +47,7 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 		list << TagsAttribute;
 		list << ColorModeAttribute;
 		list << ImdbIdAttribute;
+		break;
 	case MainAttributeFilter:
 		list << TitleAttribute;
 		list << OriginalTitleAttribute;
@@ -47,32 +56,41 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 		list << RunningTimeAttribute;
 		list << StorageIdAttribute;
 		list << RatingAttribute;
+	case SmartViewAttributeFilter:
+		list << TitleAttribute;
+		list << ReleaseYearAttribute;
+		list << DirectorsAttribute;
+		list << RunningTimeAttribute;
+		list << RatingAttribute;
+		break;
 	default: ;
 	}
 	return list;
 }
 
-QString Movida::movieAttributeString(MovieAttribute attribute)
+QString Movida::movieAttributeString(MovieAttribute attribute, AttributeContext context)
 {
+	const char* comment = context == NoAttributeContext ? "Default context" : "Smart view context";
+
 	switch (attribute)
 	{
-	case TitleAttribute: return QCoreApplication::translate("MovieAttribute", "Title");
-	case OriginalTitleAttribute: return QCoreApplication::translate("MovieAttribute", "Original title");
-	case ProductionYearAttribute: return QCoreApplication::translate("MovieAttribute", "Production year");
-	case ReleaseYearAttribute: return QCoreApplication::translate("MovieAttribute", "Release year");
-	case ProducersAttribute: return QCoreApplication::translate("MovieAttribute", "Producers");
-	case DirectorsAttribute: return QCoreApplication::translate("MovieAttribute", "Directors");
-	case CastAttribute: return QCoreApplication::translate("MovieAttribute", "Cast");
-	case CrewAttribute: return QCoreApplication::translate("MovieAttribute", "Crew");
-	case RunningTimeAttribute: return QCoreApplication::translate("MovieAttribute", "Running time");
-	case StorageIdAttribute: return QCoreApplication::translate("MovieAttribute", "Storage ID");
-	case GenresAttribute: return QCoreApplication::translate("MovieAttribute", "Genres");
-	case LanguagesAttribute: return QCoreApplication::translate("MovieAttribute", "Languages");
-	case CountriesAttribute: return QCoreApplication::translate("MovieAttribute", "Countries");
-	case TagsAttribute: return QCoreApplication::translate("MovieAttribute", "Tags");
-	case ColorModeAttribute: return QCoreApplication::translate("MovieAttribute", "Color");
-	case ImdbIdAttribute: return QCoreApplication::translate("MovieAttribute", "IMDb ID");
-	case RatingAttribute: return QCoreApplication::translate("MovieAttribute", "Rating");
+	case TitleAttribute: return QCoreApplication::translate("MovieAttribute", "Title", comment);
+	case OriginalTitleAttribute: return QCoreApplication::translate("MovieAttribute", "Original title", comment);
+	case ProductionYearAttribute: return QCoreApplication::translate("MovieAttribute", "Production year", comment);
+	case ReleaseYearAttribute: return QCoreApplication::translate("MovieAttribute", "Release year", comment);
+	case ProducersAttribute: return QCoreApplication::translate("MovieAttribute", "Producers", comment);
+	case DirectorsAttribute: return QCoreApplication::translate("MovieAttribute", "Directors", comment);
+	case CastAttribute: return QCoreApplication::translate("MovieAttribute", "Cast", comment);
+	case CrewAttribute: return QCoreApplication::translate("MovieAttribute", "Crew", comment);
+	case RunningTimeAttribute: return QCoreApplication::translate("MovieAttribute", "Running time", comment);
+	case StorageIdAttribute: return QCoreApplication::translate("MovieAttribute", "Storage ID", comment);
+	case GenresAttribute: return QCoreApplication::translate("MovieAttribute", "Genres", comment);
+	case LanguagesAttribute: return QCoreApplication::translate("MovieAttribute", "Languages", comment);
+	case CountriesAttribute: return QCoreApplication::translate("MovieAttribute", "Countries", comment);
+	case TagsAttribute: return QCoreApplication::translate("MovieAttribute", "Tags", comment);
+	case ColorModeAttribute: return QCoreApplication::translate("MovieAttribute", "Color", comment);
+	case ImdbIdAttribute: return QCoreApplication::translate("MovieAttribute", "IMDb ID", comment);
+	case RatingAttribute: return QCoreApplication::translate("MovieAttribute", "Rating", comment);
 	default: ;
 	}
 	return QString();
