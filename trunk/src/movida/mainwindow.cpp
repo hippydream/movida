@@ -20,6 +20,7 @@
 **************************************************************************/
 
 #include "collectionloader.h"
+#include "collectionmetaeditor.h"
 #include "collectionmodel.h"
 #include "collectionsaver.h"
 #include "core.h"
@@ -72,7 +73,8 @@ MvdMainWindow* Movida::MainWindow = 0;
 	Creates a new main window and initializes the application.
 */
 MvdMainWindow::MvdMainWindow(QWidget* parent)
-: QMainWindow(parent), mMB_MenuBar(menuBar()), mCollection(0), mMovieEditor(0)
+: QMainWindow(parent), mAG_SortActions(0), mA_SortDescending(0),
+mMB_MenuBar(menuBar()), mCollection(0), mMovieEditor(0)
 {
 	Q_ASSERT_X(!Movida::MainWindow, "MvdMainWindow", "Internal Error. Only a single instance of MvdMainWindow can be created.");
 	Movida::MainWindow = this;
@@ -138,6 +140,8 @@ MvdMainWindow::MvdMainWindow(QWidget* parent)
 	mA_FileSaveAs->setDisabled(true);
 
 	movieViewSelectionChanged();
+	mMovieModel->sortByAttribute(Movida::TitleAttribute, Qt::AscendingOrder);
+	currentViewChanged();
 
 	createNewCollection();
 	loadPlugins();
@@ -298,6 +302,50 @@ void MvdMainWindow::updateFileMenu()
 	mMN_FileImport->setDisabled(mMN_FileImport->isEmpty());
 }
 
+//! Populates the sort menu according to the current view.
+void MvdMainWindow::updateViewSortMenu()
+{
+	mMN_ViewSort->clear();
+	delete mAG_SortActions;
+
+	QList<Movida::MovieAttribute> atts;
+	 
+	if (mMainViewStack->currentWidget() == mSmartView) {
+		atts.append(Movida::TitleAttribute);
+		atts.append(Movida::ReleaseYearAttribute);
+		atts.append(Movida::ProductionYearAttribute);
+	} else {
+		atts = Movida::movieAttributes();
+	}
+	
+	Movida::MovieAttribute currentAttribute = mMovieModel->sortAttribute();
+
+	mAG_SortActions = new QActionGroup(this);
+	mAG_SortActions->setExclusive(true);
+	connect(mAG_SortActions, SIGNAL(triggered(QAction*)), this, SLOT(sortActionTriggered(QAction*)));
+
+	for (int i = 0; i < atts.size(); ++i) {
+		Movida::MovieAttribute a = atts.at(i);
+		QAction* action = mAG_SortActions->addAction(Movida::movieAttributeString(a));
+		action->setCheckable(true);
+		if (a == currentAttribute)
+			action->setChecked(true);
+		action->setData((int)a);
+	}
+
+	mMN_ViewSort->addActions(mAG_SortActions->actions());
+	
+	mMN_ViewSort->addSeparator();
+	
+	if (!mA_SortDescending) {
+		mA_SortDescending = new QAction(tr("&Descending"), this);
+		mA_SortDescending->setCheckable(true);
+		connect(mA_SortDescending, SIGNAL(triggered()), this, SLOT(sortActionTriggered()));
+	}
+
+	mMN_ViewSort->addAction(mA_SortDescending);
+}
+
 /*!
 	Updates the main window title.
 */
@@ -400,6 +448,13 @@ bool MvdMainWindow::loadCollection(const QString& file)
 	
 	// Update GUI controls
 	collectionModified();
+
+	Movida::MovieAttribute a = Movida::TitleAttribute;
+	QAction* ca = mAG_SortActions->checkedAction();
+	if (ca)
+		a = (Movida::MovieAttribute)ca->data().toInt();
+	
+	mMovieModel->sortByAttribute(a, mMovieModel->sortOrder());
 
 	return true;
 }
@@ -863,15 +918,21 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 		return;
 
 	QMenu menu;
-	if (sender() == mSmartView)
+	if (sender() == mSmartView && mAG_SortActions)
 	{
-		QMenu* sortMenu = menu.addMenu(tr("Sort movies by"));
-		sortMenu->addAction(tr("Title"));
-		sortMenu->addAction(tr("Production year"));
-		sortMenu->addAction(tr("Release year"));
+		QMenu* sortMenu = menu.addMenu(tr("Sort"));
+		sortMenu->addActions(mAG_SortActions->actions());
+		sortMenu->addSeparator();
+		sortMenu->addAction(mA_SortDescending);
 	}
 	
-	menu.exec(QCursor::pos());
+	QAction* res = menu.exec(QCursor::pos());
+
+	Qt::SortOrder so = mMovieModel->sortOrder() == Qt::AscendingOrder ? 
+		Qt::DescendingOrder : Qt::AscendingOrder;
+
+	Q_UNUSED(res);
+	Q_UNUSED(so);
 }
 
 //! \internal
@@ -1055,4 +1116,48 @@ MvdMovieCollection* MvdMainWindow::currentCollection()
 		createNewCollection();
 	Q_ASSERT(mCollection);
 	return mCollection;
+}
+
+//! Shows the collection metadata editor.
+void MvdMainWindow::showMetaEditor()
+{
+	//! Handle read-only collections
+	MvdCollectionMetaEditor editor(this);
+	editor.setCollection(currentCollection());
+	editor.exec();
+}
+
+//! Updates gui elements after the current view has changed.
+void MvdMainWindow::currentViewChanged()
+{
+	updateViewSortMenu();
+}
+
+void MvdMainWindow::sortActionTriggered(QAction* a)
+{
+	if (!a)
+		a = mAG_SortActions->checkedAction();
+
+	Qt::SortOrder so = mA_SortDescending && mA_SortDescending->isChecked() ? Qt::DescendingOrder : Qt::AscendingOrder;
+	mMovieModel->sortByAttribute(a ? (Movida::MovieAttribute)a->data().toInt() : Movida::TitleAttribute, so);
+}
+
+//! Updates the sort actions whenever the tree view is sorted by the user
+void MvdMainWindow::treeViewSorted(int)
+{
+	if (!mAG_SortActions)
+		return;
+
+	Movida::MovieAttribute attrib = mMovieModel->sortAttribute();
+	QList<QAction*> alist = mAG_SortActions->actions();
+	for (int i = 0; i < alist.size(); ++i) {
+		QAction* a = alist.at(i);
+		if ((Movida::MovieAttribute)a->data().toInt() == attrib) {
+			a->setChecked(true);
+			break;
+		}
+	}
+
+	if (mA_SortDescending)
+		mA_SortDescending->setChecked(mMovieModel->sortOrder() == Qt::DescendingOrder);
 }

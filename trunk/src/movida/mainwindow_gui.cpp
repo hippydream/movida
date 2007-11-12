@@ -21,6 +21,7 @@
 
 #include "collectionmodel.h"
 #include "dockwidget.h"
+#include "guiglobal.h"
 #include "mainwindow.h"
 #include "pathresolver.h"
 #include "rowselectionmodel.h"
@@ -28,6 +29,7 @@
 #include "treeview.h"
 #include <QDockWidget>
 #include <QGridLayout>
+#include <QHeaderView>
 #include <QIcon>
 #include <QMenu>
 #include <QMenuBar>
@@ -40,7 +42,7 @@
 //!
 void MvdMainWindow::setupUi()
 {
-		mMainViewStack = new QStackedWidget;
+	mMainViewStack = new QStackedWidget;
 	setCentralWidget(mMainViewStack);
 
 	mSmartView = new MvdSmartView(this);
@@ -107,6 +109,8 @@ void MvdMainWindow::setupUi()
 	mA_CollEdtMovie->setIcon(QIcon(":/images/32x32/edit"));
 	mA_CollDupMovie = new QAction(this);
 	mA_CollDupMovie->setIcon(QIcon(":/images/32x32/duplicate"));
+	mA_CollMeta = new QAction(this);
+	mA_CollMeta->setIcon(QIcon(":/images/32x32/metaeditor"));
 
 	mA_ToolPref = new QAction(this);
 	mA_ToolPref->setIcon(QIcon(":/images/32x32/configure"));
@@ -175,10 +179,16 @@ void MvdMainWindow::setupUi()
 
 	mMN_View->addAction(mA_ViewDetails);
 
+	mMN_ViewSort = new QMenu(this);
+	mMN_View->addSeparator();
+	mMN_View->addMenu(mMN_ViewSort);
+	
 	mMN_Coll->addAction(mA_CollAddMovie);
 	mMN_Coll->addAction(mA_CollRemMovie);
 	mMN_Coll->addAction(mA_CollEdtMovie);
 	mMN_Coll->addAction(mA_CollDupMovie);
+	mMN_Coll->addSeparator();
+	mMN_Coll->addAction(mA_CollMeta);
 
 	mMN_Tool->addAction(mA_ToolPref);
 	mMN_Tool->addAction(mA_ToolLog);
@@ -275,6 +285,10 @@ void MvdMainWindow::retranslateUi()
 	mA_CollDupMovie->setToolTip( tr( "Duplicate the selected movie" ) );
 	mA_CollDupMovie->setWhatsThis( tr( "Duplicate the selected movie" ) );
 	mA_CollDupMovie->setStatusTip( tr( "Duplicate the selected movie" ) );
+	mA_CollMeta->setText( tr( "A&bout this collection..." ) );
+	mA_CollMeta->setToolTip( tr( "Show or edit basic information about this collection" ) );
+	mA_CollMeta->setWhatsThis( tr( "Show or edit basic information about this collection, like a name, the owner, etc." ) );
+	mA_CollMeta->setStatusTip( tr( "Show or edit basic information about this collection" ) );
 
 	mA_ToolPref->setText( tr( "&Preferences" ) );
 	mA_ToolPref->setToolTip( tr( "Configure Movida" ) );
@@ -309,6 +323,7 @@ void MvdMainWindow::retranslateUi()
 	mMN_FileImport->setTitle( tr( "&Import" ) );
 	mMN_FileMRU->setTitle( tr( "&Recent files" ) );
 	mMN_View->setTitle( tr( "&View" ) );
+	mMN_ViewSort->setTitle( tr( "&Sort" ) );
 	mMN_Coll->setTitle( tr( "&Collection" ) );
 	mMN_Tool->setTitle( tr( "&Tools" ) );
 	mMN_Plugins->setTitle( tr("&Plugins") );
@@ -345,6 +360,7 @@ void MvdMainWindow::setupConnections()
 	connect ( mA_CollRemMovie, SIGNAL( triggered() ), this, SLOT ( removeCurrentMovie() ) );
 	connect ( mA_CollEdtMovie, SIGNAL( triggered() ), this, SLOT ( editCurrentMovie() ) );
 	connect ( mA_CollDupMovie, SIGNAL( triggered() ), this, SLOT ( duplicateCurrentMovie() ) );
+	connect ( mA_CollMeta, SIGNAL( triggered() ), this, SLOT ( showMetaEditor() ) );
 
 	connect ( mTreeView, SIGNAL( doubleClicked(const QModelIndex&) ), this, SLOT ( editMovie(const QModelIndex&) ) );
 	connect( mTreeView->selectionModel(), SIGNAL( selectionChanged(const QItemSelection&, const QItemSelection&) ), 
@@ -355,4 +371,8 @@ void MvdMainWindow::setupConnections()
 	connect( mSmartView->selectionModel(), SIGNAL( selectionChanged(const QItemSelection&, const QItemSelection&) ), 
 		this, SLOT( movieViewSelectionChanged() ) );
 	connect( mSmartView, SIGNAL( contextMenuRequested(const QModelIndex&) ), this, SLOT( showMovieContextMenu(const QModelIndex&) ) );
+
+	connect( mMainViewStack, SIGNAL(currentChanged(int)), this, SLOT(currentViewChanged()) );
+
+	connect( mTreeView->header(), SIGNAL(sectionClicked(int)), this, SLOT(treeViewSorted(int)) );
 }

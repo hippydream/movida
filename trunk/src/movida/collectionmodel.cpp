@@ -24,7 +24,6 @@
 #include "movie.h"
 #include "settings.h"
 #include "shareddata.h"
-#include "guiglobal.h"
 #include <QCoreApplication>
 
 /*!
@@ -65,7 +64,7 @@ public:
 		QVariant data;
 	};
 
-	MvdCollectionModel_P() : collection(0) {}
+	MvdCollectionModel_P() : collection(0), sortOrder(Qt::AscendingOrder), sortAttribute(Movida::TitleAttribute) {}
 
 	MvdSharedData& smd(mvdid id) const;
 
@@ -74,6 +73,8 @@ public:
 
 	MvdMovieCollection* collection;
 	QList<mvdid> movies;
+	Qt::SortOrder sortOrder;
+	Movida::MovieAttribute sortAttribute;
 };
 
 //! \internal Converts a list of IMDb IDs to a list of semi-colon separated strings
@@ -102,6 +103,9 @@ QString MvdCollectionModel_P::dataList(const QList<mvdid>& list, Movida::DataRol
 //! \internal
 void MvdCollectionModel_P::sort(Movida::MovieAttribute attribute, Qt::SortOrder order)
 {
+	sortOrder = order;
+	sortAttribute = attribute;
+
 	QList<SortWrapper> l;
 
 	for (int i = 0; i < movies.size(); ++i)
@@ -417,4 +421,33 @@ void MvdCollectionModel::sort(int column, Qt::SortOrder order)
 	emit layoutAboutToBeChanged();
 	d->sort((Movida::MovieAttribute)column, order);
 	emit layoutChanged();
+}
+
+//!
+void MvdCollectionModel::sortByAttribute(Movida::MovieAttribute attribute, Qt::SortOrder order)
+{
+	if (d->movies.isEmpty())
+		return;
+
+	emit layoutAboutToBeChanged();
+	d->sort(attribute, order);
+	emit layoutChanged();
+}
+
+//! Returns the current sort order or Qt::AscendingOrder if the model is not sorted.
+Qt::SortOrder MvdCollectionModel::sortOrder() const
+{
+	return d->sortOrder;
+}
+
+//! Convenience method. Returns the current sort column or the title column id if the model is not sorted.
+int MvdCollectionModel::sortColumn() const
+{
+	return (int) d->sortAttribute;
+}
+
+//! Returns the current sort attribute or the title attribute if the model is not sorted.
+Movida::MovieAttribute MvdCollectionModel::sortAttribute() const
+{
+	return d->sortAttribute;
 }

@@ -1,4 +1,5 @@
 HEADERS += \
+	collectionmetaeditor.h \
 	collectionmodel.h \
 	crewpage.h \
 	dockwidget.h \
@@ -28,6 +29,7 @@ HEADERS += \
 	settingspage.h
 
 SOURCES += \
+	collectionmetaeditor.cpp \
 	collectionmodel.cpp \
 	multipagedialog.cpp \
 	crewpage.cpp \
@@ -52,11 +54,12 @@ SOURCES += \
 	treewidget.cpp
 
 FORMS += \
-	ui/mainsettingspage.ui \
+	ui/collectionmetaeditor.ui \
 	ui/crewpage.ui \
 	ui/extendedinfopage.ui \
 	ui/linkspage.ui \
 	ui/maininfopage.ui \
+	ui/mainsettingspage.ui \
 	ui/multipagedialog.ui \
 	ui/notespage.ui \
 	ui/passwordprompt.ui \
