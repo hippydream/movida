@@ -1185,14 +1185,13 @@ void MvdMainWindow::keyPressEvent(QKeyEvent* e)
 	if (mFilterWidget->isVisible()) {
 		switch (key) {
 		case Qt::Key_Escape:
-			mFilterWidget->hide();
 			resetFilter();
 			return;
 		case Qt::Key_Backspace:
 			ttf.chop(1);
 			break;
 		case Qt::Key_Return:
-        case Qt::Key_Enter:
+		case Qt::Key_Enter:
 			// Return/Enter key events are not accepted by QLineEdit
 			return;
 		default:
@@ -1214,6 +1213,7 @@ void MvdMainWindow::keyPressEvent(QKeyEvent* e)
 		}
 		ttf = text;
 		mFilterWidget->show();
+		mFilterWidget->setNoResultsWarningVisible(false);
 	}
 
 	mFilterWidget->editor()->setText(ttf);
@@ -1225,12 +1225,6 @@ bool MvdMainWindow::eventFilter(QObject* o, QEvent* e)
 	if (o == mFilterWidget->editor()) {
 		if (e->type() == QEvent::FocusIn && mHideFilterTimer->isActive())
 			mHideFilterTimer->stop();
-    } else if (e->type() == QEvent::KeyPress && mFilterWidget->isVisible()) { // assume textbrowser
-		QKeyEvent* ke = static_cast<QKeyEvent*>(e);
-		if (ke->key() == Qt::Key_Space) {
-			keyPressEvent(ke);
-			return true;
-		}
 	}
 
 	return QMainWindow::eventFilter(o, e);
@@ -1239,6 +1233,7 @@ bool MvdMainWindow::eventFilter(QObject* o, QEvent* e)
 void MvdMainWindow::filter()
 {
 	mFilterWidget->show();
+	mFilterWidget->setNoResultsWarningVisible(false);
 	mFilterWidget->editor()->setFocus(Qt::ShortcutFocusReason);
 	mFilterWidget->editor()->selectAll();
 	mHideFilterTimer->stop();
@@ -1246,19 +1241,25 @@ void MvdMainWindow::filter()
 
 void MvdMainWindow::filter(QString s)
 {
+	s = s.trimmed();
+
 	QPalette p = mFilterWidget->editor()->palette();
 	p.setColor(QPalette::Active, QPalette::Base, Qt::white);
 	
 	// PERFORM FILTER
 	bool nothingToFilter = true;
+	bool hasText = !mFilterWidget->editor()->text().trimmed().isEmpty();
 	
 	mFilterModel->setFilterRegExp(s);
 	
-	if (nothingToFilter)
+	if (nothingToFilter && hasText)
 		p.setColor(QPalette::Active, QPalette::Base, QColor(255, 102, 102));
 	
 	if (!mFilterWidget->isVisible())
 		mFilterWidget->show();
+
+	mFilterWidget->setNoResultsWarningVisible(nothingToFilter && hasText);
+
 	mFilterWidget->editor()->setPalette(p);
 	if (!mFilterWidget->editor()->hasFocus() && nothingToFilter)
 		mHideFilterTimer->start();
@@ -1267,4 +1268,5 @@ void MvdMainWindow::filter(QString s)
 void MvdMainWindow::resetFilter()
 {
 	mFilterModel->setFilterRegExp(QString());
+	mFilterWidget->hide();
 }

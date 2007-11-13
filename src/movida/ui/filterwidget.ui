@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
-    <height>43</height>
+    <width>611</width>
+    <height>22</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -71,6 +71,36 @@
     <widget class="QCheckBox" name="wholeWords" >
      <property name="text" >
       <string>Whole words</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="warningIconLabel" >
+     <property name="text" >
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="warningTextLabel" >
+     <property name="text" >
+      <string>No movies match the filter criteria</string>
      </property>
     </widget>
    </item>

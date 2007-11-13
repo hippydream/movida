@@ -87,11 +87,10 @@ void MvdMainWindow::setupUi()
 	mFilterWidget->setVisible(false);
 	mFilterWidget->editor()->installEventFilter(this);
 	layout->addWidget(mFilterWidget, 1, 0);
-	
+
 	mHideFilterTimer = new QTimer(this);
 	mHideFilterTimer->setInterval(5000);
 	mHideFilterTimer->setSingleShot(true);
-	QObject::connect(mHideFilterTimer, SIGNAL(timeout()), mFilterWidget, SLOT(hide()));
 	
 	// Actions
 	mA_FileNew = new QAction(this);
@@ -240,12 +239,6 @@ void MvdMainWindow::setupUi()
 	mTB_Tool->addAction(mA_ToolPref);
 
 	mTB_Help->addAction(mA_HelpContents);
-
-
-	// Other application shortcuts
-	connect( new QShortcut(Qt::CTRL + Qt::Key_V, this), SIGNAL(activated()), 
-		this, SLOT(cycleMovieView()) );
-
 
 	// This will set tooltips and all the i18n-ed text
 	retranslateUi();
@@ -398,4 +391,13 @@ void MvdMainWindow::setupConnections()
 	connect( mMainViewStack, SIGNAL(currentChanged(int)), this, SLOT(currentViewChanged()) );
 	
 	connect( mMovieModel, SIGNAL(sorted()), this, SLOT(collectionModelSorted()) );
+	
+	connect( mFilterWidget, SIGNAL(hideRequest()), this, SLOT(resetFilter()) );
+	connect( mFilterWidget->editor(), SIGNAL(textEdited(QString)), this, SLOT(filter(QString)) );
+
+	connect( mHideFilterTimer, SIGNAL(timeout()), mFilterWidget, SLOT(hide()) );
+
+	// Application shortcuts
+	connect( new QShortcut(Qt::CTRL + Qt::Key_V, this), SIGNAL(activated()), this, SLOT(cycleMovieView()) );
+	connect( new QShortcut(Qt::CTRL + Qt::Key_F, this), SIGNAL(activated()), this, SLOT(filter()) );
 }

@@ -35,6 +35,12 @@ public:
 	MvdFilterWidget(QWidget* parent = 0);
 	
 	QLineEdit* editor() const;
+
+	void setNoResultsWarningVisible(bool visible);
+	bool noResultsWarningVisible() const;
+
+signals:
+	void hideRequest();
 };
 
 #endif // MVD_FILTERWIDGET_H
