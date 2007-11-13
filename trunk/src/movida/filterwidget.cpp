@@ -26,9 +26,24 @@ MvdFilterWidget::MvdFilterWidget(QWidget* parent)
 {
 	setupUi(this);
 	closeButton->setIcon(QIcon(":/images/misc/filter-close"));
+	warningIconLabel->setPixmap(QPixmap(":/images/misc/filter-warning"));
+
+	connect( closeButton, SIGNAL(clicked()), this, SIGNAL(hideRequest()) );
 }
 
 QLineEdit* MvdFilterWidget::editor() const
 {
 	return input;
+}
+
+//! Shows or hides a label warning the user that no item has been filtered.
+void MvdFilterWidget::setNoResultsWarningVisible(bool visible)
+{
+	warningIconLabel->setVisible(visible);
+	warningTextLabel->setVisible(visible);
+}
+
+bool MvdFilterWidget::noResultsWarningVisible() const
+{
+	return warningIconLabel->isVisible();
 }

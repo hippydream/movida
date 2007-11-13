@@ -60,7 +60,7 @@ public:
 
 public slots:
 	bool loadCollection(const QString& file);
-	void filter();
+	void filter(QString s);
 	void resetFilter();
 
 protected:
@@ -162,7 +162,7 @@ private slots:
 	void editNextMovie();
 	void editPreviousMovie();
 	void externalActionTriggered(const QString& id, const QVariant& data);
-    void filter(QString);
+	void filter();
 	void loadLastCollection();
 	void loadPlugins();
 	void loadPluginsFromDir(const QString& path);
