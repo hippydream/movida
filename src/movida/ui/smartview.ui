@@ -13,11 +13,23 @@
    <string>Movida Smart View</string>
   </property>
   <layout class="QGridLayout" >
-   <property name="margin" >
+   <property name="leftMargin" >
     <number>0</number>
    </property>
-   <property name="spacing" >
+   <property name="topMargin" >
     <number>0</number>
+   </property>
+   <property name="rightMargin" >
+    <number>0</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>0</number>
+   </property>
+   <property name="horizontalSpacing" >
+    <number>0</number>
+   </property>
+   <property name="verticalSpacing" >
+    <number>2</number>
    </property>
    <item row="0" column="0" >
     <widget class="QFrame" name="mainControlPanel" >
@@ -34,18 +46,22 @@
       <number>0</number>
      </property>
      <layout class="QGridLayout" >
-      <property name="margin" >
+      <property name="topMargin" >
+       <number>1</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>1</number>
+      </property>
+      <property name="horizontalSpacing" >
        <number>0</number>
       </property>
-      <property name="spacing" >
+      <property name="verticalSpacing" >
        <number>0</number>
       </property>
       <item row="0" column="4" >
        <widget class="QSlider" name="slider" >
         <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>0</hsizetype>
-          <vsizetype>0</vsizetype>
+         <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
