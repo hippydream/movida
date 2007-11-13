@@ -113,7 +113,6 @@ mMB_MenuBar(menuBar()), mCollection(0), mMovieEditor(0)
 	p.setDefaultValue("movida/movie-list/initials", false);
 	p.setDefaultValue("movida/use-history", true);
 	p.setDefaultValue("movida/quick-filter/case-sensitive", false);
-	p.setDefaultValue("movida/quick-filter/whole-words", false);
 
 	// Initialize core library && load user settings
 	QStringList recentFiles = p.value("movida/recent-files").toStringList();
@@ -140,7 +139,6 @@ mMB_MenuBar(menuBar()), mCollection(0), mMovieEditor(0)
 		setWindowState(Qt::WindowMaximized);
 
 	mFilterWidget->setCaseSensitivity(p.value("movida/quick-filter/case-sensitive").toBool() ? Qt::CaseSensitive : Qt::CaseInsensitive);
-	mFilterWidget->setMatchWholeWords(p.value("movida/quick-filter/whole-words").toBool());
 	
 	// a new empty collection is always open at startup
 	mA_FileNew->setDisabled(true);
@@ -226,7 +224,6 @@ void MvdMainWindow::closeEvent(QCloseEvent* e)
 	p.setValue("movida/appearance/main-window-size", size());
 	p.setValue("movida/appearance/main-window-pos", pos());
 	p.setValue("movida/quick-filter/case-sensitive", mFilterWidget->caseSensitivity() == Qt::CaseSensitive);
-	p.setValue("movida/quick-filter/whole-words", mFilterWidget->matchWholeWords());
 
 	MvdCore::storeStatus();
 }

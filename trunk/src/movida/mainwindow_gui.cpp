@@ -394,7 +394,6 @@ void MvdMainWindow::setupConnections()
 	
 	connect( mFilterWidget, SIGNAL(hideRequest()), this, SLOT(resetFilter()) );
 	connect( mFilterWidget, SIGNAL(caseSensitivityChanged()), this, SLOT(applyCurrentFilter()) );
-	connect( mFilterWidget, SIGNAL(matchWholeWordsChanged()), this, SLOT(applyCurrentFilter()) );
 	connect( mFilterWidget->editor(), SIGNAL(textEdited(QString)), this, SLOT(filter(QString)) );
 
 	connect( mHideFilterTimer, SIGNAL(timeout()), mFilterWidget, SLOT(hide()) );
