@@ -105,10 +105,14 @@ void MvdSmartView::init()
 
 	// How much can we adjust with the slider?
 	int maxDelta = maximumSize - qMax(tilesSize.width(), tilesSize.height());
-
+	int step = maxDelta / 10;
+	
 	slider->setMinimum(0);
-	slider->setMaximum(maxDelta);
-	slider->setValue(maxDelta / 2);
+	slider->setMaximum(step * 10);
+	slider->setValue(step * 5);
+	slider->setTickInterval(step);
+	slider->setSingleStep(step);
+	slider->setPageStep(step * 2);
 
 	delegate = new MvdSmartViewDelegate(view);
 	delegate->setItemSize(tilesSize);
