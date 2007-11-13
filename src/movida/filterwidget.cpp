@@ -29,6 +29,8 @@ MvdFilterWidget::MvdFilterWidget(QWidget* parent)
 	warningIconLabel->setPixmap(QPixmap(":/images/misc/filter-warning"));
 
 	connect( closeButton, SIGNAL(clicked()), this, SIGNAL(hideRequest()) );
+	connect( caseSensitive, SIGNAL(stateChanged(int)), this, SIGNAL(caseSensitivityChanged()) );
+	connect( wholeWords, SIGNAL(stateChanged(int)), this, SIGNAL(matchWholeWordsChanged()) );
 }
 
 QLineEdit* MvdFilterWidget::editor() const
@@ -46,4 +48,30 @@ void MvdFilterWidget::setNoResultsWarningVisible(bool visible)
 bool MvdFilterWidget::noResultsWarningVisible() const
 {
 	return warningIconLabel->isVisible();
+}
+
+/*!
+	Calling this method will not emit the caseSensitivityChanged() signal.
+*/
+void MvdFilterWidget::setCaseSensitivity(Qt::CaseSensitivity cs)
+{
+	caseSensitive->setChecked(cs == Qt::CaseSensitive);
+}
+
+Qt::CaseSensitivity MvdFilterWidget::caseSensitivity() const
+{
+	return caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive;
+}
+
+/*!
+	Calling this method will not emit the matchWholeWordsChanged() signal.
+*/
+void MvdFilterWidget::setMatchWholeWords(bool match)
+{
+	wholeWords->setChecked(match);
+}
+
+bool MvdFilterWidget::matchWholeWords() const
+{
+	return wholeWords->isChecked();
 }

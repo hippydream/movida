@@ -151,6 +151,7 @@ private slots:
 	bool saveCollectionDlg();
 	void addMovie();
 	void addRecentFile(const QString& file);
+	void applyCurrentFilter();
 	void collectionModelSorted();
 	void collectionModified();
 	void currentViewChanged();
@@ -162,7 +163,6 @@ private slots:
 	void editNextMovie();
 	void editPreviousMovie();
 	void externalActionTriggered(const QString& id, const QVariant& data);
-	void filter();
 	void loadLastCollection();
 	void loadPlugins();
 	void loadPluginsFromDir(const QString& path);
@@ -174,6 +174,7 @@ private slots:
 	void removeCurrentMovie();
 	void removeMovie(const QModelIndex& index);
 	void removeMovies(const QModelIndexList& list);
+	void showFilterWidget();
 	void showLog();
 	void showMetaEditor();
 	void showMovieContextMenu(const QModelIndex& index);

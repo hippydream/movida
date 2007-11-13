@@ -39,8 +39,16 @@ public:
 	void setNoResultsWarningVisible(bool visible);
 	bool noResultsWarningVisible() const;
 
+	void setCaseSensitivity(Qt::CaseSensitivity cs);
+	Qt::CaseSensitivity caseSensitivity() const;
+
+	void setMatchWholeWords(bool match);
+	bool matchWholeWords() const;
+
 signals:
 	void hideRequest();
+	void caseSensitivityChanged();
+	void matchWholeWordsChanged();
 };
 
 #endif // MVD_FILTERWIDGET_H
