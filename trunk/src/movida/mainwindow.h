@@ -37,11 +37,16 @@ class QMenu;
 class QGridLayout;
 class QTextBrowser;
 class QStackedWidget;
+class QTimer;
+class QEvent;
+class QKeyEvent;
 class MvdSmartView;
 class MvdTreeView;
 class MvdDockWidget;
 class MvdMovieCollection;
 class MvdCollectionModel;
+class MvdFilterWidget;
+class MvdFilterProxyModel;
 
 class MvdMainWindow : public QMainWindow
 {
@@ -55,6 +60,12 @@ public:
 
 public slots:
 	bool loadCollection(const QString& file);
+	void filter();
+	void resetFilter();
+
+protected:
+	void keyPressEvent(QKeyEvent* e);
+	bool eventFilter(QObject* o, QEvent* e);
 
 protected slots:
 	void closeEvent(QCloseEvent* e);
@@ -117,6 +128,10 @@ private:
 	// Dock windows
 	MvdDockWidget* mDetailsDock;
 	
+	MvdFilterWidget* mFilterWidget;
+	QTimer* mHideFilterTimer;
+	MvdFilterProxyModel* mFilterModel;
+	
 	// The current movie collection
 	MvdMovieCollection* mCollection;
 	MvdCollectionModel* mMovieModel;
@@ -147,6 +162,7 @@ private slots:
 	void editNextMovie();
 	void editPreviousMovie();
 	void externalActionTriggered(const QString& id, const QVariant& data);
+    void filter(QString);
 	void loadLastCollection();
 	void loadPlugins();
 	void loadPluginsFromDir(const QString& path);

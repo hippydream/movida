@@ -4,6 +4,8 @@ HEADERS += \
 	crewpage.h \
 	dockwidget.h \
 	extendedinfopage.h \
+	filterproxymodel.h \
+	filterwidget.h \
 	guiglobal.h \
 	itemdelegate.h \
 	linklabel.h \
@@ -34,6 +36,8 @@ SOURCES += \
 	multipagedialog.cpp \
 	crewpage.cpp \
 	extendedinfopage.cpp \
+	filterproxymodel.cpp \
+	filterwidget.cpp \
 	guiglobal.cpp \
 	linkspage.cpp \
 	main.cpp \
@@ -57,6 +61,7 @@ FORMS += \
 	ui/collectionmetaeditor.ui \
 	ui/crewpage.ui \
 	ui/extendedinfopage.ui \
+	ui/filterwidget.ui \
 	ui/linkspage.ui \
 	ui/maininfopage.ui \
 	ui/mainsettingspage.ui \

@@ -25,6 +25,8 @@
 #include "collectionsaver.h"
 #include "core.h"
 #include "dockwidget.h"
+#include "filterproxymodel.h"
+#include "filterwidget.h"
 #include "guiglobal.h"
 #include "logger.h"
 #include "mainwindow.h"
@@ -46,6 +48,7 @@
 #include <QFileInfo>
 #include <QHeaderView>
 #include <QInputDialog>
+#include <QKeyEvent>
 #include <QLibrary>
 #include <QList>
 #include <QListView>
@@ -55,6 +58,7 @@
 #include <QStackedWidget>
 #include <QStatusBar>
 #include <QTextBrowser>
+#include <QTimer>
 #include <QUrl>
 #include <QtDebug>
 
@@ -1170,4 +1174,97 @@ void MvdMainWindow::treeViewSorted(int)
 void MvdMainWindow::collectionModelSorted()
 {
 	mTreeView->header()->setSortIndicator((int)mMovieModel->sortAttribute(), mMovieModel->sortOrder());
+}
+
+void MvdMainWindow::keyPressEvent(QKeyEvent* e)
+{
+	int key = e->key();
+	QString ttf = mFilterWidget->editor()->text();
+	QString text = e->text();
+
+	if (mFilterWidget->isVisible()) {
+		switch (key) {
+		case Qt::Key_Escape:
+			mFilterWidget->hide();
+			resetFilter();
+			return;
+		case Qt::Key_Backspace:
+			ttf.chop(1);
+			break;
+		case Qt::Key_Return:
+        case Qt::Key_Enter:
+			// Return/Enter key events are not accepted by QLineEdit
+			return;
+		default:
+			if (text.isEmpty()) {
+				QMainWindow::keyPressEvent(e);
+				return;
+			}
+			ttf += text;
+		}
+	} else {
+		if (text.isEmpty() || text[0].isSpace() || !text[0].isPrint()) {
+			QMainWindow::keyPressEvent(e);
+			return;
+		}
+		if (text.startsWith(QLatin1Char('/'))) {
+			mFilterWidget->editor()->clear();
+			filter();
+			return;
+		}
+		ttf = text;
+		mFilterWidget->show();
+	}
+
+	mFilterWidget->editor()->setText(ttf);
+	filter(ttf);
+}
+
+bool MvdMainWindow::eventFilter(QObject* o, QEvent* e)
+{
+	if (o == mFilterWidget->editor()) {
+		if (e->type() == QEvent::FocusIn && mHideFilterTimer->isActive())
+			mHideFilterTimer->stop();
+    } else if (e->type() == QEvent::KeyPress && mFilterWidget->isVisible()) { // assume textbrowser
+		QKeyEvent* ke = static_cast<QKeyEvent*>(e);
+		if (ke->key() == Qt::Key_Space) {
+			keyPressEvent(ke);
+			return true;
+		}
+	}
+
+	return QMainWindow::eventFilter(o, e);
+}
+
+void MvdMainWindow::filter()
+{
+	mFilterWidget->show();
+	mFilterWidget->editor()->setFocus(Qt::ShortcutFocusReason);
+	mFilterWidget->editor()->selectAll();
+	mHideFilterTimer->stop();
+}
+
+void MvdMainWindow::filter(QString s)
+{
+	QPalette p = mFilterWidget->editor()->palette();
+	p.setColor(QPalette::Active, QPalette::Base, Qt::white);
+	
+	// PERFORM FILTER
+	bool nothingToFilter = true;
+	
+	mFilterModel->setFilterRegExp(s);
+	
+	if (nothingToFilter)
+		p.setColor(QPalette::Active, QPalette::Base, QColor(255, 102, 102));
+	
+	if (!mFilterWidget->isVisible())
+		mFilterWidget->show();
+	mFilterWidget->editor()->setPalette(p);
+	if (!mFilterWidget->editor()->hasFocus() && nothingToFilter)
+		mHideFilterTimer->start();
+}
+
+void MvdMainWindow::resetFilter()
+{
+	mFilterModel->setFilterRegExp(QString());
 }
