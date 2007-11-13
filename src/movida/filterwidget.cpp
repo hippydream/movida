@@ -22,11 +22,14 @@
 #include "filterwidget.h"
 
 MvdFilterWidget::MvdFilterWidget(QWidget* parent)
-: QWidget(parent)
+: QFrame(parent)
 {
 	setupUi(this);
 	closeButton->setIcon(QIcon(":/images/misc/filter-close"));
 	warningIconLabel->setPixmap(QPixmap(":/images/misc/filter-warning"));
+	
+	setFrameShape(QFrame::StyledPanel);
+	setFrameShadow(QFrame::Raised);
 
 	connect( closeButton, SIGNAL(clicked()), this, SIGNAL(hideRequest()) );
 	connect( caseSensitive, SIGNAL(stateChanged(int)), this, SIGNAL(caseSensitivityChanged()) );

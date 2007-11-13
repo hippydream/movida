@@ -27,7 +27,7 @@
 
 class QLineEdit;
 
-class MvdFilterWidget : public QWidget, private Ui::MvdFilterWidget
+class MvdFilterWidget : public QFrame, private Ui::MvdFilterWidget
 {
 	Q_OBJECT
 	
