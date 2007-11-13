@@ -33,6 +33,9 @@
    </property>
    <item>
     <widget class="QToolButton" name="closeButton" >
+     <property name="toolTip" >
+      <string>Click to hide this bar and clear any entered filter.</string>
+     </property>
      <property name="text" >
       <string/>
      </property>
@@ -45,7 +48,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="input" >
+    <widget class="MvdClearEdit" name="input" >
      <property name="sizePolicy" >
       <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
        <horstretch>0</horstretch>
@@ -119,6 +122,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MvdClearEdit</class>
+   <extends>QLineEdit</extends>
+   <header>clearedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

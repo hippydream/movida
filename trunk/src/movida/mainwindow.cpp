@@ -109,11 +109,11 @@ mMB_MenuBar(menuBar()), mCollection(0), mMovieEditor(0)
 	// Set default settings
 	p.setDefaultValue("movida/maximum-recent-files", 5);
 	p.setDefaultValue("movida/confirm-delete-movie", true);
-
 	p.setDefaultValue("movida/directories/use-last-collection", true);
 	p.setDefaultValue("movida/movie-list/initials", false);
-
 	p.setDefaultValue("movida/use-history", true);
+	p.setDefaultValue("movida/quick-filter/case-sensitive", false);
+	p.setDefaultValue("movida/quick-filter/whole-words", false);
 
 	// Initialize core library && load user settings
 	QStringList recentFiles = p.value("movida/recent-files").toStringList();
@@ -138,6 +138,9 @@ mMB_MenuBar(menuBar()), mCollection(0), mMovieEditor(0)
 	bl = p.value("movida/appearance/start-maximized").toBool();
 	if (bl)
 		setWindowState(Qt::WindowMaximized);
+
+	mFilterWidget->setCaseSensitivity(p.value("movida/quick-filter/case-sensitive").toBool() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+	mFilterWidget->setMatchWholeWords(p.value("movida/quick-filter/whole-words").toBool());
 	
 	// a new empty collection is always open at startup
 	mA_FileNew->setDisabled(true);
@@ -222,6 +225,8 @@ void MvdMainWindow::closeEvent(QCloseEvent* e)
 	p.setValue("movida/appearance/start-maximized", isMaximized());
 	p.setValue("movida/appearance/main-window-size", size());
 	p.setValue("movida/appearance/main-window-pos", pos());
+	p.setValue("movida/quick-filter/case-sensitive", mFilterWidget->caseSensitivity() == Qt::CaseSensitive);
+	p.setValue("movida/quick-filter/whole-words", mFilterWidget->matchWholeWords());
 
 	MvdCore::storeStatus();
 }
@@ -386,6 +391,8 @@ void MvdMainWindow::updateCaption()
 */
 bool MvdMainWindow::closeCollection()
 {
+	resetFilter();
+
 	if (!mCollection)
 		return true;
 	
@@ -1208,7 +1215,7 @@ void MvdMainWindow::keyPressEvent(QKeyEvent* e)
 		}
 		if (text.startsWith(QLatin1Char('/'))) {
 			mFilterWidget->editor()->clear();
-			filter();
+			showFilterWidget();
 			return;
 		}
 		ttf = text;
@@ -1230,12 +1237,19 @@ bool MvdMainWindow::eventFilter(QObject* o, QEvent* e)
 	return QMainWindow::eventFilter(o, e);
 }
 
-void MvdMainWindow::filter()
+void MvdMainWindow::showFilterWidget()
 {
 	mFilterWidget->show();
 	mFilterWidget->setNoResultsWarningVisible(false);
 	mFilterWidget->editor()->setFocus(Qt::ShortcutFocusReason);
 	mFilterWidget->editor()->selectAll();
+	mHideFilterTimer->stop();
+}
+
+//! Applies a filter with the current contents of the filter widget.
+void MvdMainWindow::applyCurrentFilter()
+{
+	filter(mFilterWidget->editor()->text());
 	mHideFilterTimer->stop();
 }
 
@@ -1249,8 +1263,12 @@ void MvdMainWindow::filter(QString s)
 	// PERFORM FILTER
 	bool nothingToFilter = true;
 	bool hasText = !mFilterWidget->editor()->text().trimmed().isEmpty();
+	Qt::CaseSensitivity cs = mFilterWidget->caseSensitivity();
 	
-	mFilterModel->setFilterRegExp(s);
+	mFilterModel->setFilterCaseSensitivity(cs);
+	mFilterModel->setFilterFixedString(s);
+
+	nothingToFilter = mFilterModel->rowCount() == 0;
 	
 	if (nothingToFilter && hasText)
 		p.setColor(QPalette::Active, QPalette::Base, QColor(255, 102, 102));

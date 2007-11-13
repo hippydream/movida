@@ -393,11 +393,13 @@ void MvdMainWindow::setupConnections()
 	connect( mMovieModel, SIGNAL(sorted()), this, SLOT(collectionModelSorted()) );
 	
 	connect( mFilterWidget, SIGNAL(hideRequest()), this, SLOT(resetFilter()) );
+	connect( mFilterWidget, SIGNAL(caseSensitivityChanged()), this, SLOT(applyCurrentFilter()) );
+	connect( mFilterWidget, SIGNAL(matchWholeWordsChanged()), this, SLOT(applyCurrentFilter()) );
 	connect( mFilterWidget->editor(), SIGNAL(textEdited(QString)), this, SLOT(filter(QString)) );
 
 	connect( mHideFilterTimer, SIGNAL(timeout()), mFilterWidget, SLOT(hide()) );
 
 	// Application shortcuts
 	connect( new QShortcut(Qt::CTRL + Qt::Key_V, this), SIGNAL(activated()), this, SLOT(cycleMovieView()) );
-	connect( new QShortcut(Qt::CTRL + Qt::Key_F, this), SIGNAL(activated()), this, SLOT(filter()) );
+	connect( new QShortcut(Qt::CTRL + Qt::Key_F, this), SIGNAL(activated()), this, SLOT(showFilterWidget()) );
 }
