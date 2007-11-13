@@ -71,13 +71,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="wholeWords" >
-     <property name="text" >
-      <string>Whole words</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <spacer>
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
