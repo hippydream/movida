@@ -21,6 +21,8 @@
 
 #include "collectionmodel.h"
 #include "dockwidget.h"
+#include "filterproxymodel.h"
+#include "filterwidget.h"
 #include "guiglobal.h"
 #include "mainwindow.h"
 #include "pathresolver.h"
@@ -38,23 +40,34 @@
 #include <QStatusBar>
 #include <QTextBrowser>
 #include <QToolBar>
+#include <QTimer>
 
 //!
 void MvdMainWindow::setupUi()
 {
+	QWidget* container = new QWidget;
+	setCentralWidget(container);
+	QGridLayout* layout = new QGridLayout(container);
+	
 	mMainViewStack = new QStackedWidget;
-	setCentralWidget(mMainViewStack);
+	layout->addWidget(mMainViewStack, 0, 0);
+	
+	// Share filter proxy model
+	mFilterModel = new MvdFilterProxyModel(this);
+	mFilterModel->setSourceModel(mMovieModel);
+	mFilterModel->setDynamicSortFilter(true);
+	mFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
 	mSmartView = new MvdSmartView(this);
 	mSmartView->setObjectName("movie-smart-view");
-	mSmartView->setModel(mMovieModel);
+	mSmartView->setModel(mFilterModel);
 
 	mTreeView = new MvdTreeView(this);
 	mTreeView->setObjectName("movie-tree-view");
-	mTreeView->setModel(mMovieModel);
+	mTreeView->setModel(mFilterModel);
 	
 	// Share selection model
-	mTreeView->setSelectionModel(new MvdRowSelectionModel(mMovieModel));
+	mTreeView->setSelectionModel(new MvdRowSelectionModel(mFilterModel));
 	mSmartView->setSelectionModel(mTreeView->selectionModel());
 	
 	mMainViewStack->addWidget(mTreeView);
@@ -69,7 +82,17 @@ void MvdMainWindow::setupUi()
 	mDetailsView->setSearchPaths(QStringList() << 
 		Movida::paths().resourcesDir().append("Templates/Movie/"));
 	mDetailsDock->setWidget(mDetailsView);
-
+	
+	mFilterWidget = new MvdFilterWidget;
+	mFilterWidget->setVisible(false);
+	mFilterWidget->editor()->installEventFilter(this);
+	layout->addWidget(mFilterWidget, 1, 0);
+	
+	mHideFilterTimer = new QTimer(this);
+	mHideFilterTimer->setInterval(5000);
+	mHideFilterTimer->setSingleShot(true);
+	QObject::connect(mHideFilterTimer, SIGNAL(timeout()), mFilterWidget, SLOT(hide()));
+	
 	// Actions
 	mA_FileNew = new QAction(this);
 	mA_FileNew->setIcon(QIcon(":/images/32x32/file_new"));
@@ -262,7 +285,6 @@ void MvdMainWindow::retranslateUi()
 	mA_FileExit->setToolTip( tr( "Exit Movida" ) );
 	mA_FileExit->setWhatsThis( tr( "Exit Movida" ) );
 	mA_FileExit->setStatusTip( tr( "Exit Movida" ) );
-	mA_FileExit->setShortcut( tr( "Esc" ) );
 
 	dockViewsToggled();
 
