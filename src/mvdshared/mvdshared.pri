@@ -1,6 +1,7 @@
 HEADERS += \
 	actionlabel.h \
 	actionlabel_p.h \
+	clearedit.h \
 	expandinglineedit.h \
 	importdialog.h \
 	importdialog_p.h \
@@ -18,6 +19,7 @@ HEADERS += \
 	
 SOURCES += \
 	actionlabel.cpp \
+	clearedit.cpp \
 	expandinglineedit.cpp \
 	importdialog.cpp \
 	importfinalpage.cpp \
