@@ -57,6 +57,7 @@ public:
 	virtual ~MvdMainWindow();
 
 	MvdMovieCollection* currentCollection();
+	void cleanUp();
 
 public slots:
 	bool loadCollection(const QString& file);

@@ -107,10 +107,6 @@ bool MvdCore::initCore()
 	if (d != 0)
 		return MvdCoreInitOk;
 
-	QCoreApplication::setApplicationName("Movida");
-	QCoreApplication::setOrganizationName("BlueSoft");
-	QCoreApplication::setOrganizationDomain("movida.sourceforge.net");
-
 	// Pre-initialize MvdPathResolver to create missing application directories
 	if (!paths().isInitialized())
 		return false;

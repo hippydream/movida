@@ -41,22 +41,20 @@
 #define MVD_COMPANY_NAME "BlueSoft"
 #define MVD_CAPTION "movida"
 
-#define MVD_ERROR_INIT -1
+#define MVD_EXIT_SUCCESS 0
+#define MVD_ERROR_UNKNOWN 1
+#define MVD_ERROR_INIT 2
 
 #ifdef Q_WS_WIN
-
 #define MVD_LOG_FILENAME "Movida.log"
 #define MVD_PREF_FILENAME "Settings.xml"
 #define MVD_APP_DIR "Movida"
 #define MVD_COMPANY_DIR "BlueSoft"
-
 #else
-
 #define MVD_LOG_FILENAME "movida.log"
 #define MVD_PREF_FILENAME "settings.xml"
 #define MVD_APP_DIR "movida"
 #define MVD_COMPANY_DIR ".bluesoft"
-
 #endif
 
 #if defined(Q_WS_WIN)

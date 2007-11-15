@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: main.cpp
+** Filename: crash_main.cpp
 ** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
@@ -22,21 +22,21 @@
 #include <QtGlobal>
 
 #ifndef Q_OS_WIN
-#include "main_other.cpp"
+#include "crash_main_other.cpp"
 #else
-#include "main_win.cpp"
+#include "crash_main_win.cpp"
 #endif
+
+#define MVDCH_CAPTION "Movida crash handler"
 
 int main(int argc, char** argv)
 {
-	int result = 0;
+	QApplication app(argc, argv);
 
-#ifdef Q_OS_WIN
-	MvdApplication a(argc, argv);
-	result = runApp(a);
-#else
-	result = runApp(argc, argv);
-#endif
+	if (!MovidaCrash::isParentOfMovida()) {
+		QMessageBox::critical(0, MVDCH_CAPTION, QCoreApplication::translate("", "Sorry, but this application can only be executed by movida."));
+		return EXIT_FAILURE;
+	}
 
-	return result;
+	QMessageBox::critical(0, MVDCH_CAPTION, QCoreApplication::translate("", "Sorry, but movida crashed :-(\n\nActually, you should not wonder about it, as movida is still under heavy development.\nFeel free to contact the authors or wait for another version."));
 }

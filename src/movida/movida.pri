@@ -1,4 +1,5 @@
 HEADERS += \
+	application.h \
 	collectionmetaeditor.h \
 	collectionmodel.h \
 	crewpage.h \
@@ -31,6 +32,7 @@ HEADERS += \
 	settingspage.h
 
 SOURCES += \
+	application.cpp \
 	collectionmetaeditor.cpp \
 	collectionmodel.cpp \
 	multipagedialog.cpp \

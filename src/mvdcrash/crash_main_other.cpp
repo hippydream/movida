@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: main.cpp
+** Filename: crash_main_other.cpp
 ** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
@@ -20,23 +20,32 @@
 **************************************************************************/
 
 #include <QtGlobal>
-
-#ifndef Q_OS_WIN
-#include "main_other.cpp"
-#else
-#include "main_win.cpp"
+#ifdef Q_WS_WIN
+#error "This file does not compile on the Windows platform."
 #endif
 
-int main(int argc, char** argv)
+#include <sys/types.h>
+#include <unistd.h>
+#include <QMessageBox>
+#include <QApplication>
+#include <QFile>
+#include <QFileInfo>
+
+namespace MovidaCrash {
+	bool isParentOfMovida();
+}
+
+bool MovidaCrash::isParentOfMovida()
 {
-	int result = 0;
-
-#ifdef Q_OS_WIN
-	MvdApplication a(argc, argv);
-	result = runApp(a);
-#else
-	result = runApp(argc, argv);
-#endif
-
-	return result;
+	//! \todo MAC OSX does not (always) use the /proc filesystem!
+	
+	QString procFileName = QString("/proc/%1/cmdline").arg(getppid());
+	QFile procFile(procFileName);
+	
+	if (procFile.open(QIODevice::ReadOnly)) {
+		QString line = procFile.readLine();
+		QFileInfo info(line);
+		return info.fileName().toLower() == "movida";
+	}
+	return true;
 }
