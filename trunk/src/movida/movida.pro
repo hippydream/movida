@@ -15,7 +15,7 @@ win32 {
 }
 
 win32 { TARGET = Movida }
-else { TARGET = movida}
+else { TARGET = movida }
 TEMPLATE = app
 
 INCLUDEPATH += . ../mvdcore ../mvdshared

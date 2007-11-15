@@ -23,10 +23,10 @@
 #define MVD_GUIGLOBAL_H
 
 #include "global.h"
-#include <QtGlobal>
+#include <QCoreApplication>
 #include <QIcon>
 #include <QString>
-#include <QCoreApplication>
+#include <QtGlobal>
 
 #define MVD_WINDOW_ICON setWindowIcon(QIcon(":/images/misc/logo.png"));
 
@@ -72,12 +72,14 @@ namespace Movida
 		ImdbIdAttribute,
 		RatingAttribute
 	};
+	typedef QList<MovieAttribute> MovieAttributeList;
 
 	//! Item view shared data attributes (i.e. used as column identifiers)
 	enum SharedDataAttribute
 	{
 		NameSDA, RolesSDA, GenreSDA, CountrySDA, LanguageSDA, TagSDA, ImdbIdSDA
 	};
+	typedef QList<SharedDataAttribute> SharedDataAttributeList;
 
 	enum AttributeFilter
 	{

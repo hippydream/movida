@@ -63,7 +63,6 @@
 #include <QtDebug>
 
 using namespace Movida;
-
 MvdMainWindow* Movida::MainWindow = 0;
 
 /*!
@@ -139,6 +138,7 @@ mMB_MenuBar(menuBar()), mCollection(0), mMovieEditor(0)
 		setWindowState(Qt::WindowMaximized);
 
 	mFilterWidget->setCaseSensitivity(p.value("movida/quick-filter/case-sensitive").toBool() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+	mFilterModel->setQuickFilterAttributes(p.value("movida/quick-filter/attributes").toByteArray());
 	
 	// a new empty collection is always open at startup
 	mA_FileNew->setDisabled(true);
@@ -209,6 +209,8 @@ void MvdMainWindow::dockViewsToggled()
 */
 void MvdMainWindow::closeEvent(QCloseEvent* e)
 {
+	iLog() << "Movida is closing...";
+
 	if (mCollection && mCollection->isModified())
 	{
 		if (!closeCollection())
@@ -217,15 +219,26 @@ void MvdMainWindow::closeEvent(QCloseEvent* e)
 			return;
 		}
 	}
+}
 
+//! This method is called before closing the app or on a crash.
+void MvdMainWindow::cleanUp()
+{
 	MvdSettings& p = Movida::settings();
 	p.setValue("movida/appearance/main-window-state", saveState());
 	p.setValue("movida/appearance/start-maximized", isMaximized());
 	p.setValue("movida/appearance/main-window-size", size());
 	p.setValue("movida/appearance/main-window-pos", pos());
 	p.setValue("movida/quick-filter/case-sensitive", mFilterWidget->caseSensitivity() == Qt::CaseSensitive);
-
 	MvdCore::storeStatus();
+
+	//! \todo Clean up plugins
+
+	Movida::paths().removeDirectoryTree(Movida::paths().tempDir());
+
+	if (mCollection && mCollection->isModified()) {
+		//! \todo Emergency save!
+	}
 }
 
 /*!

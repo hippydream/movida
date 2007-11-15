@@ -77,6 +77,11 @@ using namespace Movida;
 		SSF = "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\"
 		USF = "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\"
 	\endverbatim
+
+	\warning
+	Please ensure that QCoreApplication::setApplicationName(), 
+	QCoreApplication::setOrganizationName() and QCoreApplication::setOrganizationDomain()
+	have been called before using this singleton or the wrong directories will be initialized!
 */
 
 
