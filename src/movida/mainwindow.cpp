@@ -112,6 +112,7 @@ mMB_MenuBar(menuBar()), mCollection(0), mMovieEditor(0)
 	p.setDefaultValue("movida/movie-list/initials", false);
 	p.setDefaultValue("movida/use-history", true);
 	p.setDefaultValue("movida/quick-filter/case-sensitive", false);
+	p.setDefaultValue("movida/quick-filter/attributes", mFilterModel->quickFilterAttributes());
 
 	// Initialize core library && load user settings
 	QStringList recentFiles = p.value("movida/recent-files").toStringList();

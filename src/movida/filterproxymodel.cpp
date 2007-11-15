@@ -21,17 +21,35 @@
 
 #include "filterproxymodel.h"
 
+//! Creates a new filter proxy that defaults to a quick search on the movie title attribute (localized and original).
 MvdFilterProxyModel::MvdFilterProxyModel(QObject* parent)
 : QSortFilterProxyModel(parent)
 {
+	mMovieAttributes << Movida::TitleAttribute << Movida::OriginalTitleAttribute;
+}
+
+void MvdFilterProxyModel::setQuickFilterAttributes(const QByteArray& alist)
+{
+	mMovieAttributes.clear();
+	for (int i = 0; i < alist.size(); ++i)
+		mMovieAttributes << (Movida::MovieAttribute)alist.at(i);
+}
+
+QByteArray MvdFilterProxyModel::quickFilterAttributes() const
+{
+	QByteArray ba(mMovieAttributes.size(), '\0');
+
+	for (int i = 0; i < mMovieAttributes.size(); ++i)
+		ba[i] = (const char)mMovieAttributes.at(i);
+	return ba;
 }
 
 bool MvdFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
-	QModelIndex index0 = sourceModel()->index(sourceRow, 0, sourceParent);
-	QModelIndex index1 = sourceModel()->index(sourceRow, 1, sourceParent);
-	QModelIndex index2 = sourceModel()->index(sourceRow, 2, sourceParent);
-	
-	return (sourceModel()->data(index0).toString().contains(filterRegExp())
-			|| sourceModel()->data(index1).toString().contains(filterRegExp()));
+	for (int i = 0; i < mMovieAttributes.size(); ++i) {
+		QModelIndex index = sourceModel()->index(sourceRow, (int)mMovieAttributes.at(i), sourceParent);
+		if (sourceModel()->data(index).toString().contains(filterRegExp()))
+			return true;
+	}
+	return false;
 }
