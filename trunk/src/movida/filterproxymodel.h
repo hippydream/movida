@@ -22,7 +22,9 @@
 #ifndef MVD_FILTERPROXYMODEL_H
 #define MVD_FILTERPROXYMODEL_H
 
+#include "guiglobal.h"
 #include <QSortFilterProxyModel>
+#include <QByteArray>
 
 class MvdFilterProxyModel : public QSortFilterProxyModel
 {
@@ -31,10 +33,14 @@ class MvdFilterProxyModel : public QSortFilterProxyModel
 public:
 	MvdFilterProxyModel(QObject* parent = 0);
 
+	void setQuickFilterAttributes(const QByteArray& alist);
+	QByteArray quickFilterAttributes() const;
+
 protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
 
 private:
+	QList<Movida::MovieAttribute> mMovieAttributes;
 };
 
 #endif // MVD_FILTERPROXYMODEL_H
