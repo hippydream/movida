@@ -29,6 +29,7 @@
 
 class QPoint;
 class QString;
+class QKeyEvent;
 
 class MvdTreeView : public QTreeView
 {
@@ -61,6 +62,7 @@ protected:
 	virtual bool eventFilter(QObject* o, QEvent* e);
 	virtual void showHeaderContext(const QPoint& p);
 	virtual void contextMenuEvent(QContextMenuEvent* e);
+	virtual void keyPressEvent(QKeyEvent* e);
 
 private:
 	bool mDisableHeaderContextMenu;

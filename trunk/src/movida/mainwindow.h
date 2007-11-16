@@ -58,6 +58,7 @@ public:
 
 	MvdMovieCollection* currentCollection();
 	void cleanUp();
+	bool isQuickFilterVisible() const;
 
 public slots:
 	bool loadCollection(const QString& file);

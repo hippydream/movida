@@ -21,12 +21,14 @@
 
 #include "treeview.h"
 #include "settings.h"
+#include "mainwindow.h"
 #include <QApplication>
 #include <QCursor>
 #include <QHeaderView>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QString>
+#include <QKeyEvent>
 
 /*!
 	\class MvdTreeView treeview.h
@@ -197,6 +199,18 @@ void MvdTreeView::contextMenuEvent(QContextMenuEvent* e)
 		return;
 
 	emit contextMenuRequested(index, e->reason());
+}
+
+//! \internal
+void MvdTreeView::keyPressEvent(QKeyEvent* e)
+{
+	if (e->key() == Qt::Key_Space && Movida::MainWindow->isQuickFilterVisible()) {
+		e->accept();
+		return;
+	}
+
+	e->ignore();
+	QTreeView::keyPressEvent(e);
 }
 
 //! \internal
