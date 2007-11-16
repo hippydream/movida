@@ -1290,7 +1290,7 @@ void MvdMainWindow::filter(QString s)
 	mFilterWidget->setNoResultsWarningVisible(nothingToFilter && hasText);
 
 	mFilterWidget->editor()->setPalette(p);
-	if (!mFilterWidget->editor()->hasFocus() && nothingToFilter)
+	if (!mFilterWidget->editor()->hasFocus() && !hasText)
 		mHideFilterTimer->start();
 }
 
@@ -1298,4 +1298,9 @@ void MvdMainWindow::resetFilter()
 {
 	mFilterModel->setFilterRegExp(QString());
 	mFilterWidget->hide();
+}
+
+bool MvdMainWindow::isQuickFilterVisible() const
+{
+	return mFilterWidget->isVisible();
 }

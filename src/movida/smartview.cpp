@@ -21,6 +21,7 @@
 
 #include "smartview.h"
 #include "smartviewdelegate.h"
+#include "mainwindow.h"
 
 /*!
 	\class MvdSmartView smartview.h
@@ -96,6 +97,7 @@ void MvdSmartView::init()
 {
 	setupUi(this);
 	slider->installEventFilter(this);
+	view->installEventFilter(this);
 	
 	defaultAspectRatio = currentAspectRatio = 2.7;
 	minimumSize = 80;
@@ -133,8 +135,7 @@ void MvdSmartView::init()
 
 bool MvdSmartView::eventFilter(QObject* o, QEvent* e)
 {
-	if (o == slider)
-	{
+	if (o == slider) {
 		switch (e->type())
 		{
 		case QEvent::Enter:
@@ -147,6 +148,13 @@ bool MvdSmartView::eventFilter(QObject* o, QEvent* e)
 			break;
 		default:
 			return false;
+		}
+	} else if (o == view && e->type() == QEvent::KeyPress) {
+		QKeyEvent* ke = static_cast<QKeyEvent*>(e);
+		// Redirect the space key to the main window if the quick search bar is visible
+		if (ke->key() == Qt::Key_Space && Movida::MainWindow->isQuickFilterVisible()) {
+			QApplication::postEvent(Movida::MainWindow, new QKeyEvent(QEvent::KeyPress, Qt::Key_Space, ke->modifiers(), ke->text(), ke->isAutoRepeat(), ke->count()));
+			return true;
 		}
 	}
 
