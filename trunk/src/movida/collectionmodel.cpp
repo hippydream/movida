@@ -407,7 +407,7 @@ bool MvdCollectionModel::removeRows(int row, int count, const QModelIndex& p)
 void MvdCollectionModel::movieChanged(mvdid id)
 {
 	int row = d->movies.indexOf(id);
-	emit dataChanged( createIndex(row, 0), createIndex(row, columnCount()) );
+	emit dataChanged( createIndex(row, 0), createIndex(row, columnCount() - 1) );
 }
 
 //! \internal
