@@ -328,17 +328,17 @@ QVariant MvdCollectionModel::headerData(int section, Qt::Orientation orientation
 /*!
 	Provides the number of rows of data exposed by the model.
 */
-int MvdCollectionModel::rowCount(const QModelIndex&) const
+int MvdCollectionModel::rowCount(const QModelIndex& p) const
 {
-	return d->movies.size();
+	return p.isValid() ? 0 : d->movies.size();
 }
 
 /*!
 	Provides the number of columns of data exposed by the model.
 */
-int MvdCollectionModel::columnCount(const QModelIndex&) const
+int MvdCollectionModel::columnCount(const QModelIndex& p) const
 {
-	return Movida::movieAttributes(Movida::NoAttributeFilter).size();
+	return p.isValid() ? 0 : Movida::movieAttributes(Movida::NoAttributeFilter).size();
 }
 
 /*!
