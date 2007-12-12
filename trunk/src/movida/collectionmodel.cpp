@@ -378,7 +378,7 @@ void MvdCollectionModel::movieAdded(mvdid id)
 //! \internal
 bool MvdCollectionModel::insertRows(int row, int count, const QModelIndex& p)
 {
-	beginInsertRows(p, row, row + count);
+	beginInsertRows(p, row, row + count - 1);
 	for (int i = 0; i < count; ++i)
 		d->movies.insert(row + i, 0);
 	endInsertRows();
