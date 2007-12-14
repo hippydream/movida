@@ -61,6 +61,8 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 	d->importSteps = 1;
 	d->importCount = 0;
 	d->searchSteps = 1;
+	d->importResult = Success;
+	d->errorType = UnknownError;
 
 	d->startPage = new MvdImportStartPage;
 	setPage(MvdImportDialog_P::StartPage, d->startPage);
@@ -88,6 +90,13 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 //! Handles the page order.
 int MvdImportDialog::nextId() const
 {
+	if (currentId() == MvdImportDialog_P::FinalPage)
+		return -1;
+
+	if (d->importResult != Success) {
+		return MvdImportDialog_P::FinalPage;
+	}
+
 	switch (currentId()) {
 	case MvdImportDialog_P::StartPage:
 		return MvdImportDialog_P::ResultsPage;
@@ -116,11 +125,33 @@ int MvdImportDialog::nextId() const
 	for the same request (i.e. after the searchRequest() signal and before the
 	importRequest() signal) leads to undefined behavior!
 */
-void MvdImportDialog::done()
+void MvdImportDialog::done(ImportResult res)
 {
+	d->importResult = res;
+
 	MvdImportPage* p = dynamic_cast<MvdImportPage*>(currentPage());
 	if (p)
 		p->setBusyStatus(false);
+}
+
+//! Returns the result of the latest import request as the client specified when calling done().
+MvdImportDialog::ImportResult MvdImportDialog::importResult() const
+{
+	return d->importResult;
+}
+
+/*!
+	Plugins can call this before calling done() for the last time,
+	to show a possible error to the user.
+*/
+void MvdImportDialog::setErrorType(ErrorType type)
+{
+	d->errorType = type;
+}
+
+MvdImportDialog::ErrorType MvdImportDialog::errorType() const
+{
+	return d->errorType;
 }
 
 /*!
@@ -343,7 +374,7 @@ void MvdImportDialog::keyPressEvent(QKeyEvent* e)
 bool MvdImportDialog::confirmCloseWizard()
 {
 	QString msg;
-	if (!isBusy()) {
+	if (!isBusy() && currentId() != MvdImportDialog_P::FinalPage) {
 		msg = tr("Are you sure you want to close the wizard?");
 	} else {
 		switch (currentId()) {

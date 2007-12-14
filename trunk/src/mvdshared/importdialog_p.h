@@ -33,6 +33,7 @@
 #ifndef MVD_IMPORTDIALOG_P_H
 #define MVD_IMPORTDIALOG_P_H
 
+#include "importdialog.h"
 #include "importstartpage.h"
 #include "importresultspage.h"
 #include "importsummarypage.h"
@@ -54,6 +55,8 @@ public:
 	quint8 importSteps;
 	quint32 importCount;
 	quint8 searchSteps;
+	MvdImportDialog::ImportResult importResult;
+	MvdImportDialog::ErrorType errorType;
 };
 
 #endif // MVD_IMPORTDIALOG_P_H

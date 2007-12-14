@@ -71,6 +71,13 @@ public:
 	virtual void reset()
 	{ }
 
+	MvdImportDialog* importDialog() const
+	{
+		MvdImportDialog* w = qobject_cast<MvdImportDialog*>(wizard());
+		Q_ASSERT_X(w, "MvdImportPage::importDialog()", "Internal error.");
+		return w;
+	}
+
 private:
 	bool busy;
 	bool preventCloseOnBusy;

@@ -101,6 +101,7 @@ void MpiMovieImport::reset()
 	mCurrentState = NoState;
 	mNextUrl.clear();
 	mCurrentImportJob = 0;
+	mImportResult = MvdImportDialog::Success;
 
 	for (QHash<int,SearchResult>::ConstIterator it = mSearchResults.constBegin(); it != mSearchResults.constEnd(); ++it) {
 		const SearchResult& s = it.value();
@@ -110,8 +111,8 @@ void MpiMovieImport::reset()
 			}
 		}
 	}
-	mSearchResults.clear();
 
+	mSearchResults.clear();
 	mImportsQueue.clear();
 
 	for (int i = 0; i < mTemporaryData.size(); ++i) {
@@ -190,7 +191,8 @@ void MpiMovieImport::search(const QString& query, int engineId)
 				mTempFile = createTemporaryFile();
 				if (!mTempFile)
 				{
-					mImportDialog->done();
+					mImportDialog->setErrorType(MvdImportDialog::FileError);
+					mImportDialog->done(MvdImportDialog::CriticalError);
 					return;
 				}
 
@@ -268,10 +270,10 @@ void MpiMovieImport::search(const QString& query, int engineId)
 
 		deleteTemporaryFile(&mTempFile, true);
 
-		mTempFile = createTemporaryFile();
+		mTempFile = createTemporaryFile(); // Logs errors and calls mImportDialog->setImportResult()
 		if (!mTempFile)
 		{
-			mImportDialog->done();
+			mImportDialog->done(MvdImportDialog::CriticalError);
 			return;
 		}
 
@@ -367,14 +369,15 @@ void MpiMovieImport::performSearch(const QString& query, MpiBlue::Engine* engine
 	if (searchUrl.host().isEmpty())
 	{
 		eLog() << "MpiMovieImport: Invalid search engine host";
-		mImportDialog->done();
+		mImportDialog->setErrorType(MvdImportDialog::InvalidEngineError);
+		mImportDialog->done(MvdImportDialog::CriticalError);
 		return;
 	}
 
 	mTempFile = createTemporaryFile();
 	if (!mTempFile)
 	{
-		mImportDialog->done();
+		mImportDialog->done(MvdImportDialog::CriticalError);
 		return;
 	}
 	
@@ -419,7 +422,7 @@ void MpiMovieImport::import(const QList<int>& list)
 {
 	if (list.isEmpty())
 	{
-		mImportDialog->done();
+		mImportDialog->done(mImportResult);
 		return;
 	}
 
@@ -435,7 +438,7 @@ void MpiMovieImport::processNextImport()
 {
 	if (mImportsQueue.isEmpty())
 	{
-		mImportDialog->done();
+		mImportDialog->done(mImportResult);
 		return;
 	}
 
@@ -454,7 +457,7 @@ void MpiMovieImport::processNextImport()
 	}
 
 	if (!ok) {
-		mImportDialog->done();
+		mImportDialog->done(mImportResult);
 		return;
 	}
 
@@ -470,7 +473,7 @@ void MpiMovieImport::processNextImport()
 
 		mTempFile = createTemporaryFile();
 		if (!mTempFile) {
-			mImportDialog->done();
+			mImportDialog->done(MvdImportDialog::CriticalError);
 			return;
 		}
 
@@ -521,6 +524,8 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 		// some states can be considered optionals. e.g. we don't care if a script or
 		// poster download failed.
 		if (mCurrentState == FetchingMoviePosterState) {
+			mImportDialog->setErrorType(MvdImportDialog::NetworkError);
+			mImportResult = MvdImportDialog::MoviePosterFailed;
 			Q_ASSERT(QMetaObject::invokeMethod(this, "processMoviePoster", Qt::QueuedConnection));
 		} else if (mCurrentState == FetchingResultsScriptState || mCurrentState == FetchingImportScriptState) {
 			MpiBlue::Engine* engine = mRegisteredEngines.value(mCurrentEngine);
@@ -530,7 +535,13 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 			Q_ASSERT(QMetaObject::invokeMethod(this, "search", Qt::QueuedConnection,
 				Q_ARG(QString, mCurrentQuery), 
 				Q_ARG(int, mCurrentEngine)));
+		} else if (mCurrentState == FetchingMovieDataState) {
+			mImportDialog->setErrorType(MvdImportDialog::NetworkError);
+			mImportResult = MvdImportDialog::MovieDataFailed;
+			Q_ASSERT(QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection));
 		} else {
+			mImportDialog->setErrorType(MvdImportDialog::NetworkError);
+			mImportResult = MvdImportDialog::CriticalError;
 			Q_ASSERT(QMetaObject::invokeMethod(this, "done", Qt::QueuedConnection));
 		}
 		return;
@@ -550,8 +561,8 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 	if (!mTempFile)
 	{
 		eLog() << "MpiMovieImport: No temporary file found!";
-		mImportDialog->showMessage(tr("Sorry, but some internal error occurred."), MvdImportDialog::ErrorMessage);
-		mImportDialog->done();
+		mImportDialog->setErrorType(MvdImportDialog::FileError);
+		mImportDialog->done(MvdImportDialog::CriticalError);
 		return;
 	}
 
@@ -603,7 +614,7 @@ void MpiMovieImport::httpResponseHeader(const QHttpResponseHeader& responseHeade
 			mTempFile = createTemporaryFile();
 			if (!mTempFile)
 			{
-				mImportDialog->done();
+				mImportDialog->done(MvdImportDialog::CriticalError);
 				mHttpHandler->abort();
 				return;
 			}
@@ -662,9 +673,8 @@ void MpiMovieImport::processResponseFile()
 	if (interpreter.isEmpty())
 	{
 		eLog () << "MpiMovieImport: Failed to locate interpreter: " << engine->interpreter;
-		mImportDialog->showMessage(tr("Failed to locate '%1' interpreter.").arg(engine->interpreter),
-			MvdImportDialog::ErrorMessage);
-		mImportDialog->done();
+		mImportDialog->setErrorType(MvdImportDialog::EngineError);
+		mImportDialog->done(MvdImportDialog::CriticalError);
 		return;
 	}
 
@@ -733,8 +743,10 @@ QTemporaryFile* MpiMovieImport::createTemporaryFile()
 		file = 0;
 	}
 	
-	if (!file)
+	if (!file) {
 		eLog() << "MpiMovieImport: Failed to create a temporary file";
+		mImportDialog->setErrorType(MvdImportDialog::FileError);
+	}
 
 	return file;
 }
@@ -773,10 +785,9 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 		if (mTempFile)
 			deleteTemporaryFile(&mTempFile);
 
-		mImportDialog->showMessage(tr("Script interpreter crashed."), 
-			MvdImportDialog::ErrorMessage);
 		eLog() << "MpiMovieImport: Interpreter crashed.";
-		mImportDialog->done();
+		mImportDialog->setErrorType(MvdImportDialog::EngineError);
+		mImportDialog->done(MvdImportDialog::CriticalError);
 		return;
 	}
 
@@ -790,10 +801,9 @@ void MpiMovieImport::interpreterFinished(int exitCode, QProcess::ExitStatus exit
 		if (mTempFile)
 			deleteTemporaryFile(&mTempFile);
 
-		mImportDialog->showMessage(tr("Failed to parse search results."), 
-			MvdImportDialog::ErrorMessage);
 		eLog() << "MpiMovieImport: No search results file found (" << xmlPath << ").";
-		mImportDialog->done();
+		mImportDialog->setErrorType(MvdImportDialog::EngineError);
+		mImportDialog->done(MvdImportDialog::CriticalError);
 		return;
 	}
 
@@ -850,9 +860,8 @@ void MpiMovieImport::processResultsFile(const QString& path)
 	if (!doc) {
 		QFile::remove(path);
 		eLog() << "MpiMovieImport: Invalid search results file.";
-		mImportDialog->showMessage(tr("Invalid search results file."),
-			MvdImportDialog::ErrorMessage);
-		mImportDialog->done();
+		mImportDialog->setErrorType(MvdImportDialog::EngineError);
+		mImportDialog->done(MvdImportDialog::CriticalError);
 		return;
 	}
 
@@ -860,9 +869,8 @@ void MpiMovieImport::processResultsFile(const QString& path)
 	if (xmlStrcmp(node->name, (const xmlChar*) "movida-movie-results")) {
 		QFile::remove(path);
 		eLog() << "MpiMovieImport: Invalid search results file.";
-		mImportDialog->showMessage(tr("Invalid search results file."),
-			MvdImportDialog::ErrorMessage);
-		mImportDialog->done();
+		mImportDialog->setErrorType(MvdImportDialog::EngineError);
+		mImportDialog->done(MvdImportDialog::CriticalError);
 		return;
 	}
 
@@ -873,7 +881,7 @@ void MpiMovieImport::processResultsFile(const QString& path)
 		deleteTemporaryFile(&mTempFile);
 
 	mImportDialog->showMessage(tr("Done."));
-	mImportDialog->done();
+	mImportDialog->done(mImportResult);
 }
 
 //! Parses search result nodes, possibly using recursion on <group> nodes.
@@ -972,9 +980,8 @@ void MpiMovieImport::parseCachedMoviePage(SearchResult& job)
 	if (interpreter.isEmpty())
 	{
 		eLog () << "MpiMovieImport: Failed to locate interpreter: " << engine->interpreter;
-		mImportDialog->showMessage(tr("Failed to locate '%1' interpreter.").arg(engine->interpreter),
-			MvdImportDialog::ErrorMessage);
-		mImportDialog->done();
+		mImportDialog->setErrorType(MvdImportDialog::EngineError);
+		mImportDialog->done(MvdImportDialog::CriticalError);
 		return;
 	}
 
@@ -1020,8 +1027,7 @@ void MpiMovieImport::processMovieDataFile(const QString& path)
 		mTempFile = createTemporaryFile();
 		if (!mTempFile)
 		{
-			//! \todo reset everything (eg. jobs) before calling done after an error.
-			mImportDialog->done();
+			mImportDialog->done(MvdImportDialog::CriticalError);
 			return;
 		}
 
@@ -1080,4 +1086,9 @@ bool MpiMovieImport::isValidResult(SearchResult& result, const QString& path)
 	}
 
 	return true;
+}
+
+void MpiMovieImport::done()
+{
+	mImportDialog->done(mImportResult);
 }
