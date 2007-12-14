@@ -66,7 +66,7 @@ private slots:
 	void processResponseFile();
 	void processMoviePoster();
 
-	void done() { mImportDialog->done(); }
+	void done();
 
 private:
 	enum HttpStatusClass
@@ -131,6 +131,7 @@ private:
 	State mCurrentState;
 	QString mNextUrl;
 	int mCurrentImportJob;
+	MvdImportDialog::ImportResult mImportResult;
 	
 	QHash<int,MpiBlue::Engine*> mRegisteredEngines;
 	QHash<int,SearchResult> mSearchResults;

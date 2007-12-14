@@ -48,6 +48,27 @@ public:
 		ErrorMessage
 	};
 
+	//! What happened?
+	enum ImportResult {
+		/*! No error occurred. */
+		Success = 0,
+		/* Movie data import failed for some movie */
+		MovieDataFailed,
+		/* Movie poster import failed for some movie */
+		MoviePosterFailed,
+		/* No search could be performed or some other critical error occurred. */
+		CriticalError
+	};
+
+	//! Why did it happen?
+	enum ErrorType {
+		UnknownError = 0,
+		NetworkError,
+		FileError,
+		InvalidEngineError,
+		EngineError
+	};
+
 	MvdImportDialog(QWidget* parent = 0);
 
 	virtual int nextId() const;
@@ -68,7 +89,12 @@ public:
 	void addSection(const QString& title, const QString& notes = QString());
 	void addSubSection(const QString& title, const QString& notes = QString());
 
-	void done();
+	void setErrorType(ErrorType type);
+	ErrorType errorType() const;
+
+	void done(ImportResult res = Success);
+	ImportResult importResult() const;
+
 	void accept();
 
 	bool preventCloseWhenBusy() const;
