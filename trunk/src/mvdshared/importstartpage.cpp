@@ -23,10 +23,10 @@
 #include "queryvalidator.h"
 #include "settings.h"
 #include "actionlabel.h"
+#include "clearedit.h"
 #include <QLabel>
 #include <QComboBox>
 #include <QGridLayout>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QCompleter>
 #include <QMessageBox>
@@ -52,7 +52,7 @@ MvdImportStartPage::MvdImportStartPage(QWidget* parent)
 	infoLabel->setWordWrap(true);
 	
 	engineCombo = new QComboBox;
-	queryInput = new QLineEdit;
+	queryInput = new MvdClearEdit;
 
 	infoLabel->setText(tr("Please enter your query and hit the Search button (or press Enter) to start the search."));
 
