@@ -56,10 +56,10 @@
          </widget>
         </item>
         <item row="0" column="1" >
-         <widget class="QLineEdit" name="title" />
+         <widget class="MvdClearEdit" name="title" />
         </item>
         <item row="2" column="1" >
-         <widget class="QLineEdit" name="version" />
+         <widget class="MvdClearEdit" name="version" />
         </item>
         <item row="3" column="0" >
          <widget class="QLabel" name="labStorageID" >
@@ -83,10 +83,10 @@
          </widget>
         </item>
         <item row="1" column="1" >
-         <widget class="QLineEdit" name="originalTitle" />
+         <widget class="MvdClearEdit" name="originalTitle" />
         </item>
         <item row="3" column="1" >
-         <widget class="QLineEdit" name="storageID" />
+         <widget class="MvdClearEdit" name="storageID" />
         </item>
        </layout>
       </item>
@@ -473,6 +473,11 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MvdClearEdit</class>
+   <extends>QLineEdit</extends>
+   <header>clearedit.h</header>
+  </customwidget>
   <customwidget>
    <class>MvdRatingWidget</class>
    <extends>QLabel</extends>
