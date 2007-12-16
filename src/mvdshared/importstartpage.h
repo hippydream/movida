@@ -26,9 +26,9 @@
 #include "searchengine.h"
 
 class MvdActionLabel;
+class MvdClearEdit;
 class QLabel;
 class QComboBox;
-class QLineEdit;
 class QPushButton;
 
 class MvdImportStartPage : public MvdImportPage
@@ -60,7 +60,7 @@ private:
 
 	QLabel* infoLabel;
 	QComboBox* engineCombo;
-	QLineEdit* queryInput;
+	MvdClearEdit* queryInput;
 	MvdActionLabel* controls;
 	int configureEngineId;
 	int configurePluginId;
