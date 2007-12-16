@@ -9,5 +9,4 @@ SOURCES += \
 
 RESOURCES += mpiblue.qrc
 	
-FORMS += \
-	ui/importstart.ui
+FORMS += 
