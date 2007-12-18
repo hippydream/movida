@@ -18,6 +18,7 @@ MID-TERM:
 <blue_death>	Multiple movie editing
 <blue_death>	Use Qt 4.4 webkit! (wait until it's ready?)
 <blue_death>	Integrate Qt Undo Framework
+<blue_death>	Make application unique and check for existing old temporary directories
 
 
 LONG-TERM:
