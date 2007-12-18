@@ -81,6 +81,13 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 	ratingHovered(-1);
 	setMoviePoster();
 
+	// Set max length for line edits
+	int maxInputLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
+	Ui::MvdMainInfoPage::title->setMaxLength(maxInputLength);
+	Ui::MvdMainInfoPage::originalTitle->setMaxLength(maxInputLength);
+	Ui::MvdMainInfoPage::version->setMaxLength(maxInputLength);
+	Ui::MvdMainInfoPage::storageID->setMaxLength(maxInputLength);
+
 	connect (Ui::MvdMainInfoPage::clearProductionYear, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
 	connect (Ui::MvdMainInfoPage::clearReleaseYear, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
 	connect (Ui::MvdMainInfoPage::clearRunningTime, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );

@@ -78,6 +78,10 @@ public:
 		parameters.insert("mvdcore/max-poster-size", QSize(400, 150));
 
 		parameters.insert("mvdcore/website-url", "http://movida.sourceforge.net");
+
+		// Max length for some string values
+		// This should be enough even for "Night of the Day of the Dawn of the Son of the Bride of the Return of the Revenge of the Terror of the Attack of the Evil, Mutant, Alien, Flesh Eating, Hellbound, Zombified Living Dead Part 2: In Shocking 2-D" :D
+		parameters.insert("mvdcore/max-edit-length", 256);
 	}
 
 	QHash<QString,QVariant> parameters;

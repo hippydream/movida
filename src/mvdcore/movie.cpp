@@ -48,6 +48,7 @@ public:
 	MvdMovie_P(const MvdMovie_P& other);
 
 	int isValidYear(const QString& s);
+	QString cleanString(const QString& s);
 
 	QAtomic ref;
 
@@ -152,6 +153,17 @@ int MvdMovie_P::isValidYear(const QString& s)
 	return (n >= min && n <= QDate::currentDate().year()) ? n : -1;
 }
 
+QString MvdMovie_P::cleanString(const QString& s)
+{
+	int maxLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
+
+	if (s.length() > maxLength) {
+		QString _s(s);
+		_s.truncate(maxLength);
+		return _s;
+	}
+	return s;
+}
 
 /************************************************************************
 MvdMovie
@@ -221,7 +233,7 @@ QString MvdMovie::title() const
 void MvdMovie::setTitle(const QString& s)
 {
 	detach();
-	d->title = s;
+	d->title = d->cleanString(s);
 }
 
 //! Returns the original title.
@@ -234,7 +246,7 @@ QString MvdMovie::originalTitle() const
 void MvdMovie::setOriginalTitle(const QString& s)
 {
 	detach();
-	d->originalTitle = s;
+	d->originalTitle = d->cleanString(s);
 }
 
 //! Returns the localized title or the original title if the localized is empty.
@@ -301,7 +313,7 @@ QString MvdMovie::edition() const
 void MvdMovie::setEdition(const QString& s)
 {
 	detach();
-	d->edition = s;
+	d->edition = d->cleanString(s);
 }
 
 //! Returns the IMDb id.
@@ -358,7 +370,7 @@ QString MvdMovie::storageId() const
 void MvdMovie::setStorageId(const QString& s)
 {
 	detach();
-	d->storageId = s;
+	d->storageId = d->cleanString(s);
 }
 
 //! Returns the rating.
