@@ -147,7 +147,7 @@ mMB_MenuBar(menuBar()), mCollection(0), mMovieEditor(0)
 	mA_FileSaveAs->setDisabled(true);
 
 	movieViewSelectionChanged();
-	mMovieModel->sortByAttribute(Movida::TitleAttribute, Qt::AscendingOrder);
+	mFilterModel->sortByAttribute(Movida::TitleAttribute, Qt::AscendingOrder);
 	currentViewChanged();
 
 	createNewCollection();
@@ -339,7 +339,7 @@ void MvdMainWindow::updateViewSortMenu()
 		atts = Movida::movieAttributes();
 	}
 	
-	Movida::MovieAttribute currentAttribute = mMovieModel->sortAttribute();
+	Movida::MovieAttribute currentAttribute = mFilterModel->sortAttribute();
 
 	mAG_SortActions = new QActionGroup(this);
 	mAG_SortActions->setExclusive(true);
@@ -480,7 +480,7 @@ bool MvdMainWindow::loadCollection(const QString& file)
 	if (ca)
 		a = (Movida::MovieAttribute)ca->data().toInt();
 	
-	mMovieModel->sortByAttribute(a, mMovieModel->sortOrder());
+	mFilterModel->sortByAttribute(a, mFilterModel->sortOrder());
 
 	return true;
 }
@@ -954,7 +954,7 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	
 	QAction* res = menu.exec(QCursor::pos());
 
-	Qt::SortOrder so = mMovieModel->sortOrder() == Qt::AscendingOrder ? 
+	Qt::SortOrder so = mFilterModel->sortOrder() == Qt::AscendingOrder ? 
 		Qt::DescendingOrder : Qt::AscendingOrder;
 
 	Q_UNUSED(res);
@@ -1165,7 +1165,7 @@ void MvdMainWindow::sortActionTriggered(QAction* a)
 		a = mAG_SortActions->checkedAction();
 
 	Qt::SortOrder so = mA_SortDescending && mA_SortDescending->isChecked() ? Qt::DescendingOrder : Qt::AscendingOrder;
-	mMovieModel->sortByAttribute(a ? (Movida::MovieAttribute)a->data().toInt() : Movida::TitleAttribute, so);
+	mFilterModel->sortByAttribute(a ? (Movida::MovieAttribute)a->data().toInt() : Movida::TitleAttribute, so);
 }
 
 //! Updates the sort actions whenever the tree view is sorted by the user
@@ -1174,7 +1174,7 @@ void MvdMainWindow::treeViewSorted(int)
 	if (!mAG_SortActions)
 		return;
 
-	Movida::MovieAttribute attrib = mMovieModel->sortAttribute();
+	Movida::MovieAttribute attrib = mFilterModel->sortAttribute();
 	QList<QAction*> alist = mAG_SortActions->actions();
 	for (int i = 0; i < alist.size(); ++i) {
 		QAction* a = alist.at(i);
@@ -1185,13 +1185,13 @@ void MvdMainWindow::treeViewSorted(int)
 	}
 
 	if (mA_SortDescending)
-		mA_SortDescending->setChecked(mMovieModel->sortOrder() == Qt::DescendingOrder);
+		mA_SortDescending->setChecked(mFilterModel->sortOrder() == Qt::DescendingOrder);
 }
 
 //! Updates GUI elements after the collection model has been sorted.
 void MvdMainWindow::collectionModelSorted()
 {
-	mTreeView->header()->setSortIndicator((int)mMovieModel->sortAttribute(), mMovieModel->sortOrder());
+	mTreeView->header()->setSortIndicator((int)mFilterModel->sortAttribute(), mFilterModel->sortOrder());
 }
 
 void MvdMainWindow::keyPressEvent(QKeyEvent* e)

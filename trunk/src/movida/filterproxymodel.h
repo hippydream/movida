@@ -36,11 +36,20 @@ public:
 	void setQuickFilterAttributes(const QByteArray& alist);
 	QByteArray quickFilterAttributes() const;
 
+	int sortColumn() const;
+	Movida::MovieAttribute sortAttribute() const;
+	Qt::SortOrder sortOrder() const;
+
+	void sortByAttribute(Movida::MovieAttribute attribute, Qt::SortOrder order = Qt::AscendingOrder);
+	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+
 protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
 
 private:
 	QList<Movida::MovieAttribute> mMovieAttributes;
+	int mSortColumn;
+	Qt::SortOrder mSortOrder;
 };
 
 #endif // MVD_FILTERPROXYMODEL_H
