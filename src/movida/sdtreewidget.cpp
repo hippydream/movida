@@ -953,8 +953,13 @@ void MvdSDDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 		accept = !text.isEmpty();
 	}
 
-	if (accept)
+	if (accept) {
 		item->setText(index.column(), text);
+		if (isNew) {
+			t->updatedModifiedStatus();
+			item->setData(0, Movida::IdRole, MvdNull);
+		}
+	}
 
 	if (isPH)
 	{
