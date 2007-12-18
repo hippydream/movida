@@ -237,6 +237,12 @@ void MvdMovie::setOriginalTitle(const QString& s)
 	d->originalTitle = s;
 }
 
+//! Returns the localized title or the original title if the localized is empty.
+QString MvdMovie::validTitle() const
+{
+	return d->title.isEmpty() ? d->originalTitle : d->title;
+}
+
 //! Returns the release year.
 QString MvdMovie::releaseYear() const
 {

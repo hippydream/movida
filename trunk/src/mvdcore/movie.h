@@ -50,6 +50,8 @@ public:
 	QString originalTitle() const;
 	void setOriginalTitle(const QString& s);
 
+	QString validTitle() const;
+
 	QString releaseYear() const;
 	bool setReleaseYear(const QString& s);
 
