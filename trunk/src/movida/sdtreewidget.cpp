@@ -826,8 +826,11 @@ QWidget* MvdSDDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem
 	MvdSDTreeWidget* t = tree();
 	Q_ASSERT(t);
 
+	int maxInputLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
+
 	MvdExpandingLineEdit* le = new MvdExpandingLineEdit(parent);
 	le->setFrame(false);
+	le->setMaxLength(maxInputLength);
 
 	QStringList completionData;
 	

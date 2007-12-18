@@ -23,6 +23,7 @@
 #include "logger.h"
 #include "global.h"
 #include "sditem.h"
+#include "core.h"
 #include <QImage>
 #include <QStringList>
 
@@ -296,9 +297,19 @@ mvdid MvdSharedData::addItem(const MvdSdItem& item)
 	
 	d->canPurge = true;
 
+	int maxLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
+
 	mvdid newId = d->nextId++;
-	d->data.insert(newId, item);
-	d->logNewItem(item);
+	if (item.value.length() > maxLength || item.description.length() > maxLength) {
+		MvdSdItem _item(item);
+		_item.value.truncate(maxLength);
+		_item.description.truncate(maxLength);
+		d->data.insert(newId, _item);
+		d->logNewItem(_item);
+	} else {
+		d->data.insert(newId, item);
+		d->logNewItem(item);
+	}
 	emit itemAdded(newId);
 	return newId;
 }

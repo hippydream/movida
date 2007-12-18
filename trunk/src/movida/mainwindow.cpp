@@ -937,7 +937,7 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 			MvdMovie movie = mCollection->movie(id);
 			if (movie.isValid()) {
 				movieMenuAdded = true;
-				QString title = movie.validTitle();
+				QString title = fontMetrics().elidedText(movie.validTitle(), Qt::ElideMiddle, 300);
 				editCurrent = menu.addAction(tr("Edit \"%1\"", "Edit movie").arg(title));
 				deleteCurrent = menu.addAction(tr("Delete \"%1\"", "Delete movie").arg(title));
 			}
