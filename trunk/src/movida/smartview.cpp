@@ -99,6 +99,10 @@ void MvdSmartView::init()
 	slider->installEventFilter(this);
 	view->installEventFilter(this);
 	
+	if (style()->objectName().toLower() == "windowsxp") {
+		layout()->setContentsMargins(4, 4, 0, 4);
+	}
+
 	defaultAspectRatio = currentAspectRatio = 2.7;
 	minimumSize = 80;
 	maximumSize = 400;
