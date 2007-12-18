@@ -191,13 +191,9 @@ void MvdTreeView::showHeaderContext(const QPoint& p)
 //! \internal
 void MvdTreeView::contextMenuEvent(QContextMenuEvent* e)
 {
-	Q_UNUSED(e)
-
-	QModelIndex index = currentIndex();
-
+	QModelIndex index = indexAt(e->pos());
 	if (!index.isValid())
 		return;
-
 	emit contextMenuRequested(index, e->reason());
 }
 

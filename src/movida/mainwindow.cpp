@@ -922,30 +922,31 @@ void MvdMainWindow::movieChanged(mvdid id)
 
 void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 {
-/// CONTEXT MENU with no selected items: how to detect it?
-	if (!index.isValid())
-		return;
-	
-	QAbstractItemModel* model = mTreeView->model();
-	if (model == 0)
-		return;
-
-	bool ok;
-	mvdid id = model->data(index, Movida::IdRole).toUInt(&ok);
-	if (!ok || id == 0)
-		return;
-
-	MvdMovie movie = mCollection->movie(id);
-	if (!movie.isValid())
-		return;
-
 	QWidget* senderWidget = qobject_cast<QWidget*>(sender());
 	if (!senderWidget)
 		return;
 
 	QMenu menu;
-	if (sender() == mSmartView && mAG_SortActions)
-	{
+	QAction* editCurrent = 0;
+	QAction* deleteCurrent = 0;
+
+	bool movieMenuAdded = false;
+	if (index.isValid()) {
+		mvdid id = mFilterModel->data(index, Movida::IdRole).toUInt();
+		if (id != MvdNull) {
+			MvdMovie movie = mCollection->movie(id);
+			if (movie.isValid()) {
+				movieMenuAdded = true;
+				QString title = movie.validTitle();
+				editCurrent = menu.addAction(tr("Edit \"%1\"", "Edit movie").arg(title));
+				deleteCurrent = menu.addAction(tr("Delete \"%1\"", "Delete movie").arg(title));
+			}
+		}
+	}
+
+	if (sender() == mSmartView && mAG_SortActions && mMovieModel->rowCount()) {
+		if (!menu.isEmpty())
+			menu.addSeparator();
 		QMenu* sortMenu = menu.addMenu(tr("Sort"));
 		sortMenu->addActions(mAG_SortActions->actions());
 		sortMenu->addSeparator();
@@ -953,12 +954,14 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	}
 	
 	QAction* res = menu.exec(QCursor::pos());
+	if (!res)
+		return;
 
-	Qt::SortOrder so = mFilterModel->sortOrder() == Qt::AscendingOrder ? 
-		Qt::DescendingOrder : Qt::AscendingOrder;
-
-	Q_UNUSED(res);
-	Q_UNUSED(so);
+	if (res == editCurrent) {
+		editMovie(index);
+	} else if (res == deleteCurrent) {
+		removeMovie(index);
+	}
 }
 
 //! \internal

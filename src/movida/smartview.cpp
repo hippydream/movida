@@ -171,8 +171,7 @@ void MvdSmartView::contextMenuEvent(QContextMenuEvent* cme)
 	if (!viewpoint.isNull() && view->model())
 	{
 		QModelIndex index = view->indexAt(viewpoint);
-		if (index.isValid())
-			emit contextMenuRequested(index);
+		emit contextMenuRequested(index);
 	}
 }
 
