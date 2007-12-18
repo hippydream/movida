@@ -26,6 +26,8 @@ MvdFilterProxyModel::MvdFilterProxyModel(QObject* parent)
 : QSortFilterProxyModel(parent)
 {
 	mMovieAttributes << Movida::TitleAttribute << Movida::OriginalTitleAttribute;
+	mSortColumn = (int) Movida::TitleAttribute;
+	mSortOrder = Qt::AscendingOrder;
 }
 
 void MvdFilterProxyModel::setQuickFilterAttributes(const QByteArray& alist)
@@ -52,4 +54,32 @@ bool MvdFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sou
 			return true;
 	}
 	return false;
+}
+
+//! Convenience method only.
+void MvdFilterProxyModel::sortByAttribute(Movida::MovieAttribute attr, Qt::SortOrder order)
+{
+	sort((int) attr, order);
+}
+
+void MvdFilterProxyModel::sort(int column, Qt::SortOrder order)
+{
+	mSortColumn = column;
+	mSortOrder = order;
+	QSortFilterProxyModel::sort(column, order);
+}
+
+int MvdFilterProxyModel::sortColumn() const
+{
+	return mSortColumn;
+}
+
+Movida::MovieAttribute MvdFilterProxyModel::sortAttribute() const
+{
+	return (Movida::MovieAttribute) sortColumn();
+}
+
+Qt::SortOrder MvdFilterProxyModel::sortOrder() const
+{
+	return mSortOrder;
 }

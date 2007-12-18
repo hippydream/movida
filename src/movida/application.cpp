@@ -178,7 +178,7 @@ int MvdApplication::init()
 
 		if (!MvdCore::initCore()) {
 			QMessageBox::warning(0, MVD_CAPTION, tr("Failed to initialize the application.\nPlease see the log file for details."));
-			exit(MVD_ERROR_INIT);
+			return MVD_ERROR_INIT;
 		}
 
 		mMainWindow = new MvdMainWindow;
