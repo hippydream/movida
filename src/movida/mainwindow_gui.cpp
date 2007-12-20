@@ -95,25 +95,25 @@ void MvdMainWindow::setupUi()
 	
 	// Actions
 	mA_FileNew = new QAction(this);
-	mA_FileNew->setIcon(QIcon(":/images/32x32/file_new"));
+	mA_FileNew->setIcon(QIcon(":/images/document-new.svgz"));
 	mA_FileOpen = new QAction(this);
-	mA_FileOpen->setIcon(QIcon(":/images/32x32/file_open"));
+	mA_FileOpen->setIcon(QIcon(":/images/document-open.svgz"));
 	mA_FileOpenLast = new QAction(this);
-	mA_FileOpenLast->setIcon(QIcon(":/images/32x32/file_openlast"));
+	mA_FileOpenLast->setIcon(QIcon(":/images/document-reopen.svgz"));
 	mA_FileSave = new QAction(this);
-	mA_FileSave->setIcon(QIcon(":/images/32x32/file_save"));
+	mA_FileSave->setIcon(QIcon(":/images/document-save.svgz"));
 	mA_FileSaveAs = new QAction(this);
-	mA_FileSaveAs->setIcon(QIcon(":/images/32x32/file_saveas"));
+	mA_FileSaveAs->setIcon(QIcon(":/images/document-save-as.svgz"));
 	mA_FileExit = new QAction(this);
-	mA_FileExit->setIcon(QIcon(":/images/32x32/exit"));
+	mA_FileExit->setIcon(QIcon(":/images/application-exit.svgz"));
 
 	mA_TreeView = new QAction(this);
-	mA_TreeView->setIcon(QIcon(":/images/32x32/exit"));
+	mA_TreeView->setIcon(QIcon(":/images/fileview-text.svgz"));
 	mA_TreeView->setCheckable(true);
 	mA_TreeView->setChecked(true);
 
 	mA_SmartView = new QAction(this);
-	mA_SmartView->setIcon(QIcon(":/images/32x32/exit"));
+	mA_SmartView->setIcon(QIcon(":/images/fileview-detailed.svgz"));
 	mA_SmartView->setCheckable(true);
 
 	mAG_MovieView = new QActionGroup(this);
@@ -122,29 +122,31 @@ void MvdMainWindow::setupUi()
 	mAG_MovieView->addAction(mA_TreeView);
 
 	mA_ViewDetails = mDetailsDock->toggleViewAction();
+	mA_ViewDetails->setIcon(QIcon(":/images/fileview-split.svgz"));
 	
 	mA_CollAddMovie = new QAction(this);
-	mA_CollAddMovie->setIcon(QIcon(":/images/32x32/add"));
+	mA_CollAddMovie->setIcon(QIcon(":/images/edit-add.svgz"));
 	mA_CollAddMovie->setShortcut(Qt::CTRL | Qt::Key_A);
 	mA_CollRemMovie = new QAction(this);
-	mA_CollRemMovie->setIcon(QIcon(":/images/32x32/remove"));
+	mA_CollRemMovie->setIcon(QIcon(":/images/edit-delete.svgz"));
 	mA_CollEdtMovie = new QAction(this);
-	mA_CollEdtMovie->setIcon(QIcon(":/images/32x32/edit"));
+	mA_CollEdtMovie->setIcon(QIcon(":/images/edit.svgz"));
 	mA_CollDupMovie = new QAction(this);
-	mA_CollDupMovie->setIcon(QIcon(":/images/32x32/duplicate"));
+	// mA_CollDupMovie->setIcon(QIcon(":/images/32x32/duplicate"));
 	mA_CollMeta = new QAction(this);
-	mA_CollMeta->setIcon(QIcon(":/images/32x32/metaeditor"));
+	mA_CollMeta->setIcon(QIcon(":/images/document-properties.svgz"));
 
 	mA_ToolPref = new QAction(this);
-	mA_ToolPref->setIcon(QIcon(":/images/32x32/configure"));
+	mA_ToolPref->setIcon(QIcon(":/images/configure.svgz"));
 	mA_ToolLog = new QAction(this);
-	mA_ToolLog->setIcon(QIcon(":/images/32x32/log"));
+	mA_ToolLog->setIcon(QIcon(":/images/list.svgz"));
 
 	mA_HelpContents = new QAction(this);
-	mA_HelpContents->setIcon(QIcon(":/images/32x32/help"));
+	mA_HelpContents->setIcon(QIcon(":/images/help-contents.svgz"));
 	mA_HelpIndex = new QAction(this);
 	mA_HelpAbout = new QAction(this);
-	mA_HelpAbout->setIcon(QIcon(":/images/32x32/logo"));
+	//! \todo SVG application logo
+	//mA_HelpAbout->setIcon(QIcon(":/images/32x32/logo"));
 
 
 	// Toolbars
@@ -235,7 +237,6 @@ void MvdMainWindow::setupUi()
 	mTB_Coll->addAction(mA_CollAddMovie);
 	mTB_Coll->addAction(mA_CollRemMovie);
 	mTB_Coll->addAction(mA_CollEdtMovie);
-	mTB_Coll->addAction(mA_CollDupMovie);
 
 	mTB_Tool->addAction(mA_ToolPref);
 

@@ -25,8 +25,8 @@ MvdFilterWidget::MvdFilterWidget(QWidget* parent)
 : QFrame(parent)
 {
 	setupUi(this);
-	closeButton->setIcon(QIcon(":/images/misc/filter-close"));
-	warningIconLabel->setPixmap(QPixmap(":/images/misc/filter-warning"));
+	closeButton->setIcon(QIcon(":/images/filter-close.png"));
+	warningIconLabel->setPixmap(QPixmap(":/images/filter-warning.png"));
 	
 	setFrameShape(QFrame::StyledPanel);
 	setFrameShadow(QFrame::Raised);

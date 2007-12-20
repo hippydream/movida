@@ -59,7 +59,7 @@ QString MvdNotesPage::label()
 */
 QIcon MvdNotesPage::icon()
 {
-	return QIcon(":/images/preferences/log.png");
+	return QIcon();
 }
 
 void MvdNotesPage::setMovieImpl(const MvdMovie& movie)

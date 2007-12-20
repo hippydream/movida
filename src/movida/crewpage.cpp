@@ -73,7 +73,7 @@ QString MvdCrewPage::label()
 */
 QIcon MvdCrewPage::icon()
 {
-	return QIcon(":/images/preferences/log.png");
+	return QIcon();
 }
 
 /*!

@@ -28,7 +28,7 @@
 #include <QString>
 #include <QtGlobal>
 
-#define MVD_WINDOW_ICON setWindowIcon(QIcon(":/images/misc/logo.png"));
+#define MVD_WINDOW_ICON setWindowIcon(QIcon(":/images/logo.png"));
 
 namespace Movida
 {
