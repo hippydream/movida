@@ -46,7 +46,7 @@ MvdImportStartPage::MvdImportStartPage(QWidget* parent)
 : MvdImportPage(parent)
 {
 	setTitle(tr("Movida Internet import wizard"));
-	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
+	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import-wizard/watermark.png"));
 
 	infoLabel = new QLabel;
 	infoLabel->setWordWrap(true);

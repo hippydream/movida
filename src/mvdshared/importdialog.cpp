@@ -80,8 +80,8 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 	connect( this, SIGNAL(currentIdChanged(int)),
 		this, SLOT(pageChanged(int)) );
 
-	setPixmap(QWizard::LogoPixmap, QPixmap(":/images/import/logo.png"));
-	setPixmap(QWizard::BannerPixmap, QPixmap(":/images/import/banner.png"));
+	setPixmap(QWizard::LogoPixmap, QPixmap(":/images/import-wizard/logo.png"));
+	setPixmap(QWizard::BannerPixmap, QPixmap(":/images/import-wizard/banner.png"));
 	setWindowTitle(tr("Movida import wizard"));
 
 	Q_UNUSED(qRegisterMetaType<MvdMovieDataList>());
