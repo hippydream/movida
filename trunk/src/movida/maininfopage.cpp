@@ -308,7 +308,7 @@ void MvdMainInfoPage::setMoviePoster(const QString& path)
 
 	if (!posterOk)
 	{
-		poster->setPoster(":/images/misc/default-poster");
+		poster->setPoster(":/images/default-poster.png");
 
 		if (!path.isEmpty())
 		{
