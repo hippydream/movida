@@ -936,7 +936,7 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	bool currentIsSelected = false;
 	bool movieMenuAdded = false;
 
-	addNew = menu.addAction(QIcon("d:/download/img/oxygen/scalable/actions/document-new.svgz"), tr("New movie..."));
+	addNew = menu.addAction(tr("New movie..."));
 	if (!mMN_FileImport->isEmpty()) {
 		menu.addMenu(mMN_FileImport);
 	}
