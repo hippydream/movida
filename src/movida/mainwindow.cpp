@@ -212,14 +212,14 @@ void MvdMainWindow::closeEvent(QCloseEvent* e)
 {
 	iLog() << "Movida is closing...";
 
-	if (mCollection && mCollection->isModified())
-	{
-		if (!closeCollection())
-		{
+	if (mCollection && mCollection->isModified()) {
+		if (!closeCollection()) {
 			e->ignore();
 			return;
 		}
 	}
+	
+	cleanUp();
 }
 
 //! This method is called before closing the app or on a crash.
