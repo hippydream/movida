@@ -105,6 +105,7 @@ public slots:
 		if (enable)
 			editor->setFontWeight(QFont::Bold);
 		else editor->setFontWeight(QFont::Normal);
+		editor->setFocus(Qt::ShortcutFocusReason);
 	}
 
 	void setFontItalic(bool enable)
@@ -113,6 +114,7 @@ public slots:
 			return;
 
 		editor->setFontItalic(enable);
+		editor->setFocus(Qt::ShortcutFocusReason);
 	}
 
 	void setFontUnderline(bool enable)
@@ -121,6 +123,7 @@ public slots:
 			return;
 
 		editor->setFontUnderline(enable);
+		editor->setFocus(Qt::ShortcutFocusReason);
 	}
 
 	void fontSizeChanged(const QString& s)
@@ -129,7 +132,7 @@ public slots:
 			return;
 
 		editor->setFontPointSize(s.toInt());
-		editor->setFocus();
+		editor->setFocus(Qt::ShortcutFocusReason);
 	}
 
 	void fontColorChanged(const QString& s)
@@ -142,7 +145,7 @@ public slots:
 			return;
 
 		editor->setTextColor(color);
-		editor->setFocus();
+		editor->setFocus(Qt::ShortcutFocusReason);
 	}
 
 	void refreshControls()
@@ -151,8 +154,8 @@ public slots:
 			return;
 
 		QTextCursor cursor = editor->textCursor();
-
 		QTextCharFormat charFormat = cursor.charFormat();
+		
 		bold->setChecked(charFormat.fontWeight() == QFont::Bold);
 		italic->setChecked(charFormat.fontItalic());
 		underline->setChecked(charFormat.fontUnderline());
