@@ -30,6 +30,7 @@
 		<file alias="fileview-text.svgz">images/actions/fileview-text.svgz</file>
 		<file alias="help-contents.svgz">images/actions/help-contents.svgz</file>
 		<file alias="list.svgz">images/actions/list.svgz</file>
+		<file alias="view-choose.svgz">images/actions/view-choose.svgz</file>
 		
 		<!-- MISC -->
 		<file alias="default-poster.png">images/misc/default-poster.png</file>
