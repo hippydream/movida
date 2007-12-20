@@ -51,9 +51,9 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 	int h = int(w / ar);
 	Ui::MvdMainInfoPage::poster->setFixedSize(w, h);
 
-	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::RatedRole, QPixmap(":/images/misc/rating-rated.png") );
-	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::UnratedRole, QPixmap(":/images/misc/rating-unrated.png") );
-	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::HoveredRole, QPixmap(":/images/misc/rating-hovered.png") );
+	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::RatedRole, QPixmap(":/images/rating-rated.png") );
+	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::UnratedRole, QPixmap(":/images/rating-unrated.png") );
+	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::HoveredRole, QPixmap(":/images/rating-hovered.png") );
 	
 	quint8 maxRating = MvdCore::parameter("mvdcore/max-rating").toUInt();
 	quint16 maxRuntime = MvdCore::parameter("mvdcore/max-running-time").toUInt();
@@ -130,7 +130,7 @@ QString MvdMainInfoPage::label()
 */
 QIcon MvdMainInfoPage::icon()
 {
-	return QIcon(":/images/preferences/log.png");
+	return QIcon();
 }
 
 /*!

@@ -1,112 +1,43 @@
 <RCC>
-    <qresource prefix="/" >
-        <file>images/16x16/add.png</file>
-        <file>images/16x16/arrow_down.png</file>
-        <file>images/16x16/arrow_left.png</file>
-        <file>images/16x16/arrow_right.png</file>
-        <file>images/16x16/arrow_up.png</file>
-        <file>images/16x16/arrowc_down.png</file>
-        <file>images/16x16/arrowc_left.png</file>
-        <file>images/16x16/arrowc_right.png</file>
-        <file>images/16x16/arrowc_up.png</file>
-        <file>images/16x16/bottom.png</file>
-        <file>images/16x16/clear.png</file>
-        <file>images/16x16/configure.png</file>
-        <file>images/16x16/duplicate.png</file>
-        <file>images/16x16/edit.png</file>
-        <file>images/16x16/exit.png</file>
-        <file>images/16x16/file_close.png</file>
-        <file>images/16x16/file_new.png</file>
-        <file>images/16x16/file_open.png</file>
-        <file>images/16x16/file_openlast.png</file>
-        <file>images/16x16/file_save.png</file>
-        <file>images/16x16/file_saveas.png</file>
-        <file>images/16x16/filter.png</file>
-        <file>images/16x16/filter_edit.png</file>
-        <file>images/16x16/find.png</file>
-        <file>images/16x16/help.png</file>
-        <file>images/16x16/log.png</file>
-        <file>images/16x16/logo.png</file>
-        <file>images/16x16/purge.png</file>
-        <file>images/16x16/remove.png</file>
-        <file>images/16x16/star.png</file>
-        <file>images/16x16/top.png</file>
-        <file>images/16x16/video.png</file>
-        <file>images/32x32/add.png</file>
-        <file>images/32x32/arrow_down.png</file>
-        <file>images/32x32/arrow_left.png</file>
-        <file>images/32x32/arrow_right.png</file>
-        <file>images/32x32/arrow_up.png</file>
-        <file>images/32x32/arrowc_down.png</file>
-        <file>images/32x32/arrowc_left.png</file>
-        <file>images/32x32/arrowc_right.png</file>
-        <file>images/32x32/arrowc_up.png</file>
-        <file>images/32x32/bottom.png</file>
-        <file>images/32x32/clear.png</file>
-        <file>images/32x32/configure.png</file>
-        <file>images/32x32/duplicate.png</file>
-        <file>images/32x32/edit.png</file>
-        <file>images/32x32/exit.png</file>
-        <file>images/32x32/file_close.png</file>
-        <file>images/32x32/file_new.png</file>
-        <file>images/32x32/file_open.png</file>
-        <file>images/32x32/file_openlast.png</file>
-        <file>images/32x32/file_save.png</file>
-        <file>images/32x32/file_saveas.png</file>
-        <file>images/32x32/filter.png</file>
-        <file>images/32x32/filter_edit.png</file>
-        <file>images/32x32/find.png</file>
-        <file>images/32x32/help.png</file>
-        <file>images/32x32/log.png</file>
-        <file>images/32x32/logo.png</file>
-        <file>images/32x32/purge.png</file>
-        <file>images/32x32/remove.png</file>
-        <file>images/32x32/star.png</file>
-        <file>images/32x32/top.png</file>
-        <file>images/32x32/video.png</file>
-        <file>images/misc/default-poster.png</file>
-        <file>images/misc/filter-close.png</file>
-        <file>images/misc/filter-warning.png</file>
-        <file>images/misc/logo.png</file>
-        <file>images/misc/mask.png</file>
-        <file>images/misc/rating-hovered.png</file>
-        <file>images/misc/rating-rated.png</file>
-        <file>images/misc/rating-unrated.png</file>
-        <file>images/preferences/general.png</file>
-        <file>images/preferences/log.png</file>
-        <file>images/preferences/smd.png</file>
-        <file>qss/coffee.qss</file>
-        <file>qss/default.qss</file>
-        <file>qss/images/checkbox_checked.png</file>
-        <file>qss/images/checkbox_checked_hover.png</file>
-        <file>qss/images/checkbox_checked_pressed.png</file>
-        <file>qss/images/checkbox_unchecked.png</file>
-        <file>qss/images/checkbox_unchecked_hover.png</file>
-        <file>qss/images/checkbox_unchecked_pressed.png</file>
-        <file>qss/images/down_arrow.png</file>
-        <file>qss/images/down_arrow_disabled.png</file>
-        <file>qss/images/frame.png</file>
-        <file>qss/images/pagefold.png</file>
-        <file>qss/images/pushbutton.png</file>
-        <file>qss/images/pushbutton_hover.png</file>
-        <file>qss/images/pushbutton_pressed.png</file>
-        <file>qss/images/radiobutton_checked.png</file>
-        <file>qss/images/radiobutton_checked_hover.png</file>
-        <file>qss/images/radiobutton_checked_pressed.png</file>
-        <file>qss/images/radiobutton_unchecked.png</file>
-        <file>qss/images/radiobutton_unchecked_hover.png</file>
-        <file>qss/images/radiobutton_unchecked_pressed.png</file>
-        <file>qss/images/sizegrip.png</file>
-        <file>qss/images/spindown.png</file>
-        <file>qss/images/spindown_hover.png</file>
-        <file>qss/images/spindown_off.png</file>
-        <file>qss/images/spindown_pressed.png</file>
-        <file>qss/images/spinup.png</file>
-        <file>qss/images/spinup_hover.png</file>
-        <file>qss/images/spinup_off.png</file>
-        <file>qss/images/spinup_pressed.png</file>
-        <file>qss/images/up_arrow.png</file>
-        <file>qss/images/up_arrow_disabled.png</file>
-        <file>qss/pagefold.qss</file>
-    </qresource>
+	<qresource prefix="/images">
+		<!-- ACTIONS -->
+		<file alias="application-exit.svgz">images/actions/application-exit.svgz</file>
+		<file alias="arrow-down-double.svgz">images/actions/arrow-down-double.svgz</file>
+		<file alias="arrow-down.svgz">images/actions/arrow-down.svgz</file>
+		<file alias="arrow-left-double.svgz">images/actions/arrow-left-double.svgz</file>
+		<file alias="arrow-left.svgz">images/actions/arrow-left.svgz</file>
+		<file alias="arrow-right-double.svgz">images/actions/arrow-right-double.svgz</file>
+		<file alias="arrow-right.svgz">images/actions/arrow-right.svgz</file>
+		<file alias="arrow-up-double.svgz">images/actions/arrow-up-double.svgz</file>
+		<file alias="arrow-up.svgz">images/actions/arrow-up.svgz</file>
+		<file alias="clear-left.svgz">images/actions/clear-left.svgz</file>
+		<file alias="configure-shortcuts.svgz">images/actions/configure-shortcuts.svgz</file>
+		<file alias="configure.svgz">images/actions/configure.svgz</file>
+		<file alias="configure-toolbars.svgz">images/actions/configure-toolbars.svgz</file>
+		<file alias="document-new.svgz">images/actions/document-new.svgz</file>
+		<file alias="document-open-recent.svgz">images/actions/document-open-recent.svgz</file>
+		<file alias="document-open.svgz">images/actions/document-open.svgz</file>
+		<file alias="document-properties.svgz">images/actions/document-properties.svgz</file>
+		<file alias="document-reopen.svgz">images/actions/document-reopen.svgz</file>
+		<file alias="document-revert.svgz">images/actions/document-revert.svgz</file>
+		<file alias="document-save-as.svgz">images/actions/document-save-as.svgz</file>
+		<file alias="document-save.svgz">images/actions/document-save.svgz</file>
+		<file alias="edit-add.svgz">images/actions/edit-add.svgz</file>
+		<file alias="edit-delete.svgz">images/actions/edit-delete.svgz</file>
+		<file alias="edit.svgz">images/actions/edit.svgz</file>
+		<file alias="fileview-detailed.svgz">images/actions/fileview-detailed.svgz</file>
+		<file alias="fileview-split.svgz">images/actions/fileview-split.svgz</file>
+		<file alias="fileview-text.svgz">images/actions/fileview-text.svgz</file>
+		<file alias="help-contents.svgz">images/actions/help-contents.svgz</file>
+		<file alias="list.svgz">images/actions/list.svgz</file>
+		
+		<!-- MISC -->
+		<file alias="default-poster.png">images/misc/default-poster.png</file>
+		<file alias="filter-close.png">images/misc/filter-close.png</file>
+		<file alias="filter-warning.png">images/misc/filter-warning.png</file>
+		<file alias="logo.png">images/misc/logo.png</file>
+		<file alias="rating-hovered.png">images/misc/rating-hovered.png</file>
+		<file alias="rating-rated.png">images/misc/rating-rated.png</file>
+		<file alias="rating-unrated.png">images/misc/rating-unrated.png</file>
+	</qresource>
 </RCC>

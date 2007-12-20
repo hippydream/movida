@@ -76,7 +76,7 @@ QString MvdMainSettingsPage::label()
 */
 QIcon MvdMainSettingsPage::icon()
 {
-	return QIcon(":/images/preferences/general.png");
+	return QIcon();
 }
 
 //! \internal

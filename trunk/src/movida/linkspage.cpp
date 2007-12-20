@@ -87,7 +87,7 @@ QString MvdLinksPage::label()
 */
 QIcon MvdLinksPage::icon()
 {
-	return QIcon(":/images/preferences/log.png");
+	return QIcon();
 }
 
 void MvdLinksPage::setMovieImpl(const MvdMovie& movie)

@@ -445,7 +445,7 @@ void MvdSmartViewDelegate::rebuildDefaultIcon()
 {
 	QSize iconSize = maximumIconSize();
 
-	defaultPixmap = QPixmap(":/images/misc/default-poster.png")
+	defaultPixmap = QPixmap(":/images/default-poster.svg")
 		.scaled(iconSize.width() - innerIconBorderWidth, iconSize.height() - innerIconBorderWidth,
 		Qt::IgnoreAspectRatio, Qt::SmoothTransformation);	
 }

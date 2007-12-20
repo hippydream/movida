@@ -77,7 +77,7 @@ QString MvdExtendedInfoPage::label()
 */
 QIcon MvdExtendedInfoPage::icon()
 {
-	return QIcon(":/images/preferences/log.png");
+	return QIcon();
 }
 
 /*!
