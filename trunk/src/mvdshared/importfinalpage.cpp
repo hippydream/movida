@@ -62,7 +62,7 @@ MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
 : MvdImportPage(parent), pendingButtonUpdates(false)
 {
 	setTitle(tr("We are all done!"));
-	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import/watermark.png"));
+	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import-wizard/watermark.png"));
 
 	setPreventCloseWhenBusy(true);
 	ui.setupUi(this);

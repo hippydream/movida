@@ -1,14 +1,16 @@
 <RCC>
-    <qresource prefix="/" >
-        <file>images/misc/bold.png</file>
-        <file>images/misc/underline.png</file>
-        <file>images/misc/italic.png</file>
-        
-        <file>images/misc/clear-edit.png</file>
-
-	<file>images/import/logo.png</file>
-	<file>images/import/banner.png</file>
-	<file>images/import/watermark.png</file>
-	<file>images/import/background.png</file>
-    </qresource>
+	<qresource prefix="/images" >
+		<!-- MISC -->
+		<file alias="clear-edit.png">images/misc/clear-edit.png</file>
+		<file alias="bold.svgz">images/misc/format-text-bold.svgz</file>
+		<file alias="italic.svgz">images/misc/format-text-italic.svgz</file>
+		<file alias="underline.svgz">images/misc/format-text-underline.svgz</file>
+	</qresource>
+	<qresource prefix="/images/import-wizard" >	
+		<!-- IMPORT WIZARD -->
+		<file alias="logo.png">images/import/logo.png</file>
+		<file alias="banner.png">images/import/banner.png</file>
+		<file alias="watermark.png">images/import/watermark.png</file>
+		<file alias="background.png">images/import/background.png</file>
+	</qresource>
 </RCC>

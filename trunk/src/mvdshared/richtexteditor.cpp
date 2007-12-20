@@ -81,7 +81,7 @@ void MvdRichTextEditor::init()
 	d->bold->setFlat(true);
 	d->bold->setToolTip(tr("Bold (Ctrl+B)"));
 	d->bold->setCheckable(true);
-	d->bold->setIcon(QIcon(":/images/misc/bold.png"));
+	d->bold->setIcon(QIcon(":/images/bold.svgz"));
 	d->bold->setShortcut(tr("CTRL+B"));
 	connect(d->bold, SIGNAL(toggled(bool)), d, SLOT(setFontBold(bool)));
 	hl->addWidget(d->bold);
@@ -90,7 +90,7 @@ void MvdRichTextEditor::init()
 	d->italic->setFlat(true);
 	d->italic->setToolTip(tr("Italic (Ctrl+I)"));
 	d->italic->setCheckable(true);
-	d->italic->setIcon(QIcon(":/images/misc/italic.png"));
+	d->italic->setIcon(QIcon(":/images/italic.svgz"));
 	d->italic->setShortcut(tr("CTRL+I"));
 	connect(d->italic, SIGNAL(toggled(bool)), d, SLOT(setFontItalic(bool)));
 	hl->addWidget(d->italic);
@@ -99,7 +99,7 @@ void MvdRichTextEditor::init()
 	d->underline->setFlat(true);
 	d->underline->setToolTip(tr("Underline (Ctrl+U)"));
 	d->underline->setCheckable(true);
-	d->underline->setIcon(QIcon(":/images/misc/underline.png"));
+	d->underline->setIcon(QIcon(":/images/underline.svgz"));
 	d->underline->setShortcut(tr("CTRL+U"));
 	connect(d->underline, SIGNAL(toggled(bool)), d, SLOT(setFontUnderline(bool)));
 	hl->addWidget(d->underline);
