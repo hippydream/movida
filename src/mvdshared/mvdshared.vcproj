@@ -781,15 +781,19 @@
 				>
 			</File>
 			<File
-				RelativePath="images\misc\bold.png"
-				>
-			</File>
-			<File
 				RelativePath="images\misc\clear-edit.png"
 				>
 			</File>
 			<File
-				RelativePath="images\misc\italic.png"
+				RelativePath="images\misc\format-text-bold.svgz"
+				>
+			</File>
+			<File
+				RelativePath="images\misc\format-text-italic.svgz"
+				>
+			</File>
+			<File
+				RelativePath="images\misc\format-text-underline.svgz"
 				>
 			</File>
 			<File
@@ -806,7 +810,7 @@
 						Name="VCCustomBuildTool"
 						Description="RCC mvdshared.qrc"
 						CommandLine="$(QTDIR)\bin\rcc.exe -name mvdshared mvdshared.qrc -o ..\..\tmp\mvdshared\rcc\qrc_mvdshared.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\import\background.png;images\import\banner.png;images\import\logo.png;images\import\watermark.png;images\misc\bold.png;images\misc\clear-edit.png;images\misc\italic.png;images\misc\underline.png;mvdshared.qrc"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\import\background.png;images\import\banner.png;images\import\logo.png;images\import\watermark.png;images\misc\clear-edit.png;images\misc\format-text-bold.svgz;images\misc\format-text-italic.svgz;images\misc\format-text-underline.svgz;mvdshared.qrc"
 						Outputs="..\..\tmp\mvdshared\rcc\qrc_mvdshared.cpp"
 					/>
 				</FileConfiguration>
@@ -817,14 +821,10 @@
 						Name="VCCustomBuildTool"
 						Description="RCC mvdshared.qrc"
 						CommandLine="$(QTDIR)\bin\rcc.exe -name mvdshared mvdshared.qrc -o ..\..\tmp\mvdshared\rcc\qrc_mvdshared.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\import\background.png;images\import\banner.png;images\import\logo.png;images\import\watermark.png;images\misc\bold.png;images\misc\clear-edit.png;images\misc\italic.png;images\misc\underline.png;mvdshared.qrc"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\import\background.png;images\import\banner.png;images\import\logo.png;images\import\watermark.png;images\misc\clear-edit.png;images\misc\format-text-bold.svgz;images\misc\format-text-italic.svgz;images\misc\format-text-underline.svgz;mvdshared.qrc"
 						Outputs="..\..\tmp\mvdshared\rcc\qrc_mvdshared.cpp"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="images\misc\underline.png"
-				>
 			</File>
 			<File
 				RelativePath="images\import\watermark.png"
