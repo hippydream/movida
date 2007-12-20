@@ -25,10 +25,10 @@
 #include "filterwidget.h"
 #include "guiglobal.h"
 #include "mainwindow.h"
-#include "pathresolver.h"
 #include "rowselectionmodel.h"
 #include "smartview.h"
 #include "treeview.h"
+#include "mvdcore/pathresolver.h"
 #include <QDockWidget>
 #include <QGridLayout>
 #include <QHeaderView>
@@ -67,8 +67,9 @@ void MvdMainWindow::setupUi()
 	mTreeView->setModel(mFilterModel);
 	
 	// Share selection model
-	mTreeView->setSelectionModel(new MvdRowSelectionModel(mFilterModel));
-	mSmartView->setSelectionModel(mTreeView->selectionModel());
+	mSelectionModel = new MvdRowSelectionModel(mFilterModel);
+	mTreeView->setSelectionModel(mSelectionModel);
+	mSmartView->setSelectionModel(mSelectionModel);
 	
 	mMainViewStack->addWidget(mTreeView);
 	mMainViewStack->addWidget(mSmartView);	
@@ -372,8 +373,8 @@ void MvdMainWindow::setupConnections()
 	connect ( mMN_File, SIGNAL(aboutToShow()), this, SLOT(updateFileMenu()) );
 
 	connect ( mA_CollAddMovie, SIGNAL( triggered() ), this, SLOT ( addMovie() ) );
-	connect ( mA_CollRemMovie, SIGNAL( triggered() ), this, SLOT ( removeCurrentMovie() ) );
-	connect ( mA_CollEdtMovie, SIGNAL( triggered() ), this, SLOT ( editCurrentMovie() ) );
+	connect ( mA_CollRemMovie, SIGNAL( triggered() ), this, SLOT ( removeSelectedMovies() ) );
+	connect ( mA_CollEdtMovie, SIGNAL( triggered() ), this, SLOT ( editSelectedMovies() ) );
 	connect ( mA_CollDupMovie, SIGNAL( triggered() ), this, SLOT ( duplicateCurrentMovie() ) );
 	connect ( mA_CollMeta, SIGNAL( triggered() ), this, SLOT ( showMetaEditor() ) );
 

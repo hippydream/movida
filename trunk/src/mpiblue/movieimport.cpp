@@ -20,10 +20,10 @@
 **************************************************************************/
 
 #include "movieimport.h"
-#include "core.h"
-#include "logger.h"
-#include "settings.h"
-#include "searchengine.h"
+#include "mvdcore/core.h"
+#include "mvdcore/logger.h"
+#include "mvdcore/settings.h"
+#include "mvdshared/searchengine.h"
 #include <QMessageBox>
 #include <QRegExp>
 #include <QDir>

@@ -68,7 +68,7 @@
   <customwidget>
    <class>MvdRichTextEditor</class>
    <extends>QTextEdit</extends>
-   <header>richtexteditor.h</header>
+   <header>mvdshared/richtexteditor.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -21,9 +21,9 @@
 
 #include "importstartpage.h"
 #include "queryvalidator.h"
-#include "settings.h"
 #include "actionlabel.h"
 #include "clearedit.h"
+#include "mvdcore/settings.h"
 #include <QLabel>
 #include <QComboBox>
 #include <QGridLayout>

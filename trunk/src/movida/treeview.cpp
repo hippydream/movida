@@ -20,8 +20,8 @@
 **************************************************************************/
 
 #include "treeview.h"
-#include "settings.h"
 #include "mainwindow.h"
+#include "mvdcore/settings.h"
 #include <QApplication>
 #include <QCursor>
 #include <QHeaderView>
@@ -192,8 +192,6 @@ void MvdTreeView::showHeaderContext(const QPoint& p)
 void MvdTreeView::contextMenuEvent(QContextMenuEvent* e)
 {
 	QModelIndex index = indexAt(e->pos());
-	if (!index.isValid())
-		return;
 	emit contextMenuRequested(index, e->reason());
 }
 

@@ -19,12 +19,12 @@
 **
 **************************************************************************/
 
-#include "core.h"
-#include "expandinglineedit.h"
 #include "guiglobal.h"
-#include "logger.h"
 #include "sdtreewidget.h"
-#include "settings.h"
+#include "mvdcore/core.h"
+#include "mvdcore/logger.h"
+#include "mvdcore/settings.h"
+#include "mvdshared/expandinglineedit.h"
 #include <QComboBox>
 #include <QComboBox>
 #include <QCompleter>

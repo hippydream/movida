@@ -21,7 +21,7 @@
 
 #include "crewpage.h"
 #include "guiglobal.h"
-#include "core.h"
+#include "mvdcore/core.h"
 #include <QIcon>
 #include <QTreeWidgetItem>
 

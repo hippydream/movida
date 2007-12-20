@@ -22,7 +22,7 @@
 #ifndef MPI_BLUEGLOBAL_H
 #define MPI_BLUEGLOBAL_H
 
-#include "global.h"
+#include "mvdcore/global.h"
 #include <QtGlobal>
 
 #ifndef MPI_EXPORT_BLUE

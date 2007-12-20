@@ -22,8 +22,8 @@
 #ifndef MVD_COLLECTIONMODEL_H
 #define MVD_COLLECTIONMODEL_H
 
-#include "global.h"
 #include "guiglobal.h"
+#include "mvdcore/global.h"
 #include <QAbstractTableModel>
 
 class MvdCollectionModel_P;

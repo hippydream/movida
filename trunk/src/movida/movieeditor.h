@@ -23,8 +23,8 @@
 #define MVD_MOVIEEDITOR_H
 
 #include "multipagedialog.h"
-#include "shareddata.h"
-#include "movie.h"
+#include "mvdcore/shareddata.h"
+#include "mvdcore/movie.h"
 #include <QList>
 
 class MvdMovieCollection;

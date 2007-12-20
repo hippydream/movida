@@ -20,7 +20,7 @@
 **************************************************************************/
 
 #include "treewidget.h"
-#include "settings.h"
+#include "mvdcore/settings.h"
 #include <QApplication>
 #include <QCursor>
 #include <QHeaderView>

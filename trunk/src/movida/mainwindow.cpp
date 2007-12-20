@@ -19,27 +19,27 @@
 **
 **************************************************************************/
 
-#include "collectionloader.h"
 #include "collectionmetaeditor.h"
 #include "collectionmodel.h"
-#include "collectionsaver.h"
-#include "core.h"
 #include "dockwidget.h"
 #include "filterproxymodel.h"
 #include "filterwidget.h"
 #include "guiglobal.h"
-#include "logger.h"
 #include "mainwindow.h"
-#include "movie.h"
-#include "moviecollection.h"
-#include "pathresolver.h"
-#include "plugininterface.h"
 #include "rowselectionmodel.h"
-#include "settings.h"
 #include "settingsdialog.h"
 #include "smartview.h"
-#include "templatemanager.h"
 #include "treeview.h"
+#include "mvdcore/collectionsaver.h"
+#include "mvdcore/collectionloader.h"
+#include "mvdcore/core.h"
+#include "mvdcore/logger.h"
+#include "mvdcore/movie.h"
+#include "mvdcore/moviecollection.h"
+#include "mvdcore/pathresolver.h"
+#include "mvdcore/plugininterface.h"
+#include "mvdcore/settings.h"
+#include "mvdcore/templatemanager.h"
 #include <QAction>
 #include <QActionGroup>
 #include <QDir>
@@ -701,7 +701,7 @@ void MvdMainWindow::editPreviousMovie()
 	editMovie(prev);
 }
 
-void MvdMainWindow::editCurrentMovie()
+void MvdMainWindow::editSelectedMovies()
 {
 	QModelIndexList list = mTreeView->selectedRows();
 	if (list.isEmpty())
@@ -817,7 +817,7 @@ quint32 MvdMainWindow::modelIndexToId(const QModelIndex& index) const
 	return ok ? id : 0;
 }
 
-void MvdMainWindow::removeCurrentMovie()
+void MvdMainWindow::removeSelectedMovies()
 {
 	QModelIndexList list = mTreeView->selectedRows();
 	if (list.isEmpty())
@@ -927,19 +927,56 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 		return;
 
 	QMenu menu;
+	QAction* addNew = 0;
 	QAction* editCurrent = 0;
 	QAction* deleteCurrent = 0;
+	QAction* editSelected = 0;
+	QAction* deleteSelected = 0;
 
+	bool currentIsSelected = false;
 	bool movieMenuAdded = false;
+
+	addNew = menu.addAction(QIcon("d:/download/img/oxygen/scalable/actions/document-new.svgz"), tr("New movie..."));
+	if (!mMN_FileImport->isEmpty()) {
+		menu.addMenu(mMN_FileImport);
+	}
+
 	if (index.isValid()) {
 		mvdid id = mFilterModel->data(index, Movida::IdRole).toUInt();
 		if (id != MvdNull) {
 			MvdMovie movie = mCollection->movie(id);
 			if (movie.isValid()) {
+				if (!menu.isEmpty())
+					menu.addSeparator();
 				movieMenuAdded = true;
 				QString title = fontMetrics().elidedText(movie.validTitle(), Qt::ElideMiddle, 300);
 				editCurrent = menu.addAction(tr("Edit \"%1\"", "Edit movie").arg(title));
 				deleteCurrent = menu.addAction(tr("Delete \"%1\"", "Delete movie").arg(title));
+			}
+		}
+	}
+
+	QModelIndexList selected = mSelectionModel->selectedRows();
+	if (selected.size() > 1) {
+		if (!menu.isEmpty())
+			menu.addSeparator();
+		editSelected = menu.addAction(tr("Edit selected movies"));
+		deleteSelected = menu.addAction(tr("Delete selected movies"));
+	} else if (!selected.isEmpty() && !movieMenuAdded) {
+		QModelIndex selectedIndex = selected.first();
+		if (selectedIndex.isValid()) {
+			mvdid id = mFilterModel->data(selectedIndex, Movida::IdRole).toUInt();
+			if (id != MvdNull) {
+				MvdMovie movie = mCollection->movie(id);
+				if (movie.isValid()) {
+					if (!menu.isEmpty())
+						menu.addSeparator();
+					currentIsSelected = true;
+					movieMenuAdded = true;
+					QString title = fontMetrics().elidedText(movie.validTitle(), Qt::ElideMiddle, 300);
+					editCurrent = menu.addAction(tr("Edit \"%1\"", "Edit movie").arg(title));
+					deleteCurrent = menu.addAction(tr("Delete \"%1\"", "Delete movie").arg(title));
+				}
 			}
 		}
 	}
@@ -957,10 +994,16 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	if (!res)
 		return;
 
-	if (res == editCurrent) {
-		editMovie(index);
+	if (res == addNew) {
+		addMovie();
+	} else if (res == editCurrent) {
+		editMovie(currentIsSelected ? selected.first() : index);
 	} else if (res == deleteCurrent) {
-		removeMovie(index);
+		removeMovie(currentIsSelected ? selected.first() : index);
+	} else if (res == editSelected) {
+		editSelectedMovies();
+	} else if (res == deleteSelected) {
+		removeMovies(selected);
 	}
 }
 

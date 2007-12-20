@@ -1,24 +1,22 @@
-######### CONFIGURATION
+### Common configuration settings for all the projects that are part of movida ###
+
+isEmpty(TARGET):error(You must set TARGET before include()'ing $${_FILE_})
+isEmpty(ROOT):error(You must set ROOT before include()'ing $${_FILE_})
 
 CONFIG += ordered debug warn_on
-win32-msvc {
-	CONFIG += incremental
-	message(win32-msvc detected. Enabling incremental build.)
-}
 
 QMAKE_TARGET_COMPANY = Angius Fabrizio
 QMAKE_TARGET_PRODUCT = Movida
 QMAKE_TARGET_COPYRIGHT = Copyright (C) 2007 Angius Fabrizio
 
+INCLUDEPATH += $${ROOT}/src $${ROOT}/src/3rdparty $${ROOT}/src/3rdparty/iconv
+DEPENDPATH += $${ROOT}/src $${ROOT}/src/3rdparty
 
-######### PATHS
+# /lib/win32 optionally contains Windows binaries for libxml2 and other 3rd party libraries
+win32 { LIBS += -L$${ROOT}/lib/win32/ }
+LIBS += -L$${ROOT}/lib/
 
-INCLUDEPATH += $${ROOT}/src/3rdparty $${ROOT}/src/3rdparty/iconv
-DEPENDPATH += $${ROOT}/src/3rdparty
-
-TEMP = $${ROOT}/tmp
-DESTDIR = $${ROOT}/bin
-
+TEMP = $${ROOT}/tmp/$${TARGET}/
 MOC_DIR = $${TEMP}/moc
 UI_DIR = $${TEMP}/ui
 OBJECTS_DIR = $${TEMP}/obj

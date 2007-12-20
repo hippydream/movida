@@ -1,25 +1,20 @@
-# Path prefix for the root of the whole project
+### Application - requires: mvdcore, mvdshared, mvdsvgz ###
+
 ROOT = ../..
+TARGET = movida
+DESTDIR = $${ROOT}/bin
+LIBS += -lmvdcore -lmvdsvgz -lmvdshared
+win32 {
+	LIBS += -llibxml2 -llibxslt
+} else {
+	LIBS += -lxml2 -lxslt
+}
+TEMPLATE = app
+QT += svg
+QMAKE_TARGET_DESCRIPTION = Movida, the free movie collection manager.
+
+include(movida.pri)
 
 !contains(CONFIG, 'BASE_CONFIG_INCLUDED') {
 	include(../movida.pri)
 }
-
-message(Using temporary directory \"$${TEMP}\")
-
-win32 {
-	message(Using lib directory \"$${ROOT}/lib/win32\")
-	LIBS += $${ROOT}/lib/win32/mvdcore.lib $${ROOT}/lib/win32/mvdshared.lib
-} else {
-	LIBS += -L$${ROOT}/lib -lmvdcore -lmvdshared -lxml2 -lxslt
-}
-
-win32 { TARGET = Movida }
-else { TARGET = movida }
-TEMPLATE = app
-
-INCLUDEPATH += . ../mvdcore ../mvdshared
-
-QMAKE_TARGET_DESCRIPTION = Movida, the free movie collection manager.
-
-include(movida.pri)

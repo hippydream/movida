@@ -22,7 +22,7 @@
 #include "importdialog.h"
 #include "importdialog_p.h"
 #include "labelanimator.h"
-#include "settings.h"
+#include "mvdcore/settings.h"
 #include <QPushButton>
 #include <QKeyEvent>
 #include <QMessageBox>

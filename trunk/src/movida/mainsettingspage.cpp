@@ -20,9 +20,8 @@
 **************************************************************************/
 
 #include "mainsettingspage.h"
-#include "core.h"
-#include "settings.h"
-
+#include "mvdcore/core.h"
+#include "mvdcore/settings.h"
 #include <QIcon>
 
 /*!

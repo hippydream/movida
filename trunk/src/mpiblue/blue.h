@@ -23,7 +23,7 @@
 #define MPI_BLUE_H
 
 #include "blueglobal.h"
-#include "plugininterface.h"
+#include "mvdcore/plugininterface.h"
 
 class QTemporaryFile;
 class QTextStream;

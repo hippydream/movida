@@ -20,7 +20,7 @@
 **************************************************************************/
 
 #include "collectionmetaeditor.h"
-#include "moviecollection.h"
+#include "mvdcore/moviecollection.h"
 #include <QCloseEvent>
 #include <QKeyEvent>
 #include <QMessageBox>

@@ -20,8 +20,8 @@
 **************************************************************************/
 
 #include "settingsdialog.h"
-#include "settings.h"
 #include "mainsettingspage.h"
+#include "mvdcore/settings.h"
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QPushButton>

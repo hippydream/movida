@@ -21,13 +21,13 @@
 
 #include "movieeditor.h"
 #include "movieeditorpage.h"
-#include "movie.h"
-#include "moviecollection.h"
 #include "maininfopage.h"
 #include "extendedinfopage.h"
 #include "crewpage.h"
 #include "notespage.h"
 #include "linkspage.h"
+#include "mvdcore/movie.h"
+#include "mvdcore/moviecollection.h"
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QPushButton>

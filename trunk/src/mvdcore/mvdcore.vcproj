@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="mvdcore"
-	ProjectGUID="{42FA0F01-F4DC-3F48-B661-9721CCE8828D}"
+	ProjectGUID="{119CD80F-DBC3-38B5-8203-75A4FC029A83}"
 	Keyword="Qt4VSv1.0"
 	>
 	<Platforms>
@@ -17,7 +17,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="."
-			IntermediateDirectory="..\..\tmp\obj\"
+			IntermediateDirectory="..\..\tmp\mvdcore\obj\"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -42,17 +42,18 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="-Zm200 -w34100 -w34189 -EHsc -Zm200 -w34100 -w34189 -EHsc -w34100 -w34189"
+				AdditionalOptions="-Zm200 -w34100 -w34189 -Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="4"
-				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;.&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\moc&quot;,&quot;..\..\tmp\ui&quot;,$(QTDIR)\mkspecs\win32-msvc2005"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\mvdcore\moc&quot;,&quot;..\..\tmp\mvdcore\\ui&quot;,$(QTDIR)\mkspecs\win32-msvc2005"
 				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,MVD_BUILD_CORE_DLL,QT_DLL,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT"
 				GeneratePreprocessedFile="0"
+				ExceptionHandling="1"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="false"
 				TreatWChar_tAsBuiltInType="false"
 				RuntimeTypeInfo="true"
-				AssemblerListingLocation="..\..\tmp\obj\"
-				ObjectFile="..\..\tmp\obj\"
+				AssemblerListingLocation="..\..\tmp\mvdcore\obj\"
+				ObjectFile="..\..\tmp\mvdcore\obj\"
 				ProgramDataBaseFileName=".\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -71,10 +72,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="../../lib/win32/libxml2.lib ../../lib/win32/libxslt.lib $(QTDIR)\lib\QtGuid4.lib $(QTDIR)\lib\QtCored4.lib"
-				OutputFile="..\..\lib\win32\mvdcore.dll"
+				AdditionalDependencies="libxml2.lib libxslt.lib $(QTDIR)\lib\QtGuid4.lib $(QTDIR)\lib\QtCored4.lib"
+				OutputFile="..\..\lib\mvdcore.dll"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(QTDIR)\lib"
+				AdditionalLibraryDirectories="$(QTDIR)\lib,../../lib/win32/,../../lib/"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=""
 				SubSystem="2"
@@ -109,7 +110,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="."
-			IntermediateDirectory="..\..\tmp\obj\"
+			IntermediateDirectory="..\..\tmp\mvdcore\obj\"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -134,17 +135,18 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="-Zm200 -w34100 -w34189 -EHsc -Zm200 -w34100 -w34189 -EHsc -w34100 -w34189"
+				AdditionalOptions="-Zm200 -w34100 -w34189 -Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="2"
-				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;.&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\moc&quot;,&quot;..\..\tmp\ui&quot;,$(QTDIR)\mkspecs\win32-msvc2005"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\mvdcore\moc&quot;,&quot;..\..\tmp\mvdcore\\ui&quot;,$(QTDIR)\mkspecs\win32-msvc2005"
 				PreprocessorDefinitions="QT_NO_DEBUG,NDEBUG,_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,MVD_BUILD_CORE_DLL,QT_DLL,QT_NO_DEBUG,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT,NDEBUG"
 				GeneratePreprocessedFile="0"
+				ExceptionHandling="1"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				TreatWChar_tAsBuiltInType="false"
 				RuntimeTypeInfo="true"
-				AssemblerListingLocation="..\..\tmp\obj\"
-				ObjectFile="..\..\tmp\obj\"
+				AssemblerListingLocation="..\..\tmp\mvdcore\obj\"
+				ObjectFile="..\..\tmp\mvdcore\obj\"
 				ProgramDataBaseFileName=".\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -163,11 +165,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="../../lib/win32/libxml2.lib ../../lib/win32/libxslt.lib $(QTDIR)\lib\QtGui4.lib $(QTDIR)\lib\QtCore4.lib"
-				OutputFile="..\..\lib\win32\mvdcore.dll"
+				AdditionalDependencies="libxml2.lib libxslt.lib $(QTDIR)\lib\QtGui4.lib $(QTDIR)\lib\QtCore4.lib"
+				OutputFile="..\..\lib\mvdcore.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(QTDIR)\lib"
+				AdditionalLibraryDirectories="$(QTDIR)\lib,../../lib/win32/,../../lib/"
 				GenerateDebugInformation="false"
 				ProgramDatabaseFile=""
 				SubSystem="2"
@@ -241,7 +243,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\moviedata.cpp"
+				RelativePath="moviedata.cpp"
 				>
 			</File>
 			<File
@@ -315,9 +317,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC logger.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;.&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\moc&quot; -I&quot;.\..\..\tmp\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;logger.h&quot; -o &quot;..\..\tmp\moc\moc_logger.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdcore\moc&quot; -I&quot;.\..\..\tmp\mvdcore\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;logger.h&quot; -o &quot;..\..\tmp\mvdcore\moc\moc_logger.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;logger.h"
-						Outputs="..\..\tmp\moc\moc_logger.cpp"
+						Outputs="..\..\tmp\mvdcore\moc\moc_logger.cpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -326,9 +328,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC logger.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;.&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\moc&quot; -I&quot;.\..\..\tmp\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;logger.h&quot; -o &quot;..\..\tmp\moc\moc_logger.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdcore\moc&quot; -I&quot;.\..\..\tmp\mvdcore\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;logger.h&quot; -o &quot;..\..\tmp\mvdcore\moc\moc_logger.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;logger.h"
-						Outputs="..\..\tmp\moc\moc_logger.cpp"
+						Outputs="..\..\tmp\mvdcore\moc\moc_logger.cpp"
 					/>
 				</FileConfiguration>
 			</File>
@@ -349,9 +351,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC moviecollection.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;.&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\moc&quot; -I&quot;.\..\..\tmp\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;moviecollection.h&quot; -o &quot;..\..\tmp\moc\moc_moviecollection.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdcore\moc&quot; -I&quot;.\..\..\tmp\mvdcore\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;moviecollection.h&quot; -o &quot;..\..\tmp\mvdcore\moc\moc_moviecollection.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;moviecollection.h"
-						Outputs="..\..\tmp\moc\moc_moviecollection.cpp"
+						Outputs="..\..\tmp\mvdcore\moc\moc_moviecollection.cpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -360,9 +362,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC moviecollection.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;.&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\moc&quot; -I&quot;.\..\..\tmp\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;moviecollection.h&quot; -o &quot;..\..\tmp\moc\moc_moviecollection.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdcore\moc&quot; -I&quot;.\..\..\tmp\mvdcore\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;moviecollection.h&quot; -o &quot;..\..\tmp\mvdcore\moc\moc_moviecollection.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;moviecollection.h"
-						Outputs="..\..\tmp\moc\moc_moviecollection.cpp"
+						Outputs="..\..\tmp\mvdcore\moc\moc_moviecollection.cpp"
 					/>
 				</FileConfiguration>
 			</File>
@@ -383,9 +385,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC plugininterface.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;.&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\moc&quot; -I&quot;.\..\..\tmp\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;plugininterface.h&quot; -o &quot;..\..\tmp\moc\moc_plugininterface.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdcore\moc&quot; -I&quot;.\..\..\tmp\mvdcore\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;plugininterface.h&quot; -o &quot;..\..\tmp\mvdcore\moc\moc_plugininterface.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;plugininterface.h"
-						Outputs="..\..\tmp\moc\moc_plugininterface.cpp"
+						Outputs="..\..\tmp\mvdcore\moc\moc_plugininterface.cpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -394,9 +396,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC plugininterface.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;.&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\moc&quot; -I&quot;.\..\..\tmp\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;plugininterface.h&quot; -o &quot;..\..\tmp\moc\moc_plugininterface.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdcore\moc&quot; -I&quot;.\..\..\tmp\mvdcore\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;plugininterface.h&quot; -o &quot;..\..\tmp\mvdcore\moc\moc_plugininterface.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;plugininterface.h"
-						Outputs="..\..\tmp\moc\moc_plugininterface.cpp"
+						Outputs="..\..\tmp\mvdcore\moc\moc_plugininterface.cpp"
 					/>
 				</FileConfiguration>
 			</File>
@@ -417,9 +419,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC shareddata.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;.&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\moc&quot; -I&quot;.\..\..\tmp\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;shareddata.h&quot; -o &quot;..\..\tmp\moc\moc_shareddata.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdcore\moc&quot; -I&quot;.\..\..\tmp\mvdcore\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;shareddata.h&quot; -o &quot;..\..\tmp\mvdcore\moc\moc_shareddata.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;shareddata.h"
-						Outputs="..\..\tmp\moc\moc_shareddata.cpp"
+						Outputs="..\..\tmp\mvdcore\moc\moc_shareddata.cpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -428,9 +430,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC shareddata.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;.&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\moc&quot; -I&quot;.\..\..\tmp\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;shareddata.h&quot; -o &quot;..\..\tmp\moc\moc_shareddata.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdcore\moc&quot; -I&quot;.\..\..\tmp\mvdcore\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;shareddata.h&quot; -o &quot;..\..\tmp\mvdcore\moc\moc_shareddata.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;shareddata.h"
-						Outputs="..\..\tmp\moc\moc_shareddata.cpp"
+						Outputs="..\..\tmp\mvdcore\moc\moc_shareddata.cpp"
 					/>
 				</FileConfiguration>
 			</File>
@@ -465,23 +467,23 @@
 			UniqueIdentifier="{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}"
 			>
 			<File
-				RelativePath="..\..\tmp\moc\moc_logger.cpp"
+				RelativePath="..\..\tmp\mvdcore\moc\moc_logger.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tmp\moc\moc_moviecollection.cpp"
+				RelativePath="..\..\tmp\mvdcore\moc\moc_moviecollection.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tmp\moc\moc_plugininterface.cpp"
+				RelativePath="..\..\tmp\mvdcore\moc\moc_plugininterface.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tmp\moc\moc_shareddata.cpp"
+				RelativePath="..\..\tmp\mvdcore\moc\moc_shareddata.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tmp\rcc\qrc_mvdcore.cpp"
+				RelativePath="..\..\tmp\mvdcore\rcc\qrc_mvdcore.cpp"
 				>
 			</File>
 		</Filter>
@@ -492,7 +494,7 @@
 			ParseFiles="false"
 			>
 			<File
-				RelativePath="templates\movie\default\movie.xsl"
+				RelativePath="Templates\Movie\Default\Movie.xsl"
 				>
 			</File>
 			<File
@@ -504,9 +506,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="RCC mvdcore.qrc"
-						CommandLine="$(QTDIR)\bin\rcc.exe -name mvdcore mvdcore.qrc -o ..\..\tmp\rcc\qrc_mvdcore.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;mvdcore.qrc"
-						Outputs="..\..\tmp\rcc\qrc_mvdcore.cpp"
+						CommandLine="$(QTDIR)\bin\rcc.exe -name mvdcore mvdcore.qrc -o ..\..\tmp\mvdcore\rcc\qrc_mvdcore.cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;Templates\Movie\Default\Movie.xsl;mvdcore.qrc"
+						Outputs="..\..\tmp\mvdcore\rcc\qrc_mvdcore.cpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -515,9 +517,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="RCC mvdcore.qrc"
-						CommandLine="$(QTDIR)\bin\rcc.exe -name mvdcore mvdcore.qrc -o ..\..\tmp\rcc\qrc_mvdcore.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;mvdcore.qrc"
-						Outputs="..\..\tmp\rcc\qrc_mvdcore.cpp"
+						CommandLine="$(QTDIR)\bin\rcc.exe -name mvdcore mvdcore.qrc -o ..\..\tmp\mvdcore\rcc\qrc_mvdcore.cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;Templates\Movie\Default\Movie.xsl;mvdcore.qrc"
+						Outputs="..\..\tmp\mvdcore\rcc\qrc_mvdcore.cpp"
 					/>
 				</FileConfiguration>
 			</File>

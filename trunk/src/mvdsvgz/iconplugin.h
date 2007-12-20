@@ -1,6 +1,5 @@
 /**************************************************************************
-** Filename: main.cpp
-** Revision: 3
+** Filename: iconplugin.h
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
@@ -19,28 +18,21 @@
 **
 **************************************************************************/
 
-#include <QtGlobal>
+#ifndef MVD_SVGZ_ICONPLUGIN_H
+#define MVD_SVGZ_ICONPLUGIN_H
 
-#ifndef Q_OS_WIN
-#include "main_other.cpp"
-#else
-#include "main_win.cpp"
-#endif
+#include <QIconEnginePluginV2>
 
-#include "mvdsvgz/iconplugin.h"
-
-Q_IMPORT_PLUGIN(MvdSvgzIconEnginePlugin)
-
-int main(int argc, char** argv)
+class MvdSvgzIconEnginePlugin : public QIconEnginePluginV2
 {
-	int result = 0;
+	Q_OBJECT
 
-#ifdef Q_OS_WIN
-	MvdApplication a(argc, argv);
-	result = runApp(a);
-#else
-	result = runApp(argc, argv);
-#endif
+public:
+	MvdSvgzIconEnginePlugin(QObject* parent = 0);
+	virtual ~MvdSvgzIconEnginePlugin();
 
-	return result;
-}
+	virtual QIconEngineV2* create(const QString& filename = QString());
+	virtual QStringList keys() const;
+};
+
+#endif // MVD_SVGZ_ICONPLUGIN_H

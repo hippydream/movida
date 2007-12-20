@@ -20,7 +20,7 @@
 **************************************************************************/
 
 #include "notespage.h"
-#include "core.h"
+#include "mvdcore/core.h"
 #include <QIcon>
 #include <QTextEdit>
 

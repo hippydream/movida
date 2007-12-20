@@ -24,11 +24,11 @@
 #error "This file compiles on the Windows platform only."
 #endif
 
-#include "global.h"
 #include "application.h"
 #include "mainwindow.h"
-#include "logger.h"
-#include "pathresolver.h"
+#include "mvdcore/logger.h"
+#include "mvdcore/pathresolver.h"
+#include "mvdcore/global.h"
 #include <QProcess>
 #include <iostream>
 #include <signal.h>

@@ -22,7 +22,7 @@
 #ifndef MVD_SHAREDDATAMODEL_H
 #define MVD_SHAREDDATAMODEL_H
 
-#include "global.h"
+#include "mvdcore/global.h"
 #include <QAbstractTableModel>
 
 class MvdSharedDataModel_P;
