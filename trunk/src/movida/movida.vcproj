@@ -1291,7 +1291,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\collectionmetaeditor.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\collectionmetaeditor.ui -o ..\..\tmp\movida\ui\ui_collectionmetaeditor.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;clearedit.h;ui\collectionmetaeditor.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\clearedit.h;ui\collectionmetaeditor.ui"
 						Outputs="..\..\tmp\movida\ui\ui_collectionmetaeditor.h"
 					/>
 				</FileConfiguration>
@@ -1302,7 +1302,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\collectionmetaeditor.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\collectionmetaeditor.ui -o ..\..\tmp\movida\ui\ui_collectionmetaeditor.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;clearedit.h;ui\collectionmetaeditor.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\clearedit.h;ui\collectionmetaeditor.ui"
 						Outputs="..\..\tmp\movida\ui\ui_collectionmetaeditor.h"
 					/>
 				</FileConfiguration>
@@ -1369,7 +1369,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\filterwidget.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\filterwidget.ui -o ..\..\tmp\movida\ui\ui_filterwidget.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;clearedit.h;ui\filterwidget.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\clearedit.h;ui\filterwidget.ui"
 						Outputs="..\..\tmp\movida\ui\ui_filterwidget.h"
 					/>
 				</FileConfiguration>
@@ -1380,7 +1380,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\filterwidget.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\filterwidget.ui -o ..\..\tmp\movida\ui\ui_filterwidget.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;clearedit.h;ui\filterwidget.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\clearedit.h;ui\filterwidget.ui"
 						Outputs="..\..\tmp\movida\ui\ui_filterwidget.h"
 					/>
 				</FileConfiguration>
@@ -1421,7 +1421,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\maininfopage.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\maininfopage.ui -o ..\..\tmp\movida\ui\ui_maininfopage.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;clearedit.h;posterlabel.h;ratingwidget.h;ui\maininfopage.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\clearedit.h;posterlabel.h;ratingwidget.h;ui\maininfopage.ui"
 						Outputs="..\..\tmp\movida\ui\ui_maininfopage.h"
 					/>
 				</FileConfiguration>
@@ -1432,7 +1432,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\maininfopage.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\maininfopage.ui -o ..\..\tmp\movida\ui\ui_maininfopage.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;clearedit.h;posterlabel.h;ratingwidget.h;ui\maininfopage.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\clearedit.h;posterlabel.h;ratingwidget.h;ui\maininfopage.ui"
 						Outputs="..\..\tmp\movida\ui\ui_maininfopage.h"
 					/>
 				</FileConfiguration>
@@ -1447,7 +1447,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\mainsettingspage.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\mainsettingspage.ui -o ..\..\tmp\movida\ui\ui_mainsettingspage.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;clearedit.h;ui\mainsettingspage.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\clearedit.h;ui\mainsettingspage.ui"
 						Outputs="..\..\tmp\movida\ui\ui_mainsettingspage.h"
 					/>
 				</FileConfiguration>
@@ -1458,7 +1458,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\mainsettingspage.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\mainsettingspage.ui -o ..\..\tmp\movida\ui\ui_mainsettingspage.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;clearedit.h;ui\mainsettingspage.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\clearedit.h;ui\mainsettingspage.ui"
 						Outputs="..\..\tmp\movida\ui\ui_mainsettingspage.h"
 					/>
 				</FileConfiguration>
@@ -1499,7 +1499,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\notespage.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\notespage.ui -o ..\..\tmp\movida\ui\ui_notespage.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;richtexteditor.h;ui\notespage.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\richtexteditor.h;ui\notespage.ui"
 						Outputs="..\..\tmp\movida\ui\ui_notespage.h"
 					/>
 				</FileConfiguration>
@@ -1510,7 +1510,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\notespage.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\notespage.ui -o ..\..\tmp\movida\ui\ui_notespage.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;richtexteditor.h;ui\notespage.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\richtexteditor.h;ui\notespage.ui"
 						Outputs="..\..\tmp\movida\ui\ui_notespage.h"
 					/>
 				</FileConfiguration>
@@ -1525,7 +1525,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\passwordprompt.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\passwordprompt.ui -o ..\..\tmp\movida\ui\ui_passwordprompt.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;clearedit.h;ui\passwordprompt.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\clearedit.h;ui\passwordprompt.ui"
 						Outputs="..\..\tmp\movida\ui\ui_passwordprompt.h"
 					/>
 				</FileConfiguration>
@@ -1536,7 +1536,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\passwordprompt.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\passwordprompt.ui -o ..\..\tmp\movida\ui\ui_passwordprompt.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;clearedit.h;ui\passwordprompt.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;mvdshared\clearedit.h;ui\passwordprompt.ui"
 						Outputs="..\..\tmp\movida\ui\ui_passwordprompt.h"
 					/>
 				</FileConfiguration>
@@ -1575,127 +1575,55 @@
 			ParseFiles="false"
 			>
 			<File
-				RelativePath="images\16x16\add.png"
+				RelativePath="images\actions\application-exit.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\add.png"
+				RelativePath="images\actions\arrow-down-double.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\arrow_down.png"
+				RelativePath="images\actions\arrow-down.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrow_down.png"
+				RelativePath="images\actions\arrow-left-double.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\arrow_left.png"
+				RelativePath="images\actions\arrow-left.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrow_left.png"
+				RelativePath="images\actions\arrow-right-double.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\arrow_right.png"
+				RelativePath="images\actions\arrow-right.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrow_right.png"
+				RelativePath="images\actions\arrow-up-double.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\arrow_up.png"
+				RelativePath="images\actions\arrow-up.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrow_up.png"
+				RelativePath="images\actions\clear-left.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\arrowc_down.png"
+				RelativePath="images\actions\configure-shortcuts.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\arrowc_down.png"
+				RelativePath="images\actions\configure-toolbars.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\arrowc_left.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\arrowc_left.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\arrowc_right.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\arrowc_right.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\arrowc_up.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\arrowc_up.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\bottom.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\bottom.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\checkbox_checked.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\checkbox_checked_hover.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\checkbox_checked_pressed.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\checkbox_unchecked.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\checkbox_unchecked_hover.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\checkbox_unchecked_pressed.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\clear.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\clear.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\coffee.qss"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\configure.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\configure.png"
+				RelativePath="images\actions\configure.svgz"
 				>
 			</File>
 			<File
@@ -1703,87 +1631,59 @@
 				>
 			</File>
 			<File
-				RelativePath="qss\default.qss"
+				RelativePath="images\actions\document-new.svgz"
 				>
 			</File>
 			<File
-				RelativePath="qss\images\down_arrow.png"
+				RelativePath="images\actions\document-open-recent.svgz"
 				>
 			</File>
 			<File
-				RelativePath="qss\images\down_arrow_disabled.png"
+				RelativePath="images\actions\document-open.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\duplicate.png"
+				RelativePath="images\actions\document-properties.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\duplicate.png"
+				RelativePath="images\actions\document-reopen.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\edit.png"
+				RelativePath="images\actions\document-revert.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\edit.png"
+				RelativePath="images\actions\document-save-as.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\exit.png"
+				RelativePath="images\actions\document-save.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\exit.png"
+				RelativePath="images\actions\edit-add.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\file_close.png"
+				RelativePath="images\actions\edit-delete.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\file_close.png"
+				RelativePath="images\actions\edit.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\file_new.png"
+				RelativePath="images\actions\fileview-detailed.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\file_new.png"
+				RelativePath="images\actions\fileview-split.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\file_open.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\file_open.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\file_openlast.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\file_openlast.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\file_save.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\file_save.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\file_saveas.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\file_saveas.png"
+				RelativePath="images\actions\fileview-text.svgz"
 				>
 			</File>
 			<File
@@ -1795,71 +1695,15 @@
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\filter.png"
+				RelativePath="images\actions\help-contents.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\32x32\filter.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\filter_edit.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\filter_edit.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\find.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\find.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\frame.png"
-				>
-			</File>
-			<File
-				RelativePath="images\preferences\general.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\help.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\help.png"
-				>
-			</File>
-			<File
-				RelativePath="images\preferences\log.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\log.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\log.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\logo.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\logo.png"
+				RelativePath="images\actions\list.svgz"
 				>
 			</File>
 			<File
 				RelativePath="images\misc\logo.png"
-				>
-			</File>
-			<File
-				RelativePath="images\misc\mask.png"
 				>
 			</File>
 			<File
@@ -1872,7 +1716,7 @@
 						Name="VCCustomBuildTool"
 						Description="RCC movida.qrc"
 						CommandLine="$(QTDIR)\bin\rcc.exe -name movida movida.qrc -o ..\..\tmp\movida\rcc\qrc_movida.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\16x16\add.png;images\16x16\arrow_down.png;images\16x16\arrow_left.png;images\16x16\arrow_right.png;images\16x16\arrow_up.png;images\16x16\arrowc_down.png;images\16x16\arrowc_left.png;images\16x16\arrowc_right.png;images\16x16\arrowc_up.png;images\16x16\bottom.png;images\16x16\clear.png;images\16x16\configure.png;images\16x16\duplicate.png;images\16x16\edit.png;images\16x16\exit.png;images\16x16\file_close.png;images\16x16\file_new.png;images\16x16\file_open.png;images\16x16\file_openlast.png;images\16x16\file_save.png;images\16x16\file_saveas.png;images\16x16\filter.png;images\16x16\filter_edit.png;images\16x16\find.png;images\16x16\help.png;images\16x16\log.png;images\16x16\logo.png;images\16x16\purge.png;images\16x16\remove.png;images\16x16\star.png;images\16x16\top.png;images\16x16\video.png;images\32x32\add.png;images\32x32\arrow_down.png;images\32x32\arrow_left.png;images\32x32\arrow_right.png;images\32x32\arrow_up.png;images\32x32\arrowc_down.png;images\32x32\arrowc_left.png;images\32x32\arrowc_right.png;images\32x32\arrowc_up.png;images\32x32\bottom.png;images\32x32\clear.png;images\32x32\configure.png;images\32x32\duplicate.png;images\32x32\edit.png;images\32x32\exit.png;images\32x32\file_close.png;images\32x32\file_new.png;images\32x32\file_open.png;images\32x32\file_openlast.png;images\32x32\file_save.png;images\32x32\file_saveas.png;images\32x32\filter.png;images\32x32\filter_edit.png;images\32x32\find.png;images\32x32\help.png;images\32x32\log.png;images\32x32\logo.png;images\32x32\purge.png;images\32x32\remove.png;images\32x32\star.png;images\32x32\top.png;images\32x32\video.png;images\misc\default-poster.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\logo.png;images\misc\mask.png;images\misc\rating-hovered.png;images\misc\rating-rated.png;images\misc\rating-unrated.png;images\preferences\general.png;images\preferences\log.png;images\preferences\smd.png;movida.qrc;qss\coffee.qss;qss\default.qss;qss\images\checkbox_checked.png;qss\images\checkbox_checked_hover.png;qss\images\checkbox_checked_pressed.png;qss\images\checkbox_unchecked.png;qss\images\checkbox_unchecked_hover.png;qss\images\checkbox_unchecked_pressed.png;qss\images\down_arrow.png;qss\images\down_arrow_disabled.png;qss\images\frame.png;qss\images\pagefold.png;qss\images\pushbutton.png;qss\images\pushbutton_hover.png;qss\images\pushbutton_pressed.png;qss\images\radiobutton_checked.png;qss\images\radiobutton_checked_hover.png;qss\images\radiobutton_checked_pressed.png;qss\images\radiobutton_unchecked.png;qss\images\radiobutton_unchecked_hover.png;qss\images\radiobutton_unchecked_pressed.png;qss\images\sizegrip.png;qss\images\spindown.png;qss\images\spindown_hover.png;qss\images\spindown_off.png;qss\images\spindown_pressed.png;qss\images\spinup.png;qss\images\spinup_hover.png;qss\images\spinup_off.png;qss\images\spinup_pressed.png;qss\images\up_arrow.png;qss\images\up_arrow_disabled.png;qss\pagefold.qss"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\actions\application-exit.svgz;images\actions\arrow-down-double.svgz;images\actions\arrow-down.svgz;images\actions\arrow-left-double.svgz;images\actions\arrow-left.svgz;images\actions\arrow-right-double.svgz;images\actions\arrow-right.svgz;images\actions\arrow-up-double.svgz;images\actions\arrow-up.svgz;images\actions\clear-left.svgz;images\actions\configure-shortcuts.svgz;images\actions\configure-toolbars.svgz;images\actions\configure.svgz;images\actions\document-new.svgz;images\actions\document-open-recent.svgz;images\actions\document-open.svgz;images\actions\document-properties.svgz;images\actions\document-reopen.svgz;images\actions\document-revert.svgz;images\actions\document-save-as.svgz;images\actions\document-save.svgz;images\actions\edit-add.svgz;images\actions\edit-delete.svgz;images\actions\edit.svgz;images\actions\fileview-detailed.svgz;images\actions\fileview-split.svgz;images\actions\fileview-text.svgz;images\actions\help-contents.svgz;images\actions\list.svgz;images\actions\view-choose.svgz;images\misc\default-poster.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\logo.png;images\misc\rating-hovered.png;images\misc\rating-rated.png;images\misc\rating-unrated.png;movida.qrc"
 						Outputs="..\..\tmp\movida\rcc\qrc_movida.cpp"
 					/>
 				</FileConfiguration>
@@ -1883,62 +1727,10 @@
 						Name="VCCustomBuildTool"
 						Description="RCC movida.qrc"
 						CommandLine="$(QTDIR)\bin\rcc.exe -name movida movida.qrc -o ..\..\tmp\movida\rcc\qrc_movida.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\16x16\add.png;images\16x16\arrow_down.png;images\16x16\arrow_left.png;images\16x16\arrow_right.png;images\16x16\arrow_up.png;images\16x16\arrowc_down.png;images\16x16\arrowc_left.png;images\16x16\arrowc_right.png;images\16x16\arrowc_up.png;images\16x16\bottom.png;images\16x16\clear.png;images\16x16\configure.png;images\16x16\duplicate.png;images\16x16\edit.png;images\16x16\exit.png;images\16x16\file_close.png;images\16x16\file_new.png;images\16x16\file_open.png;images\16x16\file_openlast.png;images\16x16\file_save.png;images\16x16\file_saveas.png;images\16x16\filter.png;images\16x16\filter_edit.png;images\16x16\find.png;images\16x16\help.png;images\16x16\log.png;images\16x16\logo.png;images\16x16\purge.png;images\16x16\remove.png;images\16x16\star.png;images\16x16\top.png;images\16x16\video.png;images\32x32\add.png;images\32x32\arrow_down.png;images\32x32\arrow_left.png;images\32x32\arrow_right.png;images\32x32\arrow_up.png;images\32x32\arrowc_down.png;images\32x32\arrowc_left.png;images\32x32\arrowc_right.png;images\32x32\arrowc_up.png;images\32x32\bottom.png;images\32x32\clear.png;images\32x32\configure.png;images\32x32\duplicate.png;images\32x32\edit.png;images\32x32\exit.png;images\32x32\file_close.png;images\32x32\file_new.png;images\32x32\file_open.png;images\32x32\file_openlast.png;images\32x32\file_save.png;images\32x32\file_saveas.png;images\32x32\filter.png;images\32x32\filter_edit.png;images\32x32\find.png;images\32x32\help.png;images\32x32\log.png;images\32x32\logo.png;images\32x32\purge.png;images\32x32\remove.png;images\32x32\star.png;images\32x32\top.png;images\32x32\video.png;images\misc\default-poster.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\logo.png;images\misc\mask.png;images\misc\rating-hovered.png;images\misc\rating-rated.png;images\misc\rating-unrated.png;images\preferences\general.png;images\preferences\log.png;images\preferences\smd.png;movida.qrc;qss\coffee.qss;qss\default.qss;qss\images\checkbox_checked.png;qss\images\checkbox_checked_hover.png;qss\images\checkbox_checked_pressed.png;qss\images\checkbox_unchecked.png;qss\images\checkbox_unchecked_hover.png;qss\images\checkbox_unchecked_pressed.png;qss\images\down_arrow.png;qss\images\down_arrow_disabled.png;qss\images\frame.png;qss\images\pagefold.png;qss\images\pushbutton.png;qss\images\pushbutton_hover.png;qss\images\pushbutton_pressed.png;qss\images\radiobutton_checked.png;qss\images\radiobutton_checked_hover.png;qss\images\radiobutton_checked_pressed.png;qss\images\radiobutton_unchecked.png;qss\images\radiobutton_unchecked_hover.png;qss\images\radiobutton_unchecked_pressed.png;qss\images\sizegrip.png;qss\images\spindown.png;qss\images\spindown_hover.png;qss\images\spindown_off.png;qss\images\spindown_pressed.png;qss\images\spinup.png;qss\images\spinup_hover.png;qss\images\spinup_off.png;qss\images\spinup_pressed.png;qss\images\up_arrow.png;qss\images\up_arrow_disabled.png;qss\pagefold.qss"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\actions\application-exit.svgz;images\actions\arrow-down-double.svgz;images\actions\arrow-down.svgz;images\actions\arrow-left-double.svgz;images\actions\arrow-left.svgz;images\actions\arrow-right-double.svgz;images\actions\arrow-right.svgz;images\actions\arrow-up-double.svgz;images\actions\arrow-up.svgz;images\actions\clear-left.svgz;images\actions\configure-shortcuts.svgz;images\actions\configure-toolbars.svgz;images\actions\configure.svgz;images\actions\document-new.svgz;images\actions\document-open-recent.svgz;images\actions\document-open.svgz;images\actions\document-properties.svgz;images\actions\document-reopen.svgz;images\actions\document-revert.svgz;images\actions\document-save-as.svgz;images\actions\document-save.svgz;images\actions\edit-add.svgz;images\actions\edit-delete.svgz;images\actions\edit.svgz;images\actions\fileview-detailed.svgz;images\actions\fileview-split.svgz;images\actions\fileview-text.svgz;images\actions\help-contents.svgz;images\actions\list.svgz;images\actions\view-choose.svgz;images\misc\default-poster.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\logo.png;images\misc\rating-hovered.png;images\misc\rating-rated.png;images\misc\rating-unrated.png;movida.qrc"
 						Outputs="..\..\tmp\movida\rcc\qrc_movida.cpp"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="qss\images\pagefold.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\pagefold.qss"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\purge.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\purge.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\pushbutton.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\pushbutton_hover.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\pushbutton_pressed.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\radiobutton_checked.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\radiobutton_checked_hover.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\radiobutton_checked_pressed.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\radiobutton_unchecked.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\radiobutton_unchecked_hover.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\radiobutton_unchecked_pressed.png"
-				>
 			</File>
 			<File
 				RelativePath="images\misc\rating-hovered.png"
@@ -1953,83 +1745,7 @@
 				>
 			</File>
 			<File
-				RelativePath="images\16x16\remove.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\remove.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\sizegrip.png"
-				>
-			</File>
-			<File
-				RelativePath="images\preferences\smd.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\spindown.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\spindown_hover.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\spindown_off.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\spindown_pressed.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\spinup.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\spinup_hover.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\spinup_off.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\spinup_pressed.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\star.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\star.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\top.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\top.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\up_arrow.png"
-				>
-			</File>
-			<File
-				RelativePath="qss\images\up_arrow_disabled.png"
-				>
-			</File>
-			<File
-				RelativePath="images\16x16\video.png"
-				>
-			</File>
-			<File
-				RelativePath="images\32x32\video.png"
+				RelativePath="images\actions\view-choose.svgz"
 				>
 			</File>
 		</Filter>
