@@ -26,7 +26,7 @@
 MvdClearEdit::MvdClearEdit(QWidget* parent)
 : QLineEdit(parent)
 {
-	QPixmap pixmap(":/images/misc/clear-edit");
+	QPixmap pixmap(":/images/clear-edit.png");
 
 	clearButton = new QToolButton(this);
 	clearButton->setToolTip(tr("Click to clear the text."));
