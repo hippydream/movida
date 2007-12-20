@@ -23,9 +23,9 @@
 #define MVD_MOVIEEDITORPAGE_H
 
 #include "mpdialogpage.h"
-#include "moviecollection.h"
-#include "movie.h"
 #include "movieeditor.h"
+#include "mvdcore/moviecollection.h"
+#include "mvdcore/movie.h"
 
 class QIcon;
 

@@ -22,8 +22,8 @@
 #ifndef MVD_MAINWINDOW_H
 #define MVD_MAINWINDOW_H
 
-#include "global.h"
 #include "movieeditor.h"
+#include "mvdcore/global.h"
 #include <QMainWindow>
 #include <QStringList>
 #include <QAbstractItemView>
@@ -45,6 +45,7 @@ class MvdTreeView;
 class MvdDockWidget;
 class MvdMovieCollection;
 class MvdCollectionModel;
+class MvdRowSelectionModel;
 class MvdFilterWidget;
 class MvdFilterProxyModel;
 
@@ -137,6 +138,7 @@ private:
 	// The current movie collection
 	MvdMovieCollection* mCollection;
 	MvdCollectionModel* mMovieModel;
+	MvdRowSelectionModel* mSelectionModel;
 
 	QPointer<MvdMovieEditor> mMovieEditor;
 
@@ -160,7 +162,7 @@ private slots:
 	void cycleMovieView();
 	void dockViewsToggled();
 	void duplicateCurrentMovie();
-	void editCurrentMovie();
+	void editSelectedMovies();
 	void editMovie(const QModelIndex& index);
 	void editNextMovie();
 	void editPreviousMovie();
@@ -173,7 +175,7 @@ private slots:
 	void movieViewToggled(QAction*);
 	void newCollection();
 	void openRecentFile(QAction* a);
-	void removeCurrentMovie();
+	void removeSelectedMovies();
 	void removeMovie(const QModelIndex& index);
 	void removeMovies(const QModelIndexList& list);
 	void showFilterWidget();

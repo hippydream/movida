@@ -19,9 +19,9 @@
 **
 **************************************************************************/
 
-#include "core.h"
 #include "importdialog.h"
 #include "importresultspage.h"
+#include "mvdcore/core.h"
 #include <QHeaderView>
 #include <math.h>
 

@@ -21,9 +21,9 @@
 
 #include "extendedinfopage.h"
 #include "guiglobal.h"
-#include "movie.h"
-#include "moviecollection.h"
-#include "core.h"
+#include "mvdcore/movie.h"
+#include "mvdcore/moviecollection.h"
+#include "mvdcore/core.h"
 #include <QIcon>
 #include <QList>
 #include <QTreeWidgetItem>

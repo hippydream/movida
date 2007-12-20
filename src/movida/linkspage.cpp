@@ -21,9 +21,9 @@
 
 #include "linkspage.h"
 #include "guiglobal.h"
-#include "movie.h"
-#include "core.h"
 #include "itemdelegate.h"
+#include "mvdcore/movie.h"
+#include "mvdcore/core.h"
 #include <QIcon>
 #include <QRegExp>
 #include <QDesktopServices>

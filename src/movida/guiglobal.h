@@ -22,7 +22,7 @@
 #ifndef MVD_GUIGLOBAL_H
 #define MVD_GUIGLOBAL_H
 
-#include "global.h"
+#include "mvdcore/global.h"
 #include <QCoreApplication>
 #include <QIcon>
 #include <QString>

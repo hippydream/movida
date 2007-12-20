@@ -22,9 +22,9 @@
 #ifndef MPI_MOVIEIMPORT_H
 #define MPI_MOVIEIMPORT_H
 
-#include "moviedata.h"
-#include "importdialog.h"
 #include "blue.h"
+#include "mvdcore/moviedata.h"
+#include "mvdshared/importdialog.h"
 #include <QHttp>
 #include <QHash>
 #include <QList>

@@ -20,11 +20,11 @@
 **************************************************************************/
 
 #include "shareddatamodel.h"
-#include "settings.h"
-#include "moviecollection.h"
-#include "shareddata.h"
-#include "sditem.h"
 #include "guiglobal.h"
+#include "mvdcore/settings.h"
+#include "mvdcore/moviecollection.h"
+#include "mvdcore/shareddata.h"
+#include "mvdcore/sditem.h"
 #include <QCoreApplication>
 
 /*!

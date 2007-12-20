@@ -20,7 +20,7 @@
 **************************************************************************/
 
 #include "smartviewdelegate.h"
-#include "core.h"
+#include "mvdcore/core.h"
 #include <QPainter>
 #include <QModelIndex>
 #include <QFile>

@@ -21,9 +21,9 @@
 
 #include "maininfopage.h"
 #include "guiglobal.h"
-#include "core.h"
-#include "movie.h"
 #include "multipagedialog.h"
+#include "mvdcore/core.h"
+#include "mvdcore/movie.h"
 #include <QIcon>
 #include <QMessageBox>
 #include <QDate>

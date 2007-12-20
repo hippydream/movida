@@ -21,10 +21,10 @@
 
 #include "importsummarypage.h"
 #include "importdialog.h"
-#include "core.h"
 #include "actionlabel.h"
-#include "templatemanager.h"
-#include "logger.h"
+#include "mvdcore/core.h"
+#include "mvdcore/templatemanager.h"
+#include "mvdcore/logger.h"
 #include <QLabel>
 #include <QGridLayout>
 

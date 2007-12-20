@@ -22,7 +22,7 @@
 #ifndef MVD_SHAREDGLOBAL_H
 #define MVD_SHAREDGLOBAL_H
 
-#include "global.h"
+#include "mvdcore/global.h"
 #include <QtGlobal>
 
 #ifndef MVD_EXPORT_SHARED

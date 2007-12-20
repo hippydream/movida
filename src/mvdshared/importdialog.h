@@ -24,7 +24,7 @@
 
 #include "sharedglobal.h"
 #include "searchengine.h"
-#include "moviedata.h"
+#include "mvdcore/moviedata.h"
 #include <QDialog>
 #include <QHash>
 #include <QVariant>

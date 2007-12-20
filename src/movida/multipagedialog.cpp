@@ -22,7 +22,7 @@
 #include "multipagedialog.h"
 #include "mpdialogpage.h"
 #include "guiglobal.h"
-#include "core.h"
+#include "mvdcore/core.h"
 #include <QVariant>
 #include <QPalette>
 

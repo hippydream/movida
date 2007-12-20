@@ -20,11 +20,11 @@
 **************************************************************************/
 
 #include "blue.h"
-#include "core.h"
-#include "logger.h"
 #include "movieimport.h"
-#include "settings.h"
-#include "pathresolver.h"
+#include "mvdcore/core.h"
+#include "mvdcore/logger.h"
+#include "mvdcore/settings.h"
+#include "mvdcore/pathresolver.h"
 #include <QDateTime>
 #include <QFile>
 #include <QTemporaryFile>

@@ -20,10 +20,10 @@
 **************************************************************************/
 
 #include "collectionmodel.h"
-#include "moviecollection.h"
-#include "movie.h"
-#include "settings.h"
-#include "shareddata.h"
+#include "mvdcore/moviecollection.h"
+#include "mvdcore/movie.h"
+#include "mvdcore/settings.h"
+#include "mvdcore/shareddata.h"
 #include <QCoreApplication>
 
 /*!

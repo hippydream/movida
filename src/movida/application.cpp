@@ -21,11 +21,11 @@
 
 #include "application.h"
 #include "guiglobal.h"
-#include "core.h"
-#include "logger.h"
-#include "settings.h"
-#include "pathresolver.h"
 #include "mainwindow.h"
+#include "mvdcore/core.h"
+#include "mvdcore/logger.h"
+#include "mvdcore/settings.h"
+#include "mvdcore/pathresolver.h"
 #include <QtGlobal>
 #include <QTranslator>
 #include <QTextCodec>

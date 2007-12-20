@@ -1,6 +1,5 @@
+### Base project - builds all but plugins ###
+
 TEMPLATE = subdirs
-SUBDIRS = mvdcore mvdshared movida mvdcrash
-
-CONFIG += BASE_CONFIG_INCLUDED ordered
-
-include(movida.pri)
+SUBDIRS = mvdcore mvdsvgz mvdshared movida mvdcrash
+CONFIG += ordered

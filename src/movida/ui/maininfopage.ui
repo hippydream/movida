@@ -476,7 +476,7 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>MvdClearEdit</class>
    <extends>QLineEdit</extends>
-   <header>clearedit.h</header>
+   <header>mvdshared/clearedit.h</header>
   </customwidget>
   <customwidget>
    <class>MvdRatingWidget</class>

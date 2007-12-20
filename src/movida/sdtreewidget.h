@@ -23,9 +23,9 @@
 #define MVD_SDTREEWIDGET_H
 
 #include "treewidget.h"
-#include "movie.h"
-#include "moviecollection.h"
-#include "shareddata.h"
+#include "mvdcore/movie.h"
+#include "mvdcore/moviecollection.h"
+#include "mvdcore/shareddata.h"
 #include <QItemDelegate>
 
 class MvdSDTreeWidget : public MvdTreeWidget

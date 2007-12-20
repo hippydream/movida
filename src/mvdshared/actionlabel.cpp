@@ -21,7 +21,7 @@
 
 #include "actionlabel.h"
 #include "actionlabel_p.h"
-#include "core.h"
+#include "mvdcore/core.h"
 
 /*! 
 	\class MvdActionLabel actionlabel.h
