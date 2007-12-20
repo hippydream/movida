@@ -232,6 +232,8 @@ void MvdMainWindow::setupUi()
 	mTB_File->addSeparator();
 	mTB_File->addAction(mA_FileExit);
 
+	mTB_View->addAction(mA_TreeView);
+	mTB_View->addAction(mA_SmartView);
 	mTB_View->addAction(mA_ViewDetails);
 
 	mTB_Coll->addAction(mA_CollAddMovie);
