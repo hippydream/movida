@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: mainwindow_gui.cpp
 **
-** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -198,6 +198,9 @@ void MvdMainWindow::createActions()
 	mA_CollEdtMovie = createAction();
 	mA_CollEdtMovie->setIcon(QIcon(":/images/edit.svgz"));
 
+	mA_CollMedMovie = createAction();
+	mA_CollMedMovie->setIcon(QIcon(":/images/mass-edit.svgz"));
+
 	mA_CollDupMovie = createAction();
 	mA_CollDupMovie->setIcon(QIcon(":/images/edit-copy.svgz"));
 
@@ -279,6 +282,7 @@ void MvdMainWindow::createMenus()
 	mMN_Collection->addAction(mA_CollAddMovie);
 	mMN_Collection->addAction(mA_CollRemMovie);
 	mMN_Collection->addAction(mA_CollEdtMovie);
+	mMN_Collection->addAction(mA_CollMedMovie);
 	mMN_Collection->addAction(mA_CollDupMovie);
 	mMN_Collection->addSeparator();
 	mMN_Collection->addAction(mA_CollMeta);
@@ -449,6 +453,12 @@ void MvdMainWindow::retranslateUi()
 	shortcut = tr("Ctrl+E");
 	initAction(mA_CollEdtMovie, text, shortInfo, longInfo, shortcut);
 
+	text = tr("&Mass edit selected movies");
+	shortInfo = tr("Open a dialog to assign common properties to the selected movies");
+	longInfo = shortInfo;
+	shortcut = tr("Ctrl+Shift+E");
+	initAction(mA_CollMedMovie, text, shortInfo, longInfo, shortcut);
+
 	text = tr("&Duplicate selected movie");
 	shortInfo = tr("Duplicate the selected movie");
 	longInfo = shortInfo;
@@ -535,6 +545,7 @@ void MvdMainWindow::setupConnections()
 	connect ( mA_CollAddMovie, SIGNAL( triggered() ), this, SLOT ( addMovie() ) );
 	connect ( mA_CollRemMovie, SIGNAL( triggered() ), this, SLOT ( removeSelectedMovies() ) );
 	connect ( mA_CollEdtMovie, SIGNAL( triggered() ), this, SLOT ( editSelectedMovies() ) );
+	connect ( mA_CollMedMovie, SIGNAL( triggered() ), this, SLOT ( massEditSelectedMovies() ) );
 	connect ( mA_CollDupMovie, SIGNAL( triggered() ), this, SLOT ( duplicateCurrentMovie() ) );
 	connect ( mA_CollMeta, SIGNAL( triggered() ), this, SLOT ( showMetaEditor() ) );
 

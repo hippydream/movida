@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: mainwindow.cpp
 **
-** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -20,19 +20,20 @@
 
 #include "collectionmetaeditor.h"
 #include "collectionmodel.h"
-#include "shareddatamodel.h"
 #include "dockwidget.h"
 #include "filterproxymodel.h"
 #include "filterwidget.h"
 #include "guiglobal.h"
 #include "mainwindow.h"
+#include "moviemasseditor.h"
 #include "rowselectionmodel.h"
 #include "settingsdialog.h"
 #include "shareddataeditor.h"
+#include "shareddatamodel.h"
 #include "smartview.h"
 #include "treeview.h"
-#include "mvdcore/collectionsaver.h"
 #include "mvdcore/collectionloader.h"
+#include "mvdcore/collectionsaver.h"
 #include "mvdcore/core.h"
 #include "mvdcore/logger.h"
 #include "mvdcore/movie.h"
@@ -277,11 +278,16 @@ void MvdMainWindow::openRecentFile(QAction* a)
 		return;
 	
 	QString file = a->data().toString();
-	
-	if (!loadCollection(file))
-	{
-		//! \todo Remove files that could not be opened from MRU
-	}
+	loadCollection(file);
+
+	// Move file to the top of the MRU list
+	QStringList list = Movida::settings().value("movida/recent-files").toStringList();
+	int idx = list.indexOf(file);
+	if (idx < 0)
+		return;
+	list.removeAt(idx);
+	list.prepend(file);
+	Movida::settings().setValue("movida/recent-files", list);
 }
 
 /*!
@@ -293,13 +299,12 @@ void MvdMainWindow::addRecentFile(const QString& file)
 	QStringList list = Movida::settings().value("movida/recent-files").toStringList();
 
 	// avoid duplicate entries
-	for (int i = 0; i < list.size(); ++i)
-	{
+	for (int i = 0; i < list.size(); ++i) {
 		if (fi == QFileInfo(list.at(i)))
 			return;
 	}
 	
-	list.append(file);
+	list.prepend(file);
 	
 	int max = Movida::settings().value("movida/maximum-recent-files").toInt();
 	while (list.size() > max)
@@ -683,7 +688,19 @@ void MvdMainWindow::editSelectedMovies()
 		return;
 	if (list.size() == 1)
 		editMovie(list.at(0));
-	else QMessageBox::warning(this, MVD_CAPTION, "Multiple movie editing not implemented yet");
+}
+
+void MvdMainWindow::massEditSelectedMovies()
+{
+	QModelIndexList list = mTreeView->selectedRows();
+	if (list.size() > 1) {
+		QList<mvdid> ids;
+		for (int i = 0; i < list.size(); ++i)
+			ids << movieIndexToId(list.at(i));
+		MvdMovieMassEditor med(mCollection, this);
+		med.setMovies(ids);
+		med.exec();
+	}
 }
 
 void MvdMainWindow::editNextMovie()
@@ -860,7 +877,8 @@ void MvdMainWindow::movieViewSelectionChanged()
 	QModelIndexList list = mTreeView->selectedRows();
 
 	mA_CollRemMovie->setEnabled(!list.isEmpty());
-	mA_CollEdtMovie->setEnabled(!list.isEmpty());
+	mA_CollEdtMovie->setEnabled(list.size() == 1);
+	mA_CollMedMovie->setEnabled(list.size() > 1);
 	mA_CollDupMovie->setEnabled(list.size() == 1);
 
 	updateDetailsView();
@@ -909,7 +927,6 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	QAction* addNew = 0;
 	QAction* editCurrent = 0;
 	QAction* deleteCurrent = 0;
-	QAction* editSelected = 0;
 	QAction* deleteSelected = 0;
 
 	bool currentIsSelected = false;
@@ -939,7 +956,6 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	if (selected.size() > 1) {
 		if (!menu.isEmpty())
 			menu.addSeparator();
-		editSelected = menu.addAction(tr("Edit selected movies"));
 		deleteSelected = menu.addAction(tr("Delete selected movies"));
 	} else if (!selected.isEmpty() && !movieMenuAdded) {
 		QModelIndex selectedIndex = selected.first();
@@ -979,8 +995,6 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 		editMovie(currentIsSelected ? selected.first() : index);
 	} else if (res == deleteCurrent) {
 		removeMovie(currentIsSelected ? selected.first() : index);
-	} else if (res == editSelected) {
-		editSelectedMovies();
 	} else if (res == deleteSelected) {
 		removeMovies(selected);
 	}

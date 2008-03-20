@@ -26,6 +26,7 @@
 		<file alias="edit-copy.svgz">images/actions/edit-copy.svgz</file>
 		<file alias="edit-delete.svgz">images/actions/edit-delete.svgz</file>
 		<file alias="edit.svgz">images/actions/edit.svgz</file>
+		<file alias="mass-edit.svgz">images/actions/mass-edit.svgz</file>
 		<file alias="fileview-detailed.svgz">images/actions/fileview-detailed.svgz</file>
 		<file alias="fileview-split.svgz">images/actions/fileview-split.svgz</file>
 		<file alias="fileview-text.svgz">images/actions/fileview-text.svgz</file>

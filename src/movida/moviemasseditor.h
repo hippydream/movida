@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: collectionloader.h
+** Filename: moviemasseditor.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,32 +18,43 @@
 **
 **************************************************************************/
 
-#ifndef MVD_COLLECTIONLOADER_H
-#define MVD_COLLECTIONLOADER_H
+#ifndef MVD_MOVIEMASSEDITOR_H
+#define MVD_MOVIEMASSEDITOR_H
 
-#include "global.h"
-#include <QObject>
+#include "mvdcore/movie.h"
+#include "ui_moviemasseditor.h"
+#include <QDialog>
+#include <QList>
 
 class MvdMovieCollection;
+class QCloseEvent;
 
-class MVD_EXPORT MvdCollectionLoader
+class MvdMovieMassEditor : public QDialog, protected Ui::MvdMovieMassEditor
 {
+	Q_OBJECT
+		
 public:
-	enum StatusCode
-	{
-		NoError = 0,
-		InvalidCollectionError,
-		FileOpenError,
-		FileNotFoundError,
-		ZipError,
-		InvalidFileError,
-		TemporaryDirectoryError,
-		UnknownError
-	};
+	MvdMovieMassEditor(MvdMovieCollection* c, QWidget* parent = 0);
+	
+	bool setMovies(const QList<mvdid>& ids);
 
-	static const quint8 version = 1;
+public slots:
+	bool storeMovies();
 
-	static StatusCode load(MvdMovieCollection* collection, QString file = QString());
+protected:
+	virtual void closeEvent(QCloseEvent* e);
+
+private slots:
+	void cancelTriggered();
+	void storeTriggered();
+	void linkActivated(const QString& url);
+	void doLinkActivated(const QString& url);
+	void ratingHovered(int);
+	void updateUi();
+
+private:
+	MvdMovieCollection* mCollection;
+	QList<mvdid> mMovieIds;
 };
 
-#endif // MVD_COLLECTIONLOADER_H
+#endif // MVD_MOVIEMASSEDITOR_H
