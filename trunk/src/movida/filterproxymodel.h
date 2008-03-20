@@ -49,6 +49,9 @@ protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
 
 private:
+	bool testFunction(int sourceRow, const QModelIndex& sourceParent, 
+		const QString& function, const QStringList& parameters) const;
+
 	QList<Movida::MovieAttribute> mMovieAttributes;
 	int mSortColumn;
 	Qt::SortOrder mSortOrder;

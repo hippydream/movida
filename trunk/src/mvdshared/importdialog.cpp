@@ -21,6 +21,8 @@
 #include "importdialog.h"
 #include "importdialog_p.h"
 #include "labelanimator.h"
+#include "mvdcore/core.h"
+#include "mvdcore/plugininterface.h"
 #include "mvdcore/settings.h"
 #include <QPushButton>
 #include <QKeyEvent>
@@ -278,7 +280,15 @@ void MvdImportDialog::addSubSection(const QString& title, const QString& notes)
 
 //!
 void MvdImportDialog::accept()
-{	
+{
+	QList<mvdid> importedMovies = d->finalPage->importedMovies();
+	if (!importedMovies.isEmpty() && d->finalPage->filterImportedMovies()) {
+		QString s;
+		foreach (mvdid id, importedMovies)
+			s.append(QString::number(id).append(","));
+		s.truncate(s.length() - 1);
+		MvdCore::pluginContext()->properties.insert("movida/movies/filter", s);
+	}
 	QDialog::accept();
 }
 

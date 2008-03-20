@@ -47,9 +47,28 @@ QByteArray MvdFilterProxyModel::quickFilterAttributes() const
 
 bool MvdFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
+	bool isFunction = false;
+	QString functionName;
+	QStringList functionParameters;
+
+	QRegExp rx = filterRegExp();
+	if (rx.patternSyntax() == QRegExp::FixedString) {
+		QString s = rx.pattern().trimmed();
+		QRegExp frx("@([a-z_-\\.]+)\\((.*)\\)");
+		if (frx.exactMatch(s)) {
+			functionName = frx.cap(1).trimmed();
+			functionParameters = frx.cap(2).trimmed().split(QLatin1Char(','), QString::SkipEmptyParts);
+			isFunction = !functionName.isEmpty();
+		}
+	}
+
+	if (isFunction) {
+		return testFunction(sourceRow, sourceParent, functionName, functionParameters);
+	}
+
 	for (int i = 0; i < mMovieAttributes.size(); ++i) {
 		QModelIndex index = sourceModel()->index(sourceRow, (int)mMovieAttributes.at(i), sourceParent);
-		if (sourceModel()->data(index).toString().contains(filterRegExp()))
+		if (sourceModel()->data(index).toString().contains(rx))
 			return true;
 	}
 	return false;
@@ -82,4 +101,27 @@ Movida::MovieAttribute MvdFilterProxyModel::sortAttribute() const
 Qt::SortOrder MvdFilterProxyModel::sortOrder() const
 {
 	return mSortOrder;
+}
+
+bool MvdFilterProxyModel::testFunction(int sourceRow, const QModelIndex& sourceParent, 
+	const QString& function, const QStringList& parameters) const
+{
+	if (function == QLatin1String("id")) {
+		QList<mvdid> ids;
+		bool ok;
+		foreach (QString s, parameters) {
+			mvdid id = s.toUInt(&ok);
+			if (ok) ids << id;
+		}
+		if (ids.isEmpty())
+			return false;
+
+		QModelIndex index = sourceModel()->index(sourceRow, (int)Movida::TitleAttribute, sourceParent);
+		mvdid currentId = index.data(Movida::IdRole).toUInt();
+		
+		if (ids.contains(currentId))
+			return true;
+	}
+
+	return false;
 }

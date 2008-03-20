@@ -25,6 +25,8 @@
 #include <QString>
 #include <QIcon>
 #include <QList>
+#include <QHash>
+#include <QVariant>
 
 class MvdPluginInterface_P;
 class MvdMovieCollection;
@@ -35,6 +37,7 @@ public:
 	MvdPluginContext() : collection(0) {}
 
 	MvdMovieCollection* collection;
+	QHash<QString, QVariant> properties;
 };
 
 class MVD_EXPORT MvdPluginInterface : public QObject
@@ -52,6 +55,8 @@ public:
 
 	struct PluginInfo
 	{
+		QString uniqueId;
+
 		QString name;
 		QString author;
 		QString websiteUrl;
