@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: notespage.cpp
 **
-** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -67,11 +67,6 @@ void MvdNotesPage::setMovieImpl(const MvdMovie& movie)
 	mDefaultPlot = plot->editor()->toHtml();
 	notes->editor()->setHtml(movie.notes());
 	mDefaultNotes = notes->editor()->toHtml();
-}
-
-void MvdNotesPage::setMoviesImpl(const QList<MvdMovie>& movies)
-{
-	Q_UNUSED(movies);
 }
 
 bool MvdNotesPage::store(MvdMovie& movie)

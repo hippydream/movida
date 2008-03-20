@@ -1,0 +1,224 @@
+<ui version="4.0" >
+ <class>MvdMovieMassEditor</class>
+ <widget class="QWidget" name="MvdMovieMassEditor" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>456</width>
+    <height>250</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>movida movie mass editor</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" colspan="2" >
+    <widget class="QGroupBox" name="mainBox" >
+     <property name="title" >
+      <string>Main info</string>
+     </property>
+     <layout class="QGridLayout" >
+      <item row="0" column="0" >
+       <layout class="QHBoxLayout" >
+        <item>
+         <widget class="QCheckBox" name="cbStorageID" >
+          <property name="text" >
+           <string>Storage ID:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="MvdClearEdit" name="storageID" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QGroupBox" name="ratingBox" >
+     <property name="title" >
+      <string>My rating</string>
+     </property>
+     <property name="checkable" >
+      <bool>true</bool>
+     </property>
+     <property name="checked" >
+      <bool>false</bool>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="leftMargin" >
+       <number>9</number>
+      </property>
+      <property name="topMargin" >
+       <number>9</number>
+      </property>
+      <property name="rightMargin" >
+       <number>9</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>9</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="0" >
+       <widget class="MvdRatingWidget" name="ratingLabel" >
+        <property name="minimumSize" >
+         <size>
+          <width>100</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="focusPolicy" >
+         <enum>Qt::TabFocus</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Maximum</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>461</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" colspan="2" >
+       <widget class="QLabel" name="ratingStatus" >
+        <property name="focusPolicy" >
+         <enum>Qt::TabFocus</enum>
+        </property>
+        <property name="contextMenuPolicy" >
+         <enum>Qt::NoContextMenu</enum>
+        </property>
+        <property name="text" >
+         <string>Rating</string>
+        </property>
+        <property name="textInteractionFlags" >
+         <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::NoTextInteraction</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QGroupBox" name="markAsBox" >
+     <property name="title" >
+      <string>Special tags</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <item>
+       <widget class="QCheckBox" name="markAsSeen" >
+        <property name="text" >
+         <string>Mark as seen</string>
+        </property>
+        <property name="tristate" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="markAsSpecial" >
+        <property name="text" >
+         <string>Mark as special</string>
+        </property>
+        <property name="tristate" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="markAsLoaned" >
+        <property name="text" >
+         <string>Mark as loaned</string>
+        </property>
+        <property name="tristate" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>20</width>
+          <height>16</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>21</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0" colspan="2" >
+    <widget class="Line" name="line" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MvdClearEdit</class>
+   <extends>QLineEdit</extends>
+   <header>mvdshared/clearedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MvdRatingWidget</class>
+   <extends>QLabel</extends>
+   <header>ratingwidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>storageID</tabstop>
+  <tabstop>ratingLabel</tabstop>
+  <tabstop>ratingStatus</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

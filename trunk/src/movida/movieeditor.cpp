@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: movieeditor.cpp
 **
-** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2008-2008 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -46,7 +46,6 @@
 MvdMovieEditor::MvdMovieEditor(MvdMovieCollection* c, QWidget* parent)
 : MvdMultiPageDialog(parent), mCollection(c), mMovieId(MvdNull)
 {
-	//! \todo set a better title (and update on setMovie() or title editing)
 	setWindowTitle(tr("movida movie editor"));
 
 	QDialogButtonBox* box = MvdMultiPageDialog::buttonBox();
@@ -126,27 +125,8 @@ bool MvdMovieEditor::setMovie(mvdid id, bool confirmIfModified)
 	return true;
 }
 
-//! \todo Implement
-bool MvdMovieEditor::setMovies(const QList<mvdid>& movies, bool confirmIfModified)
-{
-	Q_UNUSED(movies);
-
-	if (mCollection == 0)
-		return false;
-
-	if (confirmIfModified && isModified())
-	{
-		if (!confirmDiscardMovie())
-			return false;
-	}
-
-	return true;
-}
-
 /*!
 	Returns the movie id set with setMovie() or after a new movie has been added to the collection.
-	This method is of no use (and returns MvdNull) if multiple movies are being edited or if the
-	user hits cancel and does not accept to store a new movie.
 */
 mvdid MvdMovieEditor::movieId() const
 {

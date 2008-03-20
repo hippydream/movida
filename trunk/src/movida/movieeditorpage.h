@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: movieeditorpage.h
 **
-** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -45,14 +45,6 @@ public:
 		setMovieImpl(mMovie);
 	}
 
-	void setMovies(const QList<MvdMovie>& movies)
-	{
-		if (mCollection == 0)
-			return;
-
-		setMoviesImpl(movies);
-	}
-
 	/*!
 		Stores the current values in a movie object.
 		The default implementation always returns true.
@@ -68,8 +60,6 @@ public:
 protected:
 	//! Subclasses have to implement this method to populate the form with data.
 	virtual void setMovieImpl(const MvdMovie& movie) = 0;
-	//! Subclasses have to implement this method to populate the form with data.
-	virtual void setMoviesImpl(const QList<MvdMovie>& movies) = 0;
 
 	MvdMovieCollection* mCollection;
 	MvdMovie mMovie;

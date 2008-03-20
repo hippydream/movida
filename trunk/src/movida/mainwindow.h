@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: mainwindow.h
 **
-** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -105,6 +105,7 @@ private:
 	QAction* mA_CollAddMovie;
 	QAction* mA_CollRemMovie;
 	QAction* mA_CollEdtMovie;
+	QAction* mA_CollMedMovie;
 	QAction* mA_CollDupMovie;
 	QAction* mA_CollMeta;
 
@@ -203,6 +204,7 @@ private slots:
 	void loadPlugins();
 	void loadPluginsFromDir(const QString& path);
 	void lockToolBars(bool lock);
+	void massEditSelectedMovies();
 	void movieChanged(mvdid);
 	void movieViewSelectionChanged();
 	void movieViewToggled(QAction*);

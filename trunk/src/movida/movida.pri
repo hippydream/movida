@@ -16,6 +16,7 @@ HEADERS += \
 	mainsettingspage.h \
 	mainwindow.h \
 	movieeditor.h \
+	moviemasseditor.h \
 	movieeditorpage.h \
 	movietreeviewdelegate.h \
 	mpdialogpage.h \
@@ -51,6 +52,7 @@ SOURCES += \
 	mainwindow.cpp \
 	mainwindow_gui.cpp \
 	movieeditor.cpp \
+	moviemasseditor.cpp \
 	movietreeviewdelegate.cpp \
 	multipagedialog.cpp \
 	notespage.cpp \
@@ -73,6 +75,7 @@ FORMS += \
 	ui/linkspage.ui \
 	ui/maininfopage.ui \
 	ui/mainsettingspage.ui \
+	ui/moviemasseditor.ui \
 	ui/multipagedialog.ui \
 	ui/notespage.ui \
 	ui/passwordprompt.ui \
