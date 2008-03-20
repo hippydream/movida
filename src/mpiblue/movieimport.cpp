@@ -1035,7 +1035,8 @@ void MpiMovieImport::processMovieDataFile(const QString& path)
 	if (!QFile::remove(path))
 		wLog() << "MpiMovieImport: failed to delete temporary file '" << path << "'.";
 
-	deleteTemporaryFile(&mTempFile);
+	if (mTempFile)
+		deleteTemporaryFile(&mTempFile);
 
 	if (!res) {
 		mImportDialog->showMessage(tr("Discarding invalid movie data."));
