@@ -210,6 +210,7 @@ private slots:
 	void movieViewToggled(QAction*);
 	void newCollection();
 	void openRecentFile(QAction* a);
+	void pluginActionTriggered();
 	void removeSelectedMovies();
 	void removeMovie(const QModelIndex& index);
 	void removeMovies(const QModelIndexList& list);

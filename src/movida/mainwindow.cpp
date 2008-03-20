@@ -1093,16 +1093,33 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 		if (!iface)
 			continue;
 
-		mPlugins.append(iface);
-
 		MvdPluginInterface::PluginInfo info = iface->info();
-		if (info.name.isEmpty())
-		{
-			wLog() << "Discarding unnamed plugin.";
+		if (info.uniqueId.trimmed().isEmpty()) {
+			wLog() << "Discarding plugin with no unique ID.";
 			continue;
 		}
 
-		iLog() << QString("'%1' plugin loaded.").arg(info.name);
+		info.uniqueId.replace(QLatin1Char('/'), QLatin1Char('.'));
+
+		bool discard = false;
+		foreach (MvdPluginInterface* plug, mPlugins) {
+			QString s = plug->info().uniqueId.trimmed();
+			if (s.replace(QLatin1Char('/'), QLatin1Char('.')) == info.uniqueId.trimmed()) {
+				discard = true;
+				break;
+			}
+		}
+		if (discard) {
+			wLog() << QString("Discarding plugin with duplicate ID '%1'.").arg(info.uniqueId);
+			continue;
+		}
+
+		if (info.name.trimmed().isEmpty()) {
+			wLog() << "Discarding plugin with no name.";
+			continue;
+		}
+
+		iLog() << QString("'%1' plugin loaded.").arg(info.uniqueId);
 
 		QList<MvdPluginInterface::PluginAction> actions = iface->actions();
 
@@ -1155,17 +1172,15 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 		//! \todo sort plugin names?
 		QMenu* pluginMenu = mMN_Plugins->addMenu(info.name);
 
-		QSignalMapper* signalMapper = new QSignalMapper(iface);
-
 		for (int j = 0; j < actions.size(); ++j) {
 			const MvdPluginInterface::PluginAction& a = actions.at(j);
 			QAction* qa = createAction();
 			qa->setText(a.text);
 			qa->setStatusTip(a.helpText);
 			qa->setIcon(a.icon);
+			qa->setData(QString("%1/%2").arg(info.uniqueId.trimmed()).arg(a.name));
 
-			connect( qa, SIGNAL(triggered()), signalMapper, SLOT(map()) );
-			signalMapper->setMapping(qa, a.name);
+			connect( qa, SIGNAL(triggered()), this, SLOT(pluginActionTriggered()) );
 
 			pluginMenu->addAction(qa);
 
@@ -1174,8 +1189,7 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 			}
 		}
 
-		connect( signalMapper, SIGNAL(mapped(const QString&)), 
-			iface, SLOT(actionTriggered(const QString&)) );
+		mPlugins.append(iface);
 	}
 }
 
@@ -1445,4 +1459,56 @@ void MvdMainWindow::zoomOut()
 
 	mA_ViewModeZoomOut->setEnabled(canZoomOut);
 	mA_ViewModeZoomIn->setEnabled(true);
+}
+
+void MvdMainWindow::pluginActionTriggered()
+{
+	QAction* a = qobject_cast<QAction*>(sender());
+	if (!a) return;
+
+	QStringList l = a->data().toString().split(QLatin1Char('/'));
+	if (l.size() != 2) return;
+
+	QString pluginName = l[0];
+	QString actionName = l[1];
+
+	MvdPluginInterface* iface = 0;
+	foreach (MvdPluginInterface* i, mPlugins) {
+		QString s = i->info().uniqueId.trimmed();
+		if (s.replace(QLatin1Char('/'), QLatin1Char('.')) == pluginName) {
+			iface = i;
+			break;
+		}
+	}
+
+	if (!iface) return;
+
+	MvdPluginContext* context = MvdCore::pluginContext();
+	
+
+	// Update plugin context
+	iface->actionTriggered(actionName);
+
+	// Consume known properties
+	QHash<QString,QVariant>::Iterator it = context->properties.begin();
+	while (it != context->properties.end()) {
+		QStringList key = it.key().split(QLatin1Char('/'), QString::SkipEmptyParts);
+		if (key.size() < 3) continue;
+		if (key[0] != QLatin1String("movida")) continue;
+
+		QString k = key[1];
+		if (k == QLatin1String("movies")) {
+			k = key[2];
+			if (k == QLatin1String("filter")) {
+				QString ids = it.value().toString();
+				QString query = QString("@id(%1)").arg(ids);
+				mFilterWidget->editor()->setText(query);
+				filter(query);
+			}
+		}
+
+		++it;
+	}
+
+	context->properties.clear();
 }

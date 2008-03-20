@@ -44,6 +44,9 @@ public:
 	virtual bool validatePage();
 	virtual void updateButtons();
 
+	QList<mvdid> importedMovies() const { return mImportedMovies; }
+	bool filterImportedMovies() const { return ui.filterMovies->isChecked(); }
+
 public slots:
 	virtual void importMovies(const MvdMovieDataList& movies);
 
@@ -54,8 +57,9 @@ private slots:
 private:
 	Ui::MvdImportFinalPage ui;
 
-	bool pendingButtonUpdates;
-	QString finishButtonText;
+	bool mPendingButtonUpdates;
+	QString mFinishButtonText;
+	QList<mvdid> mImportedMovies;
 };
 
 #endif // MVD_IMPORTFINAL_H

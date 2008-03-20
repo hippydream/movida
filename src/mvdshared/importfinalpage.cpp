@@ -58,7 +58,7 @@ using namespace Movida;
 */
 
 MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
-: MvdImportPage(parent), pendingButtonUpdates(false)
+: MvdImportPage(parent), mPendingButtonUpdates(false)
 {
 	setTitle(tr("We are all done!"));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import-wizard/watermark.png"));
@@ -81,7 +81,7 @@ void MvdImportFinalPage::setBusyStatus(bool busy)
 	
 	MVD_ENABLE_CLOSE_BTN(!busy)
 
-	pendingButtonUpdates = true;
+	mPendingButtonUpdates = true;
 
 	if (!busy)
 		updateButtons();
@@ -166,10 +166,10 @@ void MvdImportFinalPage::cleanupPage()
 //! Toggles the finish/new_search button.
 void MvdImportFinalPage::restartWizardToggled()
 {
-	if (finishButtonText.isEmpty())
-		finishButtonText = wizard()->buttonText(QWizard::FinishButton);
+	if (mFinishButtonText.isEmpty())
+		mFinishButtonText = wizard()->buttonText(QWizard::FinishButton);
 
-	wizard()->setButtonText(QWizard::FinishButton, ui.restartWizard->isChecked() ? tr("&New search") : finishButtonText);
+	wizard()->setButtonText(QWizard::FinishButton, ui.restartWizard->isChecked() ? tr("&New search") : mFinishButtonText);
 
 	int importedMovies =  field("importedMoviesCount").toInt();
 	bool hasSomeImports = importedMovies > 0;
@@ -211,7 +211,8 @@ void MvdImportFinalPage::importMovies(const MvdMovieDataList& movies)
 		MvdMovieCollection* collection = MvdCore::pluginContext()->collection;
 		Q_ASSERT(collection);
 
-		collection->addMovie(m);
+		mvdid movieId = collection->addMovie(m);
+		mImportedMovies << movieId;
 
 		QCoreApplication::processEvents();
 	}
@@ -224,8 +225,8 @@ void MvdImportFinalPage::importMovies(const MvdMovieDataList& movies)
 //! Forces the buttons to lock or unlock.
 void MvdImportFinalPage::updateButtons()
 {
-	if (pendingButtonUpdates) {
-		pendingButtonUpdates = false;
+	if (mPendingButtonUpdates) {
+		mPendingButtonUpdates = false;
 
 		bool locked = busyStatus();
 

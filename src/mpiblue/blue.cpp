@@ -85,6 +85,7 @@ QString MpiBlue::lastError() const
 MvdPluginInterface::PluginInfo MpiBlue::info() const
 {
 	MvdPluginInterface::PluginInfo info;
+	info.uniqueId = QLatin1String("org.42cows.movida.mpi.blue");
 	info.name = tr("Blue plugin");
 	info.description = tr("Basic import/export plugin");
 	info.author = "Fabrizio Angius";

@@ -20,6 +20,23 @@
 
 #include "plugininterface.h"
 
+/*!
+	\class MvdPluginContext plugininterface.h
+	\brief Execution context and data-exchange facility for plugins.
+
+	A plugin context serves two different purposes: provide the plugin
+	access to the context in which it is executed (e.g. access the current
+	movie collection) and comunicate with the invoking application (e.g. tell
+	a GUI that it should filter the movie list view).
+
+	Since the plugin interface and thus the context are GUI independent, there
+	is no easy way to achieve the latter task.
+	This means that plugins will have to use some protocol managed by the client
+	application (usually the official movida GUI).
+	Filtering the movie list may for instance achieved by setting a property consisting
+	of a key known to the GUI (e.g. "movida/movies/filter") and a filter expression
+	(e.g. a regular expression or some other format known to the GUI).
+*/
 class MvdPluginInterface_P
 {
 public:
