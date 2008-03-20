@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: moviecollection.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -172,10 +171,9 @@ MvdMovieCollection::~MvdMovieCollection()
 /*!
 	Assignment operator.
  */
-MvdMovieCollection& MvdMovieCollection::operator=(const MvdMovieCollection& m)
+MvdMovieCollection& MvdMovieCollection::operator=(const MvdMovieCollection& other)
 {
-	MvdMovieCollection tmp(m);
-	qAtomicAssign(d, m.d);
+	qAtomicAssign(d, other.d);
 	return *this;
 }
 
@@ -814,8 +812,20 @@ QString MvdMovieCollection::addImage(const QString& path,
 		return QString();
 
 	// Init data path if necessary
-	if (d->dataPath.isEmpty())
+	if (d->dataPath.isEmpty()) {
 		metaData(DataPathInfo);
+	} else {
+		// Check if the file is already part of the collection's persistent data storage
+		QFileInfo info(path);
+		QString thisFilePath = MvdCore::toLocalFilePath(info.absolutePath(), true);
+		QString storagePath = MvdCore::toLocalFilePath(d->dataPath + "/images/", true);
+#ifdef Q_OS_WIN
+		if (!QString::compare(thisFilePath, storagePath, Qt::CaseInsensitive))
+#else
+		if (QString::compare(thisFilePath, storagePath, Qt::CaseSensitive))
+#endif
+			return info.fileName();
+	}
 
 	// Check if file has been already added
 	QString srcHash = MvdMd5::hashFile(path);

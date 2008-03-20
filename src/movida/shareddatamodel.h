@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: shareddatamodel.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -53,7 +52,12 @@ public:
 		const QModelIndex& parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex& index) const;
 
-	virtual void sort(int column, Qt::SortOrder order);
+	// Editable Items & Resizable Models
+	bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex());
+	bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
+
+	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+	virtual Qt::SortOrder sortOrder() const;
 
 	virtual void setMovieCollection(MvdMovieCollection* c);
 
@@ -65,11 +69,12 @@ private:
 	void setData(MvdSharedData& smd);
 
 private slots:
-	void itemAdded(int id);
-	void itemRemoved(int id);
-	void itemUpdated(int id);
-	void itemReferenceChanged(int id);
+	void itemAdded(mvdid id);
+	void itemRemoved(mvdid id);
+	void itemUpdated(mvdid id);
+	void itemReferenceChanged(mvdid id);
 	void sharedDataCleared();
+	void removeCollection() { setMovieCollection(0); }
 };
 
 #endif // MVD_SHAREDDATAMODEL_H

@@ -11,51 +11,57 @@ HEADERS += \
 	itemdelegate.h \
 	linklabel.h \
 	linkspage.h \
+	listview.h \
 	maininfopage.h \
+	mainsettingspage.h \
 	mainwindow.h \
 	movieeditor.h \
 	movieeditorpage.h \
+	movietreeviewdelegate.h \
 	mpdialogpage.h \
 	multipagedialog.h \
 	notespage.h \
-	mainsettingspage.h \
 	posterlabel.h \
-	settingsdialog.h \
 	ratingwidget.h \
 	rowselectionmodel.h \
 	sdtreewidget.h \
+	settingsdialog.h \
+	settingspage.h \
+	shareddataeditor.h \
+	shareddatamodel.h \
 	smartview.h \
 	smartviewdelegate.h \
-	shareddatamodel.h \
 	treeview.h \
-	treewidget.h \
-	settingspage.h
+	treewidget.h
 
 SOURCES += \
 	application.cpp \
 	collectionmetaeditor.cpp \
 	collectionmodel.cpp \
-	multipagedialog.cpp \
 	crewpage.cpp \
 	extendedinfopage.cpp \
 	filterproxymodel.cpp \
 	filterwidget.cpp \
 	guiglobal.cpp \
 	linkspage.cpp \
+	listview.cpp \
 	main.cpp \
 	maininfopage.cpp \
+	mainsettingspage.cpp \
 	mainwindow.cpp \
 	mainwindow_gui.cpp \
 	movieeditor.cpp \
+	movietreeviewdelegate.cpp \
+	multipagedialog.cpp \
 	notespage.cpp \
-	mainsettingspage.cpp \
 	posterlabel.cpp \
-	settingsdialog.cpp \
 	ratingwidget.cpp \
 	sdtreewidget.cpp \
+	settingsdialog.cpp \
+	shareddataeditor.cpp \
+	shareddatamodel.cpp \
 	smartview.cpp \
 	smartviewdelegate.cpp \
-	shareddatamodel.cpp \
 	treeview.cpp \
 	treewidget.cpp
 
@@ -73,3 +79,5 @@ FORMS += \
 	ui/smartview.ui
 	
 RESOURCES += movida.qrc
+
+RC_FILE = movida.rc

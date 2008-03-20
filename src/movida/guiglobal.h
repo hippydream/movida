@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: guiglobal.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -28,7 +27,7 @@
 #include <QString>
 #include <QtGlobal>
 
-#define MVD_WINDOW_ICON setWindowIcon(QIcon(":/images/logo.png"));
+#define MVD_WINDOW_ICON setWindowIcon(QIcon(":/images/logo.svgz"));
 
 namespace Movida
 {
@@ -41,7 +40,8 @@ namespace Movida
 		TextColorBackupRole,
 		FontBackupRole,
 		ValidationRole,
-		MovieAttributeRole
+		MovieAttributeRole,
+		SmartViewDisplayRole
 	};
 
 	enum ItemValidator
@@ -70,14 +70,20 @@ namespace Movida
 		TagsAttribute,
 		ColorModeAttribute,
 		ImdbIdAttribute,
-		RatingAttribute
+		RatingAttribute,
+		SeenAttribute,
+		SpecialAttribute,
+		LoanedAttribute,
+
+		InvalidMovieAttribute // Reserved
 	};
 	typedef QList<MovieAttribute> MovieAttributeList;
 
 	//! Item view shared data attributes (i.e. used as column identifiers)
 	enum SharedDataAttribute
 	{
-		NameSDA, RolesSDA, GenreSDA, CountrySDA, LanguageSDA, TagSDA, ImdbIdSDA
+		NameSDA, RolesSDA, GenreSDA, CountrySDA, LanguageSDA, TagSDA, ImdbIdSDA,
+		InvalidSDA // Reserved
 	};
 	typedef QList<SharedDataAttribute> SharedDataAttributeList;
 
@@ -85,13 +91,15 @@ namespace Movida
 	{
 		NoAttributeFilter,
 		MainAttributeFilter,
-		SmartViewAttributeFilter
+		SmartViewAttributeFilter,
+		SDEditorAttributeFilter
 	};
 
 	enum AttributeContext
 	{
 		NoAttributeContext,
-		SmartViewContext
+		SmartViewContext,
+		SharedDataEditorContext
 	};
 
 	QList<MovieAttribute> movieAttributes(AttributeFilter filter = NoAttributeFilter);

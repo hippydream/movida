@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: blue.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -62,22 +61,6 @@ public:
 			updateIntervalHours(0)
 		{}
 
-		inline Engine(const Engine& o)
-		{
-			name = o.name;
-			displayName = o.displayName;
-			updateUrl = o.updateUrl;
-			interpreter = o.interpreter;
-			resultsScript = o.resultsScript;
-			resultsUrl = o.resultsUrl;
-			importScript = o.importScript;
-			importUrl = o.importUrl;
-			searchUrl = o.searchUrl;
-			scriptsFetched = o.scriptsFetched;
-			updateInterval = o.updateInterval;
-			updateIntervalHours = o.updateIntervalHours;
-		}
-
 		inline bool operator<(const Engine& o) const
 		{
 			return displayName < o.displayName;
@@ -114,6 +97,8 @@ public:
 	QList<PluginAction> actions() const;
 	void actionTriggeredImplementation(const QString& name);
 
+	QString tempDir();
+
 	static UpdateInterval updateIntervalFromString(QString s, quint8* hours);
 	static QString updateIntervalToString(UpdateInterval i, quint8 hours);
 
@@ -132,6 +117,7 @@ private:
 	static MpiBlue::ScriptStatus isValidScriptFile(QTextStream& stream);
 
 	QList<Engine*> mEngines;
+	QString mTempDir;
 };
 
 namespace MpiBluePlugin {

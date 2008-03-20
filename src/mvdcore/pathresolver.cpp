@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: pathresolver.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -177,12 +176,12 @@ MvdPathResolver_P::MvdPathResolver_P()
 	QString tempDirPath = QDir::tempPath().append("/").append(org).append("/").append(app).append(".").append(QString::number(Movida::pid()));
 	QDir tempDir(tempDirPath);
 	tempDirPath = tempDir.absolutePath();
-	if (tempDir.exists())
-	{
+	if (tempDir.exists()) {
 		bool failed = false;
-		if (QFile::exists(tempDirPath))
-			failed = !QFile::remove(tempDirPath);
-		else failed = !MvdPathResolver::removeDirectoryTree(tempDirPath);
+		QFileInfo info(tempDirPath);
+		if (info.isDir())
+			failed = !MvdPathResolver::removeDirectoryTree(tempDirPath);
+		else failed = !QFile::remove(tempDirPath);
 		if (failed)
 		{
 			qDebug() << "MvdPathResolver: Failed to create a temporary directory" << tempDirPath;
@@ -449,17 +448,20 @@ QString MvdPathResolver::tempDir() const
 /*!
 	Generates a new unique directory inside of the MvdPathResolver::tempDir() directory.
 	The directory name is a unique random string.
+	The returned paths has been cleaned by MvdCore::toLocalFilePath() and has a trailing
+	path separator character.
 */
 QString MvdPathResolver::generateTempDir() const
 {
-#define MVD_PATHRESOLVER_MAX_RETRIES 20
+	static const int MaxRetries = 20;
 
-	QString path;
+	QString path, uuid;
 	int count = 0;
 	do
 	{
 		count++;
-		path = tempDir().append(QUuid::createUuid().toString()).append("/");
+		uuid = QUuid::createUuid().toString().replace("{", "").replace("}", "");
+		path = tempDir().append(uuid).append("/");
 		QDir dir(path);
 		if (!dir.exists())
 		{
@@ -467,9 +469,9 @@ QString MvdPathResolver::generateTempDir() const
 			count = -1;
 		}
 	}
-	while (count >= 0 && count <= MVD_PATHRESOLVER_MAX_RETRIES);
+	while (count >= 0 && count <= MaxRetries);
 
-	if (count == MVD_PATHRESOLVER_MAX_RETRIES) {
+	if (count == MaxRetries) {
 		Q_ASSERT_X(false, "MvdPathResolver::generateTempDir()", "Failed to generate a unique filename.");
 	}
 

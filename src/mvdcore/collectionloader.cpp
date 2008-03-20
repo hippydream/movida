@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: collectionloader.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -277,6 +276,36 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				{
 					quint32 minutes = MvdCore::atoid((const char*)attr);
 					movie.setRunningTime(minutes);
+					xmlFree(attr);
+				}
+			}
+			else if (nodeName == "seen")
+			{
+				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
+				if (attr)
+				{
+					bool b = !xmlStrcmp(attr, (const xmlChar*)"true");
+					movie.setSpecialTagEnabled(MvdMovie::SeenTag, b);
+					xmlFree(attr);
+				}
+			}
+			else if (nodeName == "special")
+			{
+				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
+				if (attr)
+				{
+					bool b = !xmlStrcmp(attr, (const xmlChar*)"true");
+					movie.setSpecialTagEnabled(MvdMovie::SpecialTag, b);
+					xmlFree(attr);
+				}
+			}
+			else if (nodeName == "loaned")
+			{
+				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
+				if (attr)
+				{
+					bool b = !xmlStrcmp(attr, (const xmlChar*)"true");
+					movie.setSpecialTagEnabled(MvdMovie::LoanedTag, b);
 					xmlFree(attr);
 				}
 			}

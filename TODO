@@ -7,10 +7,12 @@ TODO-list for movida
 SHORT-TERM (URGENT):
 
 <blue_death>	Add advanced filter and allow filtering from plugins (i.e. the import plugin!)
+<blue_death>	Add feature to mass import from CSV file
 
 
 MID-TERM:
 
+<blue_death>	Distinguish between main actors and other actors (useful for the smart view and other views)
 <blue_death>	Fix column width in the tree view and clean up the header and the context 
 		menu some how
 <blue_death>	Design and implement import plugin script options!!
@@ -18,7 +20,7 @@ MID-TERM:
 <blue_death>	Multiple movie editing
 <blue_death>	Use Qt 4.4 webkit! (wait until it's ready?)
 <blue_death>	Integrate Qt Undo Framework
-<blue_death>	Make application unique and check for existing old temporary directories
+<blue_death>	Make application instance unique
 
 
 LONG-TERM:

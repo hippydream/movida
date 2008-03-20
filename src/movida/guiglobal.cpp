@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: guiglobal.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -47,6 +46,9 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 		list << TagsAttribute;
 		list << ColorModeAttribute;
 		list << ImdbIdAttribute;
+		list << SeenAttribute;
+		list << SpecialAttribute;
+		list << LoanedAttribute;
 		break;
 	case MainAttributeFilter:
 		list << TitleAttribute;
@@ -56,11 +58,16 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 		list << RunningTimeAttribute;
 		list << StorageIdAttribute;
 		list << RatingAttribute;
+		break;
 	case SmartViewAttributeFilter:
 		list << TitleAttribute;
+		list << RunningTimeAttribute;
 		list << ReleaseYearAttribute;
 		list << DirectorsAttribute;
-		list << RunningTimeAttribute;
+		list << CastAttribute;
+		list << ProducersAttribute;
+		list << GenresAttribute;
+		list << TagsAttribute;
 		list << RatingAttribute;
 		break;
 	default: ;
@@ -70,27 +77,97 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 
 QString Movida::movieAttributeString(MovieAttribute attribute, AttributeContext context)
 {
-	const char* comment = context == NoAttributeContext ? "Default context" : "Smart view context";
-
 	switch (attribute)
 	{
-	case TitleAttribute: return QCoreApplication::translate("MovieAttribute", "Title", comment);
-	case OriginalTitleAttribute: return QCoreApplication::translate("MovieAttribute", "Original title", comment);
-	case ProductionYearAttribute: return QCoreApplication::translate("MovieAttribute", "Production year", comment);
-	case ReleaseYearAttribute: return QCoreApplication::translate("MovieAttribute", "Release year", comment);
-	case ProducersAttribute: return QCoreApplication::translate("MovieAttribute", "Producers", comment);
-	case DirectorsAttribute: return QCoreApplication::translate("MovieAttribute", "Directors", comment);
-	case CastAttribute: return QCoreApplication::translate("MovieAttribute", "Cast", comment);
-	case CrewAttribute: return QCoreApplication::translate("MovieAttribute", "Crew", comment);
-	case RunningTimeAttribute: return QCoreApplication::translate("MovieAttribute", "Running time", comment);
-	case StorageIdAttribute: return QCoreApplication::translate("MovieAttribute", "Storage ID", comment);
-	case GenresAttribute: return QCoreApplication::translate("MovieAttribute", "Genres", comment);
-	case LanguagesAttribute: return QCoreApplication::translate("MovieAttribute", "Languages", comment);
-	case CountriesAttribute: return QCoreApplication::translate("MovieAttribute", "Countries", comment);
-	case TagsAttribute: return QCoreApplication::translate("MovieAttribute", "Tags", comment);
-	case ColorModeAttribute: return QCoreApplication::translate("MovieAttribute", "Color", comment);
-	case ImdbIdAttribute: return QCoreApplication::translate("MovieAttribute", "IMDb ID", comment);
-	case RatingAttribute: return QCoreApplication::translate("MovieAttribute", "Rating", comment);
+	case TitleAttribute:
+		if (context == SmartViewContext)
+			return QString();
+		return QCoreApplication::translate("MovieAttribute", "Title", "No special context");
+
+	case OriginalTitleAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Original title: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Original title", "No special context");
+		
+	case ProductionYearAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Produced in ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Production year", "No special context");
+
+	case ReleaseYearAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Released in ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Release year", "No special context");
+
+	case ProducersAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Produced by ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Producers", "No special context");
+
+	case DirectorsAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Directed by ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Directors", "No special context");
+
+	case CastAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Starring ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Cast", "No special context");
+	
+	case CrewAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Crew members: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Crew", "No special context");
+	
+	case RunningTimeAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Running time: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Running time", "No special context");
+	
+	case StorageIdAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Storage ID: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Storage ID", "No special context");
+	
+	case GenresAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Genres: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Genres", "No special context");
+	
+	case LanguagesAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Languages: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Languages", "No special context");
+	
+	case CountriesAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Countries: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Countries", "No special context");
+	
+	case TagsAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Tags: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Tags", "No special context");
+	
+	case ColorModeAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Color mode: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Color", "No special context");
+	
+	case ImdbIdAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "IMDb ID: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "IMDb ID", "No special context");
+	
+	case RatingAttribute: 
+		if (context == SmartViewContext)
+			return QCoreApplication::translate("MovieAttribute", "Rating: ", "Smart view context");
+		return QCoreApplication::translate("MovieAttribute", "Rating", "No special context");
+	
+	case SeenAttribute: return QCoreApplication::translate("MovieAttribute", "Seen", "No special context");
+	case SpecialAttribute: return QCoreApplication::translate("MovieAttribute", "Special", "No special context");
+	case LoanedAttribute: return QCoreApplication::translate("MovieAttribute", "Loaned", "No special context");
+	
 	default: ;
 	}
 	return QString();
@@ -108,7 +185,7 @@ QList<SharedDataAttribute> Movida::sharedDataAttributes(Movida::DataRole role, A
 	case Movida::ProducerRole:
 	case Movida::CrewMemberRole:
 		list << NameSDA;
-		if (role & Movida::ActorRole || role & Movida::CrewMemberRole)
+		if (filter != SDEditorAttributeFilter && (role & Movida::ActorRole || role & Movida::CrewMemberRole))
 			list << RolesSDA;
 		if (filter == NoAttributeFilter)
 			list << ImdbIdSDA;

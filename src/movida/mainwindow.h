@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: mainwindow.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -28,6 +27,7 @@
 #include <QStringList>
 #include <QAbstractItemView>
 #include <QPointer>
+#include <QtGlobal>
 
 class QToolBar;
 class QAction;
@@ -45,9 +45,12 @@ class MvdTreeView;
 class MvdDockWidget;
 class MvdMovieCollection;
 class MvdCollectionModel;
+class MvdSharedDataModel;
+class MvdSharedDataEditor;
 class MvdRowSelectionModel;
 class MvdFilterWidget;
 class MvdFilterProxyModel;
+class MvdPluginInterface;
 
 class MvdMainWindow : public QMainWindow
 {
@@ -60,6 +63,8 @@ public:
 	MvdMovieCollection* currentCollection();
 	void cleanUp();
 	bool isQuickFilterVisible() const;
+
+	virtual QMenu* createPopupMenu();
 
 public slots:
 	bool loadCollection(const QString& file);
@@ -76,60 +81,69 @@ protected slots:
 private:
 	QGridLayout* mMainLayout;
 
-	// Toolbars
-	QToolBar* mTB_File;
-	QToolBar* mTB_View;
-	QToolBar* mTB_Coll;
-	QToolBar* mTB_Tool;
-	QToolBar* mTB_Help;
-
 	// Actions
 	QAction* mA_FileExit;
 	QAction* mA_FileNew;
 	QAction* mA_FileOpen;
 	QAction* mA_FileOpenLast;
+	QAction* mA_FileImport;
+	QAction* mA_FileRecent;
 	QAction* mA_FileSave;
 	QAction* mA_FileSaveAs;
-	
-	QActionGroup* mAG_SortActions;
-	QAction* mA_SortDescending;
 
-	QActionGroup* mAG_MovieView;
-	QAction* mA_SmartView;
-	QAction* mA_TreeView;
+	QAction* mA_ViewModeTree;
+	QAction* mA_ViewModeSmart;
+	QAction* mA_ViewModeZoom;
+	QAction* mA_ViewModeZoomIn;
+	QAction* mA_ViewModeZoomOut;
+	QActionGroup* mAG_ViewMode;
 	QAction* mA_ViewDetails;
+	QAction* mA_ViewSort;
+	QActionGroup* mAG_ViewSort;
+	QAction* mA_ViewSortDescending;
+
 	QAction* mA_CollAddMovie;
 	QAction* mA_CollRemMovie;
 	QAction* mA_CollEdtMovie;
 	QAction* mA_CollDupMovie;
 	QAction* mA_CollMeta;
+
+	QAction* mA_ToolSdEditor;
 	QAction* mA_ToolPref;
 	QAction* mA_ToolLog;
+
 	QAction* mA_HelpAbout;
 	QAction* mA_HelpContents;
 	QAction* mA_HelpIndex;
 
-	// Menus
-	QMenuBar* mMB_MenuBar;
+	QAction* mA_LockToolBars;
 
+	// Top level menus
 	QMenu* mMN_File;
+	QMenu* mMN_View;
+	QMenu* mMN_Collection;
+	QMenu* mMN_Plugins;
+	QMenu* mMN_Tools;
+	QMenu* mMN_Help;
+
+	// Sub menus
 	QMenu* mMN_FileMRU;
 	QMenu* mMN_FileImport;
-	QMenu* mMN_View;
 	QMenu* mMN_ViewSort;
-	QMenu* mMN_Coll;
-	QMenu* mMN_Tool;
-	QMenu* mMN_Help;
-	QMenu* mMN_Plugins;
+
+	// Tool bars
+	QToolBar* mTB_MainToolBar;
 	
 	// Views
 	QStackedWidget* mMainViewStack;
 	MvdSmartView* mSmartView;
 	MvdTreeView* mTreeView;
 	QTextBrowser* mDetailsView;
+	MvdSharedDataEditor* mSharedDataEditor;
 
 	// Dock windows
 	MvdDockWidget* mDetailsDock;
+	MvdDockWidget* mSharedDataDock;
 	
 	MvdFilterWidget* mFilterWidget;
 	QTimer* mHideFilterTimer;
@@ -140,15 +154,35 @@ private:
 	MvdCollectionModel* mMovieModel;
 	MvdRowSelectionModel* mSelectionModel;
 
+	// SD model
+	MvdSharedDataModel* mSharedDataModel;
+
 	QPointer<MvdMovieEditor> mMovieEditor;
 
+	QList<MvdPluginInterface*> mPlugins;
+
+	void createActions();
+	QAction* createAction();
+	void initAction(QAction* action, const QString& text, const QString& shortInfo, const QString& longInfo, const QString& shortcut = QString());
+	void createMenus();
+	void createToolBars();
 	void setupUi();
 	void retranslateUi();
 	void setupConnections();
+#ifdef MVD_DEBUG_TOOLS
+	void setupDebugTools();
+#endif
 	void createNewCollection();
-	quint32 modelIndexToId(const QModelIndex& index) const;
+	mvdid movieIndexToId(const QModelIndex& index) const;
+	QModelIndex movieIdToIndex(mvdid id) const;
+	bool shouldShowQuickFilter() const;
 
 private slots:
+#ifdef MVD_DEBUG_TOOLS
+#ifdef Q_OS_WIN32
+	void runCollectorz();
+#endif
+#endif
 	bool closeCollection();
 	bool loadCollectionDlg();
 	bool saveCollection();
@@ -159,8 +193,6 @@ private slots:
 	void collectionModelSorted();
 	void collectionModified();
 	void currentViewChanged();
-	void cycleMovieView();
-	void dockViewsToggled();
 	void duplicateCurrentMovie();
 	void editSelectedMovies();
 	void editMovie(const QModelIndex& index);
@@ -170,6 +202,7 @@ private slots:
 	void loadLastCollection();
 	void loadPlugins();
 	void loadPluginsFromDir(const QString& path);
+	void lockToolBars(bool lock);
 	void movieChanged(mvdid);
 	void movieViewSelectionChanged();
 	void movieViewToggled(QAction*);
@@ -183,12 +216,16 @@ private slots:
 	void showMetaEditor();
 	void showMovieContextMenu(const QModelIndex& index);
 	void showPreferences();
+	void showSharedDataEditor();
 	void sortActionTriggered(QAction* a = 0);
 	void treeViewSorted(int logicalIndex);
+	void unloadPlugins();
 	void updateCaption();
 	void updateDetailsView();
 	void updateFileMenu();
 	void updateViewSortMenu();
+	void zoomIn();
+	void zoomOut();
 };
 
 namespace Movida {

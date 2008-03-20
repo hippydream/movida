@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: core.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -77,11 +76,14 @@ public:
 		parameters.insert("mvdcore/max-poster-kb", 512);
 		parameters.insert("mvdcore/max-poster-size", QSize(400, 150));
 
-		parameters.insert("mvdcore/website-url", "http://movida.sourceforge.net");
+		parameters.insert("mvdcore/website-url", "http://movida.42cows.org");
 
 		// Max length for some string values
 		// This should be enough even for "Night of the Day of the Dawn of the Son of the Bride of the Return of the Revenge of the Terror of the Attack of the Evil, Mutant, Alien, Flesh Eating, Hellbound, Zombified Living Dead Part 2: In Shocking 2-D" :D
 		parameters.insert("mvdcore/max-edit-length", 256);
+
+		// 2:02
+		parameters.insert("mvdcore/running-time-format", "h'h' mm'min'");
 	}
 
 	QHash<QString,QVariant> parameters;
@@ -387,23 +389,21 @@ MvdCore::LabelAction MvdCore::parseLabelAction(const QString& url)
 
 	Returns the path to the application (filename included) or an empty QString on failure.
 */
-QString MvdCore::locateApplication(QString name, bool searchInAppDirPath)
+QString MvdCore::locateApplication(QString name, LocateOptions options)
 {
 	name = name.trimmed();
 	if (name.isEmpty())
 		return QString();
 
-	//Qt::CaseSensitivity cs = Qt::CaseSensitive;
+	bool searchInAppDirPath = (options & IncludeApplicationPath);
 
 #ifdef Q_OS_WIN
 		name.append(".exe");
-		//cs = Qt::CaseInsensitive;
 #endif
 
 	//! \todo On Mac OS X this will point to the directory actually containing the executable, which may be inside of an application bundle (if the application is bundled).
 	QString appPath = searchInAppDirPath ? QCoreApplication::applicationDirPath() : QString();
-	if (!appPath.isEmpty())
-	{
+	if (!appPath.isEmpty()) {
 		QFileInfo fi(appPath.append("/").append(name));
 		if (fi.exists() && fi.isExecutable())
 			return fi.absoluteFilePath();
@@ -425,6 +425,36 @@ QString MvdCore::locateApplication(QString name, bool searchInAppDirPath)
 		if (fi.exists() && fi.isExecutable())
 			return fi.absoluteFilePath();
 	}
+
+#ifdef Q_OS_WIN32 // Get a strong coffee and now on with some Win32 API nightmare
+	if (options & IncludeRegistryCache) {
+		QString path = QString("Software\\Classes\\Applications\\%1\\shell\\open\\command").arg(name);
+		HKEY k;
+		int r;
+		QT_WA( {
+		r = RegOpenKeyEx( HKEY_LOCAL_MACHINE, (TCHAR*)path.utf16(), 0, KEY_READ, &k );
+		} , {
+		r = RegOpenKeyExA( HKEY_LOCAL_MACHINE, (LPCSTR) path.toLatin1().constData(), 0, KEY_READ, &k );
+		} );
+		path.clear();
+
+		if ( r == ERROR_SUCCESS ) {
+			path = MvdCore::getWindowsRegString(k, QLatin1String(""));
+			if (!path.isEmpty()) {
+				// Paths are often in the following form: "c:\overly\long\path\to\my\app\app.exe" "%1"
+				// ...so we need to extract the actual path :-(
+				QRegExp rx(QString("\"(.*%1)\"").arg(name));
+				rx.setMinimal(true);
+				if (rx.indexIn(path) != -1)
+					path = rx.cap(1);
+			}
+		}
+		RegCloseKey(k);
+		if (!path.isEmpty() && QFile::exists(path)) {
+			return path;
+		}
+	}
+#endif
 
 	return QString();
 }
@@ -482,3 +512,41 @@ MvdPluginContext* MvdCore::pluginContext()
 		MvdCore::PluginContext = new MvdPluginContext;
 	return MvdCore::PluginContext;
 }
+
+#ifdef Q_OS_WIN32
+
+//! \internal Borrowed from Qt 4.3.2 -- Copyright (C) 1992-2007 Trolltech ASA. All rights reserved.
+QString MvdCore::getWindowsRegString(HKEY key, const QString& subKey)
+{
+	QString s;
+	QT_WA( {
+	char buf[1024];
+	DWORD bsz = sizeof(buf);
+	int r = RegQueryValueEx( key, (TCHAR*)subKey.utf16(), 0, 0, (LPBYTE)buf, &bsz );
+	if ( r == ERROR_SUCCESS ) {
+		s = QString::fromUtf16( (unsigned short *)buf );
+	} else if ( r == ERROR_MORE_DATA ) {
+		char *ptr = new char[bsz+1];
+		r = RegQueryValueEx( key, (TCHAR*)subKey.utf16(), 0, 0, (LPBYTE)ptr, &bsz );
+		if ( r == ERROR_SUCCESS )
+		s = QLatin1String(ptr);
+		delete [] ptr;
+	}
+	} , {
+	char buf[512];
+	DWORD bsz = sizeof(buf);
+	int r = RegQueryValueExA( key, (LPCSTR)subKey.toLatin1().constData(), 0, 0, (LPBYTE)buf, &bsz );
+	if ( r == ERROR_SUCCESS ) {
+		s = QLatin1String(buf);
+	} else if ( r == ERROR_MORE_DATA ) {
+		char *ptr = new char[bsz+1];
+		r = RegQueryValueExA( key, (LPCSTR)subKey.toLatin1().constData(), 0, 0, (LPBYTE)ptr, &bsz );
+		if ( r == ERROR_SUCCESS )
+		s = QLatin1String(ptr);
+		delete [] ptr;
+	}
+	} );
+	return s;
+}
+
+#endif

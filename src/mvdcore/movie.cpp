@@ -1,10 +1,9 @@
 /****************************************************************************
 ** Filename: movie.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -81,6 +80,8 @@ public:
 	QList<MvdUrl> urls;
 
 	QStringList specialContents;
+
+	MvdMovie::Tags specialTags;
 };
 
 //! \internal
@@ -198,10 +199,9 @@ MvdMovie::~MvdMovie()
 /*!
 	Assignment operator.
  */
-MvdMovie& MvdMovie::operator=(const MvdMovie& m)
+MvdMovie& MvdMovie::operator=(const MvdMovie& other)
 {
-	MvdMovie tmp(m);
-	qAtomicAssign(d, tmp.d);
+	qAtomicAssign(d, other.d);
 	return *this;
 }
 
@@ -1076,26 +1076,29 @@ void MvdMovie::setRunningTime(quint16 minutes)
 	d->runningTime = minutes <= max ? minutes : 0;
 }
 
-/*!
-	Formats the running time according to the format string in \p format.
-	Allowed variables are $h$ for hours, $m$ for minutes, $mm$ for minutes with leading zero.
-	Default $h$h $mm$' (i.e. 112 minutes --> 1h 52') is used if format is empty.
-	\warning Whitespace is simplified using QString::simplified() removing multiple consecutive
-	spaces, trailing spaces and \r, \n, \t or similar space characters.
-*/
-QString MvdMovie::runningTimeString(const QString& format) const
+//! Returns the running time as a QTime object.
+QTime MvdMovie::runningTimeQt() const
 {
 	int min = d->runningTime % 60;
 	int hrs = d->runningTime < 60 ? 0 : d->runningTime / 60;
+	return QTime(hrs, min);
+}
 
-	QString res(format.isEmpty() ? format : "$h$h $mm$");
+/*!
+	Formats the running time according to the format string in \p format.
+	The format is the same as Qt's, so please refer to the QTime::fromString()
+	referece documentation for details.
+	If the format string is empty, a default value registered in
+	MvdCore::parameter("mvdcore/running-time-format") is used.
+*/
+QString MvdMovie::runningTimeString(QString format) const
+{
+	QTime time = runningTimeQt();
 
-	res.replace("$h$", hrs == 0 ? QString() : QString::number(hrs));
-	res.replace("$mm$", (hrs == 0 && min == 0) ? QString() :
-		min < 10 ? QString::number(min).prepend("0") : QString::number(min));
-	res.replace("$m$", QString::number(min));
+	if (format.isEmpty())
+		format = MvdCore::parameter("mvdcore/running-time-format").toString();
 
-	return res.simplified();
+	return time.toString(format);
 }
 
 /*!
@@ -1147,4 +1150,39 @@ MvdMovie::ColorMode MvdMovie::colorModeFromString(QString s)
 	else if (s == "bw")
 		return BlackWhite;
 	return UnknownColorMode;
+}
+
+void MvdMovie::setSpecialTagEnabled(Tag tag, bool enabled)
+{
+	if (enabled)
+		d->specialTags |= tag;
+	else d->specialTags &= ~tag;
+}
+
+bool MvdMovie::hasSpecialTagEnabled(Tag tag) const
+{
+	return d->specialTags.testFlag(tag);
+}
+
+void MvdMovie::setSpecialTags(Tags tags)
+{
+	d->specialTags = tags;
+}
+
+MvdMovie::Tags MvdMovie::specialTags() const
+{
+	return d->specialTags;
+}
+
+//! Returns a human readable description for a rating value.
+QString MvdMovie::ratingTip(quint8 rating)
+{
+	switch (rating) {
+	case 1: return QCoreApplication::translate("Movie rating", "Awful movie");
+	case 2: return QCoreApplication::translate("Movie rating", "Disappointing movie");
+	case 3: return QCoreApplication::translate("Movie rating", "Mediocre movie");
+	case 4: return QCoreApplication::translate("Movie rating", "Good movie");
+	case 5: return QCoreApplication::translate("Movie rating", "Outstanding movie");
+	}
+	return QCoreApplication::translate("Movie rating", "Unrated movie");
 }

@@ -1,0 +1,109 @@
+<ui version="4.0" >
+ <class>MvdFilterSettingsPage</class>
+ <widget class="QWidget" name="MvdFilterSettingsPage" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>478</width>
+    <height>359</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="leftMargin" >
+    <number>0</number>
+   </property>
+   <property name="topMargin" >
+    <number>0</number>
+   </property>
+   <property name="rightMargin" >
+    <number>0</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>0</number>
+   </property>
+   <item row="0" column="0" >
+    <widget class="QGroupBox" name="quickGroup" >
+     <property name="title" >
+      <string>Quick search</string>
+     </property>
+     <layout class="QGridLayout" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="qsAttributesLabel" >
+        <property name="text" >
+         <string>Search in the following attributes:</string>
+        </property>
+        <property name="wordWrap" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2" >
+       <widget class="QListWidget" name="qsAttributes" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize" >
+         <size>
+          <width>16777215</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="movement" >
+         <enum>QListView::Snap</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>271</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QLabel" name="qsResetAttributes" >
+        <property name="contextMenuPolicy" >
+         <enum>Qt::NoContextMenu</enum>
+        </property>
+        <property name="text" >
+         <string>&lt;a href="movida://quick-search/reset-attributes">Reset to defaults&lt;/a></string>
+        </property>
+        <property name="textInteractionFlags" >
+         <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::NoTextInteraction</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>460</width>
+       <height>191</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: maininfopage.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -73,6 +72,7 @@ private:
 	bool mDefaultIsFavorite;
 	QString mDefaultPoster;
 	QString mPosterPath;
+	int mDefaultSpecialTags;
 
 	QTimer* mStatusTimer;
 };

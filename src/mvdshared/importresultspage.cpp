@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: importresultspage.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -48,7 +47,7 @@ using namespace MovidaShared;
 	select what to import.
 */
 MvdImportResultsPage::MvdImportResultsPage(QWidget* parent)
-: MvdImportPage(parent), matchId(0), lastSelectedMatches(0), locked(false)
+: MvdImportPage(parent), matchId(0), lastSelectedMatches(0), locked(false), currentSection(0)
 {
 	setTitle(tr("Search results"));
 	setSubTitle(tr("Please select the items you want to import.\nYou can confirm each single import after viewing all the movie details in the next page."));
@@ -113,6 +112,7 @@ void MvdImportResultsPage::initializePage()
 {
 	ui.results->clear();
 	ui.results->setRootIsDecorated(false);
+	currentSection = 0;
 
 	// Wait until the search is done.
 	setBusyStatus(true);
@@ -124,6 +124,7 @@ void MvdImportResultsPage::cleanupPage()
 {
 	ui.results->clear();
 	ui.results->setRootIsDecorated(false);
+	currentSection = 0;
 
 	// Update status message
 	resultsSelectionChanged();
@@ -144,31 +145,11 @@ void MvdImportResultsPage::showMessage(const QString& msg, MvdImportDialog::Mess
 /*!
 	See MvdImportDialog::addMatch(const QString&)
 */
-int MvdImportResultsPage::addMatch(const QString& title, const QString& year, const QString& notes)
+int MvdImportResultsPage::addMatch(QString title, const QString& year, const QString& notes)
 {
-	// Get current section (if any)
-	QTreeWidgetItem* sectionItem = 0;
-	for (int i = ui.results->topLevelItemCount() - 1; i >= 0 && !sectionItem; --i)
-	{
-		QTreeWidgetItem* item = ui.results->topLevelItem(i);
-		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
-		if (type == SectionItem)
-			sectionItem = item;
-	}
-	if (sectionItem)
-	{
-		for (int i = sectionItem->childCount() - 1; i >= 0; --i)
-		{
-			QTreeWidgetItem* item = sectionItem->child(i);
-			ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
-			if (type == SectionItem)
-			{
-				sectionItem = item;
-				break;
-			}
-		}
-	}
+	title = title.trimmed();
 
+	QTreeWidgetItem* sectionItem = currentSection;
 	int id = matchId++;
 
 	QTreeWidgetItem* item = sectionItem ? 
@@ -190,56 +171,67 @@ int MvdImportResultsPage::addMatch(const QString& title, const QString& year, co
 /*!
 	See MvdImportDialog::addSection(const QString&, const QString&)
 */
-void MvdImportResultsPage::addSection(const QString& title, const QString& notes)
+void MvdImportResultsPage::addSection(QString title, const QString& notes)
 {
-	QTreeWidgetItem* item = new QTreeWidgetItem(ui.results);
+	title = title.trimmed();
+
+	// Look if the section already exists
+	QTreeWidgetItem* sectionItem = 0;
+	int topLevelItemIndex = 0;
+	for (int i = 0; i < ui.results->topLevelItemCount() && !sectionItem; ++i) {
+		QTreeWidgetItem* item = ui.results->topLevelItem(i);
+		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
+		if (type == SectionItem && item->text(0) == title) {
+			sectionItem = item;
+			topLevelItemIndex = i;
+		}
+	}
+
+	if (sectionItem) {
+		currentSection = sectionItem;
+		return;
+	}
+
+	sectionItem = new QTreeWidgetItem(ui.results);
+	currentSection = sectionItem;
+
 	// Expand the first top-level section only
 	if (countSections() == 0) {
-		ui.results->expandItem(item);
+		ui.results->expandItem(sectionItem);
 		ui.results->setRootIsDecorated(true);
 	}
-	item->setFirstColumnSpanned(true);
+	sectionItem->setFirstColumnSpanned(true);
 
-	QFont font = item->font(0);
+	QFont font = sectionItem->font(0);
 	font.setBold(true);
-	item->setFont(0, font);
+	sectionItem->setFont(0, font);
 	
-	item->setData(0, ItemTypeRole, quint32(SectionItem));
+	sectionItem->setData(0, ItemTypeRole, quint32(SectionItem));
 
 	if (title.isEmpty())
 	{
 		int topC = countSections();
 		QString autoTitle = topC > 1 ? 
 			tr("Results group %1").arg(topC) : tr("Main group");
-		item->setText(0, autoTitle);
+		sectionItem->setText(0, autoTitle);
 	}
-	else item->setText(0, title);
+	else sectionItem->setText(0, title);
 
 	if (!notes.isEmpty())
-		item->setData(0, NotesRole, notes);
+		sectionItem->setData(0, NotesRole, notes);
 }
 
 /*!
 	See MvdImportDialog::addSubSection(const QString&, const QString&)
 */
-void MvdImportResultsPage::addSubSection(const QString& title, const QString& notes)
+void MvdImportResultsPage::addSubSection(QString title, const QString& notes)
 {
-	// Get current top level section
-	QTreeWidgetItem* sectionItem = 0;
-	int topLevelItemIndex = 0;
-	for (int i = ui.results->topLevelItemCount() - 1; i >= 0 && !sectionItem; --i)
-	{
-		QTreeWidgetItem* item = ui.results->topLevelItem(i);
-		ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
-		if (type == SectionItem)
-		{
-			sectionItem = item;
-			topLevelItemIndex = i;
-		}
-	}
+	title = title.trimmed();
 
-	if (!sectionItem)
-	{
+	// Get current top level section
+	QTreeWidgetItem* sectionItem = currentSection;
+
+	if (!sectionItem) {
 		sectionItem = new QTreeWidgetItem(ui.results);
 		// Expand the first top-level section only
 		ui.results->expandItem(sectionItem);
@@ -249,11 +241,23 @@ void MvdImportResultsPage::addSubSection(const QString& title, const QString& no
 		sectionItem->setFirstColumnSpanned(true);
 		sectionItem->setData(0, ItemTypeRole, quint32(SectionItem));
 		sectionItem->setText(0, tr("Main group"));
+	} else {
+		// Check if another section with same title exists
+		for (int i = 0; i < sectionItem->childCount(); ++i) {
+			QTreeWidgetItem* item = sectionItem->child(i);
+			ItemType type = ItemType(item->data(0, ItemTypeRole).toUInt());
+			if (type == SectionItem && item->text(0) == title) {
+				currentSection = item;
+				return;
+			}
+		}
 	}
 
 	QTreeWidgetItem* item = new QTreeWidgetItem(sectionItem);
+	currentSection = item;
+
 	// Expand the first top-level section only
-	if (topLevelItemIndex == 0)
+	if (ui.results->topLevelItemCount() == 0)
 		ui.results->expandItem(item);
 	item->setFirstColumnSpanned(true);
 

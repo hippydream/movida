@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: importresultspage.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -41,9 +40,9 @@ public:
 
 	MvdImportResultsPage(QWidget* parent = 0);
 
-	int addMatch(const QString& title, const QString& year, const QString& notes = QString());
-	void addSection(const QString& title, const QString& notes = QString());
-	void addSubSection(const QString& title, const QString& notes = QString());
+	int addMatch(QString title, const QString& year, const QString& notes = QString());
+	void addSection(QString title, const QString& notes = QString());
+	void addSubSection(QString title, const QString& notes = QString());
 
 	void initializePage();
 	void cleanupPage();
@@ -75,6 +74,8 @@ private:
 	int matchId;
 	int lastSelectedMatches;
 	bool locked;
+
+	QTreeWidgetItem* currentSection;
 
 	int countMatches(int* selected = 0) const;
 	int countSections(const QTreeWidgetItem* section = 0) const;

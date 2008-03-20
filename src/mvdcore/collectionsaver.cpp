@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: collectionsaver.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -418,6 +417,12 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 			xml->writeTaggedString("plot", movie.plot());
 			xml->writeTaggedString("edition", movie.edition());
 			xml->writeTaggedString("storage-id", movie.storageId());
+			if (movie.hasSpecialTagEnabled(MvdMovie::SeenTag))
+				xml->writeTaggedString("seen", "true");
+			if (movie.hasSpecialTagEnabled(MvdMovie::LoanedTag))
+				xml->writeTaggedString("loaned", "true");
+			if (movie.hasSpecialTagEnabled(MvdMovie::SpecialTag))
+				xml->writeTaggedString("special", "true");
 
 			xml->writeOpenTag("cast");
 			QHash<mvdid,QStringList> persons = movie.actors();

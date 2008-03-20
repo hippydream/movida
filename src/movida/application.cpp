@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: application.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -48,6 +47,7 @@
 #define MVD_ARG_NOSPLASH "--no-splash"
 #define MVD_ARG_NOGUI "--no-gui"
 #define MVD_ARG_DISPLAY "--display"
+#define MVD_ARG_RESET "--reset"
 
 #define MVD_ARG_VERSION_SHORT "-v"
 #define MVD_ARG_HELP_SHORT "-h"
@@ -56,6 +56,7 @@
 #define MVD_ARG_NOSPLASH_SHORT "-ns"
 #define MVD_ARG_NOGUI_SHORT "-g"
 #define MVD_ARG_DISPLAY_SHORT "-d"
+#define MVD_ARG_RESET_SHORT "-r"
 
 // Qt wants -display not --display or -d
 #define MVD_ARG_DISPLAY_QT "-display"
@@ -73,9 +74,9 @@ MvdApplication::MvdApplication(int& argc, char** argv)
 {
 	Movida::Application = this;
 
-	setApplicationName("Movida");
-	setOrganizationName("BlueSoft");
-	setOrganizationDomain("movida.sourceforge.net");
+	setApplicationName("movida");
+	setOrganizationName("42cows.org");
+	setOrganizationDomain("movida.42cows.org");
 }
 
 void MvdApplication::initLanguage()
@@ -93,6 +94,7 @@ void MvdApplication::parseCommandLine()
 	bool header = false;
 	bool availLangs = false;
 	bool version = false;
+	bool reset = false;
 
 	QStringList argv = arguments();
 	int argc = argv.size();
@@ -151,6 +153,8 @@ void MvdApplication::parseCommandLine()
 			// around this.
 		} else if (strncmp(qPrintable(arg), "-psn_", 4) == 0) {
 			// Andreas Vox: Qt/Mac has -psn_blah flags that must be accepted.
+		} else if (arg == MVD_ARG_RESET || arg == MVD_ARG_RESET_SHORT) {
+			reset = true;
 		} else {
 			mFile = QFile::decodeName(argv[i].toLatin1().constData());
 			if (!QFileInfo(mFile).exists()) {
@@ -166,6 +170,10 @@ void MvdApplication::parseCommandLine()
 				return;
 			}
 		}
+	}
+
+	if (reset) {
+		settings().clear();
 	}
 }
 
@@ -204,7 +212,8 @@ QStringList MvdApplication::getLanguage(QString lang)
 		langs.append(lang);
 
 	// add in user preferences lang, only overridden by lang command line option
-	QString prefLang = settings().value("movida/general/language").toString();
+	QString prefLang = settings().contains("movida/general/language") ?
+		settings().value("movida/general/language").toString() : QString();
 	if (!prefLang.isEmpty())
 		langs.append(prefLang);
 
@@ -375,8 +384,8 @@ void MvdApplication::showHeader()
 	const int descwidth = -(heading.length() - urlwidth - 1);
 	ts << heading; endl(ts);
 	ts << separator; endl(ts);
-	ts << QString("%1 %2").arg( tr("Homepage")+":",      descwidth).arg("http://movida.sourceforge.net" ); endl(ts);
-	ts << QString("%1 %2").arg( tr("Documentation")+":", descwidth).arg("http://movida.sourceforge.net/help"); endl(ts);
-	ts << QString("%1 %2").arg( tr("Download")+":",          descwidth).arg("http://movida.sourceforge.net/download"); endl(ts);
+	ts << QString("%1 %2").arg( tr("Homepage")+":",      descwidth).arg("http://movida.42cows.org" ); endl(ts);
+	ts << QString("%1 %2").arg( tr("Documentation")+":", descwidth).arg("http://movida.42cows.org/help"); endl(ts);
+	ts << QString("%1 %2").arg( tr("Download")+":",          descwidth).arg("http://movida.42cows.org/download"); endl(ts);
 	endl(ts);
 }

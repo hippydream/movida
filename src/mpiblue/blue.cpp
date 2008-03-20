@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: blue.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -35,6 +34,8 @@
 
 using namespace Movida;
 
+Q_DECLARE_METATYPE(MpiBlue::Engine*);
+
 //! \internal
 MpiBlue* MpiBluePlugin::instance = 0;
 
@@ -49,6 +50,8 @@ MvdPluginInterface* pluginInterface(QObject* parent)
 MpiBlue::MpiBlue(QObject* parent)
 : MvdPluginInterface(parent)
 {
+	Q_UNUSED(qRegisterMetaType<MpiBlue::Engine*>());
+
 	QHash<QString,QVariant> parameters;
 	parameters.insert("plugins/blue/script-signature", "movida blue plugin script");
 	parameters.insert("plugins/blue/http-date", "ddd, dd MMM yyyy");
@@ -62,12 +65,16 @@ MpiBlue::~MpiBlue()
 
 bool MpiBlue::init()
 {
+	settings().setDefaultValue("plugins/blue/disableBundledEngines", false);
 	loadEngines();
 	return true;
 }
 
 void MpiBlue::unload()
 {
+	if (!mTempDir.isEmpty()) {
+		Movida::paths().removeDirectoryTree(mTempDir);
+	}
 }
 
 QString MpiBlue::lastError() const
@@ -509,4 +516,16 @@ MpiBlue::ScriptStatus MpiBlue::isValidScriptFile(QTextStream& stream)
 	}
 
 	return valid ? ValidScript : InvalidScript;
+}
+
+/*!	Returns a temporary directory that the plugin actions can use to store temporary data.
+	The directory is created when calling this method for the first time and it uses
+	the Movida::paths().generateTempDir() method.
+	The directory and its contents are deleted when the plugin is unloaded.
+*/
+QString MpiBlue::tempDir()
+{
+	if (mTempDir.isEmpty())
+		mTempDir = Movida::paths().generateTempDir();
+	return mTempDir;
 }

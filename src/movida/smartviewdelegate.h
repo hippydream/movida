@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: smartviewdelegate.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -27,19 +26,28 @@
 #include <QTextLayout>
 #include <QTextOption>
 
-class QAbstractItemView;
+class QListView;
 
 class MvdSmartViewDelegate : public QItemDelegate
 {
 	Q_OBJECT
 
 public:
+	enum ItemSize {
+		InvalidItemSize = 0,
+		SmallItemSize,
+		MediumItemSize,
+		LargeItemSize
+	};
+
 	MvdSmartViewDelegate(QObject* parent = 0);
 
-	void setTextAlignment(Qt::Alignment a);
+	void setItemSize(ItemSize size = MediumItemSize);
+	ItemSize itemSize() const;
 
-	void setItemSize(const QSize& sz);
-	QSize itemSize() const;
+	void forcedUpdate();
+	void mousePressed(const QRect& rect, const QModelIndex& index);
+	void showHoveredControlHint();
 
 protected:
 	virtual void paint(QPainter* painter,
@@ -52,38 +60,63 @@ protected:
 	virtual QSize maximumIconSize() const;
 
 private:
+	static const int Margin;
+	static const int Padding;
+	static const int CornerWidth;
+	static const int ControlSize;
+	static const int BorderWidth;
+	static const int HalfPadding;
+	static const int IconMarginRight;
+	static const int IconPadding;
+
+	static const float ItemAspectRatio;
+	static const float IconAspectRatio;
+
+	static const bool UseTitleSeparator;
+
+	static const QColor BorderColor;
+	static const QColor SelectionColor;
+	static const QColor InactiveSelectionColor;
+
+	static const Qt::Alignment IconAlignment;
+
+
+	enum Control {
+		NoControl = 0,
+		RatingControl,
+		SeenControl,
+		SpecialControl
+	};
+
+	struct TextOptions {
+		enum HeadingLevel { H1_HeadingLevel, H2_HeadingLevel, H3_HeadingLevel} headingLevel;
+		TextOptions() : headingLevel(H1_HeadingLevel) {}
+	};
+
+	ItemSize mItemSize;
+	QPixmap mDefaultPoster;
+	QIcon mRatingIcon;
+	QIcon mSpecialIcon;
+	QIcon mLoanedIcon;
+	QIcon mSeenIcon;
+	mutable QTextLayout mTextLayout;
+	mutable QTextOption mTextOption;
+	QListView* mView;
+
+	// Metrics - anything else can be computed easily starting with these values
+	QSize mSize; // Whole item
+	QSize mIconSize; // Icon (including border & everything else)
+	
+	// Convenience only:
+	QSize mControlsSize;
+	QSize mTextSize;
+
 	void drawItemText(QPainter* painter, const QStyleOptionViewItem& option,
-		const QRect& rect, const QModelIndex& index) const;
+		QRect rect, QString text, const TextOptions& options, QRect* boundingRect = 0, int maxLines = 1) const;
 	QSizeF doTextLayout(int lineWidth, int maxHeight, int* lineCount = 0) const;
-	QString prepareItemText(const QModelIndex& index, int* maxCharsOnLine = 0) const;
-	bool appendData(const QAbstractItemModel& model, const QModelIndex& index, 
-		Movida::MovieAttribute attribute, int* maxCharsOnLine, QString& text) const;
 	void rebuildDefaultIcon();
-
-	const qreal iconAspectRatio;
-
-	QColor borderColor;
-	QColor selectionColor;
-	QColor inactiveSelectionColor;
-	QColor shadowColor;
-
-	QSize currentItemSize;
-
-	int iconBorderWidth;
-	int innerIconBorderWidth;
-	int borderWidth;
-	int shadowWidth;
-	int roundLevel;
-	int firstLineSpacing;
-
-	Qt::Alignment textAlignment;
-
-	QPixmap defaultPixmap;
-
-	mutable QTextLayout textLayout;
-	mutable QTextOption textOption;
-
-	QAbstractItemView* view;
+	inline bool hasMouseOver(const QRect& itemRect) const;
+	inline Control hoveredControl(const QRect& itemRect, int* index) const;
 };
 
 #endif // MVD_SMARTVIEWDELEGATE_H

@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: smartview.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -38,7 +37,7 @@ MvdSmartView::MvdSmartView(QWidget* parent)
 }
 
 MvdSmartView::MvdSmartView(QAbstractItemModel* model, QWidget* parent)
-: QWidget(parent)
+: QWidget(parent), delegate(0)
 {
 	init();
 	view->setModel(model);
@@ -68,18 +67,6 @@ void MvdSmartView::setViewSpacing(int spacing)
 	view->setSpacing(spacing);
 }
 
-//! Returns the current aspect ratio for the tiles.
-qreal MvdSmartView::aspectRatio() const
-{
-	return currentAspectRatio;
-}
-
-//! Sets the new aspect ratio for the tiles. Ratio is set to the default value if \p r is 0.
-void MvdSmartView::setAspectRatio(qreal r)
-{
-	currentAspectRatio = r == 0 ? 1 : r;
-}
-
 //! Returns the selection model used by this view.
 QItemSelectionModel* MvdSmartView::selectionModel() const
 {
@@ -96,69 +83,39 @@ void MvdSmartView::setSelectionModel(QItemSelectionModel* selectionModel)
 void MvdSmartView::init()
 {
 	setupUi(this);
-	slider->installEventFilter(this);
 	view->installEventFilter(this);
-	
-	if (style()->objectName().toLower() == "windowsxp") {
-		layout()->setContentsMargins(4, 4, 0, 4);
-	}
-
-	defaultAspectRatio = currentAspectRatio = 2.7;
-	minimumSize = 80;
-	maximumSize = 400;
-
-	QSize tilesSize(int(minimumSize * currentAspectRatio), minimumSize);
-
-	// How much can we adjust with the slider?
-	int maxDelta = maximumSize - qMax(tilesSize.width(), tilesSize.height());
-	int step = maxDelta / 10;
-	
-	slider->setMinimum(0);
-	slider->setMaximum(step * 10);
-	slider->setValue(step * 5);
-	slider->setTickInterval(step);
-	slider->setSingleStep(step);
-	slider->setPageStep(step * 2);
 
 	delegate = new MvdSmartViewDelegate(view);
-	delegate->setItemSize(tilesSize);
 
-	resizeTiles(maxDelta / 2);
-	
 	view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	view->setItemDelegate(delegate);
 	view->setUniformItemSizes(true);
 	view->setFlow(QListView::LeftToRight);
 	view->setResizeMode(QListView::Adjust);
-
-	updateSliderStatus(true);
-
-	connect( slider, SIGNAL(valueChanged(int)), this, SLOT(resizeTiles(int)) );
+	view->setMouseTracking(true);
 	connect( view, SIGNAL(doubleClicked(QModelIndex)), this, SIGNAL(doubleClicked(QModelIndex)) );
 }
 
 bool MvdSmartView::eventFilter(QObject* o, QEvent* e)
 {
-	if (o == slider) {
-		switch (e->type())
-		{
-		case QEvent::Enter:
-			updateSliderStatus();
-			return true;
-			break;
-		case QEvent::Leave:
-			updateSliderStatus(true);
-			return true;
-			break;
-		default:
-			return false;
+	if (o == view) {
+		switch (e->type()) {
+		case QEvent::KeyPress: {
+			QKeyEvent* ke = static_cast<QKeyEvent*>(e);
+			// Redirect the space key to the main window if the quick search bar is visible
+			if (ke->key() == Qt::Key_Space && Movida::MainWindow->isQuickFilterVisible()) {
+				QApplication::postEvent(Movida::MainWindow, new QKeyEvent(QEvent::KeyPress, Qt::Key_Space, ke->modifiers(), ke->text(), ke->isAutoRepeat(), ke->count()));
+				return true;
+			}
 		}
-	} else if (o == view && e->type() == QEvent::KeyPress) {
-		QKeyEvent* ke = static_cast<QKeyEvent*>(e);
-		// Redirect the space key to the main window if the quick search bar is visible
-		if (ke->key() == Qt::Key_Space && Movida::MainWindow->isQuickFilterVisible()) {
-			QApplication::postEvent(Movida::MainWindow, new QKeyEvent(QEvent::KeyPress, Qt::Key_Space, ke->modifiers(), ke->text(), ke->isAutoRepeat(), ke->count()));
-			return true;
+		break;
+		case QEvent::FontChange:
+		case QEvent::StyleChange: {
+			if (delegate)
+				delegate->forcedUpdate();
+		}
+		break;
+		default: ;
 		}
 	}
 
@@ -168,40 +125,32 @@ bool MvdSmartView::eventFilter(QObject* o, QEvent* e)
 void MvdSmartView::contextMenuEvent(QContextMenuEvent* cme)
 {
 	QPoint viewpoint = view->mapFromGlobal(cme->globalPos());
-	if (!viewpoint.isNull() && view->model())
-	{
+	if (!viewpoint.isNull() && view->model()) {
 		QModelIndex index = view->indexAt(viewpoint);
 		emit contextMenuRequested(index);
 	}
 }
 
-void MvdSmartView::resizeTiles(int offset)
+MvdSmartView::ItemSize MvdSmartView::itemSize() const
 {
-	QSize tilesSize(int(minimumSize * currentAspectRatio), minimumSize);
-
-	if (currentAspectRatio > 0)
-	{
-		tilesSize.rwidth() += offset;
-		tilesSize.setHeight( int(tilesSize.width() / currentAspectRatio) );
+	if (!delegate)
+		return MediumItemSize;
+	switch (delegate->itemSize()) {
+	case MvdSmartViewDelegate::SmallItemSize: return SmallItemSize;
+	case MvdSmartViewDelegate::LargeItemSize: return LargeItemSize;
+	default: ;
 	}
-	else
-	{
-		tilesSize.rheight() += offset;
-		tilesSize.setWidth( int(tilesSize.height() * currentAspectRatio) );
-	}
-
-	delegate->setItemSize(tilesSize);
-
-	updateSliderStatus();
+	return MediumItemSize;
 }
 
-void MvdSmartView::updateSliderStatus(bool reset)
+void MvdSmartView::setItemSize(ItemSize s)
 {
-	if (reset)
-		sliderStatus->setText(tr("Use the slider to resize the tiles."));
-	else
-	{
-		QSize currentSize = delegate->itemSize();
-		sliderStatus->setText(tr("%1x%2").arg(currentSize.width()).arg(currentSize.height()));
+	if (!delegate)
+		return;
+
+	switch (s) {
+	case SmallItemSize: delegate->setItemSize(MvdSmartViewDelegate::SmallItemSize); break;
+	case LargeItemSize: delegate->setItemSize(MvdSmartViewDelegate::LargeItemSize); break;
+	default: delegate->setItemSize(MvdSmartViewDelegate::MediumItemSize); break;
 	}
 }

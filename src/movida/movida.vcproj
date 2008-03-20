@@ -243,6 +243,10 @@
 				>
 			</File>
 			<File
+				RelativePath="listview.cpp"
+				>
+			</File>
+			<File
 				RelativePath="main.cpp"
 				>
 			</File>
@@ -267,6 +271,10 @@
 				>
 			</File>
 			<File
+				RelativePath="movietreeviewdelegate.cpp"
+				>
+			</File>
+			<File
 				RelativePath="multipagedialog.cpp"
 				>
 			</File>
@@ -288,6 +296,10 @@
 			</File>
 			<File
 				RelativePath="settingsdialog.cpp"
+				>
+			</File>
+			<File
+				RelativePath="shareddataeditor.cpp"
 				>
 			</File>
 			<File
@@ -607,6 +619,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="listview.h"
+				>
+			</File>
+			<File
 				RelativePath="maininfopage.h"
 				>
 				<FileConfiguration
@@ -733,6 +749,32 @@
 						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\movida\moc&quot; -I&quot;.\..\..\tmp\movida\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;movieeditorpage.h&quot; -o &quot;..\..\tmp\movida\moc\moc_movieeditorpage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieeditorpage.h"
 						Outputs="..\..\tmp\movida\moc\moc_movieeditorpage.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="movietreeviewdelegate.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="MOC movietreeviewdelegate.h"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\movida\moc&quot; -I&quot;.\..\..\tmp\movida\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;movietreeviewdelegate.h&quot; -o &quot;..\..\tmp\movida\moc\moc_movietreeviewdelegate.cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movietreeviewdelegate.h"
+						Outputs="..\..\tmp\movida\moc\moc_movietreeviewdelegate.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="MOC movietreeviewdelegate.h"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\movida\moc&quot; -I&quot;.\..\..\tmp\movida\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;movietreeviewdelegate.h&quot; -o &quot;..\..\tmp\movida\moc\moc_movietreeviewdelegate.cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movietreeviewdelegate.h"
+						Outputs="..\..\tmp\movida\moc\moc_movietreeviewdelegate.cpp"
 					/>
 				</FileConfiguration>
 			</File>
@@ -971,6 +1013,32 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="shareddataeditor.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="MOC shareddataeditor.h"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\movida\moc&quot; -I&quot;.\..\..\tmp\movida\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;shareddataeditor.h&quot; -o &quot;..\..\tmp\movida\moc\moc_shareddataeditor.cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;shareddataeditor.h"
+						Outputs="..\..\tmp\movida\moc\moc_shareddataeditor.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="MOC shareddataeditor.h"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\movida\moc&quot; -I&quot;.\..\..\tmp\movida\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;shareddataeditor.h&quot; -o &quot;..\..\tmp\movida\moc\moc_shareddataeditor.cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;shareddataeditor.h"
+						Outputs="..\..\tmp\movida\moc\moc_shareddataeditor.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="shareddatamodel.h"
 				>
 				<FileConfiguration
@@ -1171,6 +1239,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\tmp\movida\moc\moc_movietreeviewdelegate.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tmp\movida\moc\moc_mpdialogpage.cpp"
 				>
 			</File>
@@ -1204,6 +1276,10 @@
 			</File>
 			<File
 				RelativePath="..\..\tmp\movida\moc\moc_settingspage.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tmp\movida\moc\moc_shareddataeditor.cpp"
 				>
 			</File>
 			<File
@@ -1551,7 +1627,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\smartview.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\smartview.ui -o ..\..\tmp\movida\ui\ui_smartview.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;ui\smartview.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;listview.h;ui\smartview.ui"
 						Outputs="..\..\tmp\movida\ui\ui_smartview.h"
 					/>
 				</FileConfiguration>
@@ -1562,7 +1638,7 @@
 						Name="VCCustomBuildTool"
 						Description="UIC ui\smartview.ui"
 						CommandLine="$(QTDIR)\bin\uic.exe ui\smartview.ui -o ..\..\tmp\movida\ui\ui_smartview.h&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\uic.exe;ui\smartview.ui"
+						AdditionalDependencies="$(QTDIR)\bin\uic.exe;listview.h;ui\smartview.ui"
 						Outputs="..\..\tmp\movida\ui\ui_smartview.h"
 					/>
 				</FileConfiguration>
@@ -1667,6 +1743,10 @@
 				>
 			</File>
 			<File
+				RelativePath="images\actions\edit-copy.svgz"
+				>
+			</File>
+			<File
 				RelativePath="images\actions\edit-delete.svgz"
 				>
 			</File>
@@ -1699,11 +1779,31 @@
 				>
 			</File>
 			<File
+				RelativePath="images\actions\identity.svgz"
+				>
+			</File>
+			<File
 				RelativePath="images\actions\list.svgz"
 				>
 			</File>
 			<File
+				RelativePath="images\misc\loaned-overlay.svgz"
+				>
+			</File>
+			<File
+				RelativePath="images\misc\loaned.svgz"
+				>
+			</File>
+			<File
+				RelativePath="images\actions\lock-toolbars.svgz"
+				>
+			</File>
+			<File
 				RelativePath="images\misc\logo.png"
+				>
+			</File>
+			<File
+				RelativePath="images\misc\logo.svgz"
 				>
 			</File>
 			<File
@@ -1716,7 +1816,7 @@
 						Name="VCCustomBuildTool"
 						Description="RCC movida.qrc"
 						CommandLine="$(QTDIR)\bin\rcc.exe -name movida movida.qrc -o ..\..\tmp\movida\rcc\qrc_movida.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\actions\application-exit.svgz;images\actions\arrow-down-double.svgz;images\actions\arrow-down.svgz;images\actions\arrow-left-double.svgz;images\actions\arrow-left.svgz;images\actions\arrow-right-double.svgz;images\actions\arrow-right.svgz;images\actions\arrow-up-double.svgz;images\actions\arrow-up.svgz;images\actions\clear-left.svgz;images\actions\configure-shortcuts.svgz;images\actions\configure-toolbars.svgz;images\actions\configure.svgz;images\actions\document-new.svgz;images\actions\document-open-recent.svgz;images\actions\document-open.svgz;images\actions\document-properties.svgz;images\actions\document-reopen.svgz;images\actions\document-revert.svgz;images\actions\document-save-as.svgz;images\actions\document-save.svgz;images\actions\edit-add.svgz;images\actions\edit-delete.svgz;images\actions\edit.svgz;images\actions\fileview-detailed.svgz;images\actions\fileview-split.svgz;images\actions\fileview-text.svgz;images\actions\help-contents.svgz;images\actions\list.svgz;images\actions\view-choose.svgz;images\misc\default-poster.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\logo.png;images\misc\rating-hovered.png;images\misc\rating-rated.png;images\misc\rating-unrated.png;movida.qrc"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\actions\application-exit.svgz;images\actions\arrow-down-double.svgz;images\actions\arrow-down.svgz;images\actions\arrow-left-double.svgz;images\actions\arrow-left.svgz;images\actions\arrow-right-double.svgz;images\actions\arrow-right.svgz;images\actions\arrow-up-double.svgz;images\actions\arrow-up.svgz;images\actions\clear-left.svgz;images\actions\configure-shortcuts.svgz;images\actions\configure-toolbars.svgz;images\actions\configure.svgz;images\actions\document-new.svgz;images\actions\document-open-recent.svgz;images\actions\document-open.svgz;images\actions\document-properties.svgz;images\actions\document-reopen.svgz;images\actions\document-revert.svgz;images\actions\document-save-as.svgz;images\actions\document-save.svgz;images\actions\edit-add.svgz;images\actions\edit-copy.svgz;images\actions\edit-delete.svgz;images\actions\edit.svgz;images\actions\fileview-detailed.svgz;images\actions\fileview-split.svgz;images\actions\fileview-text.svgz;images\actions\help-contents.svgz;images\actions\identity.svgz;images\actions\list.svgz;images\actions\lock-toolbars.svgz;images\actions\view-choose.svgz;images\actions\zoom-in.svgz;images\actions\zoom-original.svgz;images\actions\zoom-out.svgz;images\misc\default-poster.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\loaned-overlay.svgz;images\misc\loaned.svgz;images\misc\logo.png;images\misc\logo.svgz;images\misc\rating.svgz;images\misc\seen.svgz;images\misc\special.svgz;movida.qrc"
 						Outputs="..\..\tmp\movida\rcc\qrc_movida.cpp"
 					/>
 				</FileConfiguration>
@@ -1727,25 +1827,41 @@
 						Name="VCCustomBuildTool"
 						Description="RCC movida.qrc"
 						CommandLine="$(QTDIR)\bin\rcc.exe -name movida movida.qrc -o ..\..\tmp\movida\rcc\qrc_movida.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\actions\application-exit.svgz;images\actions\arrow-down-double.svgz;images\actions\arrow-down.svgz;images\actions\arrow-left-double.svgz;images\actions\arrow-left.svgz;images\actions\arrow-right-double.svgz;images\actions\arrow-right.svgz;images\actions\arrow-up-double.svgz;images\actions\arrow-up.svgz;images\actions\clear-left.svgz;images\actions\configure-shortcuts.svgz;images\actions\configure-toolbars.svgz;images\actions\configure.svgz;images\actions\document-new.svgz;images\actions\document-open-recent.svgz;images\actions\document-open.svgz;images\actions\document-properties.svgz;images\actions\document-reopen.svgz;images\actions\document-revert.svgz;images\actions\document-save-as.svgz;images\actions\document-save.svgz;images\actions\edit-add.svgz;images\actions\edit-delete.svgz;images\actions\edit.svgz;images\actions\fileview-detailed.svgz;images\actions\fileview-split.svgz;images\actions\fileview-text.svgz;images\actions\help-contents.svgz;images\actions\list.svgz;images\actions\view-choose.svgz;images\misc\default-poster.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\logo.png;images\misc\rating-hovered.png;images\misc\rating-rated.png;images\misc\rating-unrated.png;movida.qrc"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images\actions\application-exit.svgz;images\actions\arrow-down-double.svgz;images\actions\arrow-down.svgz;images\actions\arrow-left-double.svgz;images\actions\arrow-left.svgz;images\actions\arrow-right-double.svgz;images\actions\arrow-right.svgz;images\actions\arrow-up-double.svgz;images\actions\arrow-up.svgz;images\actions\clear-left.svgz;images\actions\configure-shortcuts.svgz;images\actions\configure-toolbars.svgz;images\actions\configure.svgz;images\actions\document-new.svgz;images\actions\document-open-recent.svgz;images\actions\document-open.svgz;images\actions\document-properties.svgz;images\actions\document-reopen.svgz;images\actions\document-revert.svgz;images\actions\document-save-as.svgz;images\actions\document-save.svgz;images\actions\edit-add.svgz;images\actions\edit-copy.svgz;images\actions\edit-delete.svgz;images\actions\edit.svgz;images\actions\fileview-detailed.svgz;images\actions\fileview-split.svgz;images\actions\fileview-text.svgz;images\actions\help-contents.svgz;images\actions\identity.svgz;images\actions\list.svgz;images\actions\lock-toolbars.svgz;images\actions\view-choose.svgz;images\actions\zoom-in.svgz;images\actions\zoom-original.svgz;images\actions\zoom-out.svgz;images\misc\default-poster.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\loaned-overlay.svgz;images\misc\loaned.svgz;images\misc\logo.png;images\misc\logo.svgz;images\misc\rating.svgz;images\misc\seen.svgz;images\misc\special.svgz;movida.qrc"
 						Outputs="..\..\tmp\movida\rcc\qrc_movida.cpp"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="images\misc\rating-hovered.png"
+				RelativePath=".\movida.rc"
 				>
 			</File>
 			<File
-				RelativePath="images\misc\rating-rated.png"
+				RelativePath="images\misc\rating.svgz"
 				>
 			</File>
 			<File
-				RelativePath="images\misc\rating-unrated.png"
+				RelativePath="images\misc\seen.svgz"
+				>
+			</File>
+			<File
+				RelativePath="images\misc\special.svgz"
 				>
 			</File>
 			<File
 				RelativePath="images\actions\view-choose.svgz"
+				>
+			</File>
+			<File
+				RelativePath="images\actions\zoom-in.svgz"
+				>
+			</File>
+			<File
+				RelativePath="images\actions\zoom-original.svgz"
+				>
+			</File>
+			<File
+				RelativePath="images\actions\zoom-out.svgz"
 				>
 			</File>
 		</Filter>

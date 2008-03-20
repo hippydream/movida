@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: core.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -24,7 +23,10 @@
 
 #include "global.h"
 #include <QVariant>
-
+#include <QtGlobal>
+#ifdef Q_OS_WIN32
+# include "qt_windows.h"
+#endif
 #include <libxml/xmlerror.h>
 
 class MvdCore_P;
@@ -41,6 +43,14 @@ public:
 		QString parameter;
 	};
 
+	enum LocateOption {
+		NoLocateOption = 0x00, IncludeApplicationPath = 0x01
+#ifdef Q_WS_WIN32
+		, IncludeRegistryCache = 0x02
+#endif
+	};
+	Q_DECLARE_FLAGS(LocateOptions, LocateOption)
+
 	static bool initCore();
 	static void loadStatus();
 	static void storeStatus();
@@ -56,7 +66,7 @@ public:
 	static QString decodeXmlEntities(QString s);
 	static LabelAction parseLabelAction(const QString& url);
 
-	static QString locateApplication(QString name, bool searchInAppDirPath = true);
+	static QString locateApplication(QString name, LocateOptions options = IncludeApplicationPath);
 	static QString env(const QString& s, Qt::CaseSensitivity cs = Qt::CaseInsensitive);
 
 	static QString toLocalFilePath(QString s, bool considerDirectory = false);
@@ -65,11 +75,16 @@ public:
 
 	static MvdPluginContext* pluginContext();
 
+#ifdef Q_OS_WIN32
+	static QString MvdCore::getWindowsRegString(HKEY key, const QString& subKey);
+#endif
+
 private:
 	static MvdCore_P* d;
 	static bool MvdCoreInitOk;
 	static MvdPluginContext* PluginContext;
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(MvdCore::LocateOptions)
 
 namespace Movida
 {

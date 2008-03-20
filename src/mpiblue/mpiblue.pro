@@ -5,7 +5,7 @@ TARGET = mpiblue
 win32 {
 	# Place .lib and Visual Studio crap in the bin directory and copy the dll to "Plugins"
 	DESTDIR = $${ROOT}/bin
-	DLLDESTDIR = "$$(APPDATA)/BlueSoft/Movida/Resources/Plugins"
+	DLLDESTDIR = "$$(APPDATA)/42cows.org/Movida/Resources/Plugins"
 	message(Building plugin in \"$$DLLDESTDIR\")
 }
 macx {
@@ -13,7 +13,7 @@ macx {
 	message(Building plugin in \"$$DESTDIR\")
 }
 unix {
-	DESTDIR = $$(HOME)/.BlueSoft/Movida/Resources/Plugins
+	DESTDIR = $$(HOME)/.42cows.org/Movida/Resources/Plugins
 	message(Building plugin in \"$$DESTDIR\")
 }
 LIBS += -lmvdcore -lmvdshared

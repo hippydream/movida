@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: movieeditor.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -41,10 +40,15 @@ public:
 	
 	bool setMovie(mvdid id, bool confirmIfModified = false);
 	bool setMovies(const QList<mvdid>& movies, bool confirmIfModified = false);
+	mvdid movieId() const;
+
+	bool isModified() const;
+	bool isValid() const;
 
 public slots:
 	void setPreviousEnabled(bool enabled);
 	void setNextEnabled(bool enabled);
+	bool storeMovie();
 
 signals:
 	void previousRequested();
@@ -61,12 +65,9 @@ protected slots:
 private slots:
 	void cancelTriggered();
 	void storeTriggered();
-	bool storeMovie();
 	void currentPageChanged(MvdMPDialogPage* page);
 
 private:
-	inline bool isModified() const;
-	inline bool isValid() const;
 	inline bool confirmDiscardMovie();
 
 	QList<MvdMovieEditorPage*> mPages;

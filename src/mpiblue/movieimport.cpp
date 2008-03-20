@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: movieimport.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -59,6 +58,7 @@ void MpiMovieImport::runImdbImport(const QList<MpiBlue::Engine*>& engines)
 	{
 		MpiBlue::Engine* e = engines.at(i);
 		MvdSearchEngine mvdEngine;
+		mvdEngine.capabilities = MvdSearchEngine::MultipleSearchCapability;
 		mvdEngine.name = e->displayName;
 		int id = mImportDialog->registerEngine(mvdEngine);
 		mRegisteredEngines.insert(id, e);
@@ -95,6 +95,7 @@ void MpiMovieImport::reset()
 	mCurrentLocation.clear();
 	mCurrentEngine = -1;
 	mCurrentQuery.clear();
+	mQueryQueue.clear();
 	if (mInterpreter && mInterpreter->state() != QProcess::NotRunning)
 		mInterpreter->kill();
 	mInterpreterName.clear();
@@ -150,7 +151,14 @@ void MpiMovieImport::search(const QString& query, int engineId)
 		mCurrentImportJob = -1;
 
 		mCurrentEngine = engineId;
-		mCurrentQuery = query;
+		mQueryQueue = query.split(";");
+
+		if (mQueryQueue.isEmpty()) {
+			mImportDialog->done(MvdImportDialog::Success);
+			return;
+		}
+
+		mCurrentQuery = mQueryQueue.takeFirst();
 
 		if (!engine->scriptsFetched)
 		{
@@ -232,7 +240,7 @@ void MpiMovieImport::search(const QString& query, int engineId)
 			}
 
 		// Scripts fetched. We have the latest versions and absolute paths!
-		} else performSearch(query, engine, engineId);
+		} else performSearch(mCurrentQuery, engine, engineId);
 	}
 	else if (mCurrentState == FetchingResultsScriptState)
 	{
@@ -735,7 +743,8 @@ void MpiMovieImport::deleteTemporaryFile(QTemporaryFile** file, bool removeFile)
 //! Creates a new temporary file with AutoRemove = false. Returns 0 if an error occurs.
 QTemporaryFile* MpiMovieImport::createTemporaryFile()
 {
-	QTemporaryFile* file = new QTemporaryFile(QDir::tempPath().append("/movida-import"));
+	QString tempPath = MpiBluePlugin::instance->tempDir();
+	QTemporaryFile* file = new QTemporaryFile(tempPath.append("~XXXXXX"));
 	file->setAutoRemove(false);
 	if (!file->open())
 	{
@@ -880,8 +889,17 @@ void MpiMovieImport::processResultsFile(const QString& path)
 	if (!hasCachedResults && mTempFile)
 		deleteTemporaryFile(&mTempFile);
 
-	mImportDialog->showMessage(tr("Done."));
-	mImportDialog->done(mImportResult);
+	if (!mQueryQueue.isEmpty()) {
+		mCurrentQuery = mQueryQueue.takeFirst();
+		Q_ASSERT(QMetaObject::invokeMethod(this, "performSearch", Qt::QueuedConnection,
+				Q_ARG(QString, mCurrentQuery),
+				Q_ARG(MpiBlue::Engine*, mRegisteredEngines[mCurrentEngine]),
+				Q_ARG(int, mCurrentEngine)));
+	} else {
+
+		mImportDialog->showMessage(tr("Done."));
+		mImportDialog->done(mImportResult);
+	}
 }
 
 //! Parses search result nodes, possibly using recursion on <group> nodes.
@@ -1016,6 +1034,8 @@ void MpiMovieImport::processMovieDataFile(const QString& path)
 
 	if (!QFile::remove(path))
 		wLog() << "MpiMovieImport: failed to delete temporary file '" << path << "'.";
+
+	deleteTemporaryFile(&mTempFile);
 
 	if (!res) {
 		mImportDialog->showMessage(tr("Discarding invalid movie data."));

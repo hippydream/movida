@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: searchengine.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -36,6 +35,12 @@
 class MvdSearchEngine
 {
 public:
+	enum EngineCapability {
+		NoEngineCapability = 0,
+		MultipleSearchCapability = 1
+	};
+	Q_DECLARE_FLAGS(EngineCapabilities, EngineCapability);
+
 	//! Creates a new search engine.
 	MvdSearchEngine() : canConfigure(false) {}
 
@@ -46,8 +51,10 @@ public:
 
 	QString name;
 	QString validator;
+	EngineCapabilities capabilities;
 
 	bool canConfigure;
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(MvdSearchEngine::EngineCapabilities)
 
 #endif // MVD_SEARCHENGINE_H

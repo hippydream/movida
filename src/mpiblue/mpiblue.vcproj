@@ -103,8 +103,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copy mpiblue.dll to c:\Documents and Settings\blue.BLUEMACHINE\Dati applicazioni\BlueSoft\Movida\Resources\Plugins"
-				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;c:\Documents and Settings\blue.BLUEMACHINE\Dati applicazioni\BlueSoft\Movida\Resources\Plugins&quot;"
+				Description="Copy mpiblue.dll to $(APPDATA)\42cows.org\Movida\Resources\Plugins"
+				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;$(APPDATA)\42cows.org\Movida\Resources\Plugins&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -197,8 +197,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copy mpiblue.dll to c:\Documents and Settings\blue.BLUEMACHINE\Dati applicazioni\BlueSoft\Movida\Resources\Plugins"
-				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;c:\Documents and Settings\blue.BLUEMACHINE\Dati applicazioni\BlueSoft\Movida\Resources\Plugins&quot;"
+				Description="Copy mpiblue.dll to $(APPDATA)\42cows.org\Movida\Resources\Plugins"
+				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;$(APPDATA)\42cows.org\Movida\Resources\Plugins&quot;"
 			/>
 		</Configuration>
 	</Configurations>

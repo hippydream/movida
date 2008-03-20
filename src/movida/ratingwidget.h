@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: ratingwidget.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -34,8 +33,6 @@ class MvdRatingWidget : public QWidget
 	Q_OBJECT
 
 public:
-	enum PixmapRole { RatedRole, UnratedRole, HoveredRole };
-
 	MvdRatingWidget(QWidget* parent = 0);
 	virtual ~MvdRatingWidget();
 
@@ -43,8 +40,8 @@ public:
 	int minimum() const;
 	int maximum() const;
 
-	QPixmap pixmap(PixmapRole role) const;
-	void setPixmap(PixmapRole role, const QPixmap& pm);
+	QIcon icon() const;
+	void setIcon(const QIcon& i, QSize size = QSize());
 
 	QSize sizeHint() const;
 	QSize minimumSizeHint() const;

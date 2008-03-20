@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: maininfopage.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -43,7 +42,8 @@
 	Creates a new page.
 */
 MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
-: MvdMovieEditorPage(c, parent), mDefaultRunningTime(0), mDefaultRating(0), mStatusTimer(new QTimer(this))
+: MvdMovieEditorPage(c, parent), mDefaultRunningTime(0), mDefaultRating(0), mStatusTimer(new QTimer(this)),
+mDefaultSpecialTags(0)
 {
 	setupUi(this);
 	int w = MvdCore::parameter("movida/poster-default-width").toInt();
@@ -51,9 +51,7 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 	int h = int(w / ar);
 	Ui::MvdMainInfoPage::poster->setFixedSize(w, h);
 
-	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::RatedRole, QPixmap(":/images/rating-rated.png") );
-	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::UnratedRole, QPixmap(":/images/rating-unrated.png") );
-	Ui::MvdMainInfoPage::ratingLabel->setPixmap( MvdRatingWidget::HoveredRole, QPixmap(":/images/rating-hovered.png") );
+	Ui::MvdMainInfoPage::ratingLabel->setIcon( QIcon(":/images/rating.svgz") );
 	
 	quint8 maxRating = MvdCore::parameter("mvdcore/max-rating").toUInt();
 	quint16 maxRuntime = MvdCore::parameter("mvdcore/max-running-time").toUInt();
@@ -81,6 +79,10 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 	ratingHovered(-1);
 	setMoviePoster();
 
+	markAsSeen->setIcon(QIcon(":/images/seen.svgz"));
+	markAsSpecial->setIcon(QIcon(":/images/special.svgz"));
+	markAsLoaned->setIcon(QIcon(":/images/loaned.svgz"));
+
 	// Set max length for line edits
 	int maxInputLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
 	Ui::MvdMainInfoPage::title->setMaxLength(maxInputLength);
@@ -107,6 +109,9 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 	connect (Ui::MvdMainInfoPage::releaseYear, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::lengthMinutes, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::ratingLabel, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
+	connect (Ui::MvdMainInfoPage::markAsSeen, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
+	connect (Ui::MvdMainInfoPage::markAsSpecial, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
+	connect (Ui::MvdMainInfoPage::markAsLoaned, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
 
 	Ui::MvdMainInfoPage::poster->setDragAndDropHandler(this, "posterDragEntered", "posterDropped", "resetPosterStatus");
 
@@ -156,6 +161,11 @@ void MvdMainInfoPage::setMovieImpl(const MvdMovie& movie)
 	version->setText(mDefaultEdition);
 	mDefaultStorageId = movie.storageId();
 	storageID->setText(mDefaultStorageId);
+
+	markAsSeen->setChecked(movie.hasSpecialTagEnabled(MvdMovie::SeenTag));
+	markAsSpecial->setChecked(movie.hasSpecialTagEnabled(MvdMovie::SpecialTag));
+	markAsLoaned->setChecked(movie.hasSpecialTagEnabled(MvdMovie::LoanedTag));
+	mDefaultSpecialTags = movie.specialTags();
 	
 	int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
 
@@ -206,6 +216,9 @@ bool MvdMainInfoPage::store(MvdMovie& movie)
 	movie.setReleaseYear(QString::number(releaseYear->value()));
 	movie.setRunningTime(lengthMinutes->value());
 	movie.setRating(ratingLabel->value());
+	movie.setSpecialTagEnabled(MvdMovie::SeenTag, markAsSeen->isChecked());
+	movie.setSpecialTagEnabled(MvdMovie::SpecialTag, markAsSpecial->isChecked());
+	movie.setSpecialTagEnabled(MvdMovie::LoanedTag, markAsLoaned->isChecked());
 
 	if (!mPosterPath.isEmpty())
 	{
@@ -268,11 +281,11 @@ void MvdMainInfoPage::ratingHovered(int rating)
 {
 	switch (rating)
 	{
-	case 1: ratingStatus->setText(tr("1 - Awful movie.")); break;
-	case 2: ratingStatus->setText(tr("2 - Disappointing movie.")); break;
-	case 3: ratingStatus->setText(tr("3 - Mediocre movie.")); break;
-	case 4: ratingStatus->setText(tr("4 - Good movie.")); break;
-	case 5: ratingStatus->setText(tr("5 - Outstanding movie.")); break;
+	case 1: ratingStatus->setText(QString("1 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+	case 2: ratingStatus->setText(QString("2 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+	case 3: ratingStatus->setText(QString("3 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+	case 4: ratingStatus->setText(QString("4 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+	case 5: ratingStatus->setText(QString("5 - %1.").arg(MvdMovie::ratingTip(rating))); break;
 	default: 
 		ratingLabel->value() ? 
 			ratingStatus->setText(tr("Click to set the desired rating or <a href='movida://clear/rating'>click here</a> to clear it.")) :
@@ -446,6 +459,11 @@ void MvdMainInfoPage::updateModifiedStatus()
 	else
 		posterChanged = mPosterPath != mDefaultPoster;
 
+	int currentSpecialTags = MvdMovie::NoTag;
+	if (markAsSeen->isChecked()) currentSpecialTags |= MvdMovie::SeenTag;
+	if (markAsSpecial->isChecked()) currentSpecialTags |= MvdMovie::SpecialTag;
+	if (markAsLoaned->isChecked()) currentSpecialTags |= MvdMovie::LoanedTag;
+
 	if (title->text().trimmed() != mDefaultTitle
 		|| originalTitle->text().trimmed() != mDefaultOriginalTitle
 		|| version->text().trimmed() != mDefaultEdition
@@ -454,7 +472,8 @@ void MvdMainInfoPage::updateModifiedStatus()
 		|| releaseYear->value() != mDefaultRYear
 		|| lengthMinutes->value() != mDefaultRunningTime
 		|| ratingLabel->value() != mDefaultRating
-		|| posterChanged)
+		|| posterChanged 
+		|| currentSpecialTags != mDefaultSpecialTags)
 	{
 		setModified(true);
 		return;

@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: movieeditor.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -45,7 +44,7 @@
 	Creates a new dialog for editing of movie descriptions.
 */
 MvdMovieEditor::MvdMovieEditor(MvdMovieCollection* c, QWidget* parent)
-: MvdMultiPageDialog(parent), mCollection(c), mMovieId(0)
+: MvdMultiPageDialog(parent), mCollection(c), mMovieId(MvdNull)
 {
 	//! \todo set a better title (and update on setMovie() or title editing)
 	setWindowTitle(tr("movida movie editor"));
@@ -144,6 +143,16 @@ bool MvdMovieEditor::setMovies(const QList<mvdid>& movies, bool confirmIfModifie
 	return true;
 }
 
+/*!
+	Returns the movie id set with setMovie() or after a new movie has been added to the collection.
+	This method is of no use (and returns MvdNull) if multiple movies are being edited or if the
+	user hits cancel and does not accept to store a new movie.
+*/
+mvdid MvdMovieEditor::movieId() const
+{
+	return mMovieId;
+}
+
 void MvdMovieEditor::cancelTriggered()
 {
 	bool discard = confirmDiscardMovie();
@@ -160,6 +169,9 @@ void MvdMovieEditor::cancelTriggered()
 */
 bool MvdMovieEditor::confirmDiscardMovie()
 {
+	if (discardChanges())
+		return true;
+
 	bool modified = isModified();
 	bool discard = true;
 
@@ -187,8 +199,14 @@ bool MvdMovieEditor::confirmDiscardMovie()
 //! \internal \todo Handle ESC key
 void MvdMovieEditor::closeEvent(QCloseEvent* e)
 {
-	cancelTriggered();
-	e->ignore();
+	bool discard = confirmDiscardMovie();
+
+	if (discard) {
+		reject();
+		e->accept();
+	} else {
+		e->ignore();
+	}
 }
 
 void MvdMovieEditor::storeTriggered()
@@ -230,7 +248,7 @@ bool MvdMovieEditor::storeMovie()
 		else p->setModified(false);
 	}
 
-	if (mMovieId == 0)
+	if (mMovieId == MvdNull)
 		mMovieId = mCollection->addMovie(movie);
 	else mCollection->updateMovie(mMovieId, movie);
 

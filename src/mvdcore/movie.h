@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: movie.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -27,6 +26,7 @@
 #include <QList>
 #include <QHash>
 #include <QStringList>
+#include <QTime>
 
 class MvdMovie_P;
 
@@ -41,8 +41,8 @@ public:
 	bool isValid() const;
 	
 	enum ColorMode { Color, BlackWhite, UnknownColorMode };
-	/*enum SubtitleContents { StandardSubtitle, HearingImpairedSubtitle, 
-		CommentarySubtitle, UnknownSubtitle };*/
+	enum Tag { NoTag = 0, SeenTag = 2, LoanedTag = 4, SpecialTag = 8 };
+	Q_DECLARE_FLAGS(Tags, Tag);
 
 	QString title() const;
 	void setTitle(const QString& s);
@@ -74,7 +74,8 @@ public:
 	void setStorageId(const QString& s);
 	
 	quint16 runningTime() const;
-	QString runningTimeString(const QString& format = QString()) const;
+	QTime runningTimeQt() const;
+	QString runningTimeString(QString format = QString()) const;
 	void setRunningTime(quint16 minutes);
 
 	quint8 rating() const;
@@ -141,8 +142,16 @@ public:
 	QString poster() const;
 	void setPoster(const QString& path);
 
+	void setSpecialTagEnabled(Tag tag, bool enabled);
+	bool hasSpecialTagEnabled(Tag tag) const;
+
+	void setSpecialTags(Tags tags);
+	Tags specialTags() const;
+
 	static QString colorModeToString(ColorMode m);
 	static ColorMode colorModeFromString(QString s);
+
+	static QString ratingTip(quint8 rating);
 
 private:
 	MvdMovie_P* d;
@@ -153,5 +162,6 @@ public:
 	bool isDetached() const;
 };
 Q_DECLARE_SHARED(MvdMovie)
+Q_DECLARE_OPERATORS_FOR_FLAGS(MvdMovie::Tags)
 
 #endif // MVD_MOVIE_H

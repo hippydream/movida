@@ -57,23 +57,23 @@ using namespace Movida;
 int Movida::runApp(MvdApplication& app)
 {
 	int appRetVal;
-//#ifndef _DEBUG
+#ifndef _DEBUG
 	__try
 	{
-//#endif
+#endif
 		app.parseCommandLine();
 		if (app.usingGui()) {
 			appRetVal = app.init();
 			if (appRetVal == MVD_EXIT_SUCCESS)
 				appRetVal = app.exec();
 		}
-//#ifndef _DEBUG
+#ifndef _DEBUG
 	}
 	__except( exceptionFilter(GetExceptionCode()) )
 	{
 		defaultCrashHandler( GetExceptionCode() );
 	}
-//#endif
+#endif
 
 	return appRetVal;
 }
