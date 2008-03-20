@@ -886,8 +886,8 @@ void MpiMovieImport::processResultsFile(const QString& path)
 	bool hasCachedResults = parseSearchResults(doc, node->xmlChildrenNode, mTempFile ? mTempFile->fileName() : QString());
 	QFile::remove(path);
 
-	if (!hasCachedResults && mTempFile)
-		deleteTemporaryFile(&mTempFile);
+	if (mTempFile)
+		deleteTemporaryFile(&mTempFile, !hasCachedResults);
 
 	if (!mQueryQueue.isEmpty()) {
 		mCurrentQuery = mQueryQueue.takeFirst();
@@ -972,8 +972,10 @@ bool MpiMovieImport::parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QS
 		}
 
 		if (isValidResult(result, path)) {
-			if (result.sourceType == CachedSource)
+			if (result.sourceType == CachedSource) {
 				hasCachedResults = true;
+				result.dataSource = path;
+			}
 			if (!groupAdded && !group.isEmpty()) {
 				mImportDialog->addSection(group);
 				groupAdded = true;
