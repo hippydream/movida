@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: shareddatamodel.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -70,7 +69,11 @@ public:
 		mvdid id;
 	};
 
-	MvdSharedDataModel_P(Movida::DataRole r) : collection(0), role(r) {}
+	MvdSharedDataModel_P(Movida::DataRole r) : 
+		collection(0), 
+		role(r),
+		sortOrder(Qt::AscendingOrder)
+	{}
 
 	void populate();
 	int rowIndex(mvdid id) const;
@@ -78,6 +81,7 @@ public:
 	MvdMovieCollection* collection;
 	QList<RowWrapper> rows;
 	Movida::DataRole role;
+	Qt::SortOrder sortOrder;
 };
 
 //! \internal Fills the internal id list.
@@ -140,26 +144,26 @@ MvdSharedDataModel::~MvdSharedDataModel()
 */
 void MvdSharedDataModel::setMovieCollection(MvdMovieCollection* c)
 {
-	if (d->collection != 0)
+	if (d->collection)
 		disconnect(d->collection, 0, this, 0);
 
 	d->collection = c;
-	d->rows.clear();
 
-	if (c)
-	{
+	emit layoutAboutToBeChanged();
+	d->rows.clear();
+	if (c) {
 		MvdSharedData* sd = &(c->smd());
-		connect( sd, SIGNAL(itemAdded(int)), this, SLOT(itemAdded(int)) );
-		connect( sd, SIGNAL(itemRemoved(int)), this, SLOT(itemRemoved(int)) );
-		connect( sd, SIGNAL(itemUpdated(int)), this, SLOT(itemUpdated(int)) );
-		connect( sd, SIGNAL(itemReferenceChanged(int)), this, SLOT(itemReferenceChanged(int)) );
+		connect( c, SIGNAL(destroyed(QObject*)), this, SLOT(removeCollection()) );
+		connect( sd, SIGNAL(itemAdded(mvdid)), this, SLOT(itemAdded(mvdid)) );
+		connect( sd, SIGNAL(itemRemoved(mvdid)), this, SLOT(itemRemoved(mvdid)) );
+		connect( sd, SIGNAL(itemUpdated(mvdid)), this, SLOT(itemUpdated(mvdid)) );
+		connect( sd, SIGNAL(itemReferenceChanged(mvdid)), this, SLOT(itemReferenceChanged(mvdid)) );
 		connect( sd, SIGNAL(cleared()), this, SLOT(sharedDataCleared()) );
 
 		// Insert existing data - new items will be added through the signal/slot mechanism
 		d->populate();
 	}
-
-	reset();
+	emit layoutChanged();
 }
 
 /*!
@@ -189,8 +193,10 @@ Movida::DataRole MvdSharedDataModel::role() const
 */
 Qt::ItemFlags MvdSharedDataModel::flags(const QModelIndex& index) const
 {
-	Q_UNUSED(index);
-	return Qt::ItemIsSelectable;
+	if (!index.isValid())
+		return 0;
+
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 /*!
@@ -207,7 +213,7 @@ QVariant MvdSharedDataModel::data(const QModelIndex& index, int role) const
 	if (row < 0 || row >= d->rows.size())
 		return QVariant();
 
-	QList<Movida::SharedDataAttribute> columns = Movida::sharedDataAttributes(d->role);
+	QList<Movida::SharedDataAttribute> columns = Movida::sharedDataAttributes(d->role, Movida::SDEditorAttributeFilter);
 	if (col < 0 || col >= columns.size())
 		return QVariant();
 
@@ -239,7 +245,7 @@ QVariant MvdSharedDataModel::headerData(int section, Qt::Orientation orientation
 {
 	Q_UNUSED(orientation);
 
-	QList<Movida::SharedDataAttribute> columns = Movida::sharedDataAttributes(d->role);
+	QList<Movida::SharedDataAttribute> columns = Movida::sharedDataAttributes(d->role, Movida::SDEditorAttributeFilter);
 	if (section >= 0 && section < columns.size() && role == Qt::DisplayRole)
 		return Movida::sharedDataAttributeString(columns.at(section));
 
@@ -265,7 +271,7 @@ int MvdSharedDataModel::columnCount(const QModelIndex& parent) const
 	if (parent.isValid())
 		return 0;
 
-	return Movida::sharedDataAttributes(d->role).count();
+	return Movida::sharedDataAttributes(d->role, Movida::SDEditorAttributeFilter).count();
 }
 
 /*!
@@ -297,37 +303,62 @@ QModelIndex MvdSharedDataModel::parent(const QModelIndex& index) const
 }
 
 //! \internal
-void MvdSharedDataModel::itemAdded(int id)
+bool MvdSharedDataModel::insertRows(int row, int count, const QModelIndex& p)
 {
-	d->rows.append(MvdSharedDataModel_P::RowWrapper(id));
-	insertRows(d->rows.size() - 1, 1, QModelIndex());
+	beginInsertRows(p, row, row + count - 1);
+	for (int i = 0; i < count; ++i)
+		d->rows.insert(row + i, MvdSharedDataModel_P::RowWrapper());
+	endInsertRows();
+	return true;
 }
 
 //! \internal
-void MvdSharedDataModel::itemRemoved(int id)
+bool MvdSharedDataModel::removeRows(int row, int count, const QModelIndex& p)
 {
-	int pos = d->rowIndex(id);
-	if (pos >= 0)
-	{
-		d->rows.removeAt(pos);
-		removeRows(pos, 1, QModelIndex());
+	beginRemoveRows(p, row, row + count - 1);
+	for (int i = 0; i < count; ++i)
+		if (row < d->rows.size())
+			d->rows.removeAt(row);
+	endRemoveRows();
+	return true;
+}
+
+//! \internal
+void MvdSharedDataModel::itemAdded(mvdid id)
+{
+	MvdSdItem item = d->collection->smd().item(id);
+	if (item.role & d->role) {
+		int row = d->rows.size();
+		insertRows(row, 1);
+		d->rows[row] = MvdSharedDataModel_P::RowWrapper(id);
+		emit dataChanged( createIndex(row, 0), createIndex(row, columnCount() - 1) );
 	}
 }
 
 //! \internal
-void MvdSharedDataModel::itemUpdated(int id)
+void MvdSharedDataModel::itemRemoved(mvdid id)
 {
-	int pos = d->rowIndex(id);
-	if (pos >= 0)
-	{
-		emit dataChanged( createIndex(pos, 0), createIndex(pos, columnCount()) );
+	MvdSdItem item = d->collection->smd().item(id);
+	if (item.role & d->role) {
+		int row = d->rowIndex(id);
+		removeRows(row, 1, QModelIndex());
 	}
 }
 
 //! \internal
-void MvdSharedDataModel::itemReferenceChanged(int id)
+void MvdSharedDataModel::itemUpdated(mvdid id)
 {
-	Q_UNUSED(id);
+	MvdSdItem item = d->collection->smd().item(id);
+	if (item.role & d->role) {
+		int row = d->rowIndex(id);
+		emit dataChanged( createIndex(row, 0), createIndex(row, columnCount() - 1) );
+	}
+}
+
+//! \internal
+void MvdSharedDataModel::itemReferenceChanged(mvdid id)
+{
+	itemUpdated(id);
 }
 
 //! \internal
@@ -342,6 +373,8 @@ void MvdSharedDataModel::sort(int column, Qt::SortOrder order)
 {
 	if (rowCount() == 0)
 		return;
+
+	d->sortOrder = order;
 
 	Q_ASSERT(d->collection);
 
@@ -387,3 +420,7 @@ void MvdSharedDataModel::sort(int column, Qt::SortOrder order)
 	emit layoutChanged();
 }
 
+Qt::SortOrder MvdSharedDataModel::sortOrder() const
+{
+	return d->sortOrder;
+}

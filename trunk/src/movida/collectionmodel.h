@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: collectionmodel.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -38,6 +37,8 @@ public:
 	MvdCollectionModel(MvdMovieCollection* collection, QObject* parent = 0);
 	virtual ~MvdCollectionModel();
 
+	QModelIndex findMovie(mvdid id) const;
+
 	// Item Data Handling
 	virtual Qt::ItemFlags flags(const QModelIndex& index) const;
 	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
@@ -59,6 +60,7 @@ public:
 	virtual void sortByAttribute(Movida::MovieAttribute attribute, Qt::SortOrder order);
 
 	virtual void setMovieCollection(MvdMovieCollection* c);
+	virtual MvdMovieCollection* movieCollection() const;
 	
 	virtual Qt::SortOrder sortOrder() const;
 	virtual int sortColumn() const;
@@ -76,8 +78,8 @@ private slots:
 	void movieAdded(mvdid);
 	void movieRemoved(mvdid);
 	void movieChanged(mvdid);
-	
 	void collectionCleared();
+	void removeCollection() { setMovieCollection(0); }
 };
 
 #endif // MVD_COLLECTIONMODEL_H

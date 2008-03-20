@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: plugininterface.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -54,9 +53,9 @@ QString MvdPluginInterface::dataStore(Movida::Scope scope) const
 	Do not set this value from the plugin. Movida will initialize it and
 	create the appropriate directories if necessary.
 
-	Scope specifies whether the data store is in the user's home directory
-	(i.e. ~/mike/.bluesoft/movida/plugins/mpiblue) or in the global plug-in
-	directory (i.e. c:\program files\bluesoft\movida\plugins\mpiblue).
+	Scope specifies whether the data store is in the user's plug-ins directory
+	or in the global plug-in directory. Please refer to MvdPathResolver or to
+	the developer docs for the exact location of these directories on each platform.
 */
 void MvdPluginInterface::setDataStore(const QString& path, Movida::Scope scope)
 {

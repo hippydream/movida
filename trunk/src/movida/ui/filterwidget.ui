@@ -48,6 +48,16 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="filterLabel" >
+     <property name="text" >
+      <string>Filter:</string>
+     </property>
+     <property name="buddy" >
+      <cstring>input</cstring>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="MvdClearEdit" name="input" >
      <property name="sizePolicy" >
       <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
@@ -60,6 +70,9 @@
        <width>200</width>
        <height>0</height>
       </size>
+     </property>
+     <property name="whatsThis" >
+      <string>Filter movies by showing only those who match the entered criteria. See the application preferences to customize the behavior of the quick filter.</string>
      </property>
     </widget>
    </item>

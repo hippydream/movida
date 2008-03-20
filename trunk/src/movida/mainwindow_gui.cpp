@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: mainwindow_gui.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -25,22 +24,28 @@
 #include "filterwidget.h"
 #include "guiglobal.h"
 #include "mainwindow.h"
+#include "movietreeviewdelegate.h"
 #include "rowselectionmodel.h"
+#include "shareddataeditor.h"
+#include "shareddatamodel.h"
 #include "smartview.h"
 #include "treeview.h"
+#include "mvdcore/core.h"
 #include "mvdcore/pathresolver.h"
+#include <QDesktopServices>
 #include <QDockWidget>
 #include <QGridLayout>
 #include <QHeaderView>
 #include <QIcon>
 #include <QMenu>
 #include <QMenuBar>
+#include <QProcess>
 #include <QShortcut>
 #include <QStackedWidget>
 #include <QStatusBar>
 #include <QTextBrowser>
-#include <QToolBar>
 #include <QTimer>
+#include <QToolBar>
 
 //!
 void MvdMainWindow::setupUi()
@@ -57,6 +62,7 @@ void MvdMainWindow::setupUi()
 	mFilterModel->setSourceModel(mMovieModel);
 	mFilterModel->setDynamicSortFilter(true);
 	mFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	mFilterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
 
 	mSmartView = new MvdSmartView(this);
 	mSmartView->setObjectName("movie-smart-view");
@@ -65,6 +71,13 @@ void MvdMainWindow::setupUi()
 	mTreeView = new MvdTreeView(this);
 	mTreeView->setObjectName("movie-tree-view");
 	mTreeView->setModel(mFilterModel);
+	mTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+	MvdMovieTreeViewDelegate* mtvd = new MvdMovieTreeViewDelegate(this);
+	mTreeView->setItemDelegateForColumn(int(Movida::RatingAttribute), mtvd);
+	mTreeView->setItemDelegateForColumn(int(Movida::SeenAttribute), mtvd);
+	mTreeView->setItemDelegateForColumn(int(Movida::LoanedAttribute), mtvd);
+	mTreeView->setItemDelegateForColumn(int(Movida::SpecialAttribute), mtvd);
 	
 	// Share selection model
 	mSelectionModel = new MvdRowSelectionModel(mFilterModel);
@@ -72,18 +85,25 @@ void MvdMainWindow::setupUi()
 	mSmartView->setSelectionModel(mSelectionModel);
 	
 	mMainViewStack->addWidget(mTreeView);
-	mMainViewStack->addWidget(mSmartView);	
+	mMainViewStack->addWidget(mSmartView);
 
 	mDetailsDock = new MvdDockWidget(tr("Details view"), this);
 	mDetailsDock->setObjectName("details-dock");
-
-	addDockWidget(Qt::BottomDockWidgetArea, mDetailsDock);
+	addDockWidget(Qt::RightDockWidgetArea, mDetailsDock);
 
 	mDetailsView = new QTextBrowser;
 	mDetailsView->setSearchPaths(QStringList() << 
 		Movida::paths().resourcesDir().append("Templates/Movie/"));
 	mDetailsDock->setWidget(mDetailsView);
 	
+	mSharedDataDock = new MvdDockWidget(tr("Shared data"), this);
+	mSharedDataDock->setObjectName("shared-data-dock");
+	addDockWidget(Qt::RightDockWidgetArea, mSharedDataDock);
+
+	mSharedDataEditor = new MvdSharedDataEditor;
+	mSharedDataEditor->setModel(mSharedDataModel);
+	mSharedDataDock->setWidget(mSharedDataEditor);
+
 	mFilterWidget = new MvdFilterWidget;
 	mFilterWidget->setVisible(false);
 	mFilterWidget->editor()->installEventFilter(this);
@@ -93,159 +113,219 @@ void MvdMainWindow::setupUi()
 	mHideFilterTimer->setInterval(5000);
 	mHideFilterTimer->setSingleShot(true);
 	
-	// Actions
-	mA_FileNew = new QAction(this);
+	createActions();
+	createMenus();
+	createToolBars();
+
+	retranslateUi();
+}
+
+void MvdMainWindow::createActions()
+{
+	// File menu
+	mA_FileNew = createAction();
 	mA_FileNew->setIcon(QIcon(":/images/document-new.svgz"));
-	mA_FileOpen = new QAction(this);
+
+	mA_FileOpen = createAction();
 	mA_FileOpen->setIcon(QIcon(":/images/document-open.svgz"));
-	mA_FileOpenLast = new QAction(this);
+	
+	mA_FileOpenLast = createAction();
 	mA_FileOpenLast->setIcon(QIcon(":/images/document-reopen.svgz"));
-	mA_FileSave = new QAction(this);
+
+	mA_FileImport = createAction();
+
+	mA_FileRecent = createAction();
+	
+	mA_FileSave = createAction();
 	mA_FileSave->setIcon(QIcon(":/images/document-save.svgz"));
-	mA_FileSaveAs = new QAction(this);
+	
+	mA_FileSaveAs = createAction();
 	mA_FileSaveAs->setIcon(QIcon(":/images/document-save-as.svgz"));
-	mA_FileExit = new QAction(this);
+	
+	mA_FileExit = createAction();
 	mA_FileExit->setIcon(QIcon(":/images/application-exit.svgz"));
 
-	mA_TreeView = new QAction(this);
-	mA_TreeView->setIcon(QIcon(":/images/fileview-text.svgz"));
-	mA_TreeView->setCheckable(true);
-	mA_TreeView->setChecked(true);
 
-	mA_SmartView = new QAction(this);
-	mA_SmartView->setIcon(QIcon(":/images/fileview-detailed.svgz"));
-	mA_SmartView->setCheckable(true);
+	// View menu
+	mAG_ViewMode = new QActionGroup(this);
 
-	mAG_MovieView = new QActionGroup(this);
-	mAG_MovieView->setExclusive(true);
-	mAG_MovieView->addAction(mA_SmartView);
-	mAG_MovieView->addAction(mA_TreeView);
+	mA_ViewModeSmart = createAction();
+	mA_ViewModeSmart->setIcon(QIcon(":/images/fileview-detailed.svgz"));
+	mA_ViewModeSmart->setCheckable(true);
+	mAG_ViewMode->addAction(mA_ViewModeSmart);
 
-	mA_ViewDetails = mDetailsDock->toggleViewAction();
+	mA_ViewModeTree = createAction();
+	mA_ViewModeTree->setIcon(QIcon(":/images/fileview-text.svgz"));
+	mA_ViewModeTree->setCheckable(true);
+	mA_ViewModeTree->setChecked(true);
+	mAG_ViewMode->addAction(mA_ViewModeTree);
+
+	mA_ViewModeZoom = createAction();
+
+	mA_ViewModeZoomIn = createAction();
+	mA_ViewModeZoomIn->setIcon(QIcon(":/images/zoom-in.svgz"));
+
+	mA_ViewModeZoomOut = createAction();
+	mA_ViewModeZoomOut->setIcon(QIcon(":/images/zoom-out.svgz"));
+
+
+	// Bridge QAction to a movida specific action
+	mA_ViewDetails = createAction();
 	mA_ViewDetails->setIcon(QIcon(":/images/fileview-split.svgz"));
+	mA_ViewDetails->setCheckable(true);
+	mA_ViewDetails->setChecked(true);
+	connect(mA_ViewDetails, SIGNAL(triggered(bool)), mDetailsDock, SLOT(setVisible(bool)));
+	connect(mDetailsDock, SIGNAL(visibilityChanged(bool)), mA_ViewDetails, SLOT(setChecked(bool)));
+
+	mAG_ViewSort = new QActionGroup(this);
+	connect(mAG_ViewSort, SIGNAL(triggered(QAction*)), this, SLOT(sortActionTriggered(QAction*)));
 	
-	mA_CollAddMovie = new QAction(this);
+	mA_ViewSort = createAction();
+
+	mA_ViewSortDescending = createAction();
+	mA_ViewSortDescending->setCheckable(true);
+	connect(mA_ViewSortDescending, SIGNAL(triggered()), this, SLOT(sortActionTriggered()));
+	
+
+	// Collection menu
+	mA_CollAddMovie = createAction();
 	mA_CollAddMovie->setIcon(QIcon(":/images/edit-add.svgz"));
 	mA_CollAddMovie->setShortcut(Qt::CTRL | Qt::Key_A);
-	mA_CollRemMovie = new QAction(this);
+
+	mA_CollRemMovie = createAction();
 	mA_CollRemMovie->setIcon(QIcon(":/images/edit-delete.svgz"));
-	mA_CollEdtMovie = new QAction(this);
+
+	mA_CollEdtMovie = createAction();
 	mA_CollEdtMovie->setIcon(QIcon(":/images/edit.svgz"));
-	mA_CollDupMovie = new QAction(this);
-	// mA_CollDupMovie->setIcon(QIcon(":/images/32x32/duplicate"));
-	mA_CollMeta = new QAction(this);
+
+	mA_CollDupMovie = createAction();
+	mA_CollDupMovie->setIcon(QIcon(":/images/edit-copy.svgz"));
+
+	mA_CollMeta = createAction();
 	mA_CollMeta->setIcon(QIcon(":/images/document-properties.svgz"));
 
-	mA_ToolPref = new QAction(this);
+
+	// Tools menu
+	mA_ToolSdEditor = createAction();
+	mA_ToolSdEditor->setIcon(QIcon(":/images/identity.svgz"));
+
+	mA_ToolPref = createAction();
 	mA_ToolPref->setIcon(QIcon(":/images/configure.svgz"));
-	mA_ToolLog = new QAction(this);
+
+	mA_ToolLog = createAction();
 	mA_ToolLog->setIcon(QIcon(":/images/list.svgz"));
 
-	mA_HelpContents = new QAction(this);
+	// Help menu
+	mA_HelpContents = createAction();
 	mA_HelpContents->setIcon(QIcon(":/images/help-contents.svgz"));
-	mA_HelpIndex = new QAction(this);
-	mA_HelpAbout = new QAction(this);
+
+	mA_HelpIndex = createAction();
+
 	//! \todo SVG application logo
+	mA_HelpAbout = createAction();
 	//mA_HelpAbout->setIcon(QIcon(":/images/32x32/logo"));
 
+	// Misc actions
+	mA_LockToolBars = createAction();
+	mA_LockToolBars->setIcon(QIcon(":/images/lock-toolbars.svgz"));
+	mA_LockToolBars->setCheckable(true);
+	mA_LockToolBars->setChecked(true);
+}
 
-	// Toolbars
-	mTB_File = addToolBar(tr("File"));
-	mTB_File->setObjectName("file-toolbar");
-	mTB_View = addToolBar(tr("View"));
-	mTB_View->setObjectName("view-toolbar");
-	mTB_Tool = addToolBar(tr("Tool"));
-	mTB_Tool->setObjectName("tool-toolbar");
-	mTB_Coll = addToolBar(tr("Collection"));
-	mTB_Coll->setObjectName("collection-toolbar");
-	mTB_Help = addToolBar(tr("Help"));
-	mTB_Help->setObjectName("help-toolbar");
+void MvdMainWindow::createMenus()
+{
+	mMN_File = menuBar()->addMenu(tr("&File"));
+	mMN_View = menuBar()->addMenu(tr("&View"));
+	mMN_Collection = menuBar()->addMenu(tr("&Collection"));
+	mMN_Plugins = menuBar()->addMenu(tr("&Plugins"));
+	mMN_Tools = menuBar()->addMenu(tr("&Tools"));
+	mMN_Help = menuBar()->addMenu(tr("&Help"));
 
+	mMN_FileImport = new QMenu(tr("&Import"), this);
+	mA_FileImport->setMenu(mMN_FileImport);
 
-	// Menus
-	mMN_File = new QMenu(this);
-	mMB_MenuBar->addMenu(mMN_File);
+	mMN_FileMRU = new QMenu(tr("&Recent"), this);
+	mA_FileRecent->setMenu(mMN_FileMRU);
 
-	mMN_FileImport = new QMenu(mMN_File);
+	mMN_ViewSort = new QMenu(tr("&Sort by"), this);
+	mA_ViewSort->setMenu(mMN_ViewSort);
 
-	mMN_FileMRU = new QMenu(mMN_File);
-
-	mMN_View = new QMenu(this);
-	mMB_MenuBar->addMenu(mMN_View);
-
-	mMN_Coll = new QMenu(this);
-	mMB_MenuBar->addMenu(mMN_Coll);
-
-	mMN_Tool = new QMenu(this);
-	mMB_MenuBar->addMenu(mMN_Tool);
-
-	mMN_Plugins = new QMenu(this);
-	mMB_MenuBar->addMenu(mMN_Plugins);
-
-	mMN_Help = new QMenu(this);
-	mMB_MenuBar->addMenu(mMN_Help);
-
+	QMenu* zoomMenu = new QMenu(tr("&Zoom level"), this);
+	zoomMenu->addAction(mA_ViewModeZoomOut);
+	zoomMenu->addAction(mA_ViewModeZoomIn);
+	mA_ViewModeZoom->setMenu(zoomMenu);
 
 	// Populate menus
 	mMN_File->addAction(mA_FileNew);
 	mMN_File->addSeparator();
 	mMN_File->addAction(mA_FileOpen);
 	mMN_File->addAction(mA_FileOpenLast);
-	mMN_File->addMenu(mMN_FileImport);
-	mMN_File->addMenu(mMN_FileMRU);
+	mMN_File->addAction(mA_FileRecent);
+	mMN_File->addAction(mA_FileImport);
 	mMN_File->addSeparator();
 	mMN_File->addAction(mA_FileSave);
 	mMN_File->addAction(mA_FileSaveAs);
 	mMN_File->addSeparator();
 	mMN_File->addAction(mA_FileExit);
 
-	QMenu* movieViewMenu = mMN_View->addMenu( tr("Movie view") );
-	movieViewMenu->addActions( mAG_MovieView->actions() );
-
-	mMN_View->addAction(mA_ViewDetails);
-
-	mMN_ViewSort = new QMenu(this);
+	mMN_View->addAction(mA_ViewModeSmart);
+	mMN_View->addAction(mA_ViewModeTree);
+	mMN_View->addAction(mA_ViewModeZoom);
 	mMN_View->addSeparator();
-	mMN_View->addMenu(mMN_ViewSort);
+	mMN_View->addAction(mA_ViewDetails);
+	mMN_View->addSeparator();
+	mMN_View->addAction(mA_ViewSort);
 	
-	mMN_Coll->addAction(mA_CollAddMovie);
-	mMN_Coll->addAction(mA_CollRemMovie);
-	mMN_Coll->addAction(mA_CollEdtMovie);
-	mMN_Coll->addAction(mA_CollDupMovie);
-	mMN_Coll->addSeparator();
-	mMN_Coll->addAction(mA_CollMeta);
+	mMN_Collection->addAction(mA_CollAddMovie);
+	mMN_Collection->addAction(mA_CollRemMovie);
+	mMN_Collection->addAction(mA_CollEdtMovie);
+	mMN_Collection->addAction(mA_CollDupMovie);
+	mMN_Collection->addSeparator();
+	mMN_Collection->addAction(mA_CollMeta);
 
-	mMN_Tool->addAction(mA_ToolPref);
-	mMN_Tool->addAction(mA_ToolLog);
+	mMN_Tools->addAction(mA_ToolSdEditor);
+	mMN_Tools->addAction(mA_ToolPref);
+	mMN_Tools->addAction(mA_ToolLog);
 
 	mMN_Help->addAction(mA_HelpAbout);
 	mMN_Help->addAction(mA_HelpContents);
 	mMN_Help->addAction(mA_HelpIndex);
+}
 
-	// Populate toolbars
-	mTB_File->addAction(mA_FileNew);
-	mTB_File->addAction(mA_FileOpen);
-	mTB_File->addAction(mA_FileOpenLast);
-	mTB_File->addSeparator();
-	mTB_File->addAction(mA_FileSave);
-	mTB_File->addAction(mA_FileSaveAs);
-	mTB_File->addSeparator();
-	mTB_File->addAction(mA_FileExit);
+void MvdMainWindow::createToolBars()
+{
+	mTB_MainToolBar = addToolBar(tr("Main tools"));
+	mTB_MainToolBar->setObjectName("main-toolbar");
 
-	mTB_View->addAction(mA_TreeView);
-	mTB_View->addAction(mA_SmartView);
-	mTB_View->addAction(mA_ViewDetails);
+	// File
+	mTB_MainToolBar->addAction(mA_FileNew);
+	mTB_MainToolBar->addAction(mA_FileOpen);
+	mTB_MainToolBar->addSeparator();
+	mTB_MainToolBar->addAction(mA_FileSave);
+	mTB_MainToolBar->addAction(mA_FileSaveAs);
 
-	mTB_Coll->addAction(mA_CollAddMovie);
-	mTB_Coll->addAction(mA_CollRemMovie);
-	mTB_Coll->addAction(mA_CollEdtMovie);
+	mTB_MainToolBar->addSeparator();
+	
+	// Collection
+	mTB_MainToolBar->addAction(mA_CollAddMovie);
+	mTB_MainToolBar->addAction(mA_CollRemMovie);
+	mTB_MainToolBar->addAction(mA_CollEdtMovie);
+	
+	mTB_MainToolBar->addSeparator();
 
-	mTB_Tool->addAction(mA_ToolPref);
+	// Tools
+	mTB_MainToolBar->addAction(mA_ToolPref);
+	mTB_MainToolBar->addAction(mA_ToolSdEditor);
 
-	mTB_Help->addAction(mA_HelpContents);
+	mTB_MainToolBar->addSeparator();
 
-	// This will set tooltips and all the i18n-ed text
-	retranslateUi();
+	// Help
+	mTB_MainToolBar->addAction(mA_HelpContents);
+
+	mTB_MainToolBar->addSeparator();
+
+	// Exit
+	mTB_MainToolBar->addAction(mA_FileExit);
 }
 
 /*!
@@ -253,102 +333,178 @@ void MvdMainWindow::setupUi()
 */
 void MvdMainWindow::retranslateUi()
 {
-	mA_FileNew->setText( tr( "&New Collection" ) );
-	mA_FileNew->setToolTip( tr( "Create a new movie collection" ) );
-	mA_FileNew->setWhatsThis( tr( "Create a new movie collection" ) );
-	mA_FileNew->setStatusTip( tr( "Create a new movie collection" ) );
-	mA_FileNew->setShortcut( tr( "Ctrl+N" ) );
-	mA_FileOpen->setText( tr( "&Open Collection" ) );
-	mA_FileOpen->setToolTip( tr( "Open an existing movie collection" ) );
-	mA_FileOpen->setWhatsThis( tr( "Open an existing movie collection" ) );
-	mA_FileOpen->setStatusTip( tr( "Open an existing movie collection" ) );
-	mA_FileOpen->setShortcut( tr( "Ctrl+O" ) );
-	mA_FileOpenLast->setText( tr( "Open &Last Collection" ) );
-	mA_FileOpenLast->setToolTip( tr( "Open the last used movie collection" ) );
-	mA_FileOpenLast->setWhatsThis( tr( "Open the last used movie collection" ) );
-	mA_FileOpenLast->setStatusTip( tr( "Open the last used movie collection" ) );
-	mA_FileOpenLast->setShortcut( tr( "Ctrl+L" ) );
-	mA_FileSave->setText( tr( "&Save Collection" ) );
-	mA_FileSave->setToolTip( tr( "Save this movie collection" ) );
-	mA_FileSave->setWhatsThis( tr( "Save this movie collection" ) );
-	mA_FileSave->setStatusTip( tr( "Save this movie collection" ) );
-	mA_FileSave->setShortcut( tr( "Ctrl+S" ) );
-	mA_FileSaveAs->setText( tr( "Save Collection &As..." ) );
-	mA_FileSaveAs->setToolTip( tr( "Select a filename to save this collection" ) );
-	mA_FileSaveAs->setWhatsThis( tr( "Select a filename to save this collection" ) );
-	mA_FileSaveAs->setStatusTip( tr( "Select a filename to save this collection" ) );
-	mA_FileSaveAs->setShortcut( tr( "Ctrl+Shift+S" ) );
-	mA_FileExit->setText( tr( "E&xit" ) );
-	mA_FileExit->setToolTip( tr( "Exit Movida" ) );
-	mA_FileExit->setWhatsThis( tr( "Exit Movida" ) );
-	mA_FileExit->setStatusTip( tr( "Exit Movida" ) );
-
-	dockViewsToggled();
-
-	mA_SmartView->setText( tr("&Tiles") );
-	mA_TreeView->setText( tr("&List") );
-		
-	mA_CollAddMovie->setText( tr( "&Add a new movie" ) );
-	mA_CollAddMovie->setToolTip( tr( "Add a new movie to the collection" ) );
-	mA_CollAddMovie->setWhatsThis( tr( "Add a new movie to the collection" ) );
-	mA_CollAddMovie->setStatusTip( tr( "Add a new movie to the collection" ) );
-	mA_CollRemMovie->setText( tr( "&Remove selected movie" ) );
-	mA_CollRemMovie->setToolTip( tr( "Removes the selected movie from the collection" ) );
-	mA_CollRemMovie->setWhatsThis( tr( "Removes the selected movie from the collection" ) );
-	mA_CollRemMovie->setStatusTip( tr( "Removes the selected movie from the collection" ) );
-	mA_CollEdtMovie->setText( tr( "&Edit selected movie" ) );
-	mA_CollEdtMovie->setToolTip( tr( "Open a dialog to edit the selected movie" ) );
-	mA_CollEdtMovie->setWhatsThis( tr( "Open a dialog to edit the selected movie" ) );
-	mA_CollEdtMovie->setStatusTip( tr( "Open a dialog to edit the selected movie" ) );
-	mA_CollDupMovie->setText( tr( "&Duplicate selected movie" ) );
-	mA_CollDupMovie->setToolTip( tr( "Duplicate the selected movie" ) );
-	mA_CollDupMovie->setWhatsThis( tr( "Duplicate the selected movie" ) );
-	mA_CollDupMovie->setStatusTip( tr( "Duplicate the selected movie" ) );
-	mA_CollMeta->setText( tr( "A&bout this collection..." ) );
-	mA_CollMeta->setToolTip( tr( "Show or edit basic information about this collection" ) );
-	mA_CollMeta->setWhatsThis( tr( "Show or edit basic information about this collection, like a name, the owner, etc." ) );
-	mA_CollMeta->setStatusTip( tr( "Show or edit basic information about this collection" ) );
-
-	mA_ToolPref->setText( tr( "&Preferences" ) );
-	mA_ToolPref->setToolTip( tr( "Configure Movida" ) );
-	mA_ToolPref->setWhatsThis( tr( "Configure Movida" ) );
-	mA_ToolPref->setStatusTip( tr( "Configure Movida" ) );
-
-	mA_ToolLog->setText( tr( "Show &Log" ) );
-	mA_ToolLog->setToolTip( tr( "Shows the application log file" ) );
-	mA_ToolLog->setWhatsThis( tr( "Shows the application log file" ) );
-	mA_ToolLog->setStatusTip( tr( "Shows the application log file" ) );
-
-	mA_HelpContents->setText( tr( "&Contents" ) );
-	mA_HelpContents->setToolTip( tr( "Open the Movida user guide" ) );
-	mA_HelpContents->setWhatsThis( tr( "Open the Movida user guide" ) );
-	mA_HelpContents->setStatusTip( tr( "Open the Movida user guide" ) );
-	mA_HelpIndex->setText( tr( "&Index" ) );
-	mA_HelpIndex->setToolTip( tr( "Open the Movida user guide index" ) );
-	mA_HelpIndex->setWhatsThis( tr( "Open the Movida user guide index" ) );
-	mA_HelpIndex->setStatusTip( tr( "Open the Movida user guide index" ) );
-	mA_HelpAbout->setText( tr( "&About Movida" ) );
-	mA_HelpAbout->setToolTip( tr( "Show some information about Movida" ) );
-	mA_HelpAbout->setStatusTip( tr( "Show some information about Movida" ) );
-	mA_HelpAbout->setWhatsThis( tr( "Show some information about Movida" ) );
-
-	mTB_File->setWindowTitle( tr( "File" ) );
-	mTB_View->setWindowTitle( tr( "View" ) );
-	mTB_Coll->setWindowTitle( tr( "Collection" ) );
-	mTB_Tool->setWindowTitle( tr( "Tools" ) );
-	mTB_Help->setWindowTitle( tr( "Help" ) );
-
-	mMN_File->setTitle( tr( "&File" ) );
-	mMN_FileImport->setTitle( tr( "&Import" ) );
-	mMN_FileMRU->setTitle( tr( "&Recent files" ) );
-	mMN_View->setTitle( tr( "&View" ) );
-	mMN_ViewSort->setTitle( tr( "&Sort" ) );
-	mMN_Coll->setTitle( tr( "&Collection" ) );
-	mMN_Tool->setTitle( tr( "&Tools" ) );
-	mMN_Plugins->setTitle( tr("&Plugins") );
-	mMN_Help->setTitle( tr( "&Help" ) );
-	
 	mDetailsDock->setWindowTitle( tr("Details view") );
+
+	QString text = tr("&New Collection");
+	QString shortInfo = tr("Create a new movie collection");
+	QString longInfo = shortInfo;
+	QString shortcut = tr("Ctrl+N");
+	initAction(mA_FileNew, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Open Collection...");
+	shortInfo = tr("Open an existing movie collection");
+	longInfo = shortInfo;
+	shortcut = tr("Ctrl+O");
+	initAction(mA_FileOpen, text, shortInfo, longInfo, shortcut);
+
+	text = tr("Open &Last Collection");
+	shortInfo = tr("Open the last used movie collection");
+	longInfo = shortInfo;
+	shortcut = tr("Ctrl+L");
+	initAction(mA_FileOpenLast, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Import");
+	shortInfo = tr("Import movies from other applications or sources");
+	longInfo = tr("Import movies from other applications and file formats or from external sources like the Internet.");
+	shortcut.clear();
+	initAction(mA_FileImport, text, shortInfo, longInfo, shortcut);
+
+	text = tr("R&ecent Files");
+	shortInfo = tr("Re-open a recently used collection");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_FileRecent, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Save Collection");
+	shortInfo = tr("Save this movie collection");
+	longInfo = shortInfo;
+	shortcut = tr("Ctrl+S");
+	initAction(mA_FileSave, text, shortInfo, longInfo, shortcut);
+
+	text = tr("Save Collection &As...");
+	shortInfo = tr("Select a filename to save this collection");
+	longInfo = shortInfo;
+	shortcut = tr("Ctrl+Shift+S");
+	initAction(mA_FileSaveAs, text, shortInfo, longInfo, shortcut);
+
+	text = tr("E&xit");
+	shortInfo = tr("Exit Movida");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_FileExit, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Smart View");
+	shortInfo = tr("Show the movies using tiles");
+	longInfo = tr("Show the movies using tiles that contain the movie poster and most relevant information");
+	shortcut = tr("CTRL+1");
+	initAction(mA_ViewModeSmart, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&List View");
+	shortInfo = tr("Show the movies as a detailed list");
+	longInfo = shortInfo;
+	shortcut = tr("CTRL+2");
+	initAction(mA_ViewModeTree, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Zoom level");
+	shortInfo = tr("Enlarge or reduce the smart view tiles");
+	longInfo = tr("Enlarge or reduce the smart view tiles to show more or less information");
+	shortcut.clear();
+	initAction(mA_ViewModeZoom, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Smaller tiles");
+	shortInfo = tr("Reduce the smart view tiles");
+	longInfo = tr("Reduce the smart view tiles to show less information");
+	shortcut = tr("CTRL+-");
+	initAction(mA_ViewModeZoomOut, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Larger tiles");
+	shortInfo = tr("Enlarge the smart view tiles");
+	longInfo = tr("Enlarge the smart view tiles to show more information");
+	shortcut = tr("CTRL++");
+	initAction(mA_ViewModeZoomIn, text, shortInfo, longInfo, shortcut);
+
+	text = mDetailsDock->windowTitle();
+	shortInfo = text;
+	longInfo = text;
+	shortcut.clear();
+	initAction(mA_ViewDetails, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Sort by");
+	shortInfo = tr("Select the attribute used to sort the movies");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_ViewSort, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Descending");
+	shortInfo = tr("Sort movies descending");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_ViewSortDescending, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Add a new movie");
+	shortInfo = tr("Add a new movie to the collection");
+	longInfo = shortInfo;
+	shortcut = tr("Ctrl+M");
+	initAction(mA_CollAddMovie, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Remove selected movie");
+	shortInfo = tr("Removes the selected movie from the collection");
+	longInfo = shortInfo;
+	shortcut = tr("Delete");
+	initAction(mA_CollRemMovie, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Edit selected movie");
+	shortInfo = tr("Open a dialog to edit the selected movie");
+	longInfo = shortInfo;
+	shortcut = tr("Ctrl+E");
+	initAction(mA_CollEdtMovie, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Duplicate selected movie");
+	shortInfo = tr("Duplicate the selected movie");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_CollDupMovie, text, shortInfo, longInfo, shortcut);
+
+	text = tr("A&bout this collection...");
+	shortInfo = tr("Show or edit basic information about this collection");
+	longInfo = tr("Show or edit basic information about this collection, like name, owner, contact info etc.");
+	shortcut.clear();
+	initAction(mA_CollMeta, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Shared data editor");
+	shortInfo = tr("View and edit shared data");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_ToolSdEditor, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Preferences");
+	shortInfo = tr("Configure Movida");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_ToolPref, text, shortInfo, longInfo, shortcut);
+
+
+	text = tr("Show &Log");
+	shortInfo = tr("Shows the application log file");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_ToolLog, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Contents");
+	shortInfo = tr("Open the Movida user guide");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_HelpContents, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Index");
+	shortInfo = tr("Open the Movida user guide index");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_HelpIndex, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&About Movida");
+	shortInfo = tr("Show some information about Movida");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_HelpAbout, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Lock toolbars");
+	shortInfo = tr("Lock toolbars");
+	longInfo = shortInfo;
+	shortcut.clear();
+	initAction(mA_LockToolBars, text, shortInfo, longInfo, shortcut);
+
+	//! \todo re-translate menus and toolbars
 	
 	updateCaption();
 }
@@ -367,11 +523,12 @@ void MvdMainWindow::setupConnections()
 	
 	connect ( mA_ToolPref, SIGNAL( triggered() ), this, SLOT ( showPreferences() ) );
 	connect ( mA_ToolLog, SIGNAL( triggered() ), this, SLOT ( showLog() ) );
+	connect ( mA_ToolSdEditor, SIGNAL( triggered() ), this, SLOT ( showSharedDataEditor() ) );
 
-	connect ( mAG_MovieView, SIGNAL( triggered(QAction*) ), this, SLOT ( movieViewToggled(QAction*) ) );
+	connect ( mAG_ViewMode, SIGNAL( triggered(QAction*) ), this, SLOT ( movieViewToggled(QAction*) ) );
+	connect ( mA_ViewModeZoomIn, SIGNAL( triggered() ), this, SLOT ( zoomIn() ) );
+	connect ( mA_ViewModeZoomOut, SIGNAL( triggered() ), this, SLOT ( zoomOut() ) );
 
-	connect ( mDetailsDock, SIGNAL( toggled(bool) ), this, SLOT ( dockViewsToggled() ) );
-	
 	connect ( mMN_FileMRU, SIGNAL(triggered(QAction*)), this, SLOT(openRecentFile(QAction*)) );
 	connect ( mMN_File, SIGNAL(aboutToShow()), this, SLOT(updateFileMenu()) );
 
@@ -380,6 +537,8 @@ void MvdMainWindow::setupConnections()
 	connect ( mA_CollEdtMovie, SIGNAL( triggered() ), this, SLOT ( editSelectedMovies() ) );
 	connect ( mA_CollDupMovie, SIGNAL( triggered() ), this, SLOT ( duplicateCurrentMovie() ) );
 	connect ( mA_CollMeta, SIGNAL( triggered() ), this, SLOT ( showMetaEditor() ) );
+
+	connect(mA_LockToolBars, SIGNAL(toggled(bool)), this, SLOT(lockToolBars(bool)));
 
 	connect ( mTreeView, SIGNAL( doubleClicked(const QModelIndex&) ), this, SLOT ( editMovie(const QModelIndex&) ) );
 	connect( mTreeView->selectionModel(), SIGNAL( selectionChanged(const QItemSelection&, const QItemSelection&) ), 
@@ -394,7 +553,7 @@ void MvdMainWindow::setupConnections()
 
 	connect( mMainViewStack, SIGNAL(currentChanged(int)), this, SLOT(currentViewChanged()) );
 	
-	connect( mMovieModel, SIGNAL(sorted()), this, SLOT(collectionModelSorted()) );
+	connect( mFilterModel, SIGNAL(sorted()), this, SLOT(collectionModelSorted()) );
 	
 	connect( mFilterWidget, SIGNAL(hideRequest()), this, SLOT(resetFilter()) );
 	connect( mFilterWidget, SIGNAL(caseSensitivityChanged()), this, SLOT(applyCurrentFilter()) );
@@ -403,6 +562,47 @@ void MvdMainWindow::setupConnections()
 	connect( mHideFilterTimer, SIGNAL(timeout()), mFilterWidget, SLOT(hide()) );
 
 	// Application shortcuts
-	connect( new QShortcut(Qt::CTRL + Qt::Key_V, this), SIGNAL(activated()), this, SLOT(cycleMovieView()) );
 	connect( new QShortcut(Qt::CTRL + Qt::Key_F, this), SIGNAL(activated()), this, SLOT(showFilterWidget()) );
+}
+
+#ifdef MVD_DEBUG_TOOLS
+
+//! \internal Sets up some convenience actions for debugging and development purposes.
+void MvdMainWindow::setupDebugTools()
+{
+	QMenu* debugMenu = new QMenu("&Debug", this);
+	menuBar()->insertMenu(mMN_Help->menuAction(), debugMenu);
+
+#ifdef Q_OS_WIN
+	QAction* collectorzAction = debugMenu->addAction("Collectorz.com movie collector", this, SLOT(runCollectorz()));
+	Q_UNUSED(collectorzAction);
+#endif
+}
+
+#ifdef Q_OS_WIN
+void MvdMainWindow::runCollectorz()
+{
+	QString path = MvdCore::locateApplication(QLatin1String("MovieCollector"), MvdCore::IncludeRegistryCache);
+	if (!path.isEmpty())
+		QProcess::startDetached(path, QStringList());
+}
+#endif
+
+#endif // MVD_DEBUG_TOOLS
+
+QAction* MvdMainWindow::createAction()
+{
+	QAction* action = new QAction(this);
+	return action;
+}
+
+void MvdMainWindow::initAction(QAction* action, const QString& text, const QString& shortInfo, const QString& longInfo, const QString& shortcut)
+{
+	Q_ASSERT(action);
+
+	action->setText(text);
+	action->setToolTip(shortInfo);
+	action->setStatusTip(shortInfo);
+	action->setWhatsThis(longInfo);
+	action->setShortcut(shortcut);
 }

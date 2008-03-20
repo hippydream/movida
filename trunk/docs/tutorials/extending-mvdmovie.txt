@@ -1,0 +1,16 @@
+*** Author: Fabrizio Angius
+*** Version: 1.0
+*** Title: How to add new attributes to a movie.
+
+This document is for developers who intend to modify movida and not for plugin
+authors.
+
+Adding new movie attributes requires the following changes to be done:
+ - add the attribute with appropriate get/set methods to MvdMovie
+ - add appropriate code to MvdCollectionSaver and MvdCollectionLoader
+ - add both the attribute and the xml load/save code to MvdMovieData
+
+ - add the appropriate code to one of the movie editor dialog pages (setMovieImpl, storeMovie,
+   and update of the modified status)
+ - add the appropriate code to the collection model and to Movida::movieAttributes(AttributeFilter)
+   in guiglobal.cpp

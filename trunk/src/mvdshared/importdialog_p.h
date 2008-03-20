@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: importdialog_p.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -38,7 +37,7 @@
 #include "importresultspage.h"
 #include "importsummarypage.h"
 #include "importfinalpage.h"
-
+#include <QStringList>
 
 //! \internal
 class MvdImportDialog_P
@@ -57,6 +56,8 @@ public:
 	quint8 searchSteps;
 	MvdImportDialog::ImportResult importResult;
 	MvdImportDialog::ErrorType errorType;
+
+	QStringList buildQueryList(QString s) const;
 };
 
 #endif // MVD_IMPORTDIALOG_P_H

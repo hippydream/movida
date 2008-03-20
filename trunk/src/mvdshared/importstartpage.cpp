@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: importstartpage.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -54,7 +53,7 @@ MvdImportStartPage::MvdImportStartPage(QWidget* parent)
 	engineCombo = new QComboBox;
 	queryInput = new MvdClearEdit;
 
-	infoLabel->setText(tr("Please enter your query and hit the Search button (or press Enter) to start the search."));
+	infoLabel->setText(tr("Please enter your query and hit the Search button (or press Enter) to start the search.\nUse either a comma (\",\") or a semicolon (\";\") to separate queries and perform multiple searches."));
 
 	QGridLayout* gridLayout = new QGridLayout(this);
 	gridLayout->addWidget(infoLabel, 0, 0, 1, 2);
@@ -63,7 +62,7 @@ MvdImportStartPage::MvdImportStartPage(QWidget* parent)
 
 	QGridLayout* queryGridLayout = new QGridLayout();
 	QLabel* engineLabel = new QLabel(this);
-	engineLabel->setText(tr("Search type:"));
+	engineLabel->setText(tr("Search engine:"));
 	queryGridLayout->addWidget(engineLabel, 0, 0, 1, 1);
 	queryGridLayout->addWidget(engineCombo, 0, 1, 1, 1);
 	queryGridLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed), 1, 1, 1, 1);
@@ -144,6 +143,15 @@ void MvdImportStartPage::controlTriggered(int id)
 int MvdImportStartPage::engine() const
 {
 	return engineCombo->currentIndex();
+}
+
+//! Returns a reference to an engine descriptor for a registered engine.
+const MvdSearchEngine* MvdImportStartPage::engineDescriptor(int id) const
+{
+	if (id < 0 || id > engines.size() - 1)
+		return 0;
+
+	return &(engines[id]);
 }
 
 //! Returns the current (possibly trimmed) query.

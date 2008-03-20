@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: ratingwidget.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -22,7 +21,7 @@
 #include "ratingwidget.h"
 #include <QPaintEvent>
 #include <QPainter>
-#include <QRect>
+#include <QIcon>
 #include <math.h>
 
 /*!
@@ -41,15 +40,9 @@ class MvdRatingWidget_P
 {
 public:
 	MvdRatingWidget_P() : value(0), minimum(0), maximum(10),
-		sizeCheckOk(true), sizeOk(true), mousePressed(false), hoveredIndex(-1),
-		fullHover(true)
+		size(QSize(22, 22)),
+		mousePressed(false), hoveredIndex(-1), active(false)
 	{}
-
-	inline QPixmap findValidPixmap() const
-	{
-		return rated.isNull() ? unrated.isNull() ? hovered.isNull() ?
-			QPixmap() : hovered : unrated : rated;
-	}
 
 	//! \internal Returns the index (starting from 0) of the highlighted pixmap or -1.
 	inline void updateHoveredIndex(const QPoint& p, const QSize& sz)
@@ -72,20 +65,12 @@ public:
 	int minimum;
 	int maximum;
 
-	QPixmap rated;
-	QPixmap unrated;
-	QPixmap hovered;
-
-	bool sizeCheckOk;
-	bool sizeOk;
+	QIcon icon;
+	QSize size;
 
 	bool mousePressed;
 	int hoveredIndex;
-
-	// If true items lower than the currently hovered item are painted as "rated"
-	bool fullHover;
-
-	static const int defaultSize = 20;
+	bool active;
 };
 
 
@@ -99,11 +84,8 @@ MvdRatingWidget
 MvdRatingWidget::MvdRatingWidget(QWidget* parent)
 : QWidget(parent), d(new MvdRatingWidget_P)
 {
-	QSize defaultSize(MvdRatingWidget_P::defaultSize * d->maximum, MvdRatingWidget_P::defaultSize);
-	setMinimumSize(defaultSize);
-	setMaximumSize(defaultSize);
+	setFixedSize(d->size);
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
 	setMouseTracking(true);
 }
 
@@ -182,47 +164,29 @@ void MvdRatingWidget::setMaximum(int value)
 	setMaximumSize(sz);
 }
 
-//! Returns the current pixmap for the specific role.
-QPixmap MvdRatingWidget::pixmap(PixmapRole role) const
+//! Returns the icon used for the rating.
+QIcon MvdRatingWidget::icon() const
 {
-	return (role == HoveredRole) ? d->hovered :
-		(role == RatedRole) ? d->rated :
-		(role == UnratedRole) ? d->unrated : QPixmap();
+	return d->icon;
 }
 
 /*!
-	Sets a pixmap for a specific role.
-	Note that the set pixmaps should have the same size or they won't be
-	rendered. Mixed size pixmaps may be supported in a future version.
-	If a pixmap has not been set for a specific role when the label is rendered,
-	it will be replaced by the next valid pixmap (if any).
+	Sets an icon to be used for the rating.
+	The QIcon::Selected mode is used when the mouse is hovered, and the QIcon::Disabled
+	state for values > than the set rating.
 */
-void MvdRatingWidget::setPixmap(PixmapRole role, const QPixmap& pm)
+void MvdRatingWidget::setIcon(const QIcon& i, QSize size)
 {
-	switch (role)
-	{
-	case RatedRole: d->rated = pm; break;
-	case UnratedRole: d->unrated = pm; break;
-	case HoveredRole: d->hovered = pm; break;
-	default: ;
-	}
-
-	d->sizeCheckOk = false;
-
-	QSize sz = sizeHint();
-	setMinimumSize(sz);
-	setMaximumSize(sz);
+	d->icon = i;
+	d->size = size.isValid() ? size : QSize(22, 22);
+	setFixedSize(d->size);
 	QWidget::updateGeometry();
 }
 
 //! \internal Returns the size hint for this widget.
 QSize MvdRatingWidget::sizeHint() const
 {
-	QPixmap pm = d->findValidPixmap();
-	int w = pm.isNull() ? MvdRatingWidget_P::defaultSize : pm.width();
-	int h = pm.isNull() ? MvdRatingWidget_P::defaultSize : pm.height();
-
-	return QSize(w * d->maximum, h);
+	return QSize(d->size.width() * d->maximum, d->size.height());
 }
 
 //! Returns the minimum size hint for this widget.
@@ -237,14 +201,14 @@ void MvdRatingWidget::mouseMoveEvent(QMouseEvent* e)
 	Q_UNUSED(e);
 
 	int oldHovered = d->hoveredIndex;
+	d->active = false;
 
 	QPoint p = this->mapFromGlobal(QCursor::pos());
 	QSize sz = sizeHint();
 	d->updateHoveredIndex(p, sz);
 
-	if (oldHovered != d->hoveredIndex)
-	{
-		repaint();
+	if (oldHovered != d->hoveredIndex) {
+		update();
 		emit hovered(d->hoveredIndex < 0 ? -1 : d->hoveredIndex + 1);
 	}
 }
@@ -256,8 +220,9 @@ void MvdRatingWidget::leaveEvent(QEvent* e)
 
 	int oldHovered = d->hoveredIndex;
 	d->hoveredIndex = -1;
+	d->active = -1;
 
-	repaint();
+	update();
 
 	if (oldHovered != d->hoveredIndex)
 		emit hovered(-1);
@@ -266,8 +231,7 @@ void MvdRatingWidget::leaveEvent(QEvent* e)
 //! \internal
 void MvdRatingWidget::mousePressEvent(QMouseEvent* e)
 {
-	if ((e->button() & Qt::LeftButton) == 0)
-	{
+	if ((e->button() & Qt::LeftButton) == 0) {
 		QWidget::mousePressEvent(e);
 		return;
 	}
@@ -276,11 +240,11 @@ void MvdRatingWidget::mousePressEvent(QMouseEvent* e)
 	QSize sz = sizeHint();
 	d->updateHoveredIndex(p, sz);
 
-	if (d->hoveredIndex >= 0)
-	{
+	if (d->hoveredIndex >= 0) {
 		d->value = d->minimum + d->hoveredIndex + 1;
 		d->mousePressed = true;
-		repaint();
+		d->active = true;
+		update();
 		emit valueChanged(d->value);
 	}
 }
@@ -290,77 +254,32 @@ void MvdRatingWidget::mouseReleaseEvent(QMouseEvent* e)
 {
 	Q_UNUSED(e);
 	d->mousePressed = false;
+	update();
 }
 
 //! \internal
 void MvdRatingWidget::paintEvent(QPaintEvent* e)
 {
 	Q_UNUSED(e);
-
-	QPixmap validPm = d->findValidPixmap();
 	QPainter p(this);
 
-	if (validPm.isNull())
-	{
+	if (d->icon.isNull()) {
 		p.drawText(rect(), tr("Rating: %1").arg(d->value));
 		p.end();
 		return;
 	}
 
-	if (!d->sizeCheckOk)
-	{
-		if (d->rated.isNull())
-		{
-			if (d->unrated.isNull() || d->hovered.isNull())
-				d->sizeOk = true; // Only one valid pixmap
-			else d->sizeOk = d->unrated.size() == d->hovered.size();
-		}
-		else if (d->unrated.isNull())
-		{
-			if (d->rated.isNull() || d->hovered.isNull())
-				d->sizeOk = true; // Only one valid pixmap
-			else d->sizeOk = d->rated.size() == d->hovered.size();
-		}
-		else if (d->hovered.isNull())
-		{
-			if (d->rated.isNull() || d->unrated.isNull())
-				d->sizeOk = true; // Only one valid pixmap
-			else d->sizeOk = d->rated.size() == d->unrated.size();
-		}
-		else
-		{
-			d->sizeOk = (d->rated.size() == d->unrated.size() && d->rated.size() == d->hovered.size());
-		}
-
-		d->sizeCheckOk = true;
-	}
-
-	if (!d->sizeOk)
-	{
-		p.drawText(rect(), tr("Rating: %1").arg(d->value));
-		p.end();
-		return;
-	}
-
-	for (int i = 0; i < d->maximum - d->minimum; ++i)
-	{
-		if (d->hoveredIndex == i && !d->mousePressed)
-		{
-			// Hovered
-			QPixmap& pm = d->hovered.isNull() ? validPm : d->hovered;
-			p.drawPixmap(pm.width() * i, 0, pm);
-		}
-		else if (i < d->value || (d->fullHover && i < d->hoveredIndex))
-		{
-			// Rated
-			QPixmap& pm = d->rated.isNull() ? d->hovered.isNull() ? d->unrated : d->hovered : d->rated;
-			p.drawPixmap(pm.width() * i, 0, pm);
-		}
-		else
-		{
-			// Unrated
-			QPixmap& pm = d->unrated.isNull() ? d->rated.isNull() ? d->hovered : d->rated : d->unrated;
-			p.drawPixmap(pm.width() * i, 0, pm);
+	for (int i = 0; i < d->maximum - d->minimum; ++i) {
+		if (d->hoveredIndex >= 0 && !d->active) {
+			// Highlight items up to the hovered index
+			if (i <= d->hoveredIndex)
+				p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Selected));
+			else p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Disabled));
+		} else {
+			// Draw normal rating
+			if (i < d->value)
+				p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Normal));
+			else p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Disabled));
 		}
 	}
 

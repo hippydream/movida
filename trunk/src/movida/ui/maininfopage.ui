@@ -22,7 +22,10 @@
    <property name="rightMargin" >
     <number>0</number>
    </property>
-   <item row="0" column="0" >
+   <property name="bottomMargin" >
+    <number>0</number>
+   </property>
+   <item row="0" column="0" colspan="2" >
     <widget class="QGroupBox" name="mainBox" >
      <property name="title" >
       <string>Main info</string>
@@ -409,22 +412,6 @@ p, li { white-space: pre-wrap; }
       <property name="verticalSpacing" >
        <number>6</number>
       </property>
-      <item row="1" column="0" colspan="2" >
-       <widget class="QLabel" name="ratingStatus" >
-        <property name="focusPolicy" >
-         <enum>Qt::TabFocus</enum>
-        </property>
-        <property name="contextMenuPolicy" >
-         <enum>Qt::NoContextMenu</enum>
-        </property>
-        <property name="text" >
-         <string>Rating</string>
-        </property>
-        <property name="textInteractionFlags" >
-         <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::NoTextInteraction</set>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0" >
        <widget class="MvdRatingWidget" name="ratingLabel" >
         <property name="minimumSize" >
@@ -454,17 +441,76 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
+      <item row="1" column="0" colspan="2" >
+       <widget class="QLabel" name="ratingStatus" >
+        <property name="focusPolicy" >
+         <enum>Qt::TabFocus</enum>
+        </property>
+        <property name="contextMenuPolicy" >
+         <enum>Qt::NoContextMenu</enum>
+        </property>
+        <property name="text" >
+         <string>Rating</string>
+        </property>
+        <property name="textInteractionFlags" >
+         <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::NoTextInteraction</set>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" >
+   <item row="1" column="1" >
+    <widget class="QGroupBox" name="markAsBox" >
+     <property name="title" >
+      <string>Special tags</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <item>
+       <widget class="QCheckBox" name="markAsSeen" >
+        <property name="text" >
+         <string>Mark as seen</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="markAsSpecial" >
+        <property name="text" >
+         <string>Mark as special</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="markAsLoaned" >
+        <property name="text" >
+         <string>Mark as loaned</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>20</width>
+          <height>16</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2" >
     <spacer>
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" >
       <size>
-       <width>508</width>
+       <width>526</width>
        <height>16</height>
       </size>
      </property>

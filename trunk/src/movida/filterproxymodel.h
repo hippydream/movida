@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: filterproxymodel.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -42,6 +41,9 @@ public:
 
 	void sortByAttribute(Movida::MovieAttribute attribute, Qt::SortOrder order = Qt::AscendingOrder);
 	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+
+signals:
+	void sorted();
 
 protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;

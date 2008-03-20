@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<movida-xml-doc items="0" version="1" update="2007-07-25T11:04:24">
+	<actions>
+		<action name="file.new">
+			<text>&New Collection</text>
+			<icon>:/images/document-new.svgz</icon>
+			<short-info>Create a new movie collection</short-info>
+			<long-info>Create a new movie collection</long-info>
+			<shortcut>Ctrl+N</shortcut>
+		</action>
+	</actions>
+	
+	<menus>
+		<menu name="file" title="&File">
+			<menu-item type="action" name="file.new" />
+		</menu>
+	</menus>
+	
+	<toolbars>
+		<toolbar name="file" title="File">
+			<toolbar-item type="action" name="file.new" />
+		</toolbar>
+	</toolbars>
+	
+</movida-xml-doc>

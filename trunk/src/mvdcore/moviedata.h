@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: moviedata.h
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -65,7 +64,7 @@ public:
 		Title, OriginalTitle, ReleaseYear, ProductionYear, Edition, ImdbId,
 		Plot, Notes, StorageId, RunningTime, Rating, ColorMode, Languages,
 		Countries, Tags, Genres, Directors, Producers, CrewMembers, Actors,
-		Urls, SpecialContents, PosterPath
+		Urls, SpecialContents, PosterPath, SeenTag, SpecialTag, LoanedTag
 	};
 
 	enum Option
@@ -107,6 +106,7 @@ public:
 	QList<UrlData> urls;
 	QStringList specialContents;
 	QString posterPath;
+	MvdMovie::Tags specialTags;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(MvdMovieData::Options);
 

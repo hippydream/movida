@@ -1,10 +1,9 @@
 /**************************************************************************
 ** Filename: importdialog.cpp
-** Revision: 3
 **
 ** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.sourceforge.net/).
+** This file is part of the Movida project (http://movida.42cows.org/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -35,6 +34,26 @@
 */
 
 Q_DECLARE_METATYPE(MvdMovieDataList)
+
+
+QStringList MvdImportDialog_P::buildQueryList(QString s) const
+{
+	s = s.toLower();
+	QStringList l = s.split(QRegExp("[;,]"), QString::SkipEmptyParts);
+	l.sort();
+
+	// Remove duplicates
+	for (int i = 0; i < l.size() - 1; ++i) {
+		if (l.at(i).trimmed() == l.at(i + 1).trimmed()) {
+			l.removeAt(i--);
+		}
+	}
+
+	return l;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 
 /*!
 	Creates a new Movida import wizard for the search engines listed in \p engines.
@@ -237,6 +256,8 @@ void MvdImportDialog::addMovieData(const MvdMovieData& md)
 	Starts a new top level section to group search results. \p notes is an optional tooltip text.
 	The section will be marked as <i>active</i> and subsequent calls to addMatch() will cause
 	the matches to be placed in this section.
+	If another section with the same title exists, no new section is added and the existing one will
+	be marked as active.
 */
 void MvdImportDialog::addSection(const QString& title, const QString& notes)
 {
@@ -247,6 +268,8 @@ void MvdImportDialog::addSection(const QString& title, const QString& notes)
 	Starts a new second level section to group search results. \p notes is an optional tooltip text.
 	The section will be marked as <i>active</i> and subsequent calls to addMatch() will cause
 	the matches to be placed in this section.
+	If another subsection with the same title exists, no new section is added and the existing one will
+	be marked as active.
 */
 void MvdImportDialog::addSubSection(const QString& title, const QString& notes)
 {
@@ -270,6 +293,7 @@ void MvdImportDialog::pageChanged(int id)
 		d->resultsPage->reset();
 		d->summaryPage->reset();
 		d->finalPage->reset();
+		d->importResult = Success;
 		emit resetRequest();
 	} break;
 	case MvdImportDialog_P::ResultsPage:
@@ -277,18 +301,50 @@ void MvdImportDialog::pageChanged(int id)
 		setButtonText(QWizard::CommitButton, tr("&Next"));
 
 		QString q = d->startPage->query();
+		
+		int engineId = d->startPage->engine();
+		const MvdSearchEngine* engineDescriptor = d->startPage->engineDescriptor(engineId);
+		Q_ASSERT(engineDescriptor);
+		
+		QStringList queries = d->buildQueryList(q);
+		QString query;
+		int queryCount = 1;
+
 		if (Movida::settings().value("movida/use-history").toBool()) {
 		
 			QStringList history = Movida::settings().value("movida/history/movie-import").toStringList();
-			if (!history.contains(q, Qt::CaseInsensitive))
-				history.append(q);
-			Movida::settings().setValue("movida/history/movie-import", history);
-			d->startPage->updateCompleter(history);
+			bool update = false;
+			for (int i = 0; i < queries.size(); ++i) {
+				QString qq = queries.at(i);
+				if (!history.contains(qq, Qt::CaseInsensitive)) {
+					history.append(qq);
+					update = true;
+				}
+			}
+
+			if (update) {
+				int maxCount = Movida::settings().value("movida/use-history").toInt();
+				while (history.count() > maxCount)
+					history.takeFirst();
+				Movida::settings().setValue("movida/history/movie-import", history);
+				d->startPage->updateCompleter(history);
+			}
 		}
-		static const int QueryCount = 1; //! \todo Change this after multiple searches have been implemented
+
+		if (queries.isEmpty()) {
+			query = q;
+		} else if (!engineDescriptor->capabilities.testFlag(MvdSearchEngine::MultipleSearchCapability)) {
+			query = queries.first();
+		} else {
+			query = queries.join(";");
+			queryCount = queries.size();
+		}
+
 		d->resultsPage->setProgress(0);
-		d->resultsPage->setProgressMaximum(d->searchSteps * QueryCount);
-		emit searchRequest(q, d->startPage->engine());
+		d->resultsPage->setProgressMaximum(d->searchSteps * queryCount);
+
+		emit searchRequest(query, engineId);
+
 	} break;
 	case MvdImportDialog_P::SummaryPage:
 	{
