@@ -109,4 +109,7 @@ private: \
 #define MVD_D(Class) Class##Private * const d = d_func()
 #define MVD_Q(Class) Class * const q = q_func()
 
+// libxml string conversion macros
+#define _X(s) QString::fromUtf8((const char*) s)
+
 #endif // MVD_GLOBAL_H

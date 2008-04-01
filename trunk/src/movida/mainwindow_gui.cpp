@@ -23,13 +23,15 @@
 #include "filterproxymodel.h"
 #include "filterwidget.h"
 #include "guiglobal.h"
+#include "infopanel.h"
 #include "mainwindow.h"
+#include "movietreeview.h"
 #include "movietreeviewdelegate.h"
+#include "movieviewlistener.h"
 #include "rowselectionmodel.h"
 #include "shareddataeditor.h"
 #include "shareddatamodel.h"
 #include "smartview.h"
-#include "treeview.h"
 #include "mvdcore/core.h"
 #include "mvdcore/pathresolver.h"
 #include <QDesktopServices>
@@ -50,12 +52,26 @@
 //!
 void MvdMainWindow::setupUi()
 {
-	QWidget* container = new QWidget;
+	setUnifiedTitleAndToolBarOnMac(true);
+
+	QFrame* container = new QFrame;
+	container->setFrameShape(QFrame::StyledPanel);
+	container->setFrameShadow(QFrame::Raised);
 	setCentralWidget(container);
+
 	QGridLayout* layout = new QGridLayout(container);
+	layout->setMargin(0);
+	layout->setSpacing(0);
 	
+	mInfoPanel = new MvdInfoPanel;
+	mInfoPanel->closeImmediately(); // by-pass automatic delayed hiding
+	layout->addWidget(mInfoPanel, 0, 0);
+
 	mMainViewStack = new QStackedWidget;
-	layout->addWidget(mMainViewStack, 0, 0);
+	mMainViewStack->setFrameShadow(QFrame::Raised);
+	layout->addWidget(mMainViewStack, 1, 0);
+
+	statusBar()->setSizeGripEnabled(false);
 	
 	// Share filter proxy model
 	mFilterModel = new MvdFilterProxyModel(this);
@@ -68,10 +84,11 @@ void MvdMainWindow::setupUi()
 	mSmartView->setObjectName("movie-smart-view");
 	mSmartView->setModel(mFilterModel);
 
-	mTreeView = new MvdTreeView(this);
+	mTreeView = new MvdMovieTreeView(this);
 	mTreeView->setObjectName("movie-tree-view");
 	mTreeView->setModel(mFilterModel);
 	mTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	mTreeView->setDragEnabled(true);
 
 	MvdMovieTreeViewDelegate* mtvd = new MvdMovieTreeViewDelegate(this);
 	mTreeView->setItemDelegateForColumn(int(Movida::RatingAttribute), mtvd);
@@ -83,6 +100,11 @@ void MvdMainWindow::setupUi()
 	mSelectionModel = new MvdRowSelectionModel(mFilterModel);
 	mTreeView->setSelectionModel(mSelectionModel);
 	mSmartView->setSelectionModel(mSelectionModel);
+
+	// Install event listener
+	MvdMovieViewListener* listener = new MvdMovieViewListener(this);
+	listener->registerView(mTreeView);
+	listener->registerView(mSmartView);
 	
 	mMainViewStack->addWidget(mTreeView);
 	mMainViewStack->addWidget(mSmartView);
@@ -107,15 +129,24 @@ void MvdMainWindow::setupUi()
 	mFilterWidget = new MvdFilterWidget;
 	mFilterWidget->setVisible(false);
 	mFilterWidget->editor()->installEventFilter(this);
-	layout->addWidget(mFilterWidget, 1, 0);
+	layout->addWidget(mFilterWidget, 2, 0);
 
 	mHideFilterTimer = new QTimer(this);
 	mHideFilterTimer->setInterval(5000);
 	mHideFilterTimer->setSingleShot(true);
+
+	//! \todo Consider using Kde4 Dolphin like status bar with success or error icons.
 	
 	createActions();
 	createMenus();
 	createToolBars();
+	lockToolBars(true);
+
+	// Intercept drag & drop. Need to install on viewport or D&D events will be blocked by the view.
+	mSmartView->setAcceptDrops(true);
+	mSmartView->viewport()->installEventFilter(this);
+	mTreeView->setAcceptDrops(true);
+	mTreeView->viewport()->installEventFilter(this);
 
 	retranslateUi();
 }
@@ -567,10 +598,11 @@ void MvdMainWindow::setupConnections()
 	connect( mFilterModel, SIGNAL(sorted()), this, SLOT(collectionModelSorted()) );
 	
 	connect( mFilterWidget, SIGNAL(hideRequest()), this, SLOT(resetFilter()) );
-	connect( mFilterWidget, SIGNAL(caseSensitivityChanged()), this, SLOT(applyCurrentFilter()) );
-	connect( mFilterWidget->editor(), SIGNAL(textEdited(QString)), this, SLOT(filter(QString)) );
+	connect( mFilterWidget, SIGNAL(caseSensitivityChanged()), this, SLOT(filter()) );
+	connect( mFilterWidget->editor(), SIGNAL(textChanged(QString)), this, SLOT(filter(QString)) );
 
 	connect( mHideFilterTimer, SIGNAL(timeout()), mFilterWidget, SLOT(hide()) );
+	connect( mInfoPanel, SIGNAL(closedByUser()), SLOT(infoPanelClosedByUser()) );
 
 	// Application shortcuts
 	connect( new QShortcut(Qt::CTRL + Qt::Key_F, this), SIGNAL(activated()), this, SLOT(showFilterWidget()) );
@@ -583,21 +615,7 @@ void MvdMainWindow::setupDebugTools()
 {
 	QMenu* debugMenu = new QMenu("&Debug", this);
 	menuBar()->insertMenu(mMN_Help->menuAction(), debugMenu);
-
-#ifdef Q_OS_WIN
-	QAction* collectorzAction = debugMenu->addAction("Collectorz.com movie collector", this, SLOT(runCollectorz()));
-	Q_UNUSED(collectorzAction);
-#endif
 }
-
-#ifdef Q_OS_WIN
-void MvdMainWindow::runCollectorz()
-{
-	QString path = MvdCore::locateApplication(QLatin1String("MovieCollector"), MvdCore::IncludeRegistryCache);
-	if (!path.isEmpty())
-		QProcess::startDetached(path, QStringList());
-}
-#endif
 
 #endif // MVD_DEBUG_TOOLS
 

@@ -183,7 +183,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		for (int i = 0; i < idList.size(); ++i)
 		{
 			mvdid id = idList.at(i);
-			const MvdSdItem& sd = collection.smd().item(id);
+			const MvdSdItem& sd = collection.sharedData().item(id);
 			if (!sd.value.isEmpty())
 				xml.append(QString("\t\t<language>%1</language>\n").arg(sd.value));
 		}
@@ -197,7 +197,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		for (int i = 0; i < idList.size(); ++i)
 		{
 			mvdid id = idList.at(i);
-			const MvdSdItem& sd = collection.smd().item(id);
+			const MvdSdItem& sd = collection.sharedData().item(id);
 			if (!sd.value.isEmpty())
 				xml.append(QString("\t\t<country>%1</country>\n").arg(sd.value));
 		}
@@ -211,7 +211,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		for (int i = 0; i < idList.size(); ++i)
 		{
 			mvdid id = idList.at(i);
-			const MvdSdItem& sd = collection.smd().item(id);
+			const MvdSdItem& sd = collection.sharedData().item(id);
 			if (!sd.value.isEmpty())
 				xml.append(QString("\t\t<tag>%1</tag>\n").arg(sd.value));
 		}
@@ -225,7 +225,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		for (int i = 0; i < idList.size(); ++i)
 		{
 			mvdid id = idList.at(i);
-			const MvdSdItem& sd = collection.smd().item(id);
+			const MvdSdItem& sd = collection.sharedData().item(id);
 			if (!sd.value.isEmpty())
 				xml.append(QString("\t\t<genre>%1</genre>\n").arg(sd.value));
 		}
@@ -239,7 +239,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		for (int i = 0; i < idList.size(); ++i)
 		{
 			mvdid id = idList.at(i);
-			const MvdSdItem& sd = collection.smd().item(id);
+			const MvdSdItem& sd = collection.sharedData().item(id);
 			if (!sd.value.isEmpty())
 			{
 				xml.append("\t\t<person>\n");
@@ -258,7 +258,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		for (int i = 0; i < idList.size(); ++i)
 		{
 			mvdid id = idList.at(i);
-			const MvdSdItem& sd = collection.smd().item(id);
+			const MvdSdItem& sd = collection.sharedData().item(id);
 			if (!sd.value.isEmpty())
 			{
 				xml.append("\t\t<person>\n");
@@ -279,7 +279,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		{
 			mvdid id = it.key();
 			QStringList roles = it.value();
-			const MvdSdItem& sd = collection.smd().item(id);
+			const MvdSdItem& sd = collection.sharedData().item(id);
 			if (!sd.value.isEmpty())
 			{
 				xml.append("\t\t<person>\n");
@@ -308,7 +308,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		{
 			mvdid id = it.key();
 			QStringList roles = it.value();
-			const MvdSdItem& sd = collection.smd().item(id);
+			const MvdSdItem& sd = collection.sharedData().item(id);
 			if (!sd.value.isEmpty())
 			{
 				xml.append("\t\t<person>\n");

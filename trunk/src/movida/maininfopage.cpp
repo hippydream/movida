@@ -42,8 +42,8 @@
 	Creates a new page.
 */
 MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
-: MvdMovieEditorPage(c, parent), mDefaultRunningTime(0), mDefaultRating(0), mStatusTimer(new QTimer(this)),
-mDefaultSpecialTags(0)
+: MvdMovieEditorPage(c, parent), mDefaultRunningTime(0), mDefaultRating(0),
+mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
 {
 	setupUi(this);
 	int w = MvdCore::parameter("movida/poster-default-width").toInt();

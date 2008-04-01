@@ -100,6 +100,7 @@ signals:
 	void itemReferenceChanged(mvdid id);
 
 	void cleared();
+	void destroyed();
 
 private:
 	MvdSharedData_P* d;

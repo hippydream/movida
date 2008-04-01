@@ -23,12 +23,27 @@
 
 #include "global.h"
 #include <QObject>
+#include <QHash>
 
 class MvdMovieCollection;
 
-class MVD_EXPORT MvdCollectionLoader
+class MVD_EXPORT MvdCollectionLoader : QObject
 {
+	Q_OBJECT
+
 public:
+	struct Info {
+		Info() : expectedMovieCount(0) {}
+
+		int expectedMovieCount;
+		QHash<QString,QString> metadata;
+	};
+
+	enum ProgressType {
+		CollectionInfo,
+		ProgressInfo
+	};
+
 	enum StatusCode
 	{
 		NoError = 0,
@@ -41,9 +56,18 @@ public:
 		UnknownError
 	};
 
-	static const quint8 version = 1;
+	MvdCollectionLoader(QObject* parent = 0);
+	~MvdCollectionLoader();
 
-	static StatusCode load(MvdMovieCollection* collection, QString file = QString());
+	void setProgressHandler(QObject* receiver, const char* member);
+	StatusCode load(MvdMovieCollection* collection, QString file = QString());
+
+private slots:
+	void extractionProgress(int);
+
+private:
+	class Private;
+	Private* d;
 };
 
 #endif // MVD_COLLECTIONLOADER_H

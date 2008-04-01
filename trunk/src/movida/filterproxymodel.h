@@ -42,6 +42,9 @@ public:
 	void sortByAttribute(Movida::MovieAttribute attribute, Qt::SortOrder order = Qt::AscendingOrder);
 	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
+	virtual bool setFilterAdvancedString(const QString& q);
+	virtual QString filterAdvancedString() const;
+
 signals:
 	void sorted();
 
@@ -49,12 +52,26 @@ protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
 
 private:
+	struct Function {
+		Function(Movida::FilterFunction ff, const QStringList& p, bool negated) : type(ff), parameters(p), neg(negated) {}
+		Movida::FilterFunction type;
+		QStringList parameters;
+		bool neg;
+	};
+
+	bool rebuildPatterns();
 	bool testFunction(int sourceRow, const QModelIndex& sourceParent, 
-		const QString& function, const QStringList& parameters) const;
+		const Function& function) const;
+	inline QList<mvdid> idList(const QStringList& sl) const;
 
 	QList<Movida::MovieAttribute> mMovieAttributes;
 	int mSortColumn;
 	Qt::SortOrder mSortOrder;
+
+	QString mQuery;
+	bool mInvalidQuery;
+	QList<Function> mFunctions;
+	QStringList mPlainStrings;
 };
 
 #endif // MVD_FILTERPROXYMODEL_H

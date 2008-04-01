@@ -42,6 +42,11 @@
 
 using namespace Movida;
 
+namespace {
+	const int version = 1;
+}
+
+Q_DECLARE_METATYPE(MvdCollectionLoader::Info);
 
 /*!
 	\class MvdCollectionLoader collectionloader.h
@@ -52,43 +57,52 @@ using namespace Movida;
 
 
 /************************************************************************
-MvdCollectionLoader_P
+MvdCollectionLoader::Private
 *************************************************************************/
 
 //! \internal
-namespace MvdCollectionLoader_P
+class MvdCollectionLoader::Private
 {
+public:
+	Private(MvdCollectionLoader* cl) : q(cl), progressReceiver(0) {}
+
 	//! \internal
 	typedef QHash<mvdid, mvdid> IdMapper;
 
-	static inline bool checkArchiveVersion(const QString& attribute);
-	static inline bool loadXmlDocument(const QString& path, xmlDocPtr* doc, xmlNodePtr* cur, int* itemCount);
+	inline bool checkArchiveVersion(const QString& attribute);
+	inline bool loadXmlDocument(const QString& path, xmlDocPtr* doc, xmlNodePtr* cur, int* itemCount);
 
 	
 	// Shared data parser
-	static inline void parseSharedItem(xmlDocPtr doc, xmlNodePtr node, 
+	void parseSharedItem(xmlDocPtr doc, xmlNodePtr node, 
 		IdMapper* idMapper, MvdMovieCollection* collection, int itemCount);
 
 
 	// Movie parser
-	static inline void parseCollection(xmlDocPtr doc, xmlNodePtr cur, 
+	void parseCollection(xmlDocPtr doc, xmlNodePtr cur, 
 		const IdMapper& idMapper, MvdMovieCollection* collection, int itemCount);
 
 
 	// Shared data ID parsers
-	static inline void parsePersonIdList(xmlDocPtr doc, xmlNodePtr cur,
+	void parsePersonIdList(xmlDocPtr doc, xmlNodePtr cur,
 		const IdMapper& idMapper, MvdMovie* movie, Movida::DataRole role);
 
-	static inline void parseSimpleIdList(xmlDocPtr doc, xmlNodePtr cur, 
+	void parseSimpleIdList(xmlDocPtr doc, xmlNodePtr cur, 
 		const IdMapper& idMapper, MvdMovie* movie, Movida::DataRole role);
 
 
 	// Non-shared data parsers
-	static inline void parseUrlDescriptions(xmlDocPtr doc, xmlNodePtr node,
+	void parseUrlDescriptions(xmlDocPtr doc, xmlNodePtr node,
 		QList<MvdUrl>* urls);
 
-	static inline QStringList parseStringDescriptions(xmlDocPtr doc, xmlNodePtr node, 
+	QStringList parseStringDescriptions(xmlDocPtr doc, xmlNodePtr node, 
 		const QString& tag);
+
+	MvdCollectionLoader* q;
+
+	QObject* progressReceiver;
+	QString progressMember;
+	MvdMovieCollection* collection;
 };
 
 /*! 
@@ -109,7 +123,7 @@ namespace MvdCollectionLoader_P
 	\warning xmlFreeDoc is not called within this method; you will have to 
 	free resources after calling it.
 */
-void MvdCollectionLoader_P::parseSharedItem(xmlDocPtr doc, xmlNodePtr node,
+void MvdCollectionLoader::Private::parseSharedItem(xmlDocPtr doc, xmlNodePtr node,
 	IdMapper* idMapper, MvdMovieCollection* collection, int itemCount)
 {
 	Q_ASSERT(doc && node && idMapper && collection);
@@ -128,7 +142,7 @@ void MvdCollectionLoader_P::parseSharedItem(xmlDocPtr doc, xmlNodePtr node,
 	if (!attr)
 		return;
 
-	Movida::DataRole type = MvdSharedData::roleFromString(QString((const char*)attr));
+	Movida::DataRole type = MvdSharedData::roleFromString(_X(attr));
 	xmlFree(attr);
 
 	if (type == Movida::NoRole)
@@ -145,7 +159,7 @@ void MvdCollectionLoader_P::parseSharedItem(xmlDocPtr doc, xmlNodePtr node,
 			continue;
 		}
 
-		QString data = QString((const char*)xmlNodeListGetString(doc, n->xmlChildrenNode, 1)).trimmed();
+		QString data = _X(xmlNodeListGetString(doc, n->xmlChildrenNode, 1)).trimmed();
 
 		if (!xmlStrcmp(n->name, (const xmlChar*) "value"))
 			item.value = data;
@@ -166,7 +180,7 @@ void MvdCollectionLoader_P::parseSharedItem(xmlDocPtr doc, xmlNodePtr node,
 	if (!item.value.isEmpty())
 	{
 		item.role = type;
-		mvdid newId = collection->smd().addItem(item);
+		mvdid newId = collection->sharedData().addItem(item);
 		if (newId != MvdNull)
 			idMapper->insert(id, newId);
 	}
@@ -184,7 +198,7 @@ void MvdCollectionLoader_P::parseSharedItem(xmlDocPtr doc, xmlNodePtr node,
 	\warning xmlFreeDoc is not called within this method; you will have to 
 	free resources after calling it.
 */
-void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur, 
+void MvdCollectionLoader::Private::parseCollection(xmlDocPtr doc, xmlNodePtr cur, 
 	const IdMapper& idMapper, MvdMovieCollection* collection, int itemCount)
 {
 	Q_UNUSED(itemCount)
@@ -227,7 +241,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				continue;
 			}
 
-			nodeName = (const char*) mNode->name;
+			nodeName = _X(mNode->name);
 
 			if (nodeName == "cast")
 				parsePersonIdList(doc, mNode, idMapper, &movie, Movida::ActorRole);
@@ -238,7 +252,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlGetProp(mNode, (const xmlChar*) "value");
 				if (attr != 0)
 				{
-					nodeName = (const char*) attr;
+					nodeName = _X(attr);
 					xmlFree(attr);
 
 					if (nodeName == "bw")
@@ -263,7 +277,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				if (attr)
 				{
 					QRegExp imdbRx(MvdCore::parameter("mvdcore/imdb-id-regexp").toString());
-					QString imdbId = QString::fromAscii((const char*)attr);
+					QString imdbId = _X(attr);
 					if (imdbRx.exactMatch(imdbId))
 						movie.setImdbId(imdbId);
 					xmlFree(attr);
@@ -324,7 +338,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setNotes(QString((const char*)attr));
+					movie.setNotes(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -333,7 +347,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setOriginalTitle(QString((const char*)attr));
+					movie.setOriginalTitle(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -342,7 +356,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setPlot(QString((const char*)attr));
+					movie.setPlot(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -353,7 +367,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setProductionYear(QString((const char*)attr));
+					movie.setProductionYear(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -371,7 +385,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setReleaseYear(QString((const char*)attr));
+					movie.setReleaseYear(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -380,7 +394,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setStorageId(QString((const char*)attr));
+					movie.setStorageId(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -394,7 +408,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setEdition(QString((const char*)attr));
+					movie.setEdition(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -403,7 +417,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					QString poster = QString((const char*)attr);
+					QString poster = _X(attr);
 					xmlFree(attr);
 					if (!QFile::exists(posterDir + poster))
 					{
@@ -419,7 +433,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setTitle(QString((const char*)attr));
+					movie.setTitle(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -429,8 +443,10 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 
 		cur = cur->next;
 
-		if (movie.isValid())
-			collection->addMovie(movie);
+		if (movie.isValid()) {
+			mvdid movieId = collection->addMovie(movie);
+			Q_UNUSED(movieId);
+		}
 
 	} // loop over <movie> nodes
 }
@@ -445,7 +461,7 @@ void MvdCollectionLoader_P::parseCollection(xmlDocPtr doc, xmlNodePtr cur,
 	</urls>
 	\endverbatim
 */
-void MvdCollectionLoader_P::parseUrlDescriptions(xmlDocPtr doc, xmlNodePtr node, 
+void MvdCollectionLoader::Private::parseUrlDescriptions(xmlDocPtr doc, xmlNodePtr node, 
 	QList<MvdUrl>* list)
 {
 	Q_ASSERT(doc && node && list);
@@ -462,13 +478,13 @@ void MvdCollectionLoader_P::parseUrlDescriptions(xmlDocPtr doc, xmlNodePtr node,
 			if (attr)
 			{
 				MvdUrl url;
-				url.url = QString((const char*)attr).trimmed();
+				url.url = _X(attr).trimmed();
 				xmlFree(attr);
 
 				attr = xmlGetProp(linkItem, (const xmlChar*) "description");
 				if (attr)
 				{
-					url.description = QString((const char*)attr).trimmed();
+					url.description = _X(attr).trimmed();
 					xmlFree(attr);
 				}
 
@@ -491,7 +507,7 @@ void MvdCollectionLoader_P::parseUrlDescriptions(xmlDocPtr doc, xmlNodePtr node,
 /*!
 	\internal Parses an XML node containing a list of strings.
 */
-QStringList MvdCollectionLoader_P::parseStringDescriptions(xmlDocPtr doc, xmlNodePtr node,
+QStringList MvdCollectionLoader::Private::parseStringDescriptions(xmlDocPtr doc, xmlNodePtr node,
 	const QString& tag)
 {
 	xmlNodePtr item = node->children;
@@ -500,12 +516,12 @@ QStringList MvdCollectionLoader_P::parseStringDescriptions(xmlDocPtr doc, xmlNod
 
 	while (item)
 	{
-		if (item->type == XML_ELEMENT_NODE && QString((const char*) item->name) == tag)
+		if (item->type == XML_ELEMENT_NODE && _X(item->name) == tag)
 		{
 			attr = xmlNodeListGetString(doc, item->xmlChildrenNode, 1);
 			if (attr != 0)
 			{
-				list.append(QString((const char*) attr));
+				list.append(_X(attr));
 				xmlFree(attr);
 			}
 		}
@@ -529,7 +545,7 @@ QStringList MvdCollectionLoader_P::parseStringDescriptions(xmlDocPtr doc, xmlNod
 	</person>
 	\endverbatim
 */
-void MvdCollectionLoader_P::parsePersonIdList(xmlDocPtr doc, xmlNodePtr cur, 
+void MvdCollectionLoader::Private::parsePersonIdList(xmlDocPtr doc, xmlNodePtr cur, 
 	const IdMapper& idMapper, MvdMovie* movie, Movida::DataRole role)
 {
 	xmlNodePtr personNode = cur->children;
@@ -605,7 +621,7 @@ void MvdCollectionLoader_P::parsePersonIdList(xmlDocPtr doc, xmlNodePtr cur,
 	description. \p role determines if additional info should be retrieved 
 	and what should be done with them.
 */
-void MvdCollectionLoader_P::parseSimpleIdList(xmlDocPtr doc, xmlNodePtr cur,
+void MvdCollectionLoader::Private::parseSimpleIdList(xmlDocPtr doc, xmlNodePtr cur,
 	const IdMapper& idMapper, MvdMovie* movie, Movida::DataRole role)
 {
 	Q_UNUSED(doc);
@@ -625,7 +641,7 @@ void MvdCollectionLoader_P::parseSimpleIdList(xmlDocPtr doc, xmlNodePtr cur,
 
 	while (dataNode)
 	{
-		if (dataNode->type != XML_ELEMENT_NODE || QString((const char*)dataNode->name) != tag)
+		if (dataNode->type != XML_ELEMENT_NODE || _X(dataNode->name) != tag)
 		{
 			dataNode = dataNode->next;
 			continue;
@@ -665,7 +681,7 @@ void MvdCollectionLoader_P::parseSimpleIdList(xmlDocPtr doc, xmlNodePtr cur,
 /*!
 \internal Checks if the archive version is compatible with this parser.
 */
-bool MvdCollectionLoader_P::checkArchiveVersion(const QString& attribute)
+bool MvdCollectionLoader::Private::checkArchiveVersion(const QString& attribute)
 {
 	if (attribute.isEmpty())
 	{
@@ -681,10 +697,10 @@ bool MvdCollectionLoader_P::checkArchiveVersion(const QString& attribute)
 		return true;
 	}
 
-	if (version > MvdCollectionLoader::version)
+	if (version > ::version)
 	{
 		eLog() << QString("MvdCollectionLoader: Archive version %1 is not supported. Maximum supported: %2")
-			.arg(attribute).arg(MvdCollectionLoader::version);
+			.arg(attribute).arg(::version);
 		return false;
 	}
 
@@ -704,7 +720,7 @@ bool MvdCollectionLoader_P::checkArchiveVersion(const QString& attribute)
 	use if the method did not return false. xmlFreeDoc is called automatically 
 	in case of error before returning false!
 */
-bool MvdCollectionLoader_P::loadXmlDocument(const QString& path, xmlDocPtr* doc, 
+bool MvdCollectionLoader::Private::loadXmlDocument(const QString& path, xmlDocPtr* doc, 
 	xmlNodePtr* cur, int* itemCount)
 {
 	xmlChar* attr = 0;
@@ -755,6 +771,17 @@ bool MvdCollectionLoader_P::loadXmlDocument(const QString& path, xmlDocPtr* doc,
 MvdCollectionLoader interface
 *************************************************************************/
 
+MvdCollectionLoader::MvdCollectionLoader(QObject* parent)
+: QObject(parent), d(new Private(this))
+{
+	qRegisterMetaType<MvdCollectionLoader::Info>("MvdCollectionLoader::Info");
+}
+
+MvdCollectionLoader::~MvdCollectionLoader()
+{
+	delete d;
+}
+
 /*!
 	Loads a collection from the given file or from the collection's file path if
 	\p file is null.
@@ -764,6 +791,8 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 {
 	if (!collection)
 		return InvalidCollectionError;
+
+	d->collection = collection;
 
 	if (file.isEmpty())
 	{
@@ -820,7 +849,7 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 	QString dataPath = tmpPath + "/movida-collection/";
 	iLog() << QString("MvdCollectionLoader: Temporary collection data path: %1").arg(dataPath);
 
-	//! \todo Progress bar for big files?
+	uz.setProgressHandler(this, "extractionProgress");
 	ec = uz.extractAll(tmpDir);
 	
 	xmlDocPtr doc = 0;
@@ -828,7 +857,7 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 	xmlChar* attr = 0;
 	int itemCount = -1;
 
-	if (!MvdCollectionLoader_P::loadXmlDocument(QString("%1%2").arg(tmpPath)
+	if (!d->loadXmlDocument(QString("%1%2").arg(tmpPath)
 		.arg("movida-collection/metadata.xml"), &doc, &cur, &itemCount))
 	{
 		paths().removeDirectoryTree(tmpPath);
@@ -842,7 +871,7 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 		xmlFree(attr);
 		//! \todo version check: notify user about too old archives or too old application!
 		/*
-		if (!MvdCollectionLoader_P::checkArchiveVersion(attr))
+		if (!d->checkArchiveVersion(attr))
 		{
 			mp->removeDirectoryTree(tmpPath);
 			xmlFreeDoc(doc);
@@ -855,15 +884,11 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 	//! \todo use the update attribute to set some collection metadata?
 
 	QString currentNode;
-	int movieCount = -1;
-
-	collection->setMetaData(MvdMovieCollection::DataPathInfo, dataPath + "/persistent");
+	MvdCollectionLoader::Info info;
 	
 	cur = cur->xmlChildrenNode;
-	while (cur != 0)
-	{
-		if (cur->type != XML_ELEMENT_NODE || xmlStrcmp(cur->name, (const xmlChar*) "info"))
-		{
+	while (cur != 0) {
+		if (cur->type != XML_ELEMENT_NODE || xmlStrcmp(cur->name, (const xmlChar*) "info")) {
 			cur = cur->next;
 			continue;
 		}
@@ -871,41 +896,26 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 		// retrieve archive info
 		xmlNodePtr infoNode = cur->xmlChildrenNode;
 		
-		while (infoNode)
-		{
-			if (cur->type != XML_ELEMENT_NODE)
-			{
+		while (infoNode) {
+			if (cur->type != XML_ELEMENT_NODE) {
 				infoNode = infoNode->next;
 				continue;
 			}
 
-			currentNode = (const char*) infoNode->name;
-			MvdMovieCollection::MetaDataType infoType = MvdMovieCollection::InvalidInfo;
+			currentNode = _X(infoNode->name);
 
-			if (currentNode == "movies")
-			{
-				const char* str = (const char*)xmlNodeListGetString(doc, infoNode->xmlChildrenNode, 1);
-				if (str != 0)
-				{
-					movieCount = MvdCore::atoid(str);
+			if (currentNode == "movies") {
+				const char* str = (const char*) xmlNodeListGetString(doc, infoNode->xmlChildrenNode, 1);
+				if (str != 0) {
+					info.expectedMovieCount = MvdCore::atoid(str);
 					xmlFree((void*)str);
 				}
 				infoNode = infoNode->next;
 				continue;
 			}
-			else if (currentNode == "name")
-				infoType = MvdMovieCollection::NameInfo;
-			else if (currentNode == "notes")
-				infoType = MvdMovieCollection::NotesInfo;
-			else if (currentNode == "owner")
-				infoType = MvdMovieCollection::OwnerInfo;
-			else if (currentNode == "email")
-				infoType = MvdMovieCollection::EMailInfo;
-			else if (currentNode == "website")
-				infoType = MvdMovieCollection::WebsiteInfo;
 
-			QString val((const char*)xmlNodeListGetString(doc, infoNode->xmlChildrenNode, 1));
-			collection->setMetaData(infoType, val);
+			QString val = _X(xmlNodeListGetString(doc, infoNode->xmlChildrenNode, 1));
+			info.metadata.insert(currentNode, val);
 
 			infoNode = infoNode->next;
 			
@@ -913,21 +923,55 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 		
 		cur = cur->next;
 	}
-	
+
 	xmlFreeDoc(doc);
+
+	bool continueParsing = true;
+	if (d->progressReceiver) {
+		QMetaObject::invokeMethod(
+			d->progressReceiver, 
+			qPrintable(d->progressMember), 
+			Qt::DirectConnection, 
+			Q_RETURN_ARG(bool, continueParsing), 
+			Q_ARG(int, CollectionInfo), 
+			Q_ARG(QVariant, QVariant::fromValue<MvdCollectionLoader::Info>(info)));
+	}
+
+	if (!continueParsing) {
+		return NoError;
+	}
+
+	// Set metadata
+	
+	for (QHash<QString,QString>::ConstIterator it = info.metadata.begin(); it != info.metadata.end(); ++it) {
+		MvdMovieCollection::MetaDataType infoType = MvdMovieCollection::InvalidInfo;
+		QString currentNode = it.key();
+		if (currentNode == "name")
+			infoType = MvdMovieCollection::NameInfo;
+		else if (currentNode == "notes")
+			infoType = MvdMovieCollection::NotesInfo;
+		else if (currentNode == "owner")
+			infoType = MvdMovieCollection::OwnerInfo;
+		else if (currentNode == "email")
+			infoType = MvdMovieCollection::EMailInfo;
+		else if (currentNode == "website")
+			infoType = MvdMovieCollection::WebsiteInfo;
+
+		collection->setMetaData(infoType, it.value());
+	}
+
+	collection->setMetaData(MvdMovieCollection::DataPathInfo, dataPath + "/persistent");
 	
 	/*! \todo show dialog with collection info and ask to proceed 
 		with loading (use a "Do not show this again" dialog!) 
 	 */
 	
-	/*! \todo use movieCount to show a progress bar */
-	
-	MvdCollectionLoader_P::IdMapper idMapper;
+	Private::IdMapper idMapper;
 
 	// ******* READ SHARED DATA *******
 	if (QFile::exists(QString("%1%2").arg(dataPath).arg("shared.xml")))
 	{
-		if (MvdCollectionLoader_P::loadXmlDocument(QString("%1%2").arg(dataPath).arg("shared.xml"), 
+		if (d->loadXmlDocument(QString("%1%2").arg(dataPath).arg("shared.xml"), 
 			&doc, &cur, &itemCount))
 		{
 			xmlNodePtr n = cur->xmlChildrenNode;
@@ -939,7 +983,7 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 					while (nn)
 					{
 						if (cur->type == XML_ELEMENT_NODE && !xmlStrcmp(nn->name, (const xmlChar*) "shared-item"))
-							MvdCollectionLoader_P::parseSharedItem(doc, nn, &idMapper, collection, itemCount);
+							d->parseSharedItem(doc, nn, &idMapper, collection, itemCount);
 
 						nn = nn->next;
 					}
@@ -953,9 +997,9 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 		else
 			eLog() << "MvdCollectionLoader: Unable to parse shared.xml file";
 	}
-	
+
 	// **** COLLECTION ****
-	if (!MvdCollectionLoader_P::loadXmlDocument(
+	if (!d->loadXmlDocument(
 		QString("%1%2").arg(dataPath).arg("collection.xml"), 
 		&doc, &cur, &itemCount))
 	{
@@ -964,7 +1008,7 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 		return InvalidFileError;
 	}
 	
-	MvdCollectionLoader_P::parseCollection(doc, cur, idMapper, collection, itemCount);
+	d->parseCollection(doc, cur, idMapper, collection, itemCount);
 	xmlFreeDoc(doc);
 	
 	paths().removeDirectoryTree(tmpPath, "persistent");
@@ -974,4 +1018,19 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(
 	collection->setPath(finfo.absoluteFilePath());
 
 	return NoError;
+}
+
+void MvdCollectionLoader::setProgressHandler(QObject* receiver, const char* member)
+{
+	if (!receiver || !member)
+		return;
+
+	
+	d->progressMember = QString::fromAscii(member);
+	d->progressReceiver = d->progressMember.isEmpty() ? 0 : receiver;
+}
+
+void MvdCollectionLoader::extractionProgress(int progress)
+{
+	
 }

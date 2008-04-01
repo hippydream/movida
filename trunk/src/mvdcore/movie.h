@@ -148,6 +148,8 @@ public:
 	void setSpecialTags(Tags tags);
 	Tags specialTags() const;
 
+	QList<mvdid> sharedItemIds() const;
+
 	static QString colorModeToString(ColorMode m);
 	static ColorMode colorModeFromString(QString s);
 

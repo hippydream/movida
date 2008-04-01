@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: smartview.cpp
+** Filename: smartviewwidget.cpp
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -21,6 +21,9 @@
 #include "smartview.h"
 #include "smartviewdelegate.h"
 #include "mainwindow.h"
+#include "guiglobal.h"
+#include "mvdcore/core.h"
+#include "mvdshared/grafx.h"
 
 /*!
 	\class MvdSmartView smartview.h
@@ -31,108 +34,76 @@
 
 
 MvdSmartView::MvdSmartView(QWidget* parent)
-: QWidget(parent)
+: MvdListView(parent)
 {
 	init();
 }
 
 MvdSmartView::MvdSmartView(QAbstractItemModel* model, QWidget* parent)
-: QWidget(parent), delegate(0)
+: MvdListView(parent)
 {
 	init();
-	view->setModel(model);
+	setModel(model);
 }
 
 MvdSmartView::~MvdSmartView()
 {
-
-}
-
-void MvdSmartView::setModel(QAbstractItemModel* model)
-{
-	view->setModel(model);
-}
-
-/*!
-	Returns the spacing for this view, i.e. the distance between icons.
-*/
-int MvdSmartView::viewSpacing() const
-{
-	return view->spacing();
-}
-
-//! Sets the spacing for this view.
-void MvdSmartView::setViewSpacing(int spacing)
-{
-	view->setSpacing(spacing);
-}
-
-//! Returns the selection model used by this view.
-QItemSelectionModel* MvdSmartView::selectionModel() const
-{
-	return view->selectionModel();
-}
-
-//! Sets a shared selection model for this view.
-void MvdSmartView::setSelectionModel(QItemSelectionModel* selectionModel)
-{
-	view->setSelectionModel(selectionModel);
 }
 
 //! \internal
 void MvdSmartView::init()
 {
-	setupUi(this);
-	view->installEventFilter(this);
+	setDragEnabled(true);
+	setAcceptDrops(true);
 
-	delegate = new MvdSmartViewDelegate(view);
-
-	view->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	view->setItemDelegate(delegate);
-	view->setUniformItemSizes(true);
-	view->setFlow(QListView::LeftToRight);
-	view->setResizeMode(QListView::Adjust);
-	view->setMouseTracking(true);
-	connect( view, SIGNAL(doubleClicked(QModelIndex)), this, SIGNAL(doubleClicked(QModelIndex)) );
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
+	setModelColumn(0);
+	setItemDelegate(new MvdSmartViewDelegate(this));
+	setUniformItemSizes(true);
+	setFlow(QListView::LeftToRight);
+	setResizeMode(QListView::Adjust);
+	setMouseTracking(true);
 }
 
-bool MvdSmartView::eventFilter(QObject* o, QEvent* e)
+void MvdSmartView::keyPressEvent(QKeyEvent* e)
 {
-	if (o == view) {
-		switch (e->type()) {
-		case QEvent::KeyPress: {
-			QKeyEvent* ke = static_cast<QKeyEvent*>(e);
-			// Redirect the space key to the main window if the quick search bar is visible
-			if (ke->key() == Qt::Key_Space && Movida::MainWindow->isQuickFilterVisible()) {
-				QApplication::postEvent(Movida::MainWindow, new QKeyEvent(QEvent::KeyPress, Qt::Key_Space, ke->modifiers(), ke->text(), ke->isAutoRepeat(), ke->count()));
-				return true;
-			}
-		}
-		break;
-		case QEvent::FontChange:
-		case QEvent::StyleChange: {
-			if (delegate)
-				delegate->forcedUpdate();
-		}
-		break;
-		default: ;
-		}
+	// Redirect the space key to the main window if the quick search bar is visible
+	if (e->key() == Qt::Key_Space && Movida::MainWindow->isQuickFilterVisible()) {
+		QApplication::postEvent(Movida::MainWindow, 
+			new QKeyEvent(QEvent::KeyPress, Qt::Key_Space, e->modifiers(), e->text(), 
+			e->isAutoRepeat(), e->count()));
+		e->accept();
+	} else MvdListView::keyPressEvent(e);
+}
+
+bool MvdSmartView::event(QEvent* e)
+{
+	switch (e->type()) {
+	case QEvent::FontChange:
+	case QEvent::StyleChange: {
+		MvdSmartViewDelegate* delegate = dynamic_cast<MvdSmartViewDelegate*>(itemDelegate());
+		if (delegate)
+			delegate->forcedUpdate();
+	}
+	break;
+	default: ;
 	}
 
-	return QWidget::eventFilter(o, e);
+	return MvdListView::event(e);
 }
 
 void MvdSmartView::contextMenuEvent(QContextMenuEvent* cme)
 {
-	QPoint viewpoint = view->mapFromGlobal(cme->globalPos());
-	if (!viewpoint.isNull() && view->model()) {
-		QModelIndex index = view->indexAt(viewpoint);
+	QPoint viewpoint = mapFromGlobal(cme->globalPos());
+	if (!viewpoint.isNull() && model()) {
+		QModelIndex index = indexAt(viewpoint);
 		emit contextMenuRequested(index);
 	}
 }
 
 MvdSmartView::ItemSize MvdSmartView::itemSize() const
 {
+	MvdSmartViewDelegate* delegate = dynamic_cast<MvdSmartViewDelegate*>(itemDelegate());
 	if (!delegate)
 		return MediumItemSize;
 	switch (delegate->itemSize()) {
@@ -145,6 +116,7 @@ MvdSmartView::ItemSize MvdSmartView::itemSize() const
 
 void MvdSmartView::setItemSize(ItemSize s)
 {
+	MvdSmartViewDelegate* delegate = dynamic_cast<MvdSmartViewDelegate*>(itemDelegate());
 	if (!delegate)
 		return;
 
@@ -153,4 +125,62 @@ void MvdSmartView::setItemSize(ItemSize s)
 	case LargeItemSize: delegate->setItemSize(MvdSmartViewDelegate::LargeItemSize); break;
 	default: delegate->setItemSize(MvdSmartViewDelegate::MediumItemSize); break;
 	}
+}
+
+void MvdSmartView::startDrag(Qt::DropActions supportedActions)
+{
+	const int MaxPosters = MvdCore::parameter("movida/d&d/max-pixmaps").toInt();
+
+	QModelIndexList indexes = selectedRows();
+	if (indexes.count() > 0) {
+		QMimeData* data = model()->mimeData(indexes);
+		if (!data)
+			return;
+
+		int validIndexes = 0;
+		QStringList posters;
+		QString title;
+
+		foreach (QModelIndex index, indexes) {
+			if (!index.isValid())
+				continue;
+
+			++validIndexes;
+
+			if (posters.size() >= MaxPosters)
+				continue;
+
+			if (title.isEmpty())
+				title = index.data(Movida::UniqueDisplayRole).toString();
+
+			QString s = index.data(Qt::DecorationRole).toString();
+			if (!s.isEmpty() && !posters.contains(s))
+				posters.append(s);
+		}
+
+		QRect rect;
+		rect.adjust(horizontalOffset(), verticalOffset(), 0, 0);
+		
+		QDrag* drag = new QDrag(this);
+		drag->setMimeData(data);
+
+		QString msg = validIndexes == 1 && !title.isEmpty() ? title : 
+			tr("%1 movies", "Drag&drop pixmap overlay message", validIndexes).arg(validIndexes);
+		QPixmap pm = MvdGrafx::moviesDragPixmap(posters, msg, this->font());
+		drag->setPixmap(pm);
+
+		// drag->setHotSpot(d->pressedPosition - rect.topLeft());
+		Qt::DropAction action = drag->start(supportedActions);
+		Q_UNUSED(action);
+	}
+}
+
+void MvdSmartView::dragEnterEvent(QDragEnterEvent* e)
+{
+	if (e->source() == this) {
+		e->ignore();
+		return;
+	}
+
+	MvdListView::dragEnterEvent(e);
 }

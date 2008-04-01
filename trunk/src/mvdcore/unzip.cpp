@@ -193,6 +193,9 @@ public:
 	QObject* callbackObject;
 	QString callbackSlot;
 
+	QObject* progressCallbackObject;
+	QString progressCallbackSlot;
+
 	// Central Directory (CD) offset
 	quint32 cdOffset;
 	// End of Central Directory (EOCD) offset
@@ -205,6 +208,9 @@ public:
 	quint16 unsupportedEntryCount;
 
 	QString comment;
+
+	quint64 totalProgress;
+	quint64 currentProgress;
 
 	MvdUnZip::ErrorCode openArchive(QIODevice* device);
 
@@ -236,6 +242,8 @@ public:
 
 	inline QDateTime convertDateTime(const unsigned char date[2], 
 		const unsigned char time[2]) const;
+
+	inline void emitProgress();
 };
 
 //! \internal
@@ -251,6 +259,12 @@ MvdUnZip_P::MvdUnZip_P()
 	cdOffset = eocdOffset = 0;
 	cdEntryCount = 0;
 	unsupportedEntryCount = 0;
+
+	callbackObject = 0;
+	progressCallbackObject = 0;
+
+	totalProgress = 0;
+	currentProgress = 0;
 }
 
 //! \internal Parses a Zip archive.
@@ -855,6 +869,9 @@ MvdUnZip::ErrorCode MvdUnZip_P::extractFile(const QString& path, MvdZipEntry_P& 
 			if (dev->write(buffer1, read) != read)
 				return MvdUnZip::WriteError;
 
+			currentProgress += read;
+			emitProgress();
+
 			cur++;
 			tot += read;
 
@@ -928,6 +945,9 @@ MvdUnZip::ErrorCode MvdUnZip_P::extractFile(const QString& path, MvdZipEntry_P& 
 					inflateEnd(&zstr);
 					return MvdUnZip::ZlibError;
 				}
+
+				currentProgress += szDecomp;
+				emitProgress();
 
 				myCRC = crc32(myCRC, (const Bytef*) buffer2, szDecomp);
 
@@ -1167,6 +1187,16 @@ QDateTime MvdUnZip_P::convertDateTime(const unsigned char date[2], const unsigne
 	return dt;
 }
 
+//! \internal Emits the current progress if a callback has been registered.
+void MvdUnZip_P::emitProgress()
+{
+	if (progressCallbackObject) {
+		int progress = (currentProgress * 100) / totalProgress;
+		QMetaObject::invokeMethod(progressCallbackObject, qPrintable(progressCallbackSlot),
+			Qt::DirectConnection, Q_ARG(int, progress));
+	}
+}
+
 
 /************************************************************************
 MvdUnZip
@@ -1199,6 +1229,21 @@ void MvdUnZip::setPasswordHandler(QObject* obj, const char* member)
 
 	d->callbackSlot = QString::fromAscii(member);
 	d->callbackObject = d->callbackSlot.isEmpty() ? 0 : obj;
+}
+
+/*!
+	Sets a slot to be called to show the current extraction progress.
+	The slot is expected to take a single int parameter for the
+	current progress value (expressed as percent of the whole extraction
+	operation).
+*/
+void MvdUnZip::setProgressHandler(QObject* obj, const char* member)
+{
+	if (!obj || !member)
+		return;
+
+	d->progressCallbackSlot = QString::fromAscii(member);
+	d->progressCallbackObject = d->progressCallbackSlot.isEmpty() ? 0 : obj;
 }
 
 /*!
@@ -1364,14 +1409,27 @@ MvdUnZip::ErrorCode MvdUnZip::extractAll(const QDir& dir, ExtractionOptions opti
 	if (d->headers == 0)
 		return NoError;
 
+	d->totalProgress = d->currentProgress = 0;
+
+	if (d->progressCallbackObject) {
+		for (QMap<QString,MvdZipEntry_P*>::Iterator itr = d->headers->begin(); itr != d->headers->end(); ++itr)
+		{
+			MvdZipEntry_P* entry = itr.value();
+			Q_ASSERT(entry != 0);
+			d->totalProgress += entry->szUncomp;
+		}
+	}
+
 	bool end = false;
 	for (QMap<QString,MvdZipEntry_P*>::Iterator itr = d->headers->begin(); itr != d->headers->end(); ++itr)
 	{
 		MvdZipEntry_P* entry = itr.value();
 		Q_ASSERT(entry != 0);
 
-		if ((entry->isEncrypted()) && d->skipAllEncrypted)
+		if ((entry->isEncrypted()) && d->skipAllEncrypted) {
+			d->currentProgress += entry->szUncomp;
 			continue;
+		}
 
 		switch (d->extractFile(itr.key(), *entry, dir, options))
 		{
@@ -1396,6 +1454,8 @@ MvdUnZip::ErrorCode MvdUnZip::extractAll(const QDir& dir, ExtractionOptions opti
 			break;
 	}
 
+	d->currentProgress = d->totalProgress;
+	d->emitProgress();
 	return NoError;
 }
 
@@ -1412,12 +1472,20 @@ MvdUnZip::ErrorCode MvdUnZip::extractFile(const QString& filename, const QString
 */
 MvdUnZip::ErrorCode MvdUnZip::extractFile(const QString& filename, const QDir& dir, ExtractionOptions options)
 {
+	if (!options.testFlag(NoReset))
+		d->totalProgress = d->currentProgress = 0;
+
 	QMap<QString,MvdZipEntry_P*>::Iterator itr = d->headers->find(filename);
-	if (itr != d->headers->end())
-	{
+	if (itr != d->headers->end()) {
 		MvdZipEntry_P* entry = itr.value();
 		Q_ASSERT(entry != 0);
+		d->totalProgress = entry->szUncomp;
 		return d->extractFile(itr.key(), *entry, dir, options);
+	}
+
+	if (!options.testFlag(NoReset)) {
+		d->currentProgress = d->totalProgress;
+		d->emitProgress();
 	}
 
 	return FileNotFoundError;
@@ -1431,11 +1499,20 @@ MvdUnZip::ErrorCode MvdUnZip::extractFile(const QString& filename, QIODevice* de
 	if (dev == 0)
 		return InvalidDeviceError;
 
+	if (!options.testFlag(NoReset))
+		d->totalProgress = d->currentProgress = 0;
+
 	QMap<QString,MvdZipEntry_P*>::Iterator itr = d->headers->find(filename);
 	if (itr != d->headers->end()) {
 		MvdZipEntry_P* entry = itr.value();
 		Q_ASSERT(entry != 0);
+		d->totalProgress =+ entry->szUncomp;
 		return d->extractFile(itr.key(), *entry, dev, options);
+	}
+
+	if (!options.testFlag(NoReset)) {
+		d->currentProgress = d->totalProgress;
+		d->emitProgress();
 	}
 
 	return FileNotFoundError;
@@ -1450,8 +1527,10 @@ MvdUnZip::ErrorCode MvdUnZip::extractFiles(const QStringList& filenames, const Q
 	QDir dir(dirname);
 	ErrorCode ec;
 
-	for (QStringList::ConstIterator itr = filenames.constBegin(); itr != filenames.constEnd(); ++itr)
-	{
+	d->totalProgress = d->currentProgress = 0;
+	options |= NoReset;
+
+	for (QStringList::ConstIterator itr = filenames.constBegin(); itr != filenames.constEnd(); ++itr) {
 		ec = extractFile(*itr, dir, options);
 		if (ec == FileNotFoundError)
 			continue;
@@ -1459,6 +1538,8 @@ MvdUnZip::ErrorCode MvdUnZip::extractFiles(const QStringList& filenames, const Q
 			return ec;
 	}
 
+	d->currentProgress = d->totalProgress;
+	d->emitProgress();
 	return NoError;
 }
 
@@ -1470,6 +1551,9 @@ MvdUnZip::ErrorCode MvdUnZip::extractFiles(const QStringList& filenames, const Q
 {
 	ErrorCode ec;
 
+	d->totalProgress = d->currentProgress = 0;
+	options |= NoReset;
+
 	for (QStringList::ConstIterator itr = filenames.constBegin(); itr != filenames.constEnd(); ++itr)
 	{
 		ec = extractFile(*itr, dir, options);
@@ -1479,6 +1563,8 @@ MvdUnZip::ErrorCode MvdUnZip::extractFiles(const QStringList& filenames, const Q
 			return ec;
 	}
 
+	d->currentProgress = d->totalProgress;
+	d->emitProgress();
 	return NoError;
 }
 

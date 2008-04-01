@@ -323,9 +323,9 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 	xml->setSkipEmptyAttributes(true);
 	xml->setSkipEmptyTags(true);
 	
-	MvdCollectionSaver_P::writeDocumentRoot(xml, collection->smd().countItems());
+	MvdCollectionSaver_P::writeDocumentRoot(xml, collection->sharedData().countItems());
 
-	MvdSharedData::ItemList sharedData = collection->smd().items(Movida::NoRole);
+	MvdSharedData::ItemList sharedData = collection->sharedData().items(Movida::NoRole);
 	if (!sharedData.isEmpty())
 	{
 		xml->writeOpenTag("shared-data");

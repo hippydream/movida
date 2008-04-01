@@ -37,7 +37,7 @@ class MvdTreeView : public QTreeView
   
 public:
 	MvdTreeView(QWidget* parent = 0);
-	~MvdTreeView();
+	virtual ~MvdTreeView();
 
 	bool isHeaderContextMenuDisabled() const;
 	void setHeaderContextMenuDisabled(bool disable);
@@ -59,10 +59,15 @@ signals:
 	void itemSelectionChanged();
 
 protected:
-	virtual bool eventFilter(QObject* o, QEvent* e);
 	virtual void showHeaderContext(const QPoint& p);
-	virtual void contextMenuEvent(QContextMenuEvent* e);
-	virtual void keyPressEvent(QKeyEvent* e);
+
+	bool eventFilter(QObject* o, QEvent* e);
+	void contextMenuEvent(QContextMenuEvent* e);
+	void keyPressEvent(QKeyEvent* e);
+	void dragEnterEvent(QDragEnterEvent* e);
+	void dragLeaveEvent(QDragLeaveEvent* e);
+	void dragMoveEvent(QDragMoveEvent* e);
+	void dropEvent(QDropEvent* e);
 
 private:
 	bool mDisableHeaderContextMenu;

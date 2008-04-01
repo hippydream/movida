@@ -223,3 +223,92 @@ QString Movida::sharedDataAttributeString(SharedDataAttribute attribute)
 	}
 	return QString();
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// MOVIE FILTER FUNCTIONS
+//////////////////////////////////////////////////////////////////////////
+
+/*
+	Adding new movie filters involves the following steps:
+	 - Add a value to the FilterFunction enum.
+	 - Extend filterFunctionName() to return the string to be used in the filter
+	   widget (only the function name - no parentheses or operators - e.g. "rating").
+	   This method is basically used when the filter function is added programmatically
+	   to the filter widget's line edit.
+	 - Consider extending filterFunctionRegExp() to return a regular expression for
+	   a quick and basic validation when the user enters the function in the filter widget.
+	 - Extend filterFunction() to return the FilterFunction matching a function name (sort of
+	   the inverse of filterFunctionName() -- no hash table is used to ease localization
+	   of function names).
+	 - Extend MvdFilterProxyModel::testFunction() or your filter will be - obviously - of no use.
+
+	As mentioned above, function names are all localized. This should apply even for internally
+	used functions (such as those involving IDs) as the user will be more likely to understand
+	what is going on by looking at the filter widget (at least until another approach will be
+	taken to display automatically generated filters - e.g. using D&D or plugins).
+*/
+
+//! Returns the (localized) name of a filter function as it is used in a filter query.
+QString Movida::filterFunctionName(FilterFunction ff)
+{
+	switch (ff) {
+	case IdFilter: return QCoreApplication::translate("Filter function", "movieId", "filter by ID");
+	case PeopleIdFilter: return QCoreApplication::translate("Filter function", "peopleId", "filter people by ID");
+	case MarkAsSeenFilter: return QCoreApplication::translate("Filter function", "seen", "show seen movies");
+	case MarkAsLoanedFilter: return QCoreApplication::translate("Filter function", "loaned", "show loaned movies");
+	case MarkAsSpecialFilter: return QCoreApplication::translate("Filter function", "special", "show special movies");
+	case RunningTimeFilter: return QCoreApplication::translate("Filter function", "length", "filter by running time");
+	case RatingFilter: return QCoreApplication::translate("Filter function", "rating", "filter by rating");
+	}
+
+	Q_ASSERT_X(false, "Movida::filterFunctionName", "Internal error");
+	return QString();
+}
+
+//! Returns a regular expression used to validate function parameters.
+QRegExp Movida::filterFunctionRegExp(FilterFunction ff)
+{
+	switch (ff) {
+	case IdFilter:
+	case PeopleIdFilter:
+		return QRegExp(QLatin1String("[\\s,]*\\d+[\\s,\\d]*"));
+	case RunningTimeFilter: {
+		QString hm("\\d{1,3}\\s*h(?:\\s*\\d+\\s*m?)?"); // 1h 20m OR 1h 20 OR 1h
+		QString qm("\\d{1,3}\\s*'(?:\\s*\\d+\\s*(?:'')?)?"); // 1' 10'' OR 1' 10
+		QString dm("\\d{1}[\\.:]\\d{1,2}"); // 1.20 or 1:20
+		QString mn("\\d{1,3}\\s*m?"); // 120m or 120
+		return QRegExp(
+			QString("\\s*[<>=]?\\s*(?:(?:%1)|(?:%2)|(?:%3)|(?:%4))\\s*")
+				.arg(hm).arg(qm).arg(dm).arg(mn)
+		);
+	}
+	case RatingFilter: return QRegExp(QLatin1String("\\s*[<>=]?\\s*\\d{1}\\s*"));
+	default: ;
+	}
+
+	return QRegExp();
+}
+
+//! Returns the filter function associated to the given (localized) name or InvalidFilterFunction.
+Movida::FilterFunction Movida::filterFunction(QString name)
+{
+	name = name.trimmed().toLower();
+
+	if (name == QLatin1String("movieid"))
+		return Movida::IdFilter; //! \todo Rename IdFilter to MovieIdFilter
+	else if (name == QLatin1String("seen"))
+		return Movida::MarkAsSeenFilter;
+	else if (name == QLatin1String("loaned"))
+			return Movida::MarkAsLoanedFilter;
+	else if (name == QLatin1String("special"))
+		return Movida::MarkAsSpecialFilter;
+	else if (name == QLatin1String("length"))
+		return Movida::RunningTimeFilter;
+	else if (name == QLatin1String("rating"))
+		return Movida::RatingFilter;
+	else if (name == QLatin1String("peopleid"))
+		return Movida::PeopleIdFilter;
+
+	return Movida::InvalidFilterFunction;
+}

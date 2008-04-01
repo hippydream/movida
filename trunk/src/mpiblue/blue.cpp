@@ -428,7 +428,7 @@ bool MpiBlue::engineRequiresUpdate(const Engine& engine)
 		QDateTime now = QDateTime::currentDateTime();
 
 		int secDelta = lastUpdate.secsTo(now);
-		int secDeltaH = floor((float)secDelta / 3600.0f);
+		int secDeltaH = (int) floor((float)secDelta / 3600.0f);
 
 		return secDeltaH >= engine.updateIntervalHours;
 	}

@@ -22,28 +22,49 @@
 #define MVD_FILTERWIDGET_H
 
 #include "ui_filterwidget.h"
+#include "shareddatamodel.h"
 #include <QWidget>
 
 class QLineEdit;
+class QPixmap;
 
 class MvdFilterWidget : public QFrame, private Ui::MvdFilterWidget
 {
 	Q_OBJECT
 	
 public:
+	enum Message {
+		NoMessage = 0,
+		NoResultsWarning,
+		SyntaxErrorWarning,
+		DropInfo
+	};
+
 	MvdFilterWidget(QWidget* parent = 0);
 	
 	QLineEdit* editor() const;
 
-	void setNoResultsWarningVisible(bool visible);
-	bool noResultsWarningVisible() const;
+	void setMessage(Message m);
+	Message message() const;
 
 	void setCaseSensitivity(Qt::CaseSensitivity cs);
 	Qt::CaseSensitivity caseSensitivity() const;
 
+	void applySharedDataFilter(const MvdSharedDataAttributes& attributes, bool replaceFilter);
+
+protected:
+	void dragEnterEvent(QDragEnterEvent* e);
+	void dragMoveEvent(QDragMoveEvent* e);
+	void dropEvent(QDropEvent* e);
+
 signals:
 	void hideRequest();
 	void caseSensitivityChanged();
+
+private:
+	Message mMessage;
+	QPixmap mWarning;
+	QPixmap mInfo;
 };
 
 #endif // MVD_FILTERWIDGET_H

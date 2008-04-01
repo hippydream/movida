@@ -1095,6 +1095,9 @@ QTime MvdMovie::runningTimeQt() const
 */
 QString MvdMovie::runningTimeString(QString format) const
 {
+	if (runningTime() == 0)
+		return QString();
+
 	QTime time = runningTimeQt();
 
 	if (format.isEmpty())
@@ -1187,4 +1190,19 @@ QString MvdMovie::ratingTip(quint8 rating)
 	case 5: return QCoreApplication::translate("Movie rating", "Outstanding movie");
 	}
 	return QCoreApplication::translate("Movie rating", "Unrated movie");
+}
+
+//! Convenience method. Returns the IDs of all the shared data items referenced by this movie (such as actors or genres).
+QList<mvdid> MvdMovie::sharedItemIds() const
+{
+	QList<mvdid> ids;
+	ids << d->actors.keys();
+	ids << d->countries;
+	ids << d->crewMembers.keys();
+	ids << d->directors;
+	ids << d->genres;
+	ids << d->languages;
+	ids << d->producers;
+	ids << d->tags;
+	return ids;
 }

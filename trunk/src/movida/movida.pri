@@ -6,8 +6,10 @@ HEADERS += \
 	dockwidget.h \
 	extendedinfopage.h \
 	filterproxymodel.h \
+	filtersettingspage.h \
 	filterwidget.h \
 	guiglobal.h \
+	infopanel.h \
 	itemdelegate.h \
 	linklabel.h \
 	linkspage.h \
@@ -16,9 +18,11 @@ HEADERS += \
 	mainsettingspage.h \
 	mainwindow.h \
 	movieeditor.h \
-	moviemasseditor.h \
 	movieeditorpage.h \
+	moviemasseditor.h \
+	movietreeview.h \
 	movietreeviewdelegate.h \
+	movieviewlistener.h \
 	mpdialogpage.h \
 	multipagedialog.h \
 	notespage.h \
@@ -30,6 +34,7 @@ HEADERS += \
 	settingspage.h \
 	shareddataeditor.h \
 	shareddatamodel.h \
+	shareddataview.h \
 	smartview.h \
 	smartviewdelegate.h \
 	treeview.h \
@@ -42,18 +47,24 @@ SOURCES += \
 	crewpage.cpp \
 	extendedinfopage.cpp \
 	filterproxymodel.cpp \
+	filtersettingspage.cpp \
 	filterwidget.cpp \
 	guiglobal.cpp \
+	infopanel.cpp \
 	linkspage.cpp \
 	listview.cpp \
 	main.cpp \
+	main_other.cpp \
+	main_win.cpp \
 	maininfopage.cpp \
 	mainsettingspage.cpp \
 	mainwindow.cpp \
 	mainwindow_gui.cpp \
 	movieeditor.cpp \
 	moviemasseditor.cpp \
+	movietreeview.cpp \
 	movietreeviewdelegate.cpp \
+	movieviewlistener.cpp \
 	multipagedialog.cpp \
 	notespage.cpp \
 	posterlabel.cpp \
@@ -62,6 +73,7 @@ SOURCES += \
 	settingsdialog.cpp \
 	shareddataeditor.cpp \
 	shareddatamodel.cpp \
+	shareddataview.cpp \
 	smartview.cpp \
 	smartviewdelegate.cpp \
 	treeview.cpp \
@@ -71,7 +83,9 @@ FORMS += \
 	ui/collectionmetaeditor.ui \
 	ui/crewpage.ui \
 	ui/extendedinfopage.ui \
+	ui/filtersettingspage.ui \
 	ui/filterwidget.ui \
+	ui/infopanel.ui \
 	ui/linkspage.ui \
 	ui/maininfopage.ui \
 	ui/mainsettingspage.ui \
@@ -79,7 +93,8 @@ FORMS += \
 	ui/multipagedialog.ui \
 	ui/notespage.ui \
 	ui/passwordprompt.ui \
-	ui/smartview.ui
+	ui/sdsettingspage.ui \
+	ui/shareddataeditor.ui
 	
 RESOURCES += movida.qrc
 

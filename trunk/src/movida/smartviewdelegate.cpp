@@ -132,7 +132,7 @@ void MvdSmartViewDelegate::setItemSize(ItemSize size)
 
 	// We have the icon width and we can compute the text width now
 	int itemHeight = BorderWidth + Padding + iconHeight + Padding + BorderWidth;
-	int itemWidth = itemHeight * ItemAspectRatio;
+	int itemWidth = (int) ceil(double(itemHeight * ItemAspectRatio));
 	int textWidth = itemWidth - BorderWidth - Padding - iconWidth - IconMarginRight - Padding - BorderWidth;
 
 	mSize = QSize(itemWidth, itemHeight);
@@ -142,6 +142,11 @@ void MvdSmartViewDelegate::setItemSize(ItemSize size)
 	
 	// This will update the view automatically.
 	mView->setIconSize(mSize);
+
+	QHash<QString,QVariant> p;
+	p.insert("movida/movie-poster/cached-size", mIconSize);
+	MvdCore::registerParameters(p);
+
 	rebuildDefaultIcon();
 }
 
@@ -162,7 +167,7 @@ void MvdSmartViewDelegate::forcedUpdate()
 //! \internal
 void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-	if (!index.isValid())
+	if (!index.isValid() || index.column() != 0)
 		return;
 
 	bool isSelected =  option.state & QStyle::State_Selected;
@@ -408,10 +413,10 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 		//////////// Directors
 		textOptions.headingLevel = TextOptions::H3_HeadingLevel;
 
-		rCurrentText.setTop(rCurrentText.top() + br.height());
 		columnIndex = model->index(index.row(), int(Movida::DirectorsAttribute), index.parent());
 		text = columnIndex.data(Movida::SmartViewDisplayRole).toString();
 		if (!text.isEmpty()) {
+			rCurrentText.setTop(rCurrentText.top() + br.height());
 			text.prepend(Movida::movieAttributeString(Movida::DirectorsAttribute, Movida::SmartViewContext));
 			drawItemText(painter, option, rCurrentText, text, textOptions, &br, 2);
 		}
@@ -541,7 +546,7 @@ void MvdSmartViewDelegate::drawItemText(QPainter* painter, const QStyleOptionVie
 	}
 
 	int maxH = rect.height();
-	int h = mTextLayout.boundingRect().height();
+	int h = (int) ceil(mTextLayout.boundingRect().height());
 	while (h > maxH) {
 		// Looks awful but I can't see a better way to do it
 		QString text = mTextLayout.text();
@@ -551,10 +556,10 @@ void MvdSmartViewDelegate::drawItemText(QPainter* painter, const QStyleOptionVie
 				idx--;
 			text.truncate(idx);
 			text.append(QLatin1String("..."));
-		}
+		} else break;
 		mTextLayout.setText(text);
 		textLayoutSize = doTextLayout(rect.width(), rect.height());
-		h = mTextLayout.boundingRect().height();
+		h = (int) ceil(mTextLayout.boundingRect().height());
 	}
 	painter->save();
 	painter->setPen(color);
@@ -565,7 +570,9 @@ void MvdSmartViewDelegate::drawItemText(QPainter* painter, const QStyleOptionVie
 	if (boundingRect) {
 		boundingRect->setX(rect.x());
 		boundingRect->setY(rect.y());
-		boundingRect->setSize(QSize(textLayoutSize.width(), textLayoutSize.height()));
+		boundingRect->setSize(QSize(
+			(int) ceil(textLayoutSize.width()), (int) ceil(textLayoutSize.height())
+		));
 	}
 }
 
