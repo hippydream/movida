@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: listview.h
+** Filename: movieviewlistener.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,35 +18,24 @@
 **
 **************************************************************************/
 
-#ifndef MVD_LISTVIEW_H
-#define MVD_LISTVIEW_H
+#ifndef MVD_MOVIEVIEWLISTENER_H
+#define MVD_MOVIEVIEWLISTENER_H
 
-#include <QListView>
+#include <QObject>
 
-class QMouseEvent;
-template <typename T> class QList;
+class QAbstractItemView;
 
-class MvdListView : public QListView
+class MvdMovieViewListener : public QObject
 {
-public:
-	MvdListView(QWidget* parent = 0);
-	virtual ~MvdListView();
+	Q_OBJECT
 
-	QModelIndexList selectedRows() const;
+public:
+	MvdMovieViewListener(QObject* parent = 0);
+
+	void registerView(QAbstractItemView* view);
 
 protected:
-	void mouseMoveEvent(QMouseEvent* e);
-	void mouseReleaseEvent(QMouseEvent* e);
-	void dragEnterEvent(QDragEnterEvent* e);
-	void dragLeaveEvent(QDragLeaveEvent* e);
-	void dragMoveEvent(QDragMoveEvent* e);
-	void dropEvent(QDropEvent* e);
-
-	void setSelection(const QRect& rect, QItemSelectionModel::SelectionFlags command);
-
-private:
-	class MvdListView_P;
-	MvdListView_P* d;
+	bool eventFilter(QObject *, QEvent *);
 };
 
-#endif // MVD_LISTVIEW_H
+#endif // MVD_MOVIEVIEWLISTENER_H

@@ -19,11 +19,16 @@
 **************************************************************************/
 
 #include "collectionmodel.h"
+#include "mainwindow.h"
+#include "mvdcore/core.h"
 #include "mvdcore/moviecollection.h"
 #include "mvdcore/movie.h"
 #include "mvdcore/settings.h"
 #include "mvdcore/shareddata.h"
 #include <QCoreApplication>
+#include <QMimeData>
+#include <QDrag>
+#include <QUrl>
 
 /*!
 	\class MvdCollectionModel collectionmodel.h
@@ -93,7 +98,7 @@ QString MvdCollectionModel_P::dataList(const QList<mvdid>& list, Movida::DataRol
 	for (int i = 0; i < list.size(); ++i)
 	{
 		mvdid id = list.at(i);
-		MvdSdItem sdItem = collection->smd().item(id);
+		MvdSdItem sdItem = collection->sharedData().item(id);
 		
 		if (!s.isEmpty()) {
 			if (role == Movida::SmartViewDisplayRole) {
@@ -226,8 +231,6 @@ QModelIndex MvdCollectionModel::findMovie(mvdid id) const
 */
 void MvdCollectionModel::setMovieCollection(MvdMovieCollection* c)
 {
-	emit layoutAboutToBeChanged();
-
 	if (d->collection) {
 		disconnect(this, SLOT(movieAdded(mvdid)));
 		disconnect(this, SLOT(movieChanged(mvdid)));
@@ -244,6 +247,7 @@ void MvdCollectionModel::setMovieCollection(MvdMovieCollection* c)
 		connect( c, SIGNAL(movieChanged(mvdid)), this, SLOT(movieChanged(mvdid)) );
 		connect( c, SIGNAL(movieRemoved(mvdid)), this, SLOT(movieRemoved(mvdid)) );
 		connect( c, SIGNAL(cleared()), this, SLOT(collectionCleared()) );
+		connect( c, SIGNAL(destroyed()), this, SLOT(collectionCleared()) );
 
 		// Insert existing movies - new movies will be added through 
 		// the signal/slot mechanism
@@ -253,7 +257,7 @@ void MvdCollectionModel::setMovieCollection(MvdMovieCollection* c)
 			d->movies.append(list.at(i));
 	}
 
-	emit layoutChanged();
+	QAbstractTableModel::reset();
 }
 
 //!
@@ -268,8 +272,9 @@ MvdMovieCollection* MvdCollectionModel::movieCollection() const
 */
 Qt::ItemFlags MvdCollectionModel::flags(const QModelIndex& index) const
 {
-	Q_UNUSED(index);
-	return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+	return index.isValid() ? Qt::ItemIsSelectable | Qt::ItemIsEnabled 
+		| Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled 
+		: Qt::ItemFlags();
 }
 
 /*!
@@ -289,6 +294,14 @@ QVariant MvdCollectionModel::data(const QModelIndex& index, int role) const
 	if (role == (int) Movida::IdRole)
 		return d->movies.at(row);
 
+	if (role == (int) Movida::UniqueDisplayRole) {
+		mvdid id = d->movies.at(row);
+		if (id == 0)
+			return QVariant();
+		MvdMovie movie = d->collection->movie(id);
+		return movie.validTitle();
+	}
+
 	if (role == Qt::DecorationRole && col == 0)
 	{
 		mvdid id = d->movies.at(row);
@@ -302,7 +315,8 @@ QVariant MvdCollectionModel::data(const QModelIndex& index, int role) const
 			.append("/images/").append(poster);
 	}
 
-	if (role != Qt::DisplayRole && role != Movida::SmartViewDisplayRole)
+	// Skip unhandled roles
+	if (role != Qt::DisplayRole && role != Movida::SmartViewDisplayRole && role != Movida::RawDataRole)
 		return QVariant();
 
 	if (row >= d->movies.size())
@@ -314,7 +328,10 @@ QVariant MvdCollectionModel::data(const QModelIndex& index, int role) const
 	switch ( (Movida::MovieAttribute) col )
 	{
 	case Movida::CastAttribute: return d->dataList(movie.actorIDs(), Movida::PersonRole, role);
-	case Movida::ColorModeAttribute: return movie.colorModeString();
+	case Movida::ColorModeAttribute: 
+		if (role == Movida::RawDataRole)
+			return (int) movie.colorMode();
+		else return movie.colorModeString();
 	case Movida::CountriesAttribute: return d->dataList(movie.countries(), Movida::CountryRole, role);
 	case Movida::CrewAttribute: return d->dataList(movie.crewMemberIDs(), Movida::PersonRole, role);
 	case Movida::DirectorsAttribute: return d->dataList(movie.directors(), Movida::PersonRole, role);
@@ -324,15 +341,19 @@ QVariant MvdCollectionModel::data(const QModelIndex& index, int role) const
 	case Movida::OriginalTitleAttribute: return movie.originalTitle();
 	case Movida::ProducersAttribute: return d->dataList(movie.producers(), Movida::PersonRole, role);
 	case Movida::ProductionYearAttribute: return movie.productionYear();
-	case Movida::RatingAttribute: return QVariant(movie.rating());
+	case Movida::RatingAttribute: return movie.rating();
 	case Movida::ReleaseYearAttribute: return movie.releaseYear();
-	case Movida::RunningTimeAttribute: return movie.runningTime() ? movie.runningTimeString() : QString();
+	case Movida::RunningTimeAttribute: 
+		if (role == Movida::RawDataRole)
+			return movie.runningTime();
+		else return movie.runningTimeString();
 	case Movida::StorageIdAttribute: return movie.storageId();
 	case Movida::TagsAttribute: return d->dataList(movie.tags(), Movida::TagRole, role);
 	case Movida::TitleAttribute: return movie.title();
 	case Movida::SeenAttribute: return movie.hasSpecialTagEnabled(MvdMovie::SeenTag);
 	case Movida::SpecialAttribute: return movie.hasSpecialTagEnabled(MvdMovie::SpecialTag);
 	case Movida::LoanedAttribute: return movie.hasSpecialTagEnabled(MvdMovie::LoanedTag);
+	default: ;
 	}
 
 	return QVariant();
@@ -439,7 +460,6 @@ void MvdCollectionModel::movieChanged(mvdid id)
 //! \internal
 void MvdCollectionModel::collectionCleared()
 {
-	d->movies.clear();
 	reset();
 }
 
@@ -481,4 +501,109 @@ int MvdCollectionModel::sortColumn() const
 Movida::MovieAttribute MvdCollectionModel::sortAttribute() const
 {
 	return d->sortAttribute;
+}
+
+void MvdCollectionModel::reset()
+{
+	setMovieCollection(0);
+}
+
+Qt::DropActions MvdCollectionModel::supportedDropActions() const
+{
+	return Qt::CopyAction;
+}
+
+QStringList MvdCollectionModel::mimeTypes() const
+{
+	QStringList types;
+	// types << MvdCore::parameter("movida/mime/movie").toString();
+	// Supported mime types for import
+	types << MvdCore::parameter("movida/mime/movie-attributes").toString();
+	types << "text/uri-list";
+	//! \todo Import from text/plain data
+	// types << "text/plain";
+	return types;
+}
+
+QMimeData* MvdCollectionModel::mimeData(const QModelIndexList& indexes) const
+{
+	QMimeData* mimeData = new QMimeData();
+	QByteArray encodedData;
+	QStringList titles;
+
+	QDataStream stream(&encodedData, QIODevice::WriteOnly);
+	QList<mvdid> movieIds;
+	QList<QUrl> urls;
+
+	foreach (QModelIndex index, indexes) {
+		if (!index.isValid())
+			continue;
+
+		QModelIndex colZero = createIndex(index.row(), 0);
+		mvdid id = data(colZero, Movida::IdRole).toUInt();
+		if (id != MvdNull && !movieIds.contains(id)) {
+			movieIds.append(id);
+			MvdMovie movie = d->collection->movie(id);
+			QString title = movie.title();
+			if (title.isEmpty()) title = movie.originalTitle();
+			titles.append(title);
+			if (!movie.imdbId().isEmpty()) {
+				urls.append(MvdCore::parameter("movida/imdb-movie-url").toString().arg(movie.imdbId()));
+			}
+		}
+
+		QString text = data(index, Qt::DisplayRole).toString();
+		stream << text;
+	}
+
+	mimeData->setData(MvdCore::parameter("movida/mime/movie").toString(), encodedData);
+	
+	qSort(titles);
+	mimeData->setText(titles.join(QLatin1String("\r\n")));
+	mimeData->setHtml(titles.join(QLatin1String("<br />\r\n")));
+
+	if (!urls.isEmpty())
+		mimeData->setUrls(urls);
+	return mimeData;
+}
+
+bool MvdCollectionModel::dropMimeData(const QMimeData* data,
+	Qt::DropAction action, int row, int column, const QModelIndex& parent)
+{
+	Q_UNUSED(row);
+	Q_UNUSED(column);
+
+	if (action == Qt::IgnoreAction)
+		return true;
+
+	QList<QUrl> posterUrls;
+	if (data->hasUrls()) {
+		QList<QUrl> urls = data->urls();
+		foreach (QUrl url, urls) {
+			if (url.scheme() != QLatin1String("http") && url.scheme() != QLatin1String("file"))
+				continue;
+			QString p = url.path().toLower();
+			if (p.endsWith(".bmp") || p.endsWith(".jpg") || p.endsWith(".jpeg") || p.endsWith(".png")) {
+				posterUrls.append(url);
+				break;
+			}
+		}
+	}
+
+	if (posterUrls.isEmpty() && !data->hasFormat(MvdCore::parameter("movida/mime/movie-attributes").toString()))
+		return false;
+
+	mvdid movieId = this->data(parent, Movida::IdRole).toUInt();
+	if (movieId == MvdNull)
+		return false;
+	
+	if (!posterUrls.isEmpty()) {
+
+		// Import movie poster
+		QUrl posterUrl = posterUrls.at(0);
+		Q_ASSERT(QMetaObject::invokeMethod(Movida::MainWindow, "setMoviePoster", Qt::QueuedConnection,
+			Q_ARG(quint32, movieId), Q_ARG(QUrl, posterUrl)));
+	}
+
+	return true;
 }

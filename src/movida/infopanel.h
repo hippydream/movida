@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: listview.h
+** Filename: infopanel.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,35 +18,43 @@
 **
 **************************************************************************/
 
-#ifndef MVD_LISTVIEW_H
-#define MVD_LISTVIEW_H
+#ifndef MVD_INFOPANEL_H
+#define MVD_INFOPANEL_H
 
-#include <QListView>
+#include "ui_infopanel.h"
+#include <QFrame>
 
-class QMouseEvent;
-template <typename T> class QList;
+class QFrame;
 
-class MvdListView : public QListView
+class MvdInfoPanel : public QFrame, protected Ui::MvdInfoPanel
 {
+	Q_OBJECT
+
 public:
-	MvdListView(QWidget* parent = 0);
-	virtual ~MvdListView();
+	MvdInfoPanel(QWidget* parent = 0);
+	virtual ~MvdInfoPanel();
 
-	QModelIndexList selectedRows() const;
+	void setText(const QString& s);
+	QString text() const;
 
-protected:
-	void mouseMoveEvent(QMouseEvent* e);
-	void mouseReleaseEvent(QMouseEvent* e);
-	void dragEnterEvent(QDragEnterEvent* e);
-	void dragLeaveEvent(QDragLeaveEvent* e);
-	void dragMoveEvent(QDragMoveEvent* e);
-	void dropEvent(QDropEvent* e);
+	void showTemporaryMessage(const QString& s, int milliseconds = 3000);
 
-	void setSelection(const QRect& rect, QItemSelectionModel::SelectionFlags command);
+	void setVisible(bool v);
+
+public slots:
+	void closeImmediately();
+
+signals:
+	void closedByUser();
+
+private slots:
+	void do_closeImmediately();
+	void resetPermanentText();
 
 private:
-	class MvdListView_P;
-	MvdListView_P* d;
+	QPixmap mInfoIcon;
+	QString mPermanentText;
+	bool mHideOnTemporaryMessageTimeout;
 };
 
-#endif // MVD_LISTVIEW_H
+#endif // MVD_INFOPANEL_H

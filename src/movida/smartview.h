@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: smartview.h
+** Filename: smartviewwidget.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -21,14 +21,9 @@
 #ifndef MVD_SMARTVIEW_H
 #define MVD_SMARTVIEW_H
 
-#include "ui_smartview.h"
-#include <QWidget>
+#include "listview.h"
 
-class MvdSmartViewDelegate;
-class QListView;
-class QItemSelectionModel;
-
-class MvdSmartView : public QWidget, protected Ui::MvdSmartView
+class MvdSmartView : public MvdListView
 {
 	Q_OBJECT
 
@@ -42,30 +37,22 @@ public:
 	MvdSmartView(QWidget* parent = 0);
 	MvdSmartView(QAbstractItemModel* model, QWidget* parent = 0);
 	virtual ~MvdSmartView();
-	
-	void setModel(QAbstractItemModel* model);
-
-	int viewSpacing() const;
-	void setViewSpacing(int spacing);
-
-	QItemSelectionModel* selectionModel() const;
-	void setSelectionModel(QItemSelectionModel* selectionModel);
 
 	ItemSize itemSize() const;
 	void setItemSize(ItemSize s);
 
 signals:
 	void contextMenuRequested(const QModelIndex& index);
-	void doubleClicked(const QModelIndex& index);
 
 protected:
-	bool eventFilter(QObject* o, QEvent* e);
-	void contextMenuEvent(QContextMenuEvent* cme);
+	bool event(QEvent* e);
+	void keyPressEvent(QKeyEvent* e);
+	void contextMenuEvent(QContextMenuEvent* e);
+	void startDrag(Qt::DropActions supportedActions);
+	void dragEnterEvent(QDragEnterEvent* e);
 
 private:
 	void init();
-
-	MvdSmartViewDelegate* delegate;
 };
 
 #endif // MVD_SMARTVIEW_H

@@ -164,8 +164,10 @@ MvdMovieCollection::MvdMovieCollection(const MvdMovieCollection& m)
  */
 MvdMovieCollection::~MvdMovieCollection()
 {
-	if (!d->ref.deref())
+	if (!d->ref.deref()) {
+		emit destroyed();
 		delete d;
+	}
 }
 
 /*!
@@ -192,7 +194,7 @@ bool MvdMovieCollection::isDetached() const
 /*!
 	Returns a reference to this collection's SD.
 */
-MvdSharedData& MvdMovieCollection::smd() const
+MvdSharedData& MvdMovieCollection::sharedData() const
 {
 	return d->smd;
 }
@@ -288,6 +290,8 @@ MvdMovie MvdMovieCollection::movie(mvdid id) const
 	Adds a new movie to the database and returns its ID.
 	MvdNull is returned if the movie could not be added.
 	A movieAdded() signal is emitted if the movie has been added.
+
+	The collection will automatically update references to shared items.
  */
 mvdid MvdMovieCollection::addMovie(const MvdMovie& movie)
 {
@@ -348,7 +352,14 @@ mvdid MvdMovieCollection::addMovie(const MvdMovie& movie)
 		}
 	}
 	
-	d->movies.insert(d->id, movie);
+	mvdid movie_id = d->id++;
+	d->movies.insert(movie_id, movie);
+
+	MvdSharedData& sd = sharedData();
+	QList<mvdid> sharedItems = movie.sharedItemIds();
+	foreach (mvdid sd_id, sharedItems) {
+		sd.addMovieLink(sd_id, movie_id);
+	}
 	
 	if (!d->modified)
 	{
@@ -356,8 +367,8 @@ mvdid MvdMovieCollection::addMovie(const MvdMovie& movie)
 		emit modified();
 	}
 	
-	emit movieAdded(d->id);
-	return d->id++;
+	emit movieAdded(movie_id);
+	return movie_id;
 }
 
 /*!
@@ -387,25 +398,25 @@ mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
 
 	for (int i = 0; i < movie.languages.size(); ++i) {
 		const QString& s = movie.languages.at(i);
-		mvdid id = smd().addItem(MvdSdItem(Movida::LanguageRole, s));
+		mvdid id = sharedData().addItem(MvdSdItem(Movida::LanguageRole, s));
 		m.addLanguage(id);
 	}
 
 	for (int i = 0; i < movie.countries.size(); ++i) {
 		const QString& s = movie.countries.at(i);
-		mvdid id = smd().addItem(MvdSdItem(Movida::CountryRole, s));
+		mvdid id = sharedData().addItem(MvdSdItem(Movida::CountryRole, s));
 		m.addCountry(id);
 	}
 
 	for (int i = 0; i < movie.tags.size(); ++i) {
 		const QString& s = movie.tags.at(i);
-		mvdid id = smd().addItem(MvdSdItem(Movida::TagRole, s));
+		mvdid id = sharedData().addItem(MvdSdItem(Movida::TagRole, s));
 		m.addTag(id);
 	}
 
 	for (int i = 0; i < movie.genres.size(); ++i) {
 		const QString& s = movie.genres.at(i);
-		mvdid id = smd().addItem(MvdSdItem(Movida::GenreRole, s));
+		mvdid id = sharedData().addItem(MvdSdItem(Movida::GenreRole, s));
 		m.addGenre(id);
 	}
 
@@ -417,7 +428,7 @@ mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
 			const MvdMovieData::UrlData& ud = p.urls.at(j);
 			sdi.urls.append(MvdSdItem::Url(ud.url, ud.description, ud.isDefault));
 		}
-		mvdid id = smd().addItem(sdi);
+		mvdid id = sharedData().addItem(sdi);
 		m.addDirector(id);
 	}
 
@@ -429,7 +440,7 @@ mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
 			const MvdMovieData::UrlData& ud = p.urls.at(j);
 			sdi.urls.append(MvdSdItem::Url(ud.url, ud.description, ud.isDefault));
 		}
-		mvdid id = smd().addItem(sdi);
+		mvdid id = sharedData().addItem(sdi);
 		m.addProducer(id);
 	}
 
@@ -441,7 +452,7 @@ mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
 			const MvdMovieData::UrlData& ud = p.urls.at(j);
 			sdi.urls.append(MvdSdItem::Url(ud.url, ud.description, ud.isDefault));
 		}
-		mvdid id = smd().addItem(sdi);
+		mvdid id = sharedData().addItem(sdi);
 		m.addCrewMember(id, p.roles);
 	}
 
@@ -453,7 +464,7 @@ mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
 			const MvdMovieData::UrlData& ud = p.urls.at(j);
 			sdi.urls.append(MvdSdItem::Url(ud.url, ud.description, ud.isDefault));
 		}
-		mvdid id = smd().addItem(sdi);
+		mvdid id = sharedData().addItem(sdi);
 		m.addActor(id, p.roles);
 	}
 
@@ -474,6 +485,8 @@ mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
 	Changes the movie with specified ID.
 	\p movie must be a valid movie (see MvdMovie::isValid())
 	A movieChanged() signal is emitted if the movie has been changed.
+
+	The collection will automatically update references to shared items.
  */
 void MvdMovieCollection::updateMovie(mvdid id, const MvdMovie& movie)
 {
@@ -502,12 +515,18 @@ void MvdMovieCollection::updateMovie(mvdid id, const MvdMovie& movie)
 	int releasedInt = released.toInt(&ok);
 	if (!ok)
 		releasedInt = -1;
-		
+
+	const MvdMovie& oldMovie = oldMovieItr.value();
+	
+	MvdSharedData& sd = sharedData();
+	QList<mvdid> sharedItems = oldMovie.sharedItemIds();
+	foreach (mvdid sd_id, sharedItems) {
+		sd.removeMovieLink(sd_id, id);
+	}
+	
+	// remove title & year of old movie from the lookup table
 	if (!d->quickLookupTable.isEmpty())
 	{
-		// remove title & year of old movie from the lookup table
-		const MvdMovie& oldMovie = oldMovieItr.value();
-
 		QString oldTitle = oldMovie.title();
 		if (oldTitle.isEmpty())
 			oldTitle = oldMovie.originalTitle();
@@ -582,6 +601,11 @@ void MvdMovieCollection::updateMovie(mvdid id, const MvdMovie& movie)
 	
 	d->movies.erase(oldMovieItr); //! \todo CHECK IF WE REALLY NEED TO CALL REMOVE
 	d->movies.insert(id, movie);
+
+	sharedItems = movie.sharedItemIds();
+	foreach (mvdid sd_id, sharedItems) {
+		sd.addMovieLink(sd_id, id);
+	}
 	
 	if (!d->modified)
 	{
@@ -595,6 +619,8 @@ void MvdMovieCollection::updateMovie(mvdid id, const MvdMovie& movie)
 /*!
 	Removes the movie with given ID from the database.
 	A movieRemoved() signal is emitted if the movie has been removed.
+
+	The collection will automatically update references to shared items.
  */
 void MvdMovieCollection::removeMovie(mvdid id)
 {
@@ -607,11 +633,17 @@ void MvdMovieCollection::removeMovie(mvdid id)
 
 	detach();
 
+	const MvdMovie& movie = movieIterator.value();
+
+	MvdSharedData& sd = sharedData();
+	QList<mvdid> sharedItems = movie.sharedItemIds();
+	foreach (mvdid sd_id, sharedItems) {
+		sd.removeMovieLink(sd_id, id);
+	}
+
 	// Remove quick lookup entry
 	if (!d->quickLookupTable.isEmpty())
 	{
-		const MvdMovie& movie = movieIterator.value();
-
 		QString title = movie.title();
 		if (title.isEmpty())
 			title = movie.originalTitle();

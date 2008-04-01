@@ -33,14 +33,19 @@ class MVD_EXPORT_SHARED MvdClearEdit : public QLineEdit
 public:
 	MvdClearEdit(QWidget* parent = 0);
 
+	void setPlaceHolder(const QString& s);
+	QString placeHolder() const;
+
 protected:
 	void resizeEvent(QResizeEvent* );
+	void paintEvent(QPaintEvent* );
 
 private slots:
 	void updateClearButton(const QString& text);
 
 private:
-	QToolButton* clearButton;
+	class Private;
+	Private* d;
 };
 
 #endif // MVD_CLEAREDIT_H

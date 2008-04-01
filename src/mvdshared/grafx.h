@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: listview.h
+** Filename: grafx.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,35 +18,18 @@
 **
 **************************************************************************/
 
-#ifndef MVD_LISTVIEW_H
-#define MVD_LISTVIEW_H
+#ifndef MVD_GRAFX_H
+#define MVD_GRAFX_H
 
-#include <QListView>
+#include "sharedglobal.h"
 
-class QMouseEvent;
-template <typename T> class QList;
+class QFont;
+class QPixmap;
+class QStringList;
 
-class MvdListView : public QListView
-{
-public:
-	MvdListView(QWidget* parent = 0);
-	virtual ~MvdListView();
-
-	QModelIndexList selectedRows() const;
-
-protected:
-	void mouseMoveEvent(QMouseEvent* e);
-	void mouseReleaseEvent(QMouseEvent* e);
-	void dragEnterEvent(QDragEnterEvent* e);
-	void dragLeaveEvent(QDragLeaveEvent* e);
-	void dragMoveEvent(QDragMoveEvent* e);
-	void dropEvent(QDropEvent* e);
-
-	void setSelection(const QRect& rect, QItemSelectionModel::SelectionFlags command);
-
-private:
-	class MvdListView_P;
-	MvdListView_P* d;
+namespace MvdGrafx {
+	MVD_EXPORT_SHARED QPixmap moviesDragPixmap(const QStringList& posterPaths, QString message, QFont font);
+	MVD_EXPORT_SHARED QPixmap sharedDataDragPixmap(const QString& values, QFont font);
 };
 
-#endif // MVD_LISTVIEW_H
+#endif // MVD_GRAFX_H

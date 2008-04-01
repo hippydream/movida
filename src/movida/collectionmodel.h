@@ -42,14 +42,12 @@ public:
 	// Item Data Handling
 	virtual Qt::ItemFlags flags(const QModelIndex& index) const;
 	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-	virtual QVariant headerData(int section, Qt::Orientation orientation, 
-		int role = Qt::DisplayRole) const;
+	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 	virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
 
 	// Navigation and Model Index Creation
-	virtual QModelIndex index(int row, int column,
-		const QModelIndex& parent = QModelIndex()) const;
+	virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex& index) const;
 
 	// Editable Items & Resizable Models
@@ -66,10 +64,19 @@ public:
 	virtual int sortColumn() const;
 	virtual Movida::MovieAttribute sortAttribute() const;
 
+	Qt::DropActions supportedDropActions() const;
+	QStringList mimeTypes() const;
+	QMimeData* mimeData(const QModelIndexList& indexes) const;
+	bool dropMimeData(const QMimeData* data,
+		Qt::DropAction action, int row, int column, const QModelIndex& parent);
+
 	void emit_sorted() { emit sorted(); }
 	
 signals:
 	void sorted();
+
+protected:
+	void reset();
 
 private:
 	MvdCollectionModel_P* d;

@@ -24,14 +24,15 @@
 #include "filterproxymodel.h"
 #include "filterwidget.h"
 #include "guiglobal.h"
+#include "infopanel.h"
 #include "mainwindow.h"
 #include "moviemasseditor.h"
+#include "movietreeview.h"
 #include "rowselectionmodel.h"
 #include "settingsdialog.h"
 #include "shareddataeditor.h"
 #include "shareddatamodel.h"
 #include "smartview.h"
-#include "treeview.h"
 #include "mvdcore/collectionloader.h"
 #include "mvdcore/collectionsaver.h"
 #include "mvdcore/core.h"
@@ -48,6 +49,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHeaderView>
+#include <QHttp>
 #include <QInputDialog>
 #include <QKeyEvent>
 #include <QLibrary>
@@ -58,14 +60,17 @@
 #include <QSignalMapper>
 #include <QStackedWidget>
 #include <QStatusBar>
+#include <QTemporaryFile>
 #include <QTextBrowser>
 #include <QTimer>
 #include <QToolBar>
-#include <QUrl>
 #include <QtDebug>
 
 using namespace Movida;
 MvdMainWindow* Movida::MainWindow = 0;
+
+Q_DECLARE_METATYPE(MvdCollectionLoader::Info);
+
 
 /*!
 	\class MvdMainWindow mainwindow.h
@@ -74,12 +79,15 @@ MvdMainWindow* Movida::MainWindow = 0;
 	\brief The Movida main window.
 */
 
+//! \todo Option to always exclude loaned movies from searches
 
 /*!
 	Creates a new main window and initializes the application.
 */
 MvdMainWindow::MvdMainWindow(QWidget* parent)
-: QMainWindow(parent), mCollection(0), mMovieEditor(0)
+: QMainWindow(parent), 
+mInfoPanelClosedByUser(false), mCollection(0), mMovieEditor(0), mHttp(0), 
+mDraggingSharedData(false), mSavedFilterMessage(0)
 {
 	Q_ASSERT_X(!Movida::MainWindow, "MvdMainWindow", "Internal Error. Only a single instance of MvdMainWindow can be created.");
 	Movida::MainWindow = this;
@@ -95,8 +103,6 @@ MvdMainWindow::MvdMainWindow(QWidget* parent)
 #ifdef MVD_DEBUG_TOOLS
 	setupDebugTools();
 #endif
-
-	lockToolBars(true);
 	
 	// Set some GUI related constants
 	QHash<QString,QVariant> parameters;
@@ -107,6 +113,11 @@ MvdMainWindow::MvdMainWindow(QWidget* parent)
 	parameters.insert("movida/poster-default-width", 70);
 	parameters.insert("movida/poster-aspect-ratio", qreal(0.7));
 	parameters.insert("movida/imdb-movie-url", "http://akas.imdb.com/title/tt%1");
+	parameters.insert("movida/mime/movie", "application/movida-movie");
+	parameters.insert("movida/mime/movie-attributes", "application/movida-movie-attributes");
+	parameters.insert("movida/mime/movie-filter", "application/movida-movie-filter");
+	parameters.insert("movida/d&d/max-pixmaps", 5);
+	parameters.insert("movida/d&d/max-values", 8);
 	MvdCore::registerParameters(parameters);
 
 	MvdCore::loadStatus();
@@ -172,6 +183,8 @@ MvdMainWindow::MvdMainWindow(QWidget* parent)
 	mFilterModel->sortByAttribute(Movida::TitleAttribute, Qt::AscendingOrder);
 	mSharedDataModel->sort(0, Qt::AscendingOrder);
 	currentViewChanged();
+
+	setAcceptDrops(true);
 
 	createNewCollection();
 	loadPlugins();
@@ -475,7 +488,9 @@ bool MvdMainWindow::loadCollection(const QString& file)
 
 	this->setEnabled(false);
 
-	MvdCollectionLoader::StatusCode res = MvdCollectionLoader::load(mCollection, file);
+	MvdCollectionLoader loader;
+	loader.setProgressHandler(this, "collectionLoaderCallback");
+	MvdCollectionLoader::StatusCode res = loader.load(mCollection, file);
 	mCollection->setModifiedStatus(false);
 
 	if (res != MvdCollectionLoader::NoError) {
@@ -498,6 +513,8 @@ bool MvdMainWindow::loadCollection(const QString& file)
 	
 	mFilterModel->sortByAttribute(a, mFilterModel->sortOrder());
 	mSharedDataModel->sort(0, mSharedDataModel->sortOrder());
+
+	mInfoPanel->showTemporaryMessage(tr("%1 movies loaded.").arg(mCollection->count()));
 
 	return true;
 }
@@ -930,29 +947,29 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	QAction* deleteSelected = 0;
 
 	bool currentIsSelected = false;
-	bool movieMenuAdded = false;
 
 	addNew = menu.addAction(tr("New movie..."));
 	if (!mMN_FileImport->isEmpty()) {
 		menu.addMenu(mMN_FileImport);
 	}
 
-	if (index.isValid()) {
-		mvdid id = mFilterModel->data(index, Movida::IdRole).toUInt();
-		if (id != MvdNull) {
-			MvdMovie movie = mCollection->movie(id);
-			if (movie.isValid()) {
-				if (!menu.isEmpty())
-					menu.addSeparator();
-				movieMenuAdded = true;
-				QString title = fontMetrics().elidedText(movie.validTitle(), Qt::ElideMiddle, 300);
-				editCurrent = menu.addAction(tr("Edit \"%1\"", "Edit movie").arg(title));
-				deleteCurrent = menu.addAction(tr("Delete \"%1\"", "Delete movie").arg(title));
-			}
+	QModelIndexList selected = mSelectionModel->selectedRows();
+	mvdid currentId = movieIndexToId(index);
+			bool movieMenuAdded = false;
+	if (currentId != MvdNull) {
+	
+		MvdMovie movie = mCollection->movie(currentId);
+		if (movie.isValid()) {
+			if (!menu.isEmpty())
+				menu.addSeparator();
+			movieMenuAdded = true;
+			QString title = fontMetrics().elidedText(movie.validTitle(), Qt::ElideMiddle, 300);
+			editCurrent = menu.addAction(tr("Edit \"%1\"", "Edit movie").arg(title));
+			deleteCurrent = menu.addAction(tr("Delete \"%1\"", "Delete movie").arg(title));
 		}
 	}
 
-	QModelIndexList selected = mSelectionModel->selectedRows();
+	
 	if (selected.size() > 1) {
 		if (!menu.isEmpty())
 			menu.addSeparator();
@@ -1269,7 +1286,7 @@ void MvdMainWindow::keyPressEvent(QKeyEvent* e)
 	QString ttf = mFilterWidget->editor()->text();
 	QString text = e->text();
 
-	bool hasModifier = !(e->modifiers() == Qt::NoModifier || e->modifiers().testFlag(Qt::ShiftModifier));
+	bool hasModifier = !(e->modifiers() == Qt::NoModifier || e->modifiers() == Qt::ALT || e->modifiers().testFlag(Qt::ShiftModifier));
 	if (hasModifier|| !shouldShowQuickFilter()) {
 		QMainWindow::keyPressEvent(e);
 		return;
@@ -1301,16 +1318,12 @@ void MvdMainWindow::keyPressEvent(QKeyEvent* e)
 		}
 		if (text.startsWith(QLatin1Char('/'))) {
 			mFilterWidget->editor()->clear();
-			showFilterWidget();
 			return;
 		}
 		ttf = text;
-		mFilterWidget->show();
-		mFilterWidget->setNoResultsWarningVisible(false);
 	}
 
 	mFilterWidget->editor()->setText(ttf);
-	filter(ttf);
 }
 
 bool MvdMainWindow::eventFilter(QObject* o, QEvent* e)
@@ -1320,27 +1333,41 @@ bool MvdMainWindow::eventFilter(QObject* o, QEvent* e)
 			mHideFilterTimer->stop();
 	}
 
+	else if (o == mSmartView->viewport() || o == mTreeView->viewport()) {
+		if (e->type() == QEvent::DragEnter && !mDraggingSharedData) {
+			QDragEnterEvent* _e = static_cast<QDragEnterEvent*>(e);
+			if (_e->source() == mSharedDataEditor->view()) {
+				// Dirty dirty dirty trick to detect the end of a drag operation.
+				// Any attempt to use DragLeave or Drop failed.
+				connect(_e->mimeData(), SIGNAL(destroyed()), SLOT(sdeDragEnded()));
+				sdeDragStarted();
+			}
+		}
+	}
+
 	return QMainWindow::eventFilter(o, e);
 }
 
 void MvdMainWindow::showFilterWidget()
 {
 	mFilterWidget->show();
-	mFilterWidget->setNoResultsWarningVisible(false);
+	mFilterWidget->setMessage(MvdFilterWidget::NoMessage);
 	mFilterWidget->editor()->setFocus(Qt::ShortcutFocusReason);
 	mFilterWidget->editor()->selectAll();
 	mHideFilterTimer->stop();
 }
 
-//! Applies a filter with the current contents of the filter widget.
-void MvdMainWindow::applyCurrentFilter()
+//! Reapplies the current filter to the movie view. Use this when some option changed (e.g. case sensitivity).
+void MvdMainWindow::filter()
 {
 	filter(mFilterWidget->editor()->text());
-	mHideFilterTimer->stop();
 }
 
 void MvdMainWindow::filter(QString s)
 {
+	bool filterWasVisible = mFilterWidget->isVisible();
+	mFilterWidget->setMessage(MvdFilterWidget::NoMessage);
+
 	s = s.trimmed();
 	mHideFilterTimer->stop();
 
@@ -1353,7 +1380,10 @@ void MvdMainWindow::filter(QString s)
 	Qt::CaseSensitivity cs = mFilterWidget->caseSensitivity();
 	
 	mFilterModel->setFilterCaseSensitivity(cs);
-	mFilterModel->setFilterFixedString(s);
+	bool syntaxError = !mFilterModel->setFilterAdvancedString(s);
+	if (syntaxError) {
+		mFilterWidget->setMessage(MvdFilterWidget::SyntaxErrorWarning);
+	}
 
 	nothingToFilter = mFilterModel->rowCount() == 0;
 	
@@ -1363,17 +1393,28 @@ void MvdMainWindow::filter(QString s)
 	if (!mFilterWidget->isVisible())
 		mFilterWidget->show();
 
-	mFilterWidget->setNoResultsWarningVisible(nothingToFilter && hasText);
+	if (!syntaxError)
+		mFilterWidget->setMessage((nothingToFilter && hasText) ? 
+			MvdFilterWidget::NoResultsWarning : MvdFilterWidget::NoMessage);
 
 	mFilterWidget->editor()->setPalette(p);
 	if (!mFilterWidget->editor()->hasFocus() && !hasText)
 		mHideFilterTimer->start();
+
+	if (!filterWasVisible)
+		mInfoPanelClosedByUser = false;
+
+	if (!s.isEmpty() && !mInfoPanelClosedByUser) {
+		mInfoPanel->setText(tr("Movie filter is active. Clear or close the filter bar to show all movies."));
+		mInfoPanel->show();
+	} else mInfoPanel->hide();
 }
 
 void MvdMainWindow::resetFilter()
 {
-	mFilterModel->setFilterRegExp(QString());
+	mFilterWidget->editor()->setText(QString());
 	mFilterWidget->hide();
+	mInfoPanel->hide();
 }
 
 bool MvdMainWindow::isQuickFilterVisible() const
@@ -1385,7 +1426,8 @@ void MvdMainWindow::showSharedDataEditor()
 {
 	MvdSharedDataEditor editor(this);
 	editor.setModel(mSharedDataModel);
-	editor.exec();
+	editor.setWindowModality(Qt::ApplicationModal);
+	editor.show();
 }
 
 //! Returns false if the quick filter should not be shown after a key press (e.g. because focus is on the SD editor)
@@ -1501,9 +1543,8 @@ void MvdMainWindow::pluginActionTriggered()
 			k = key[2];
 			if (k == QLatin1String("filter")) {
 				QString ids = it.value().toString();
-				QString query = QString("@id(%1)").arg(ids);
+				QString query = QString("@%1(%2)").arg(Movida::filterFunctionName(Movida::IdFilter)).arg(ids);
 				mFilterWidget->editor()->setText(query);
-				filter(query);
 			}
 		}
 
@@ -1511,4 +1552,154 @@ void MvdMainWindow::pluginActionTriggered()
 	}
 
 	context->properties.clear();
+}
+
+bool MvdMainWindow::collectionLoaderCallback(int state, const QVariant& data)
+{
+	if (state == MvdCollectionLoader::CollectionInfo) {
+		
+		return true;
+
+		MvdCollectionLoader::Info info = data.value<MvdCollectionLoader::Info>();
+		QString msg = tr("Collection %1 contains %2 movies. Continue?")
+			.arg(info.metadata[QString("name")])
+			.arg(info.expectedMovieCount);
+
+		int res = QMessageBox::question(this, MVD_CAPTION, msg, QMessageBox::Yes, QMessageBox::No);
+
+		return (res == QMessageBox::Yes);
+
+	} else if (state == MvdCollectionLoader::ProgressInfo) {
+
+		int percent = data.toInt();
+
+	}
+
+	return true;
+}
+
+void MvdMainWindow::setMoviePoster(quint32 movieId, const QUrl& url)
+{
+	if (movieId == MvdNull)
+		return;
+	MvdMovie movie = mCollection->movie(movieId);
+	if (!movie.isValid())
+		return;
+
+	QString t = movie.validTitle();
+
+	if (url.scheme() == QLatin1String("file")) {
+		QString f = url.toLocalFile();
+		f = mCollection->addImage(f, MvdMovieCollection::MoviePosterImage);
+		if (!f.isEmpty()) {
+			movie.setPoster(f);
+			mCollection->updateMovie(movieId, movie);
+			statusBar()->showMessage(tr("A new movie poster has been set for '%1'.").arg(t));
+		} else statusBar()->showMessage(tr("Failed to set a movie poster set for '%1'.").arg(t));
+
+	} else {
+		// Download required
+		if (!mHttp) {
+			mHttp = new QHttp(this);
+			connect(mHttp, SIGNAL(requestFinished(int,bool)), SLOT(httpRequestFinished(int,bool)));
+		}
+
+		mHttp->setHost(url.host(), url.port(80));
+		
+		QString location = url.path();
+		if (url.hasQuery())
+			location.append("?").append(url.encodedQuery());
+
+		QTemporaryFile* tempFile = new QTemporaryFile(paths().tempDir());
+		if (!tempFile->open()) {
+			statusBar()->showMessage(tr("Failed to set a movie poster set for '%1'.").arg(t));
+			return;
+		}
+
+		statusBar()->showMessage(tr("Downloading movie poster for '%1'.").arg(t));
+		iLog() << "Downloading " << location << " from host " << url.host().append(":").append(url.port(80));
+		int requestId = mHttp->get(location, tempFile);
+
+		RemoteRequest rr;
+		rr.requestType = RemoteRequest::MoviePoster;
+		rr.url = url;
+		rr.requestId = requestId;
+		rr.data = t;
+		rr.tempFile = tempFile;
+		rr.target = movieId;
+		mPendingRemoteRequests.append(rr);
+	}
+}
+
+void MvdMainWindow::httpRequestFinished(int id, bool error)
+{
+	RemoteRequest rr;
+	for (int i = 0; i < mPendingRemoteRequests.size(); ++i) {
+		if (mPendingRemoteRequests.at(i).requestId == id) {
+			rr = mPendingRemoteRequests.takeAt(i);
+			break;
+		}
+	}
+
+	if (rr.requestType == RemoteRequest::Invalid)
+		return;
+
+	switch (rr.requestType) {
+	case RemoteRequest::MoviePoster:
+	{
+		MvdMovie m = mCollection->movie(rr.target);
+		if (!m.isValid()) {
+			wLog() << "Failed to set movie poster for " << rr.data.toString() << " - invalid movie ID.";
+			delete rr.tempFile;
+			return;
+		}
+
+		if (error) {
+			wLog() << "Download failed. Url: " << rr.url.toString();
+			statusBar()->showMessage(tr("Failed to download movie poster for '%1'.").arg(rr.data.toString()));
+			delete rr.tempFile;
+			return;
+		}
+
+		QString s = mCollection->addImage(rr.tempFile->fileName());
+		if (s.isEmpty()) {
+			statusBar()->showMessage(tr("Failed to set a movie poster set for '%1'.").arg(rr.data.toString()));
+		} else {
+			m.setPoster(s);
+			mCollection->updateMovie(rr.target, m);
+			statusBar()->showMessage(tr("A new movie poster has been set for '%1'.").arg(rr.data.toString()));
+		}
+
+		delete rr.tempFile;
+	}
+	default: ;
+	}
+}
+
+void MvdMainWindow::sdeDragStarted()
+{
+	mDraggingSharedData = true;
+	mFilterWidget->show();
+	mSavedFilterMessage = (int) mFilterWidget->message();
+	mFilterWidget->setMessage(MvdFilterWidget::DropInfo);
+	mHideFilterTimer->stop();
+}
+
+void MvdMainWindow::sdeDragEnded()
+{
+	mDraggingSharedData = false;
+	mFilterWidget->setMessage((MvdFilterWidget::Message) mSavedFilterMessage);
+	if (mFilterWidget->editor()->text().trimmed().isEmpty() && !mFilterWidget->editor()->hasFocus()) {
+		resetFilter();
+	}
+}
+
+MvdFilterWidget* MvdMainWindow::filterWidget() const
+{
+	return mFilterWidget;
+}
+
+void MvdMainWindow::infoPanelClosedByUser()
+{
+	mInfoPanelClosedByUser = true;
 }

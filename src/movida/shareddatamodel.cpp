@@ -20,11 +20,14 @@
 
 #include "shareddatamodel.h"
 #include "guiglobal.h"
+#include "mvdcore/core.h"
 #include "mvdcore/settings.h"
 #include "mvdcore/moviecollection.h"
 #include "mvdcore/shareddata.h"
 #include "mvdcore/sditem.h"
 #include <QCoreApplication>
+#include <QMimeData>
+#include <QDataStream>
 
 /*!
 	\class MvdSharedDataModel shareddatamodel.h
@@ -90,7 +93,7 @@ void MvdSharedDataModel_P::populate()
 	if (!collection)
 		return;
 
-	MvdSharedData::ItemList data = collection->smd().items(role);
+	MvdSharedData::ItemList data = collection->sharedData().items(role);
 	for (MvdSharedData::ItemList::ConstIterator it = data.constBegin(); it != data.constEnd(); ++it)
 	{
 		mvdid id = it.key();
@@ -149,21 +152,22 @@ void MvdSharedDataModel::setMovieCollection(MvdMovieCollection* c)
 
 	d->collection = c;
 
-	emit layoutAboutToBeChanged();
 	d->rows.clear();
 	if (c) {
-		MvdSharedData* sd = &(c->smd());
+		MvdSharedData* sd = &(c->sharedData());
 		connect( c, SIGNAL(destroyed(QObject*)), this, SLOT(removeCollection()) );
 		connect( sd, SIGNAL(itemAdded(mvdid)), this, SLOT(itemAdded(mvdid)) );
 		connect( sd, SIGNAL(itemRemoved(mvdid)), this, SLOT(itemRemoved(mvdid)) );
 		connect( sd, SIGNAL(itemUpdated(mvdid)), this, SLOT(itemUpdated(mvdid)) );
 		connect( sd, SIGNAL(itemReferenceChanged(mvdid)), this, SLOT(itemReferenceChanged(mvdid)) );
 		connect( sd, SIGNAL(cleared()), this, SLOT(sharedDataCleared()) );
+		connect( sd, SIGNAL(destroyed()), this, SLOT(sharedDataCleared()) );
 
 		// Insert existing data - new items will be added through the signal/slot mechanism
 		d->populate();
 	}
-	emit layoutChanged();
+	
+	QAbstractTableModel::reset();
 }
 
 /*!
@@ -196,7 +200,7 @@ Qt::ItemFlags MvdSharedDataModel::flags(const QModelIndex& index) const
 	if (!index.isValid())
 		return 0;
 
-	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
 
 /*!
@@ -204,21 +208,33 @@ Qt::ItemFlags MvdSharedDataModel::flags(const QModelIndex& index) const
 */
 QVariant MvdSharedDataModel::data(const QModelIndex& index, int role) const
 {
-	if (!d->collection || role != Qt::DisplayRole)
+	if (!d->collection)
 		return QVariant();
 
 	int row = index.row();
 	int col = index.column();
 
-	if (row < 0 || row >= d->rows.size())
+	if (role == Movida::UniqueDisplayRole) {
+		row = index.row();
+		col = 0;
+		role = Qt::DisplayRole;
+	}
+
+	bool badRole = role != Qt::DisplayRole && role != Movida::IdRole;
+	if (badRole || row < 0 || row >= d->rows.size())
 		return QVariant();
+
+	if (role == Movida::IdRole) {
+		const MvdSharedDataModel_P::RowWrapper& rw = d->rows.at(row);
+		return rw.id;
+	}
 
 	QList<Movida::SharedDataAttribute> columns = Movida::sharedDataAttributes(d->role, Movida::SDEditorAttributeFilter);
 	if (col < 0 || col >= columns.size())
 		return QVariant();
 
 	const MvdSharedDataModel_P::RowWrapper& rw = d->rows.at(row);
-	MvdSdItem sdItem = d->collection->smd().item(rw.id);
+	MvdSdItem sdItem = d->collection->sharedData().item(rw.id);
 
 	// NameSDA, GenreSDA, CountrySDA, LanguageSDA, TagSDA, [UrlSDA, DescriptionSDA,] ImdbIdSDA
 	switch (columns.at(col))
@@ -326,7 +342,7 @@ bool MvdSharedDataModel::removeRows(int row, int count, const QModelIndex& p)
 //! \internal
 void MvdSharedDataModel::itemAdded(mvdid id)
 {
-	MvdSdItem item = d->collection->smd().item(id);
+	MvdSdItem item = d->collection->sharedData().item(id);
 	if (item.role & d->role) {
 		int row = d->rows.size();
 		insertRows(row, 1);
@@ -338,7 +354,7 @@ void MvdSharedDataModel::itemAdded(mvdid id)
 //! \internal
 void MvdSharedDataModel::itemRemoved(mvdid id)
 {
-	MvdSdItem item = d->collection->smd().item(id);
+	MvdSdItem item = d->collection->sharedData().item(id);
 	if (item.role & d->role) {
 		int row = d->rowIndex(id);
 		removeRows(row, 1, QModelIndex());
@@ -348,7 +364,7 @@ void MvdSharedDataModel::itemRemoved(mvdid id)
 //! \internal
 void MvdSharedDataModel::itemUpdated(mvdid id)
 {
-	MvdSdItem item = d->collection->smd().item(id);
+	MvdSdItem item = d->collection->sharedData().item(id);
 	if (item.role & d->role) {
 		int row = d->rowIndex(id);
 		emit dataChanged( createIndex(row, 0), createIndex(row, columnCount() - 1) );
@@ -364,7 +380,6 @@ void MvdSharedDataModel::itemReferenceChanged(mvdid id)
 //! \internal
 void MvdSharedDataModel::sharedDataCleared()
 {
-	d->rows.clear();
 	reset();
 }
 
@@ -373,6 +388,8 @@ void MvdSharedDataModel::sort(int column, Qt::SortOrder order)
 {
 	if (rowCount() == 0)
 		return;
+
+	emit layoutAboutToBeChanged();
 
 	d->sortOrder = order;
 
@@ -423,4 +440,39 @@ void MvdSharedDataModel::sort(int column, Qt::SortOrder order)
 Qt::SortOrder MvdSharedDataModel::sortOrder() const
 {
 	return d->sortOrder;
+}
+
+void MvdSharedDataModel::reset()
+{
+	d->rows.clear();
+	d->populate();
+	QAbstractTableModel::reset();
+}
+
+Qt::DropActions MvdSharedDataModel::supportedDropActions() const
+{
+	return Qt::CopyAction | Qt::MoveAction;
+}
+
+QMimeData* MvdSharedDataModel::mimeData(const QModelIndexList& indexes) const
+{
+	QMimeData* mimeData = new QMimeData();
+	QList<mvdid> ids;
+
+	foreach (QModelIndex index, indexes) {
+		if (!index.isValid())
+			continue;
+
+		mvdid id = data(index, Movida::IdRole).toUInt();
+		if (id != MvdNull) ids.append(id);
+	}
+
+	MvdSharedDataAttributes attributes;
+	attributes.insert((int)role(), ids);
+	QByteArray data;
+	QDataStream stream(&data, QIODevice::WriteOnly);
+	stream << attributes;
+	mimeData->setData(MvdCore::parameter("movida/mime/movie-attributes").toString(), data);
+	
+	return mimeData;
 }

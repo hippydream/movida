@@ -41,7 +41,9 @@ namespace Movida
 		FontBackupRole,
 		ValidationRole,
 		MovieAttributeRole,
-		SmartViewDisplayRole
+		SmartViewDisplayRole,
+		RawDataRole,
+		UniqueDisplayRole
 	};
 
 	enum ItemValidator
@@ -107,6 +109,21 @@ namespace Movida
 
 	QList<SharedDataAttribute> sharedDataAttributes(Movida::DataRole role, AttributeFilter filter = NoAttributeFilter);
 	QString sharedDataAttributeString(SharedDataAttribute attribute);
+
+	enum FilterFunction{
+		InvalidFilterFunction = 0,
+
+		// For internal use (IDs are not accessible to users):
+		IdFilter, PeopleIdFilter,
+
+		// Also suited for users:
+		MarkAsSeenFilter, MarkAsLoanedFilter, MarkAsSpecialFilter,
+		RatingFilter, RunningTimeFilter
+	};
+
+	QString filterFunctionName(FilterFunction ff);
+	QRegExp filterFunctionRegExp(FilterFunction ff);
+	FilterFunction filterFunction(QString name);
 }
 
 #endif // MVD_GUIGLOBAL_H

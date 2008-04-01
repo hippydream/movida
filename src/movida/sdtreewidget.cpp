@@ -202,7 +202,7 @@ void MvdSDTreeWidget::store(MvdMovie& m)
 			sdItem.role = mDS;
 			sdItem.value = item->text(0);
 			
-			id = mCollection->smd().addItem(sdItem);
+			id = mCollection->sharedData().addItem(sdItem);
 		}
 
 		// Re-check id as we might have added a new item to the SD
@@ -392,7 +392,7 @@ void MvdSDTreeWidget::setPersonRoleData(const QHash<mvdid, QStringList>& d)
 		mvdid id = it.key();
 		QStringList roles = it.value();
 
-		MvdSdItem pd = mCollection->smd().item(id);
+		MvdSdItem pd = mCollection->sharedData().item(id);
 
 		MvdTreeWidgetItem* item = new MvdTreeWidgetItem(this);
 		item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -447,7 +447,7 @@ void MvdSDTreeWidget::setSimpleData(const QList<mvdid>& d)
 	for (int i = 0; i < d.size(); ++i)
 	{
 		mvdid id = d.at(i);
-		MvdSdItem sdItem = mCollection->smd().item(id);
+		MvdSdItem sdItem = mCollection->sharedData().item(id);
 		
 		MvdTreeWidgetItem* item = new MvdTreeWidgetItem(this);
 		item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -534,14 +534,14 @@ QMap<QString, MvdSDTreeWidget::ActionDescriptor> MvdSDTreeWidget::generateAction
 	default: ;
 	}
 
-	itemCount = mCollection->smd().countItems(role);
+	itemCount = mCollection->sharedData().countItems(role);
 	Q_ASSERT(itemCount >= current.size());
 
 	itemCount = itemCount - current.size();
 
 	if (max < 0 || itemCount <= max)
 	{
-		MvdSharedData::ItemList items = mCollection->smd().items(role);
+		MvdSharedData::ItemList items = mCollection->sharedData().items(role);
 		generateActions(items, current, actions, sel);
 	}
 
@@ -932,7 +932,7 @@ void MvdSDDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 	else if (!isNew && index.column() == 0)
 	{
 		// Store ID
-		mvdid id = mc->smd().findItemByValue(text);
+		mvdid id = mc->sharedData().findItemByValue(text);
 		Q_ASSERT(id != MvdNull);
 		item->setData(0, Movida::IdRole, id);
 	}

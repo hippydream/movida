@@ -1,9 +1,10 @@
 /**************************************************************************
-** Filename: listview.h
+** Filename: movietreeview.h
+** Revision: 1
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
-** This file is part of the Movida project (http://movida.42cows.org/).
+** This file is part of the Movida project (http://movida.sourceforge.net/).
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -18,35 +19,21 @@
 **
 **************************************************************************/
 
-#ifndef MVD_LISTVIEW_H
-#define MVD_LISTVIEW_H
+#ifndef MVD_MOVIETREEVIEW_H
+#define MVD_MOVIETREEVIEW_H
 
-#include <QListView>
+#include "treeview.h"
 
-class QMouseEvent;
-template <typename T> class QList;
-
-class MvdListView : public QListView
+class MvdMovieTreeView : public MvdTreeView
 {
-public:
-	MvdListView(QWidget* parent = 0);
-	virtual ~MvdListView();
+	Q_OBJECT
 
-	QModelIndexList selectedRows() const;
+public:
+	MvdMovieTreeView(QWidget* parent = 0);
 
 protected:
-	void mouseMoveEvent(QMouseEvent* e);
-	void mouseReleaseEvent(QMouseEvent* e);
+	void startDrag(Qt::DropActions supportedActions);
 	void dragEnterEvent(QDragEnterEvent* e);
-	void dragLeaveEvent(QDragLeaveEvent* e);
-	void dragMoveEvent(QDragMoveEvent* e);
-	void dropEvent(QDropEvent* e);
-
-	void setSelection(const QRect& rect, QItemSelectionModel::SelectionFlags command);
-
-private:
-	class MvdListView_P;
-	MvdListView_P* d;
 };
 
-#endif // MVD_LISTVIEW_H
+#endif // MVD_MOVIETREEVIEW_H

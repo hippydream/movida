@@ -74,7 +74,7 @@ MvdApplication::MvdApplication(int& argc, char** argv)
 {
 	Movida::Application = this;
 
-	setApplicationName("movida");
+	setApplicationName("Movida");
 	setOrganizationName("42cows.org");
 	setOrganizationDomain("movida.42cows.org");
 }

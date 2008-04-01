@@ -3,6 +3,7 @@ HEADERS += \
 	actionlabel_p.h \
 	clearedit.h \
 	expandinglineedit.h \
+	grafx.h \
 	importdialog.h \
 	importdialog_p.h \
 	importfinalpage.h \
@@ -21,6 +22,7 @@ SOURCES += \
 	actionlabel.cpp \
 	clearedit.cpp \
 	expandinglineedit.cpp \
+	grafx.cpp \
 	importdialog.cpp \
 	importfinalpage.cpp \
 	importresultspage.cpp \

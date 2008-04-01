@@ -174,6 +174,7 @@ MvdSharedData& MvdSharedData::operator=(const MvdSharedData& m)
  */
 MvdSharedData::~MvdSharedData()
 {
+	emit destroyed();
 	delete d;
 }
 
@@ -337,7 +338,7 @@ bool MvdSharedData::updateItem(mvdid id, const MvdSdItem& item)
 	
 	iLog() << QString("MvdSharedData: Item %1 updated.").arg(it.value().value);
 
-	d->data.insert(id, item);	
+	d->data.insert(id, item);
 	emit itemUpdated(id);
 	return true;
 }
@@ -349,52 +350,58 @@ Links or unlinks an item to or from a movie/person
 /*!
 	Adds a reference to a movie.
 */
-void MvdSharedData::addMovieLink(mvdid id, mvdid movie)
+void MvdSharedData::addMovieLink(mvdid sd_id, mvdid movie_id)
 {
 	if (d->data.isEmpty())
 		return;
 
-	QHash<mvdid, MvdSdItem>::Iterator it = d->data.find(id);
+	QHash<mvdid, MvdSdItem>::Iterator it = d->data.find(sd_id);
 	if (it != d->data.end())
 	{
+		bool linked = false;
 		QList<mvdid>& list = it.value().movies;
 		for (int i = 0; i < list.size(); ++i)
 		{
 			mvdid m = list.at(i);
-			if (m == movie)
+			if (m == movie_id)
 				break;
-			else if (m > movie)
+			else if (m > movie_id)
 			{
-				list.insert(i, movie);
-				emit itemReferenceChanged(id);
+				
+				linked = true;
 				break;
 			}
 		}
+
+		if (!linked)
+			list.append(movie_id);
+		
+		emit itemReferenceChanged(sd_id);
 	}
 }
 
 /*!
 	Removes a reference to a movie.
 */
-void MvdSharedData::removeMovieLink(mvdid id, mvdid movie)
+void MvdSharedData::removeMovieLink(mvdid sd_id, mvdid movie_id)
 {
 	if (d->data.isEmpty())
 		return;
 
-	QHash<mvdid, MvdSdItem>::Iterator it = d->data.find(id);
+	QHash<mvdid, MvdSdItem>::Iterator it = d->data.find(sd_id);
 	if (it != d->data.end())
 	{
 		QList<mvdid>& list = it.value().movies;
 		for (int i = 0; i < list.size(); ++i)
 		{
 			mvdid m = list.at(i);
-			if (m == movie)
+			if (m == movie_id)
 			{
 				list.removeAt(i);
-				emit itemReferenceChanged(id);
+				emit itemReferenceChanged(sd_id);
 				break;
 			}
-			else if (m > movie)
+			else if (m > movie_id)
 				break;
 		}
 	}
@@ -403,52 +410,57 @@ void MvdSharedData::removeMovieLink(mvdid id, mvdid movie)
 /*!
 	Adds a reference to a person.
 */
-void MvdSharedData::addPersonLink(mvdid id, mvdid p)
+void MvdSharedData::addPersonLink(mvdid sd_id, mvdid person_sd_id)
 {
 	if (d->data.isEmpty())
 		return;
 
-	QHash<mvdid, MvdSdItem>::Iterator it = d->data.find(id);
+	QHash<mvdid, MvdSdItem>::Iterator it = d->data.find(sd_id);
 	if (it != d->data.end())
 	{
+		bool linked = false;
 		QList<mvdid>& list = it.value().persons;
 		for (int i = 0; i < list.size(); ++i)
 		{
 			mvdid m = list.at(i);
-			if (m == p)
+			if (m == person_sd_id)
 				break;
-			else if (m > p)
+			else if (m > person_sd_id)
 			{
-				list.insert(i, p);
-				emit itemReferenceChanged(id);
+				list.insert(i, person_sd_id);
+				linked = true;
 				break;
 			}
 		}
+
+		if (!linked)
+			list.append(person_sd_id);
+		emit itemReferenceChanged(sd_id);
 	}
 }
 
 /*!
 	Removes a reference to a movie.
 */
-void MvdSharedData::removePersonLink(mvdid id, mvdid p)
+void MvdSharedData::removePersonLink(mvdid sd_id, mvdid person_sd_id)
 {
 	if (d->data.isEmpty())
 		return;
 
-	QHash<mvdid, MvdSdItem>::Iterator it = d->data.find(id);
+	QHash<mvdid, MvdSdItem>::Iterator it = d->data.find(sd_id);
 	if (it != d->data.end())
 	{
 		QList<mvdid>& list = it.value().persons;
 		for (int i = 0; i < list.size(); ++i)
 		{
 			mvdid m = list.at(i);
-			if (m == p)
+			if (m == person_sd_id)
 			{
 				list.removeAt(i);
-				emit itemReferenceChanged(id);
+				emit itemReferenceChanged(sd_id);
 				break;
 			}
-			else if (m > p)
+			else if (m > person_sd_id)
 				break;
 		}
 	}

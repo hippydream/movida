@@ -1,12 +1,12 @@
 <ui version="4.0" >
  <class>MvdFilterWidget</class>
- <widget class="QWidget" name="MvdFilterWidget" >
+ <widget class="QFrame" name="MvdFilterWidget" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
     <width>585</width>
-    <height>22</height>
+    <height>24</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -18,12 +18,18 @@
   <property name="windowTitle" >
    <string>Form</string>
   </property>
+  <property name="frameShape" >
+   <enum>QFrame::StyledPanel</enum>
+  </property>
+  <property name="frameShadow" >
+   <enum>QFrame::Raised</enum>
+  </property>
   <layout class="QHBoxLayout" >
    <property name="leftMargin" >
     <number>0</number>
    </property>
    <property name="topMargin" >
-    <number>0</number>
+    <number>4</number>
    </property>
    <property name="rightMargin" >
     <number>0</number>
@@ -34,7 +40,7 @@
    <item>
     <widget class="QToolButton" name="closeButton" >
      <property name="toolTip" >
-      <string>Click to hide this bar and clear any entered filter.</string>
+      <string>Clear filter and close filter bar.</string>
      </property>
      <property name="text" >
       <string/>

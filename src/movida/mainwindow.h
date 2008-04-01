@@ -27,30 +27,35 @@
 #include <QStringList>
 #include <QAbstractItemView>
 #include <QPointer>
+#include <QUrl>
 #include <QtGlobal>
 
-class QToolBar;
+class MvdCollectionModel;
+class MvdDockWidget;
+class MvdInfoPanel;
+class MvdFilterProxyModel;
+class MvdFilterWidget;
+class MvdMovieCollection;
+class MvdPluginInterface;
+class MvdRowSelectionModel;
+class MvdSharedDataEditor;
+class MvdSharedDataModel;
+class MvdSmartView;
+class MvdMovieTreeView;
 class QAction;
 class QActionGroup;
-class QMenuBar;
-class QMenu;
-class QGridLayout;
-class QTextBrowser;
-class QStackedWidget;
-class QTimer;
 class QEvent;
+class QGridLayout;
+class QHttp;
 class QKeyEvent;
-class MvdSmartView;
-class MvdTreeView;
-class MvdDockWidget;
-class MvdMovieCollection;
-class MvdCollectionModel;
-class MvdSharedDataModel;
-class MvdSharedDataEditor;
-class MvdRowSelectionModel;
-class MvdFilterWidget;
-class MvdFilterProxyModel;
-class MvdPluginInterface;
+class QMenu;
+class QMenuBar;
+class QStackedWidget;
+class QTemporaryFile;
+class QTextBrowser;
+class QTimer;
+class QToolBar;
+class QUrl;
 
 class MvdMainWindow : public QMainWindow
 {
@@ -62,13 +67,16 @@ public:
 
 	MvdMovieCollection* currentCollection();
 	void cleanUp();
+
 	bool isQuickFilterVisible() const;
+	MvdFilterWidget* filterWidget() const;
 
 	virtual QMenu* createPopupMenu();
 
 public slots:
 	bool loadCollection(const QString& file);
 	void filter(QString s);
+	void filter();
 	void resetFilter();
 
 protected:
@@ -134,11 +142,15 @@ private:
 
 	// Tool bars
 	QToolBar* mTB_MainToolBar;
+
+	// Info panel
+	MvdInfoPanel* mInfoPanel;
+	bool mInfoPanelClosedByUser;
 	
 	// Views
 	QStackedWidget* mMainViewStack;
 	MvdSmartView* mSmartView;
-	MvdTreeView* mTreeView;
+	MvdMovieTreeView* mTreeView;
 	QTextBrowser* mDetailsView;
 	MvdSharedDataEditor* mSharedDataEditor;
 
@@ -162,6 +174,26 @@ private:
 
 	QList<MvdPluginInterface*> mPlugins;
 
+	QHttp* mHttp;
+
+	struct RemoteRequest {
+		enum { Invalid = 0, MoviePoster };
+
+		RemoteRequest() : requestType(Invalid), requestId(-1), target(MvdNull), tempFile(0) {}
+
+		QUrl url;
+		quint16 requestType;
+		int requestId;
+		QVariant data;
+		mvdid target;
+		QTemporaryFile* tempFile;
+	};
+	QList<RemoteRequest> mPendingRemoteRequests;
+
+	// D&D
+	bool mDraggingSharedData;
+	int mSavedFilterMessage;
+
 	void createActions();
 	QAction* createAction();
 	void initAction(QAction* action, const QString& text, const QString& shortInfo, const QString& longInfo, const QString& shortcut = QString());
@@ -179,27 +211,24 @@ private:
 	bool shouldShowQuickFilter() const;
 
 private slots:
-#ifdef MVD_DEBUG_TOOLS
-#ifdef Q_OS_WIN32
-	void runCollectorz();
-#endif
-#endif
 	bool closeCollection();
+	bool collectionLoaderCallback(int state, const QVariant& data);
 	bool loadCollectionDlg();
 	bool saveCollection();
 	bool saveCollectionDlg();
 	void addMovie();
 	void addRecentFile(const QString& file);
-	void applyCurrentFilter();
 	void collectionModelSorted();
 	void collectionModified();
 	void currentViewChanged();
 	void duplicateCurrentMovie();
-	void editSelectedMovies();
 	void editMovie(const QModelIndex& index);
 	void editNextMovie();
 	void editPreviousMovie();
+	void editSelectedMovies();
 	void externalActionTriggered(const QString& id, const QVariant& data);
+	void httpRequestFinished(int id, bool error);
+	void infoPanelClosedByUser();
 	void loadLastCollection();
 	void loadPlugins();
 	void loadPluginsFromDir(const QString& path);
@@ -211,9 +240,12 @@ private slots:
 	void newCollection();
 	void openRecentFile(QAction* a);
 	void pluginActionTriggered();
-	void removeSelectedMovies();
 	void removeMovie(const QModelIndex& index);
 	void removeMovies(const QModelIndexList& list);
+	void removeSelectedMovies();
+	void sdeDragStarted();
+	void sdeDragEnded();
+	void setMoviePoster(quint32 movieId, const QUrl& url);
 	void showFilterWidget();
 	void showLog();
 	void showMetaEditor();

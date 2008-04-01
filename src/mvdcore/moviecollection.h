@@ -54,7 +54,7 @@ public:
 		MoviePosterImage, GenericImage
 	};
 	
-	MvdSharedData& smd() const;
+	MvdSharedData& sharedData() const;
 
 	void setMetaData(MetaDataType ci, const QString& val);
 	QString metaData(MetaDataType ci);
@@ -97,6 +97,7 @@ signals:
 	void cleared();
 	void modified();
 	void saved();
+	void destroyed();
 	
 private:
 	MvdMovieCollection_P* d;

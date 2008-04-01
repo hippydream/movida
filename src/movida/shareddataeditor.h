@@ -21,14 +21,15 @@
 #ifndef MVD_SHAREDDATAEDITOR_H
 #define MVD_SHAREDDATAEDITOR_H
 
-#include <QDialog>
+#include "ui_shareddataeditor.h"
+#include <QWidget>
 
 class MvdTreeView;
 class QContextMenuEvent;
 class QAbstractItemModel;
 class QModelIndex;
 
-class MvdSharedDataEditor : public QDialog
+class MvdSharedDataEditor : public QWidget, protected Ui::MvdSharedDataEditor
 {
 	Q_OBJECT
 
@@ -38,16 +39,20 @@ public:
 	virtual ~MvdSharedDataEditor();
 	
 	void setModel(QAbstractItemModel* model);
+	QAbstractItemModel* model() const;
+
+	QAbstractItemView* view() const;
 
 signals:
 	void contextMenuRequested(const QModelIndex& index);
 
 protected:
-	void contextMenuEvent(QContextMenuEvent* cme);
+	void contextMenuEvent(QContextMenuEvent* event);
+
+private slots:
+	void updateDataRole();
 
 private:
-	MvdTreeView* view;
-
 	void init();
 };
 

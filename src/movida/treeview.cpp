@@ -26,7 +26,6 @@
 #include <QCursor>
 #include <QHeaderView>
 #include <QMenu>
-#include <QMouseEvent>
 #include <QString>
 #include <QKeyEvent>
 
@@ -52,6 +51,7 @@ MvdTreeView::MvdTreeView(QWidget* parent)
 
 	setSortingEnabled(true);
 	setRootIsDecorated(false);
+	// setDropIndicatorShown(false);
 }
 
 /*!
@@ -268,4 +268,38 @@ void MvdTreeView::selectIndex(const QModelIndex& idx)
 		return;
 
 	sel->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+}
+
+void MvdTreeView::dragEnterEvent(QDragEnterEvent* e)
+{
+	// By-pass QTreeView's d&d handling
+	QAbstractItemView::dragEnterEvent(e);
+}
+
+void MvdTreeView::dragLeaveEvent(QDragLeaveEvent* e)
+{
+	// By-pass QTreeView's d&d handling
+	QAbstractItemView::dragLeaveEvent(e);
+}
+
+void MvdTreeView::dragMoveEvent(QDragMoveEvent* e)
+{
+	// Fix: Qt does not allow to customize the drop indicator
+	// or to disable it without disabling d&d, so we simply enable
+	// it just to have Qt accept/reject the drag but disable it right
+	// after do avoid the indicator being actually painted.
+	setDropIndicatorShown(true);
+	// By-pass QTreeView's d&d handling
+	QAbstractItemView::dragMoveEvent(e);
+	setDropIndicatorShown(false);
+}
+
+void MvdTreeView::dropEvent(QDropEvent* event)
+{
+	// Discard internal drops
+	if (event->source() != this) {
+		// By-pass QTreeView's d&d handling
+		QAbstractItemView::dropEvent(event);
+		return;
+	}
 }

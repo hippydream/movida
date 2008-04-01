@@ -45,6 +45,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mvdsvgz", "mvdsvgz\mvdsvgz.
 		Integration = True
 	EndGlobalSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{52161C40-9219-4AC9-AA1E-7D3B4B1857BF}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
+EndProject
 Global
 	GlobalSection(Qt) = preSolution
 		Integration = True
@@ -81,5 +86,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7EDBF775-58DA-3D97-A79B-BE8F52F99EF9} = {52161C40-9219-4AC9-AA1E-7D3B4B1857BF}
 	EndGlobalSection
 EndGlobal

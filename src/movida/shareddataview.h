@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: listview.h
+** Filename: shareddataview.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,35 +18,22 @@
 **
 **************************************************************************/
 
-#ifndef MVD_LISTVIEW_H
-#define MVD_LISTVIEW_H
+#ifndef MVD_SHAREDDATAVIEW_H
+#define MVD_SHAREDDATAVIEW_H
 
-#include <QListView>
+#include "treeview.h"
 
-class QMouseEvent;
-template <typename T> class QList;
-
-class MvdListView : public QListView
+class MvdSharedDataView : public MvdTreeView
 {
-public:
-	MvdListView(QWidget* parent = 0);
-	virtual ~MvdListView();
+	Q_OBJECT
 
-	QModelIndexList selectedRows() const;
+public:
+	MvdSharedDataView(QWidget* parent = 0);
+	virtual ~MvdSharedDataView();
 
 protected:
-	void mouseMoveEvent(QMouseEvent* e);
-	void mouseReleaseEvent(QMouseEvent* e);
-	void dragEnterEvent(QDragEnterEvent* e);
-	void dragLeaveEvent(QDragLeaveEvent* e);
-	void dragMoveEvent(QDragMoveEvent* e);
-	void dropEvent(QDropEvent* e);
-
-	void setSelection(const QRect& rect, QItemSelectionModel::SelectionFlags command);
-
-private:
-	class MvdListView_P;
-	MvdListView_P* d;
+	virtual void startDrag(Qt::DropActions supportedActions);
+	virtual void mouseDoubleClickEvent(QMouseEvent* e);
 };
 
-#endif // MVD_LISTVIEW_H
+#endif // MVD_SHAREDDATAVIEW_H

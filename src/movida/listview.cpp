@@ -20,6 +20,8 @@
 
 #include "listview.h"
 #include "smartviewdelegate.h"
+#include "mainwindow.h"
+#include <QStatusBar>
 #include <QMouseEvent>
 #include <QApplication>
 #include <QScrollBar>
@@ -67,11 +69,13 @@ void MvdListView::mouseMoveEvent(QMouseEvent* e)
 
 void MvdListView::mouseReleaseEvent(QMouseEvent* e)
 {
-	QModelIndex index = indexAt(e->pos());
-	if (index.isValid()) {
-		MvdSmartViewDelegate* d = qobject_cast<MvdSmartViewDelegate*>(itemDelegate(index));
-		if (d) d->mousePressed(visualRect(index), index);
-	
+	if (e->button() == Qt::LeftButton && QApplication::keyboardModifiers() == Qt::NoModifier) {
+		QModelIndex index = indexAt(e->pos());
+		if (index.isValid()) {
+			MvdSmartViewDelegate* d = qobject_cast<MvdSmartViewDelegate*>(itemDelegate(index));
+			if (d) d->mousePressed(visualRect(index), index);
+		
+		}
 	}
 	QListView::mouseReleaseEvent(e);
 }
@@ -89,4 +93,37 @@ void MvdListView::setSelection(const QRect& rect, QItemSelectionModel::Selection
 	}
 	
 	QListView::setSelection(rect, command);
+}
+
+void MvdListView::dragEnterEvent(QDragEnterEvent* e)
+{
+	// By-pass QListView's d&d handling
+	QAbstractItemView::dragEnterEvent(e);
+}
+
+void MvdListView::dragLeaveEvent(QDragLeaveEvent* e)
+{
+	// By-pass QTreeView's d&d handling
+	QAbstractItemView::dragLeaveEvent(e);
+}
+
+void MvdListView::dragMoveEvent(QDragMoveEvent* e)
+{
+	// By-pass QListView's d&d handling
+	QAbstractItemView::dragMoveEvent(e);
+}
+
+void MvdListView::dropEvent(QDropEvent* event)
+{
+	// Discard internal drops
+	if (event->source() != this) {
+		// By-pass QListView's d&d handling
+		QAbstractItemView::dropEvent(event);
+		return;
+	}
+}
+
+QModelIndexList MvdListView::selectedRows() const
+{
+	return selectionModel() ? selectionModel()->selectedRows() : QModelIndexList();
 }

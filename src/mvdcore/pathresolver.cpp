@@ -26,6 +26,7 @@
 #include <QCoreApplication>
 #include <QtGlobal>
 #include <QUuid>
+#include <QDateTime>
 #ifdef Q_WS_WIN
 #include "qt_windows.h"
 #include "qlibrary.h"
@@ -66,6 +67,7 @@ using namespace Movida;
 		{Dom} refers to QCoreApplication::organizationDomain
 		{AppDir} refers to QCoreApplication::applicationDirPath()
 		{Pid} refers to the process ID
+		{Time_t} refers to the current time in time_t format (i.e. the number of seconds since 1970-01-01T00:00:00, UTC).
 		{Idx} refers to a unique numeric ID
 		{Bundle} refers to the path of the application bundle on Mac OS X (i.e. /Applications/Movida.app)
 	\endverbatim
@@ -173,14 +175,16 @@ MvdPathResolver_P::MvdPathResolver_P()
 
 
 	//// 1. temp dir
-	QString tempDirPath = QDir::tempPath().append("/").append(org).append("/").append(app).append(".").append(QString::number(Movida::pid()));
+	QDateTime dt = QDateTime::currentDateTime();
+	QString tempDirPath = QDir::tempPath().append("/").append(org).append("/").append(app).append(".")
+		.append(QString::number(dt.toTime_t()));
 	QDir tempDir(tempDirPath);
 	tempDirPath = tempDir.absolutePath();
 	if (tempDir.exists()) {
 		bool failed = false;
 		QFileInfo info(tempDirPath);
 		if (info.isDir())
-			failed = !MvdPathResolver::removeDirectoryTree(tempDirPath);
+			failed = !tempDir.rmpath(tempDirPath);
 		else failed = !QFile::remove(tempDirPath);
 		if (failed)
 		{
@@ -434,8 +438,8 @@ QString MvdPathResolver::logFile() const
 
 	<table>
 		<tr><th>Platform</th><th>Scope</th><th>Location</th><th>Notes</th></tr>
-		<tr><td>Windows</td><td></td><td>{TEMP}\{Org}\{App}.{Pid}\ or {TMP}\{Org}\{App}.{Pid}\</td><td></td>
-		<tr><td>Unix/Mac</td><td></td><td>/tmp/{Org}/{App}.{Pid}/</td><td></td>
+		<tr><td>Windows</td><td></td><td>{TEMP}\{Org}\{App}.{Time_t}\ or {TMP}\{Org}\{App}.{Time_t}\</td><td></td>
+		<tr><td>Unix/Mac</td><td></td><td>/tmp/{Org}/{App}.{Time_t}/</td><td></td>
 	</table>
 
 	If a directory with the same name already exists it is removed with all its contents.

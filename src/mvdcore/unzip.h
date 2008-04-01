@@ -64,9 +64,12 @@ public:
 	enum ExtractionOption
 	{
 		//! Extracts paths (default)
-		ExtractPaths = 0x0001,
+		ExtractPaths = 0x01,
 		//! Ignores paths and extracts all the files to the same directory
-		SkipPaths = 0x0002
+		SkipPaths = 0x02,
+
+		NoReset = 0x04
+		//! Internal use
 	};
 	Q_DECLARE_FLAGS(ExtractionOptions, ExtractionOption)
 
@@ -103,6 +106,7 @@ public:
 	virtual ~MvdUnZip();
 
 	void setPasswordHandler(QObject* obj, const char* member);
+	void setProgressHandler(QObject* obj, const char* member);
 
 	bool isOpen() const;
 
