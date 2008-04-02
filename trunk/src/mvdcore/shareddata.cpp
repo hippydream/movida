@@ -367,7 +367,7 @@ void MvdSharedData::addMovieLink(mvdid sd_id, mvdid movie_id)
 				break;
 			else if (m > movie_id)
 			{
-				
+				list.insert(i, movie_id);
 				linked = true;
 				break;
 			}
