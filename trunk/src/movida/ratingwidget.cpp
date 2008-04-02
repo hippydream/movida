@@ -220,7 +220,7 @@ void MvdRatingWidget::leaveEvent(QEvent* e)
 
 	int oldHovered = d->hoveredIndex;
 	d->hoveredIndex = -1;
-	d->active = -1;
+	d->active = false;
 
 	update();
 
