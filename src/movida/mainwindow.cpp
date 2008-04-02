@@ -876,13 +876,14 @@ void MvdMainWindow::removeMovies(const QModelIndexList& list)
 			return;
 	}
 
-	for (int i = 0; i < list.size(); ++i)
-	{
+	QList<mvdid> ids;
+	for (int i = 0; i < list.size(); ++i) {
 		mvdid id = movieIndexToId(list.at(i));
-		if (id == 0)
-			continue;
+		if (id != MvdNull) ids.append(id);
+	}
 
-		mCollection->removeMovie(id);
+	for (int i = 0; i < ids.size(); ++i) {
+		mCollection->removeMovie(ids.at(i));
 	}
 
 	movieViewSelectionChanged();
@@ -912,7 +913,7 @@ void MvdMainWindow::updateDetailsView()
 	}
 
 	mvdid current = movieIndexToId(list.at(0));
-	if (current == 0)
+	if (current == 0) 
 	{
 		mDetailsView->clear();
 		return;
