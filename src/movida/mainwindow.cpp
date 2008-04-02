@@ -1543,7 +1543,7 @@ void MvdMainWindow::pluginActionTriggered()
 			k = key[2];
 			if (k == QLatin1String("filter")) {
 				QString ids = it.value().toString();
-				QString query = QString("@%1(%2)").arg(Movida::filterFunctionName(Movida::IdFilter)).arg(ids);
+				QString query = QString("@%1(%2)").arg(Movida::filterFunctionName(Movida::MovieIdFilter)).arg(ids);
 				mFilterWidget->editor()->setText(query);
 			}
 		}

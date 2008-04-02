@@ -29,9 +29,6 @@ class MvdSharedData;
 class MvdMovieCollection;
 class QMimeData;
 
-// Movida::DataRole -> Data (e.g. Movida::PersonRole -> 3424)
-typedef QHash<int, QList<mvdid> > MvdSharedDataAttributes;
-
 class MvdSharedDataModel : public QAbstractTableModel
 {
 	Q_OBJECT

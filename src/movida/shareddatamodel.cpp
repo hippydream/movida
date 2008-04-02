@@ -457,22 +457,19 @@ Qt::DropActions MvdSharedDataModel::supportedDropActions() const
 QMimeData* MvdSharedDataModel::mimeData(const QModelIndexList& indexes) const
 {
 	QMimeData* mimeData = new QMimeData();
-	QList<mvdid> ids;
+	QString ids;
 
 	foreach (QModelIndex index, indexes) {
 		if (!index.isValid())
 			continue;
 
 		mvdid id = data(index, Movida::IdRole).toUInt();
-		if (id != MvdNull) ids.append(id);
+		if (id != MvdNull) {
+			if (!ids.isEmpty()) ids.append(",");
+			ids.append(QString::number(id));
+		}
 	}
 
-	MvdSharedDataAttributes attributes;
-	attributes.insert((int)role(), ids);
-	QByteArray data;
-	QDataStream stream(&data, QIODevice::WriteOnly);
-	stream << attributes;
-	mimeData->setData(MvdCore::parameter("movida/mime/movie-attributes").toString(), data);
-	
+	mimeData->setData(MvdCore::parameter("movida/mime/movie-attributes").toString(), ids.toLatin1());
 	return mimeData;
 }

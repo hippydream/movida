@@ -119,11 +119,5 @@ void MvdSharedDataView::mouseDoubleClickEvent(QMouseEvent* e)
 	if (id == MvdNull)
 		return;
 
-	QList<mvdid> ids;
-	ids.append(id);
-
-	MvdSharedDataAttributes attributes;
-	attributes.insert((int)m->role(), ids);
-
-	Movida::MainWindow->filterWidget()->applySharedDataFilter(attributes, true);
+	Movida::MainWindow->filterWidget()->applySharedDataFilter(QString::number(id), true);
 }
