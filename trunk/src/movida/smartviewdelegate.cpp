@@ -734,13 +734,13 @@ void MvdSmartViewDelegate::showHoveredControlHint()
 	switch (hoveredCtrl) {
 	case RatingControl:
 		Movida::MainWindow->statusBar()->showMessage(tr("Click to set the rating for this movie to \"%1\".")
-			.arg(MvdMovie::ratingTip(quint8(ctrlIndex)).toLower()), 2000);
+			.arg(MvdMovie::ratingTip(quint8(ctrlIndex)).toLower()));
 		break;
 	case SeenControl:
-		Movida::MainWindow->statusBar()->showMessage(tr("Click to toggle the \"seen\" tag."), 2000);
+		Movida::MainWindow->statusBar()->showMessage(tr("Click to toggle the \"seen\" tag."));
 		break;
 	case SpecialControl:
-		Movida::MainWindow->statusBar()->showMessage(tr("Click to toggle the \"special\" tag."), 2000);
+		Movida::MainWindow->statusBar()->showMessage(tr("Click to toggle the \"special\" tag."));
 		break;
 	default: ;
 	}
