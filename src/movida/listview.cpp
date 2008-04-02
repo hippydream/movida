@@ -21,7 +21,6 @@
 #include "listview.h"
 #include "smartviewdelegate.h"
 #include "mainwindow.h"
-#include <QStatusBar>
 #include <QMouseEvent>
 #include <QApplication>
 #include <QScrollBar>

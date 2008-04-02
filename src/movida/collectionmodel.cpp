@@ -25,9 +25,12 @@
 #include "mvdcore/movie.h"
 #include "mvdcore/settings.h"
 #include "mvdcore/shareddata.h"
+#include <QAction>
 #include <QCoreApplication>
-#include <QMimeData>
 #include <QDrag>
+#include <QMenu>
+#include <QMimeData>
+#include <QStatusBar>
 #include <QUrl>
 
 /*!
@@ -77,6 +80,8 @@ public:
 
 	QString dataList(const QList<mvdid>& list, Movida::DataRole dt, int role = Qt::DisplayRole) const;
 	void sort(Movida::MovieAttribute attribute, Qt::SortOrder order);
+
+	bool setSharedData(const QList<mvdid>& ids, mvdid movieId);
 
 	MvdCollectionModel* q;
 	
@@ -184,6 +189,119 @@ void MvdCollectionModel_P::sort(Movida::MovieAttribute attribute, Qt::SortOrder 
 	}
 	
 	q->emit_sorted();
+}
+
+bool MvdCollectionModel_P::setSharedData(const QList<mvdid>& ids, mvdid movieId)
+{
+	// We don't know how to use people IDs. As actors, directors, producers or crew members?
+	bool askJoe = false;
+
+	MvdSharedData& sd = collection->sharedData();
+	foreach (mvdid id, ids) {
+		MvdSdItem item = sd.item(id);
+		if (item.role == Movida::PersonRole) {
+			askJoe = true;
+		}
+	}
+
+	Movida::DataRole personRole = Movida::NoRole;
+
+	//! \todo The drop event context menu doesn't look like a good UI solution.
+	if (askJoe) {
+
+		QMenu menu;
+		QAction* asActor = 0;
+		QAction* asDirector = 0;
+		QAction* asProducer = 0;
+		QAction* asCrew = 0;
+
+		asActor = menu.addAction(q->tr("Set people as actors"));
+		asDirector = menu.addAction(q->tr("Set people as directors"));
+		asProducer = menu.addAction(q->tr("Set people as producers"));
+		asCrew = menu.addAction(q->tr("Set people as crew members"));
+		
+		QAction* res = menu.exec(QCursor::pos());
+		if (res == asActor)
+			personRole = Movida::ActorRole;
+		else if (res == asDirector)
+			personRole = Movida::DirectorRole;
+		else if (res == asProducer)
+			personRole = Movida::ProducerRole;
+		else if (res == asCrew)
+			personRole = Movida::CrewMemberRole;
+	}
+
+	if (askJoe && personRole == Movida::NoRole) {
+		// Cancel drop
+		return false;
+	}
+
+	MvdMovie movie = collection->movie(movieId);
+
+	Movida::DataRole usedRole = Movida::NoRole;
+	QString usedData;
+
+	for (int i = 0; i < ids.size(); ++i) {
+		const mvdid id = ids.at(i);
+		MvdSdItem item = sd.item(id);
+		Movida::DataRole role = item.role;
+		if (role == Movida::PersonRole) role = personRole;
+
+		switch (role) {
+		case Movida::ActorRole: movie.addActor(id); break;
+		case Movida::DirectorRole: movie.addDirector(id); break;
+		case Movida::ProducerRole: movie.addProducer(id); break;
+		case Movida::CrewMemberRole: movie.addCrewMember(id); break;
+		case Movida::GenreRole: movie.addGenre(id); break;
+		case Movida::LanguageRole: movie.addLanguage(id); break;
+		case Movida::TagRole: movie.addTag(id); break;
+		case Movida::CountryRole: movie.addCountry(id); break;
+		default: ;
+		}
+
+		if (i == 0) {
+			usedRole = role;
+			usedData = item.value;
+		} else if (usedRole != role) {
+			usedRole = Movida::NoRole; // Dropped data has multiple roles
+		}
+	}
+
+	collection->updateMovie(movieId, movie);
+
+	QString msg;
+	if (ids.size() == 1) {
+		switch (usedRole) {
+		case Movida::ActorRole: msg = q->tr("Actor '%1' has been added to '%2'."); break;
+		case Movida::DirectorRole: msg = q->tr("Director '%1' has been added to '%2'."); break;
+		case Movida::ProducerRole: msg = q->tr("Producer '%1' has been added to '%2'."); break;
+		case Movida::CrewMemberRole: msg = q->tr("Crew member '%1' has been added to '%2'."); break;
+		case Movida::GenreRole: msg = q->tr("Genre '%1' has been added to '%2'."); break;
+		case Movida::TagRole: msg = q->tr("'%2' has been tagged with '%1'."); break;
+		case Movida::LanguageRole: msg = q->tr("Language '%1' has been added to '%2'."); break;
+		case Movida::CountryRole: msg = q->tr("Country '%1' has been added to '%2'."); break;
+		default: ;
+		}
+		msg = msg.arg(usedData).arg(movie.validTitle());
+	} else {
+		// Multiple items added
+		int count = ids.size();
+		switch (usedRole) {
+		case Movida::ActorRole: msg = q->tr("%1 actors have been added to '%2'.", "", count); break;
+		case Movida::DirectorRole: msg = q->tr("%1 directors have been added to '%2'."); break;
+		case Movida::ProducerRole: msg = q->tr("%1 producers have been added to '%2'."); break;
+		case Movida::CrewMemberRole: msg = q->tr("%1 crew members have been added to '%2'."); break;
+		case Movida::GenreRole: msg = q->tr("%1 genres have been added to '%2'."); break;
+		case Movida::TagRole: msg = q->tr("%1 tags have been added to '%2'."); break;
+		case Movida::LanguageRole: msg = q->tr("%1 languages have been added to '%2'."); break;
+		case Movida::CountryRole: msg = q->tr("%1 countries have been added to '%2'."); break;
+		default: msg = q->tr("'%1' has been updated.").arg(movie.validTitle());;
+		}
+		msg = msg.arg(count).arg(movie.validTitle());
+	}
+	Movida::MainWindow->statusBar()->showMessage(msg);
+
+	return true;
 }
 
 
@@ -515,13 +633,13 @@ Qt::DropActions MvdCollectionModel::supportedDropActions() const
 
 QStringList MvdCollectionModel::mimeTypes() const
 {
+	// Supported mime types for data import
 	QStringList types;
-	// types << MvdCore::parameter("movida/mime/movie").toString();
-	// Supported mime types for import
 	types << MvdCore::parameter("movida/mime/movie-attributes").toString();
 	types << "text/uri-list";
-	//! \todo Import from text/plain data
 	// types << "text/plain";
+	// types << MvdCore::parameter("movida/mime/movie").toString();
+
 	return types;
 }
 
@@ -590,19 +708,34 @@ bool MvdCollectionModel::dropMimeData(const QMimeData* data,
 		}
 	}
 
-	if (posterUrls.isEmpty() && !data->hasFormat(MvdCore::parameter("movida/mime/movie-attributes").toString()))
-		return false;
-
 	mvdid movieId = this->data(parent, Movida::IdRole).toUInt();
 	if (movieId == MvdNull)
 		return false;
-	
-	if (!posterUrls.isEmpty()) {
 
+	bool dropAccepted = false;
+
+	if (!posterUrls.isEmpty()) {
 		// Import movie poster
 		QUrl posterUrl = posterUrls.at(0);
 		Q_ASSERT(QMetaObject::invokeMethod(Movida::MainWindow, "setMoviePoster", Qt::QueuedConnection,
 			Q_ARG(quint32, movieId), Q_ARG(QUrl, posterUrl)));
+
+		dropAccepted = true;
+	}
+
+	QByteArray attributeData = data->data(MvdCore::parameter("movida/mime/movie-attributes").toString());
+	if (!attributeData.isNull()) {
+
+		QStringList raw = QString::fromLatin1(attributeData).split(QLatin1Char(','), QString::SkipEmptyParts);
+		QList<mvdid> ids; bool ok;
+		foreach (QString s, raw) { mvdid id = s.toUInt(&ok); if (ok) ids << id; }
+
+		if (!ids.isEmpty()) {
+			if (!d->setSharedData(ids, movieId))
+				return false;
+		}
+
+		dropAccepted = true;
 	}
 
 	return true;
