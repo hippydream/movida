@@ -426,10 +426,10 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 		
 		//////////// Cast
 		if (hasFreeSpace) {
-			rCurrentText.setTop(rCurrentText.top() + br.height() + HalfPadding);
 			columnIndex = model->index(index.row(), int(Movida::CastAttribute), index.parent());
 			text = columnIndex.data(Movida::SmartViewDisplayRole).toString();
 			if (!text.isEmpty()) {
+				rCurrentText.setTop(rCurrentText.top() + br.height() + HalfPadding);
 				text.prepend(Movida::movieAttributeString(Movida::CastAttribute, Movida::SmartViewContext));
 				drawItemText(painter, option, rCurrentText, text, textOptions, &br, 2);
 			}
@@ -439,10 +439,10 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
 		//////////// Producers
 		if (hasFreeSpace) {
-			rCurrentText.setTop(rCurrentText.top() + br.height() + HalfPadding);
 			columnIndex = model->index(index.row(), int(Movida::ProducersAttribute), index.parent());
 			text = columnIndex.data(Movida::SmartViewDisplayRole).toString();
 			if (!text.isEmpty()) {
+				rCurrentText.setTop(rCurrentText.top() + br.height() + HalfPadding);
 				text.prepend(Movida::movieAttributeString(Movida::ProducersAttribute, Movida::SmartViewContext));
 				drawItemText(painter, option, rCurrentText, text, textOptions, &br, 2);
 			}
