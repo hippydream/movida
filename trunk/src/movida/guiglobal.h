@@ -114,7 +114,7 @@ namespace Movida
 		InvalidFilterFunction = 0,
 
 		// For internal use (IDs are not accessible to users):
-		IdFilter, PeopleIdFilter,
+		MovieIdFilter, SharedDataIdFilter,
 
 		// Also suited for users:
 		MarkAsSeenFilter, MarkAsLoanedFilter, MarkAsSpecialFilter,
@@ -123,7 +123,7 @@ namespace Movida
 
 	QString filterFunctionName(FilterFunction ff);
 	QRegExp filterFunctionRegExp(FilterFunction ff);
-	FilterFunction filterFunction(QString name);
+	FilterFunction filterFunction(const QString& name);
 }
 
 #endif // MVD_GUIGLOBAL_H

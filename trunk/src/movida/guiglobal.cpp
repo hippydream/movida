@@ -253,8 +253,8 @@ QString Movida::sharedDataAttributeString(SharedDataAttribute attribute)
 QString Movida::filterFunctionName(FilterFunction ff)
 {
 	switch (ff) {
-	case IdFilter: return QCoreApplication::translate("Filter function", "movieId", "filter by ID");
-	case PeopleIdFilter: return QCoreApplication::translate("Filter function", "peopleId", "filter people by ID");
+	case MovieIdFilter: return QCoreApplication::translate("Filter function", "movieId", "filter movies by ID");
+	case SharedDataIdFilter: return QCoreApplication::translate("Filter function", "dataId", "filter shared data by ID");
 	case MarkAsSeenFilter: return QCoreApplication::translate("Filter function", "seen", "show seen movies");
 	case MarkAsLoanedFilter: return QCoreApplication::translate("Filter function", "loaned", "show loaned movies");
 	case MarkAsSpecialFilter: return QCoreApplication::translate("Filter function", "special", "show special movies");
@@ -270,8 +270,8 @@ QString Movida::filterFunctionName(FilterFunction ff)
 QRegExp Movida::filterFunctionRegExp(FilterFunction ff)
 {
 	switch (ff) {
-	case IdFilter:
-	case PeopleIdFilter:
+	case MovieIdFilter:
+	case SharedDataIdFilter:
 		return QRegExp(QLatin1String("[\\s,]*\\d+[\\s,\\d]*"));
 	case RunningTimeFilter: {
 		QString hm("\\d{1,3}\\s*h(?:\\s*\\d+\\s*m?)?"); // 1h 20m OR 1h 20 OR 1h
@@ -291,24 +291,22 @@ QRegExp Movida::filterFunctionRegExp(FilterFunction ff)
 }
 
 //! Returns the filter function associated to the given (localized) name or InvalidFilterFunction.
-Movida::FilterFunction Movida::filterFunction(QString name)
+Movida::FilterFunction Movida::filterFunction(const QString& name)
 {
-	name = name.trimmed().toLower();
-
-	if (name == QLatin1String("movieid"))
-		return Movida::IdFilter; //! \todo Rename IdFilter to MovieIdFilter
-	else if (name == QLatin1String("seen"))
+	if (!name.compare(filterFunctionName(Movida::MovieIdFilter), Qt::CaseInsensitive))
+		return Movida::MovieIdFilter;
+	else if (!name.compare(filterFunctionName(Movida::MarkAsSeenFilter), Qt::CaseInsensitive))
 		return Movida::MarkAsSeenFilter;
-	else if (name == QLatin1String("loaned"))
+	else if (!name.compare(filterFunctionName(Movida::MarkAsLoanedFilter), Qt::CaseInsensitive))
 			return Movida::MarkAsLoanedFilter;
-	else if (name == QLatin1String("special"))
+	else if (!name.compare(filterFunctionName(Movida::MarkAsSpecialFilter), Qt::CaseInsensitive))
 		return Movida::MarkAsSpecialFilter;
-	else if (name == QLatin1String("length"))
+	else if (!name.compare(filterFunctionName(Movida::RunningTimeFilter), Qt::CaseInsensitive))
 		return Movida::RunningTimeFilter;
-	else if (name == QLatin1String("rating"))
+	else if (!name.compare(filterFunctionName(Movida::RatingFilter), Qt::CaseInsensitive))
 		return Movida::RatingFilter;
-	else if (name == QLatin1String("peopleid"))
-		return Movida::PeopleIdFilter;
+	else if (!name.compare(filterFunctionName(Movida::SharedDataIdFilter), Qt::CaseInsensitive))
+		return Movida::SharedDataIdFilter;
 
 	return Movida::InvalidFilterFunction;
 }

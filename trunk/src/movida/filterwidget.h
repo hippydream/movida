@@ -50,7 +50,7 @@ public:
 	void setCaseSensitivity(Qt::CaseSensitivity cs);
 	Qt::CaseSensitivity caseSensitivity() const;
 
-	void applySharedDataFilter(const MvdSharedDataAttributes& attributes, bool replaceFilter);
+	void applySharedDataFilter(const QString& itemIds, bool replaceFilter);
 
 protected:
 	void dragEnterEvent(QDragEnterEvent* e);

@@ -114,7 +114,7 @@ bool MvdFilterProxyModel::testFunction(int sourceRow, const QModelIndex& sourceP
 	const Function& function) const
 {
 	switch (function.type) {
-	case Movida::IdFilter: {
+	case Movida::MovieIdFilter: {
 		QList<mvdid> ids = idList(function.parameters);
 		if (ids.isEmpty()) return false;
 
@@ -124,7 +124,7 @@ bool MvdFilterProxyModel::testFunction(int sourceRow, const QModelIndex& sourceP
 		return ids.contains(currentId) != function.neg;
 
 	} break;
-	case Movida::PeopleIdFilter: {
+	case Movida::SharedDataIdFilter: {
 		QList<mvdid> ids = idList(function.parameters);
 		if (ids.isEmpty()) return false;
 
@@ -145,9 +145,7 @@ bool MvdFilterProxyModel::testFunction(int sourceRow, const QModelIndex& sourceP
 		bool match = true;
 		foreach (mvdid id, ids) {
 			MvdSdItem item = sd.item(id);
-			if (!(Movida::PersonRole & item.role))
-				match = false;
-			else match = item.movies.contains(currentMovieId);
+			match = item.movies.contains(currentMovieId);
 			if (!match) break;
 		}
 		

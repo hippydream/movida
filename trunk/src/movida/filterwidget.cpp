@@ -121,62 +121,36 @@ void MvdFilterWidget::dragMoveEvent(QDragMoveEvent* e)
 void MvdFilterWidget::dropEvent(QDropEvent* e)
 {
 	const QMimeData* md = e->mimeData();
-	QByteArray data = md->data(MvdCore::parameter("movida/mime/movie-attributes").toString());
-	QDataStream stream(data);
-	MvdSharedDataAttributes attributes;
-	stream >> attributes;
+	QString idList = 
+		QString::fromLatin1(md->data(MvdCore::parameter("movida/mime/movie-attributes").toString()));
 
 	Qt::DropAction dropAction = e->proposedAction();
 	bool replaceFilter = dropAction == Qt::MoveAction;
 	
-	applySharedDataFilter(attributes, replaceFilter);
+	applySharedDataFilter(idList, replaceFilter);
 
 	e->acceptProposedAction();
 }
 
-void MvdFilterWidget::applySharedDataFilter(const MvdSharedDataAttributes& attributes, bool replaceFilter)
+void MvdFilterWidget::applySharedDataFilter(const QString& itemIds, bool replaceFilter)
 {
-	QStringList filters;
-
-	MvdSharedDataAttributes::ConstIterator it = attributes.constBegin();
-	MvdSharedDataAttributes::ConstIterator end = attributes.constEnd();
-	while (it != end) {
-		QString ids;
-		foreach (mvdid id, it.value()) {
-			if (!ids.isEmpty()) ids.append(QLatin1Char(','));
-			ids.append(QString::number(id));
-		}
-		Movida::DataRole role = (Movida::DataRole) it.key();
-		switch (role) {
-		case Movida::PersonRole:
-		{
-			QString f = QString("@%1(%2)")
-				.arg(Movida::filterFunctionName(Movida::PeopleIdFilter))
-				.arg(ids);
-			filters.append(f);
-		}
-		break;
-		default: ;
-		}
-		//! \todo Handle other roles in SD filter
-		++it;
-	}
+	QString filter = QString("@%1(%2)")
+		.arg(Movida::filterFunctionName(Movida::SharedDataIdFilter))
+		.arg(itemIds);
 
 	if (replaceFilter)
 		editor()->clear();
 
-	if (filters.isEmpty()) {
+	if (filter.isEmpty())
 		return;
-	}
 
 	QString text;
-	
 	if (!replaceFilter) {
 		text = editor()->text().trimmed();
 		if (!text.isEmpty())
 			text.append(QLatin1Char(' '));
 	}
 
-	text.append(filters.join(QLatin1String(" ")));
+	text.append(filter);
 	editor()->setText(text);
 }
