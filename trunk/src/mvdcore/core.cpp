@@ -328,6 +328,15 @@ QByteArray MvdCore::toLatin1PercentEncoding(const QString& input,
 
 /*!
 	Replaces entities in XML/HTML text.
+	Convenience method, expects the const char* to contain a UTF-8 string.
+*/
+QString MvdCore::decodeXmlEntities(const char* s)
+{
+	return s ? decodeXmlEntities(QString::fromUtf8(s)) : QString();
+}
+
+/*!
+	Replaces entities in XML/HTML text.
 */
 QString MvdCore::decodeXmlEntities(QString s)
 {

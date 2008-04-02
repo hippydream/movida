@@ -78,11 +78,11 @@ QList<MvdMovieData::PersonData> MvdMovieData_P::extractPersonData(xmlNodePtr par
 
 			if (!xmlStrcmp(pNode->name, (const xmlChar*) "name")) {
 				xmlChar* c = xmlNodeListGetString(doc, pNode->xmlChildrenNode, 1);
-				pd.name = QString::fromUtf8((const char*)c).trimmed();
+				pd.name = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 			} else if (!xmlStrcmp(pNode->name, (const xmlChar*) "imdb-id")) {
 				xmlChar* c = xmlNodeListGetString(doc, pNode->xmlChildrenNode, 1);
-				QString s = QString::fromUtf8((const char*)c).trimmed();
+				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 				QRegExp rx(MvdCore::parameter("mvdcore/imdb-id-regexp").toString());
 				if (rx.exactMatch(s))
@@ -97,7 +97,7 @@ QList<MvdMovieData::PersonData> MvdMovieData_P::extractPersonData(xmlNodePtr par
 					}
 
 					xmlChar* c = xmlNodeListGetString(doc, rNode->xmlChildrenNode, 1);
-					QString s = QString::fromUtf8((const char*)c).trimmed();
+					QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 					xmlFree(c);
 					if (!s.isEmpty())
 						roles.append(s);
@@ -139,12 +139,12 @@ QList<MvdMovieData::UrlData> MvdMovieData_P::extractUrlData(xmlNodePtr parent, x
 
 		MvdMovieData::UrlData ud;
 		xmlChar* c = xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
-		ud.url = QString::fromUtf8((const char*)c).trimmed();
+		ud.url = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 		xmlFree(c);
 
 		xmlChar* attr = xmlGetProp(node, (const xmlChar*) "description");
 		if (attr) {
-			ud.description = QString::fromUtf8((const char*)attr);
+			ud.description = MvdCore::decodeXmlEntities((const char*)attr);
 			xmlFree(attr);
 		}
 
@@ -181,7 +181,7 @@ QStringList MvdMovieData_P::extractStringList(xmlNodePtr parent, xmlDocPtr doc, 
 		}
 
 		xmlChar* c = xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
-		QString s = QString::fromUtf8((const char*)c).trimmed();
+		QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 		xmlFree(c);
 		if (!list.contains(s, Qt::CaseInsensitive))
 			list.append(s);
@@ -387,7 +387,7 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 				actors = pd;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "color-mode")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				QString s = QString::fromUtf8((const char*)c).trimmed().toLower();
+				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed().toLower();
 				xmlFree(c);
 				if (s == "color")
 					colorMode = MvdMovie::Color;
@@ -404,14 +404,14 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 				directors = pd;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "edition")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				edition = QString::fromUtf8((const char*)c).trimmed();
+				edition = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "genres")) {
 				QStringList sl = MvdMovieData_P::extractStringList(resultNode, doc, "genre");
 				genres = sl;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "imdb-id")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				QString s = QString::fromUtf8((const char*)c).trimmed();
+				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 				QRegExp rx(MvdCore::parameter("mvdcore/imdb-id-regexp").toString());
 				if (rx.exactMatch(s))
@@ -425,32 +425,32 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 					specialTags |= MvdMovie::LoanedTag;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "notes")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				notes = QString::fromUtf8((const char*)c).trimmed();
+				notes = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "original-title")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				originalTitle = QString::fromUtf8((const char*)c).trimmed();
+				originalTitle = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "plot")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				plot = QString::fromUtf8((const char*)c).trimmed();
+				plot = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "poster")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				posterPath = QString::fromUtf8((const char*)c).trimmed();
+				posterPath = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "producers")) {
 				QList<PersonData> pd = MvdMovieData_P::extractPersonData(resultNode, doc);
 				producers = pd;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "production-year")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				QString s = QString::fromUtf8((const char*)c).trimmed();
+				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 				if (MvdCore::isValidYear(s))
 					productionYear = s;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "rating")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				QString s = QString::fromUtf8((const char*)c).trimmed();
+				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 				xmlChar* attr = xmlGetProp(resultNode, (const xmlChar*) "maximum");
 				int mvdMaximum = MvdCore::parameter("mvdcore/max-rating").toInt();
@@ -471,13 +471,13 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 				}
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "release-year")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				QString s = QString::fromUtf8((const char*)c).trimmed();
+				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 				if (MvdCore::isValidYear(s))
 					releaseYear = s;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "running-time")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				QString s = QString::fromUtf8((const char*)c).trimmed();
+				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 				bool ok;
 				int n = s.toInt(&ok);
@@ -496,14 +496,14 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 				specialContents = sl;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "storage-id")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				storageId = QString::fromUtf8((const char*)c).trimmed();
+				storageId = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "tags")) {
 				QStringList sl = MvdMovieData_P::extractStringList(resultNode, doc, "tag");
 				tags = sl;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "title")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				title = QString::fromUtf8((const char*)c).trimmed();
+				title = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "urls")) {
 				QList<UrlData> pd = MvdMovieData_P::extractUrlData(resultNode, doc);

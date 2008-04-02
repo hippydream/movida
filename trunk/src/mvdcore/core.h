@@ -59,17 +59,23 @@ public:
 	static void registerParameters(const QHash<QString,QVariant>& p);
 
 	static mvdid atoid(const char* c, bool* ok = 0);
+	
 	static QString replaceNewLine(QString text);
+	
 	static QByteArray toLatin1PercentEncoding(const QString& input,
 		const QByteArray& exclude = QByteArray(),
 		const QByteArray& include = QByteArray());
+
+	static QString decodeXmlEntities(const char* s);
 	static QString decodeXmlEntities(QString s);
+
 	static LabelAction parseLabelAction(const QString& url);
 
 	static QString locateApplication(QString name, LocateOptions options = IncludeApplicationPath);
+
 	static QString env(const QString& s, Qt::CaseSensitivity cs = Qt::CaseInsensitive);
 
-	static QString toLocalFilePath(QString s, bool considerDirectory = false);
+	static QString toLocalFilePath(QString s, bool considerDirectory = false);	
 
 	static bool isValidYear(QString s);
 
