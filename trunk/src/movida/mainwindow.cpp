@@ -18,6 +18,7 @@
 **
 **************************************************************************/
 
+#include "browserview.h"
 #include "collectionmetaeditor.h"
 #include "collectionmodel.h"
 #include "dockwidget.h"

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/images" >
+				<file alias="reload.svgz" >images/actions/reload.svgz</file>
         <file alias="application-exit.svgz" >images/actions/application-exit.svgz</file>
         <file alias="arrow-down-double.svgz" >images/actions/arrow-down-double.svgz</file>
         <file alias="arrow-down.svgz" >images/actions/arrow-down.svgz</file>
@@ -13,6 +14,7 @@
         <file alias="configure-shortcuts.svgz" >images/actions/configure-shortcuts.svgz</file>
         <file alias="configure-toolbars.svgz" >images/actions/configure-toolbars.svgz</file>
         <file alias="configure.svgz" >images/actions/configure.svgz</file>
+        <file alias="default-poster.png" >images/misc/default-poster.png</file>
         <file alias="dialog-information.svgz" >images/actions/dialog-information.svgz</file>
         <file alias="dialog-warning.svgz" >images/actions/dialog-warning.svgz</file>
         <file alias="document-new.svgz" >images/actions/document-new.svgz</file>
@@ -30,24 +32,23 @@
         <file alias="fileview-detailed.svgz" >images/actions/fileview-detailed.svgz</file>
         <file alias="fileview-split.svgz" >images/actions/fileview-split.svgz</file>
         <file alias="fileview-text.svgz" >images/actions/fileview-text.svgz</file>
+        <file alias="filter-close.png" >images/misc/filter-close.png</file>
+        <file alias="filter-warning.png" >images/misc/filter-warning.png</file>
         <file alias="help-contents.svgz" >images/actions/help-contents.svgz</file>
         <file alias="identity.svgz" >images/actions/identity.svgz</file>
         <file alias="list.svgz" >images/actions/list.svgz</file>
+        <file alias="loaned-overlay.svgz" >images/misc/loaned-overlay.svgz</file>
+        <file alias="loaned.svgz" >images/misc/loaned.svgz</file>
         <file alias="lock-toolbars.svgz" >images/actions/lock-toolbars.svgz</file>
+        <file alias="logo.png" >images/misc/logo.png</file>
+        <file alias="logo.svgz" >images/misc/logo.svgz</file>
         <file alias="mass-edit.svgz" >images/actions/mass-edit.svgz</file>
+        <file alias="rating.svgz" >images/misc/rating.svgz</file>
+        <file alias="seen.svgz" >images/misc/seen.svgz</file>
+        <file alias="special.svgz" >images/misc/special.svgz</file>
         <file alias="view-choose.svgz" >images/actions/view-choose.svgz</file>
         <file alias="zoom-in.svgz" >images/actions/zoom-in.svgz</file>
         <file alias="zoom-original.svgz" >images/actions/zoom-original.svgz</file>
         <file alias="zoom-out.svgz" >images/actions/zoom-out.svgz</file>
-        <file alias="default-poster.png" >images/misc/default-poster.png</file>
-        <file alias="filter-close.png" >images/misc/filter-close.png</file>
-        <file alias="filter-warning.png" >images/misc/filter-warning.png</file>
-        <file alias="loaned-overlay.svgz" >images/misc/loaned-overlay.svgz</file>
-        <file alias="loaned.svgz" >images/misc/loaned.svgz</file>
-        <file alias="logo.png" >images/misc/logo.png</file>
-        <file alias="logo.svgz" >images/misc/logo.svgz</file>
-        <file alias="rating.svgz" >images/misc/rating.svgz</file>
-        <file alias="seen.svgz" >images/misc/seen.svgz</file>
-        <file alias="special.svgz" >images/misc/special.svgz</file>
     </qresource>
 </RCC>

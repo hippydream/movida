@@ -18,6 +18,7 @@
 **
 **************************************************************************/
 
+#include "browserview.h"
 #include "collectionmodel.h"
 #include "dockwidget.h"
 #include "filterproxymodel.h"
@@ -45,7 +46,6 @@
 #include <QShortcut>
 #include <QStackedWidget>
 #include <QStatusBar>
-#include <QTextBrowser>
 #include <QTimer>
 #include <QToolBar>
 
@@ -113,9 +113,9 @@ void MvdMainWindow::setupUi()
 	mDetailsDock->setObjectName("details-dock");
 	addDockWidget(Qt::RightDockWidgetArea, mDetailsDock);
 
-	mDetailsView = new QTextBrowser;
-	mDetailsView->setSearchPaths(QStringList() << 
-		Movida::paths().resourcesDir().append("Templates/Movie/"));
+	mDetailsView = new MvdBrowserView;
+	//mDetailsView->setSearchPaths(QStringList() << 
+	//	Movida::paths().resourcesDir().append("Templates/Movie/"));
 	mDetailsDock->setWidget(mDetailsView);
 	
 	mSharedDataDock = new MvdDockWidget(tr("Shared data"), this);
