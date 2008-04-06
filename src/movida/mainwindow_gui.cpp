@@ -595,8 +595,6 @@ void MvdMainWindow::setupConnections()
 
 	connect( mMainViewStack, SIGNAL(currentChanged(int)), this, SLOT(currentViewChanged()) );
 	
-	connect( mFilterModel, SIGNAL(sorted()), this, SLOT(collectionModelSorted()) );
-	
 	connect( mFilterWidget, SIGNAL(hideRequest()), this, SLOT(resetFilter()) );
 	connect( mFilterWidget, SIGNAL(caseSensitivityChanged()), this, SLOT(filter()) );
 	connect( mFilterWidget->editor(), SIGNAL(textChanged(QString)), this, SLOT(filter(QString)) );

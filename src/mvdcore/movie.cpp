@@ -49,7 +49,7 @@ public:
 	int isValidYear(const QString& s);
 	QString cleanString(const QString& s);
 
-	QAtomic ref;
+	QAtomicInt ref;
 
 	QString title;
 	QString originalTitle;

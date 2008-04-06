@@ -77,7 +77,7 @@ public:
 	typedef QList<QuickLookupEntry> QuickLookupList;
 	typedef QHash<QString, QuickLookupList> QuickLookupTable;
 
-	QAtomic ref;
+	QAtomicInt ref;
 
 	QString name;
 	QString owner;

@@ -180,7 +180,7 @@ mDraggingSharedData(false), mSavedFilterMessage(0)
 	mA_FileSaveAs->setDisabled(true);
 
 	movieViewSelectionChanged();
-	mFilterModel->sortByAttribute(Movida::TitleAttribute, Qt::AscendingOrder);
+	mTreeView->sortByColumn((int) Movida::TitleAttribute, Qt::AscendingOrder);
 	mSharedDataModel->sort(0, Qt::AscendingOrder);
 	currentViewChanged();
 
@@ -511,7 +511,7 @@ bool MvdMainWindow::loadCollection(const QString& file)
 	if (ca)
 		a = (Movida::MovieAttribute)ca->data().toInt();
 	
-	mFilterModel->sortByAttribute(a, mFilterModel->sortOrder());
+	mTreeView->sortByColumn((int) a, mFilterModel->sortOrder());
 	mSharedDataModel->sort(0, mSharedDataModel->sortOrder());
 
 	mInfoPanel->showTemporaryMessage(tr("%1 movies loaded.").arg(mCollection->count()));
@@ -1252,7 +1252,7 @@ void MvdMainWindow::sortActionTriggered(QAction* a)
 		a = mAG_ViewSort->checkedAction();
 
 	Qt::SortOrder so = mA_ViewSortDescending && mA_ViewSortDescending->isChecked() ? Qt::DescendingOrder : Qt::AscendingOrder;
-	mFilterModel->sortByAttribute(a ? (Movida::MovieAttribute)a->data().toInt() : Movida::TitleAttribute, so);
+	mTreeView->sortByColumn(a ? a->data().toInt() : (int) Movida::TitleAttribute, so);
 }
 
 //! Updates the sort actions whenever the tree view is sorted by the user
@@ -1273,12 +1273,6 @@ void MvdMainWindow::treeViewSorted(int)
 
 	if (mA_ViewSortDescending)
 		mA_ViewSortDescending->setChecked(mFilterModel->sortOrder() == Qt::DescendingOrder);
-}
-
-//! Updates GUI elements after the collection model has been sorted.
-void MvdMainWindow::collectionModelSorted()
-{
-	mTreeView->header()->setSortIndicator((int)mFilterModel->sortAttribute(), mFilterModel->sortOrder());
 }
 
 void MvdMainWindow::keyPressEvent(QKeyEvent* e)
