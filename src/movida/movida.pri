@@ -1,5 +1,6 @@
 HEADERS += \
 	application.h \
+	browserview.h \
 	collectionmetaeditor.h \
 	collectionmodel.h \
 	crewpage.h \
@@ -42,6 +43,7 @@ HEADERS += \
 
 SOURCES += \
 	application.cpp \
+	browserview.cpp \
 	collectionmetaeditor.cpp \
 	collectionmodel.cpp \
 	crewpage.cpp \
@@ -80,6 +82,7 @@ SOURCES += \
 	treewidget.cpp
 
 FORMS += \
+	ui/browserview.ui \
 	ui/collectionmetaeditor.ui \
 	ui/crewpage.ui \
 	ui/extendedinfopage.ui \

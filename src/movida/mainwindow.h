@@ -31,6 +31,7 @@
 #include <QtGlobal>
 
 class MvdCollectionModel;
+class MvdBrowserView;
 class MvdDockWidget;
 class MvdInfoPanel;
 class MvdFilterProxyModel;
@@ -52,7 +53,6 @@ class QMenu;
 class QMenuBar;
 class QStackedWidget;
 class QTemporaryFile;
-class QTextBrowser;
 class QTimer;
 class QToolBar;
 class QUrl;
@@ -151,7 +151,7 @@ private:
 	QStackedWidget* mMainViewStack;
 	MvdSmartView* mSmartView;
 	MvdMovieTreeView* mTreeView;
-	QTextBrowser* mDetailsView;
+	MvdBrowserView* mDetailsView;
 	MvdSharedDataEditor* mSharedDataEditor;
 
 	// Dock windows
