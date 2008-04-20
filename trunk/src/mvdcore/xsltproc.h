@@ -24,6 +24,7 @@
 #include "global.h"
 
 class MvdXsltProc_P;
+class QIODevice;
 
 class MVD_EXPORT MvdXsltProc
 {
@@ -37,6 +38,9 @@ public:
 
 	QString processText(const QString& txt);
 	QString processFile(const QString& file);
+
+	bool processTextToDevice(const QString& txt, QIODevice* dev);
+	bool processFileToDevice(const QString& file, QIODevice* dev);
 
 private:
 	MvdXsltProc_P* d;

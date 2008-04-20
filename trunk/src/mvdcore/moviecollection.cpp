@@ -85,6 +85,7 @@ public:
 	QString website;
 	QString notes;
 	QString dataPath;
+	QString tempPath;
 
 	// having titles and years stored in another vector too introduces some
 	// redundancy but it makes the search for potential duplicate titles 
@@ -127,6 +128,7 @@ MvdMovieCollection_P::MvdMovieCollection_P(const MvdMovieCollection_P& m)
 	website = m.website;
 	notes = m.notes;
 	dataPath = m.dataPath;
+	tempPath = m.tempPath;
 
 	quickLookupTable = m.quickLookupTable;
 	movies = m.movies;
@@ -166,6 +168,8 @@ MvdMovieCollection::~MvdMovieCollection()
 {
 	if (!d->ref.deref()) {
 		emit destroyed();
+		if (!d->tempPath.isEmpty())
+			Movida::paths().removeDirectoryTree(d->tempPath);
 		delete d;
 	}
 }
@@ -223,9 +227,16 @@ void MvdMovieCollection::setMetaData(MetaDataType ci, const QString& val)
 		d->website = val;
 		break;
 	case DataPathInfo:
+		detach();
 		if (!d->dataPath.isEmpty())
 			Movida::paths().removeDirectoryTree(d->dataPath);
 		d->dataPath = val;
+		break;
+	case TempPathInfo:
+		detach();
+		if (!d->tempPath.isEmpty())
+			Movida::paths().removeDirectoryTree(d->tempPath);
+		d->tempPath = val;
 		break;
 	case NotesInfo:
 		d->notes = val;
@@ -264,6 +275,13 @@ QString MvdMovieCollection::metaData(MetaDataType ci)
 			dir.mkpath(d->dataPath + "/images/");
 		}
 		return d->dataPath;
+	case TempPathInfo:
+		if (d->tempPath.isEmpty())
+		{
+			detach();
+			d->tempPath = Movida::paths().generateTempDir();
+		}
+		return d->tempPath;
 	case NotesInfo:
 		return d->notes;
 	default:

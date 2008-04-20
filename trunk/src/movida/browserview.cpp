@@ -19,8 +19,15 @@
 **************************************************************************/
 
 #include "browserview.h"
+#include "mvdcore/moviecollection.h"
+#include "mvdcore/movie.h"
+#include "mvdcore/templatemanager.h"
 #include <QGridLayout>
 #include <QtWebKit>
+
+namespace {
+	static const int MaxCachedPages = 100;
+};
 
 MvdBrowserView::MvdBrowserView(QWidget* parent)
 : QWidget(parent)
@@ -47,6 +54,17 @@ MvdBrowserView::~MvdBrowserView()
 
 }
 
+void MvdBrowserView::setMovieCollection(MvdMovieCollection* c)
+{
+	mCollection = c;
+	clear();
+
+	if (c) {
+		connect (c, SIGNAL(movieRemoved(mvdid)), SLOT(invalidateMovie(mvdid)));
+		connect (c, SIGNAL(movieChanged(mvdid)), SLOT(invalidateMovie(mvdid)));
+	}
+}
+
 void MvdBrowserView::clear()
 {
 	webView->setUrl(QUrl("about:blank"));
@@ -55,6 +73,45 @@ void MvdBrowserView::clear()
 void MvdBrowserView::setHtml(const QString& s)
 {
 	webView->setHtml(s);
+}
+
+void MvdBrowserView::setMovie(mvdid id)
+{
+	clear();
+	if (id == MvdNull || !mCollection)
+		return;
+
+	QString path;
+	int idx = mCache.indexOf(CachedPage(id));
+	if (idx >= 0) {
+		CachedPage& cp = mCache[idx];
+		++cp.usage;
+		path = cp.path;
+	}
+
+	if (path.isEmpty()) {
+		// Parse and cache HTML
+		path = mCollection->metaData(MvdMovieCollection::TempPathInfo).append("/templates/");
+		if (!QFile::exists(path)) {
+			QDir dir;
+			dir.mkpath(path);
+		}
+
+		path.append(QString("bvt_%1.html").arg(id));
+		if (QFile::exists(path)) QFile::remove(path);
+
+		bool res = Movida::tmanager().movieToHtmlFile(mCollection->movie(id), *mCollection, path, "Blue");
+		if (res) {
+			if (mCache.size() == MaxCachedPages)
+				updateCache();
+			mCache.append(CachedPage(id, path));
+		}
+		else path.clear();
+	}
+	
+	if (!path.isEmpty()) {
+		webView->setUrl(QUrl::fromLocalFile(path));
+	}
 }
 
 bool MvdBrowserView::eventFilter(QObject* o, QEvent* e)
@@ -66,4 +123,26 @@ bool MvdBrowserView::eventFilter(QObject* o, QEvent* e)
 	}*/
 
 	return QWidget::eventFilter(o, e);
+}
+
+void MvdBrowserView::invalidateMovie(mvdid id)
+{
+	// Remove movie from cache
+	int idx = mCache.indexOf(CachedPage(id));
+	if (idx < 0)
+		return;
+
+	QString path = mCache[idx].path;
+	QFile::remove(path);
+	mCache.removeAt(idx);
+}
+
+void MvdBrowserView::updateCache()
+{
+	qSort(mCache);
+	int last = mCache.size();
+	while (mCache.size() > (MaxCachedPages / 2)) {
+		CachedPage p = mCache.takeAt(--last);
+		QFile::remove(p.path);
+	}
 }

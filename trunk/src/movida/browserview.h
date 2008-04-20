@@ -22,8 +22,11 @@
 #define MVD_BROWSERVIEW_H
 
 #include "ui_browserview.h"
+#include "mvdcore/global.h"
 #include <QWidget>
+#include <QList>
 
+class MvdMovieCollection;
 class QAction;
 
 class MvdBrowserView : public QWidget, protected Ui::MvdBrowserView
@@ -34,16 +37,38 @@ public:
 	MvdBrowserView(QWidget* parent = 0);
 	virtual ~MvdBrowserView();
 
+	void setMovieCollection(MvdMovieCollection* c);
+	void setMovie(mvdid id);
+
 public slots:
 	void clear();
 	void setHtml(const QString& s);
 
 	bool eventFilter(QObject* o, QEvent* e);
 
+private slots:
+	void invalidateMovie(mvdid id);
+
 private:
+	struct CachedPage {
+		CachedPage(mvdid id) : movie(id), usage(0) {}
+		CachedPage(mvdid id, const QString& s) : movie(id), path(s), usage(0) {}
+		bool operator<(const CachedPage& o) const { return usage > o.usage; }
+		bool operator==(const CachedPage& o) const { return movie == o.movie; }
+
+		mvdid movie;
+		QString path;
+		int usage;
+	};
+	typedef QList<CachedPage> PageCache;
+
+	void updateCache();
+
 	QAction* mBackAction;
 	QAction* mReloadAction;
 	QAction* mForwardAction;
+	MvdMovieCollection* mCollection;
+	PageCache mCache;
 };
 
 #endif // MVD_BROWSERVIEW_H
