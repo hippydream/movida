@@ -46,7 +46,8 @@ public:
 	typedef QHash<mvdid, MvdMovie> MovieList;
 	
 	enum MetaDataType {
-		NameInfo, OwnerInfo, EMailInfo, WebsiteInfo, NotesInfo, DataPathInfo,
+		NameInfo, OwnerInfo, EMailInfo, WebsiteInfo, NotesInfo, 
+		DataPathInfo, TempPathInfo,
 		InvalidInfo
 	};
 

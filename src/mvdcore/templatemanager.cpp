@@ -378,6 +378,25 @@ QString MvdTemplateManager::movieToHtml(const MvdMovie& movie,
 }
 
 //! Uses the default template if \p templateName is empty.
+bool MvdTemplateManager::movieToHtmlFile(const MvdMovie& movie, 
+	const MvdMovieCollection& collection, const QString& filename, const QString& templateName)
+{
+	if (!movie.isValid())
+		return false;
+
+	QString path = paths().resourcesDir().append("Templates/Movie/").append(templateName).append("/Movie.xsl");
+	if (templateName.isEmpty() || !QFile::exists(path))
+		path = QString(":/Templates/Movie/Default/Movie.xsl");
+
+	QFile file(filename);
+	if (!file.open(QIODevice::ReadWrite))
+		return false;
+
+	MvdXsltProc xsl(path);
+	return xsl.processTextToDevice(movieToXml(movie, collection), &file);
+}
+
+//! Uses the default template if \p templateName is empty.
 QString MvdTemplateManager::movieDataToHtml(const MvdMovieData& movieData, const QString& templateName)
 {
 	if (!movieData.isValid())

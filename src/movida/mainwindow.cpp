@@ -647,6 +647,7 @@ void MvdMainWindow::createNewCollection()
 	MvdCore::pluginContext()->collection = mCollection;
 	mMovieModel->setMovieCollection(mCollection);
 	mSharedDataModel->setMovieCollection(mCollection);
+	mDetailsView->setMovieCollection(mCollection);
 
 	connect (mCollection, SIGNAL(modified()), this, SLOT(collectionModified()) );
 	connect (mCollection, SIGNAL(movieChanged(mvdid)), this, SLOT(movieChanged(mvdid)) );
@@ -920,9 +921,7 @@ void MvdMainWindow::updateDetailsView()
 		return;
 	}
 
-	MvdMovie movie = mCollection->movie(current);
-	QString html = tmanager().movieToHtml(movie, *mCollection, "Blue");
-	mDetailsView->setHtml(html);
+	mDetailsView->setMovie(current);
 }
 
 void MvdMainWindow::movieChanged(mvdid id)

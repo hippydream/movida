@@ -40,6 +40,9 @@ public:
 	QString movieToHtml(const MvdMovie& movie, const MvdMovieCollection& collection, 
 		const QString& templateName = QString());
 
+	bool movieToHtmlFile(const MvdMovie& movie, const MvdMovieCollection& collection, 
+		const QString& filename, const QString& templateName = QString());
+
 	QString movieDataToHtml(const MvdMovieData& movieData, const QString& templateName = QString());
 	QString movieDataFileToHtml(const QString& movieDataFile, const QString& templateName = QString());
 	QString movieDataStringToHtml(const QString& movieDataString, const QString& templateName = QString());

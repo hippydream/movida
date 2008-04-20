@@ -21,6 +21,8 @@
 #include "xsltproc.h"
 #include "logger.h"
 #include <QFile>
+#include <QIODevice>
+#include <QTextStream>
 #include <libxml/tree.h>
 #include <libxslt/xsltInternals.h>
 #include <libxslt/xslt.h>
@@ -56,6 +58,25 @@ using namespace Movida;
 	XInclude processing to the stylesheet or input documents.
 	</BLOCKQUOTE>
 */
+
+
+namespace MvdXslt
+{
+	int writeToTextStream(void * context, const char* buffer, int len)
+	{
+		QTextStream* stream = static_cast<QTextStream*>(context);
+		QString s = QString::fromUtf8(buffer, len);
+		*stream << s;
+		return len;
+	}
+
+	int closeTextStream(void* context) {
+		QTextStream* s = static_cast<QTextStream*>(context);
+		s->flush();
+		return 0;
+	}
+
+};
 
 
 /************************************************************************
@@ -149,12 +170,10 @@ bool MvdXsltProc::loadXslFile(const QString& xslpath)
 //! Applies XSL transformations to the text using the previously loaded stylesheet.
 QString MvdXsltProc::processText(const QString& txt)
 {
-	if (!isOk())
+	if (txt.isEmpty() || !isOk())
 		return QString();
 
 	QByteArray buffer = txt.toUtf8();
-	if (buffer.isEmpty())
-		return QString();
 
 	xmlDocPtr doc = xmlParseMemory(buffer.data(), buffer.size());
 	if (!doc)
@@ -177,7 +196,7 @@ QString MvdXsltProc::processText(const QString& txt)
 //! Applies XSL transformations to the file using the previously loaded stylesheet.
 QString MvdXsltProc::processFile(const QString& file)
 {
-	if (!isOk())
+	if (!QFile::exists(file) || !isOk())
 		return QString();
 
 	xmlDocPtr doc = xmlParseFile(file.toLatin1().constData());
@@ -196,4 +215,61 @@ QString MvdXsltProc::processFile(const QString& file)
 		return QString();
 
 	return QString::fromUtf8(reinterpret_cast<const char*>(outString), outStringLength);
+}
+
+//! Applies XSL transformations to the text using the previously loaded stylesheet and writes the result to a device.
+bool MvdXsltProc::processTextToDevice(const QString& txt, QIODevice* dev)
+{
+	if (txt.isEmpty() || !isOk())
+		return false;
+
+	QByteArray buffer = txt.toUtf8();
+	
+	xmlDocPtr doc = xmlParseMemory(buffer.data(), buffer.size());
+	if (!doc)
+		return false;
+
+	xmlDocPtr res = xsltApplyStylesheet(d->stylesheet, doc, NULL);
+	if (!res)
+		return false;
+
+	QTextStream stream(dev);
+
+	xmlOutputBufferPtr outp = xmlOutputBufferCreateIO(
+		MvdXslt::writeToTextStream, (xmlOutputCloseCallback) MvdXslt::closeTextStream, &stream, 0);
+	outp->written = 0;
+
+	xsltSaveResultTo(outp, res, d->stylesheet);
+	xmlOutputBufferFlush(outp);
+	xmlFreeDoc(res);
+
+	return true;
+}
+
+//! Applies XSL transformations to the file using the previously loaded stylesheet and writes the result to a device.
+bool MvdXsltProc::processFileToDevice(const QString& file, QIODevice* dev)
+{
+	if (!QFile::exists(file) || !isOk() || !dev)
+		return false;
+
+	xmlDocPtr doc = xmlParseFile(file.toLatin1().constData());
+	if (!doc)
+		return false;
+
+	xmlDocPtr res = xsltApplyStylesheet(d->stylesheet, doc, NULL);
+	if (!res)
+		return false;
+
+	QTextStream* stream = new QTextStream(dev);
+
+	xmlOutputBufferPtr outp = xmlOutputBufferCreateIO(
+		MvdXslt::writeToTextStream, (xmlOutputCloseCallback) MvdXslt::closeTextStream, &stream, 0);
+	outp->written = 0;
+
+	xsltSaveResultTo(outp, res, d->stylesheet);
+	xmlOutputBufferFlush(outp);
+	xmlFreeDoc(res);
+
+	delete stream;
+	return true;
 }
