@@ -380,7 +380,7 @@ MvdPathResolver::MvdPathResolver()
 MvdPathResolver& MvdPathResolver::instance()
 {
 	if (!mInstance) {
-		MvdPathResolverLock();
+		QMutexLocker locker(MvdPathResolverLock());
 		if (!mInstance) {
 			if (mDestroyed)
 				throw std::runtime_error("Pathresolver: access to dead reference");
