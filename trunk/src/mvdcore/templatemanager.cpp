@@ -90,9 +90,9 @@ MvdTemplateManager::~MvdTemplateManager()
 	Returns the name of the available movie templates.
 	\todo Templates will have an xml descriptor with name, author, etc and a thumbnail!
 */
-QStringList MvdTemplateManager::movieTemplates() const
+QStringList MvdTemplateManager::templates(const QString& category) const
 {
-	QDir dir(":/templates/movie");
+	QDir dir(QString(":/Templates/%1/").arg(category));
 	QFileInfoList files = dir.entryInfoList();
 
 	QStringList names;
@@ -104,7 +104,7 @@ QStringList MvdTemplateManager::movieTemplates() const
 		names << files.at(i).fileName();
 	}
 
-	dir = QDir(paths().resourcesDir().append("Templates/Movie"));
+	dir = QDir(paths().resourcesDir().append("Templates/").append(category));
 	files = dir.entryInfoList();
 
 	for (int i = 0; i < files.size(); ++i)
@@ -363,30 +363,30 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 }
 
 //! Uses the default template if \p templateName is empty.
-QString MvdTemplateManager::movieToHtml(const MvdMovie& movie, 
-	const MvdMovieCollection& collection, const QString& templateName)
+QString MvdTemplateManager::movieToHtml(const MvdMovie& movie, const MvdMovieCollection& collection, 
+	const QString& templateCategory, const QString& templateName)
 {
 	if (!movie.isValid())
 		return QString();
 
-	QString path = paths().resourcesDir().append("Templates/Movie/").append(templateName).append("/Movie.xsl");
+	QString path = paths().resourcesDir().append("Templates/").append(templateCategory).append("/").append(templateName).append("/Movie.xsl");
 	if (templateName.isEmpty() || !QFile::exists(path))
-		path = QString(":/Templates/Movie/Default/Movie.xsl");
+		path = QString(":/Templates/%1/Default/Movie.xsl").arg(templateCategory);
 
 	MvdXsltProc xsl(path);
 	return xsl.processText(movieToXml(movie, collection));
 }
 
 //! Uses the default template if \p templateName is empty.
-bool MvdTemplateManager::movieToHtmlFile(const MvdMovie& movie, 
-	const MvdMovieCollection& collection, const QString& filename, const QString& templateName)
+bool MvdTemplateManager::movieToHtmlFile(const MvdMovie& movie, const MvdMovieCollection& collection, 
+	const QString& filename, const QString& templateCategory, const QString& templateName)
 {
 	if (!movie.isValid())
 		return false;
 
-	QString path = paths().resourcesDir().append("Templates/Movie/").append(templateName).append("/Movie.xsl");
+	QString path = paths().resourcesDir().append("Templates/").append(templateCategory).append("/").append(templateName).append("/Movie.xsl");
 	if (templateName.isEmpty() || !QFile::exists(path))
-		path = QString(":/Templates/Movie/Default/Movie.xsl");
+		path = QString(":/Templates/%1/Default/Movie.xsl").arg(templateCategory);
 
 	QFile file(filename);
 	if (!file.open(QIODevice::ReadWrite))
@@ -397,14 +397,15 @@ bool MvdTemplateManager::movieToHtmlFile(const MvdMovie& movie,
 }
 
 //! Uses the default template if \p templateName is empty.
-QString MvdTemplateManager::movieDataToHtml(const MvdMovieData& movieData, const QString& templateName)
+QString MvdTemplateManager::movieDataToHtml(const MvdMovieData& movieData, 
+	const QString& templateCategory, const QString& templateName)
 {
 	if (!movieData.isValid())
 		return QString();
 
-	QString path = paths().resourcesDir().append("Templates/Movie/").append(templateName).append("/Movie.xsl");
+	QString path = paths().resourcesDir().append("Templates/").append(templateCategory).append("/").append(templateName).append("/Movie.xsl");
 	if (templateName.isEmpty() || !QFile::exists(path))
-		path = QString(":/Templates/Movie/Default/Movie.xsl");
+		path = QString(":/Templates/%1/Default/Movie.xsl").arg(templateCategory);
 	
 	MvdXsltProc xsl(path);
 	QString xml;
@@ -415,14 +416,15 @@ QString MvdTemplateManager::movieDataToHtml(const MvdMovieData& movieData, const
 /*! Converts an movida-movie-data XML description contained in a file to an HTML description using the specified
 	template or the default template if \p templateName is empty.
 */
-QString MvdTemplateManager::movieDataFileToHtml(const QString& movieDataFile, const QString& templateName)
+QString MvdTemplateManager::movieDataFileToHtml(const QString& movieDataFile,
+	const QString& templateCategory, const QString& templateName)
 {
 	if (!QFile::exists(movieDataFile))
 		return QString();
 
-	QString path = paths().resourcesDir().append("Templates/Movie/").append(templateName).append("/Movie.xsl");
+	QString path = paths().resourcesDir().append("Templates/").append(templateCategory).append("/").append(templateName).append("/Movie.xsl");
 	if (templateName.isEmpty() || !QFile::exists(path))
-		path = QString(":/Templates/Movie/Default/Movie.xsl");
+		path = QString(":/Templates/%1/Default/Movie.xsl").arg(templateCategory);
 
 	MvdXsltProc xsl(path);
 	return xsl.processFile(movieDataFile);
@@ -431,14 +433,15 @@ QString MvdTemplateManager::movieDataFileToHtml(const QString& movieDataFile, co
 /*! Converts an movida-movie-data XML description to an HTML description using the specified
 	template or the default template if \p templateName is empty.
 */
-QString MvdTemplateManager::movieDataStringToHtml(const QString& movieDataString, const QString& templateName)
+QString MvdTemplateManager::movieDataStringToHtml(const QString& movieDataString,
+	const QString& templateCategory, const QString& templateName)
 {
 	if (!QFile::exists(movieDataString))
 		return QString();
 
-	QString path = paths().resourcesDir().append("Templates/Movie/").append(templateName).append("/Movie.xsl");
+	QString path = paths().resourcesDir().append("Templates/").append(templateCategory).append("/").append(templateName).append("/Movie.xsl");
 	if (templateName.isEmpty() || !QFile::exists(path))
-		path = QString(":/Templates/Movie/Default/Movie.xsl");
+		path = QString(":/Templates/%1/Default/Movie.xsl").arg(templateCategory);
 
 	MvdXsltProc xsl(path);
 	return xsl.processText(movieDataString);

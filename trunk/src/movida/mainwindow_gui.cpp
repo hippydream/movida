@@ -18,7 +18,6 @@
 **
 **************************************************************************/
 
-#include "browserview.h"
 #include "collectionmodel.h"
 #include "dockwidget.h"
 #include "filterproxymodel.h"
@@ -35,6 +34,7 @@
 #include "smartview.h"
 #include "mvdcore/core.h"
 #include "mvdcore/pathresolver.h"
+#include "mvdshared/browserview.h"
 #include <QDesktopServices>
 #include <QDockWidget>
 #include <QGridLayout>
@@ -633,3 +633,4 @@ void MvdMainWindow::initAction(QAction* action, const QString& text, const QStri
 	action->setWhatsThis(longInfo);
 	action->setShortcut(shortcut);
 }
+

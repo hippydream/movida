@@ -163,7 +163,7 @@ void MvdImportSummaryPage::visibleJobChanged()
 	ui.importMovie->setChecked(job.import);
 
 	const MvdMovieData& d = job.data;
-	ui.jobPreview->setHtml(Movida::tmanager().movieDataToHtml(d));
+	ui.jobPreview->setHtml(Movida::tmanager().movieDataToHtml(d, QLatin1String("BrowserView")));
 
 	ui.nextResult->setControlEnabled(nextResultId, currentVisibleJob < jobs.size() - 1);
 	ui.previousResult->setControlEnabled(previousResultId, currentVisibleJob > 0);
