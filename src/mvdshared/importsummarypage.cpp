@@ -46,6 +46,9 @@ MvdImportSummaryPage::MvdImportSummaryPage(QWidget* parent)
 
 	ui.setupUi(this);
 
+	//! \todo Disable or customize context menu.
+	ui.jobPreview->setControlsVisible(false);
+
 	previousResultId = ui.previousResult->addControl(tr("Previous movie"), false);
 	connect(ui.previousResult, SIGNAL(controlTriggered(int)), this, SLOT(previewPreviousJob()));
 
@@ -159,11 +162,14 @@ void MvdImportSummaryPage::visibleJobChanged()
 		job.import = ui.importMovie->isChecked();
 	}
 
-	const ImportJob& job = jobs.at(currentVisibleJob);
+	ImportJob& job = jobs[currentVisibleJob];
 	ui.importMovie->setChecked(job.import);
 
-	const MvdMovieData& d = job.data;
-	ui.jobPreview->setHtml(Movida::tmanager().movieDataToHtml(d, QLatin1String("BrowserView")));
+	if (job.browserViewId < 0) {
+		job.browserViewId = ui.jobPreview->cacheMovieData(job.data);
+	}
+
+	ui.jobPreview->showMovieData(job.browserViewId);
 
 	ui.nextResult->setControlEnabled(nextResultId, currentVisibleJob < jobs.size() - 1);
 	ui.previousResult->setControlEnabled(previousResultId, currentVisibleJob > 0);
@@ -212,6 +218,12 @@ void MvdImportSummaryPage::reset()
 {
 	setBusyStatus(false);
 	ui.stack->setCurrentIndex(0);
+
+	foreach (const ImportJob& j, jobs) {
+		if (j.browserViewId >= 0)
+			ui.jobPreview->clearCachedMovieData(j.browserViewId);
+	}
+
 	jobs.clear();
 }
 

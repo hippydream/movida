@@ -413,6 +413,27 @@ QString MvdTemplateManager::movieDataToHtml(const MvdMovieData& movieData,
 	return xsl.processText(xml);
 }
 
+//! Uses the default template if \p templateName is empty.
+bool MvdTemplateManager::movieDataToHtmlFile(const MvdMovieData& movieData,
+	const QString& filename, const QString& templateCategory, const QString& templateName)
+{
+	if (!movieData.isValid())
+		return false;
+
+	QString path = paths().resourcesDir().append("Templates/").append(templateCategory).append("/").append(templateName).append("/Movie.xsl");
+	if (templateName.isEmpty() || !QFile::exists(path))
+		path = QString(":/Templates/%1/Default/Movie.xsl").arg(templateCategory);
+	
+	MvdXsltProc xsl(path);
+	QString xml;
+	movieData.writeToXmlString(&xml);
+
+	QFile file(filename);
+	if (!file.open(QIODevice::WriteOnly))
+		return false;
+	return xsl.processTextToDevice(xml, &file);
+}
+
 /*! Converts an movida-movie-data XML description contained in a file to an HTML description using the specified
 	template or the default template if \p templateName is empty.
 */

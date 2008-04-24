@@ -64,11 +64,13 @@ private slots:
 
 private:
 	struct ImportJob {
-		inline ImportJob() : import(true) {}
-		inline ImportJob(const MvdMovieData& md) : data(md), import(true) {}
+		//! \todo Either use MvdMovieData pointers or make MvdMovieData implicitly shared
+		inline ImportJob() : import(true), browserViewId(-1) {}
+		inline ImportJob(const MvdMovieData& md) : data(md), import(true), browserViewId(-1) {}
 
 		MvdMovieData data;
 		bool import;
+		int browserViewId;
 	};
 
 	Ui::MvdImportSummaryPage ui;

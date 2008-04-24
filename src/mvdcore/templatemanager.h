@@ -44,6 +44,10 @@ public:
 		const QString& filename, 
 		const QString& templateCategory, const QString& templateName = QString());
 
+	bool movieDataToHtmlFile(const MvdMovieData& movieData,
+		const QString& filename, 
+		const QString& templateCategory, const QString& templateName = QString());
+
 	QString movieDataToHtml(const MvdMovieData& movieData, 
 		const QString& templateCategory, const QString& templateName = QString());
 	QString movieDataFileToHtml(const QString& movieDataFile, 
