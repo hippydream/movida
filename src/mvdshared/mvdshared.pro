@@ -11,6 +11,7 @@ win32 {
 	LIBS += -lxml2 -lxslt
 }
 TEMPLATE = lib
+QT += webkit
 CONFIG += dll
 DEFINES += MVD_BUILD_SHARED_DLL
 QMAKE_TARGET_DESCRIPTION = Utility library for Movida, the free movie collection manager.

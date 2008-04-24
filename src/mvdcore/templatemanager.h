@@ -34,18 +34,22 @@ public:
 	static MvdTemplateManager& instance();
 	virtual ~MvdTemplateManager();
 
-	QStringList movieTemplates() const;
+	QStringList templates(const QString& category) const;
 
 	QString movieToXml(const MvdMovie& movie, const MvdMovieCollection& collection);
 	QString movieToHtml(const MvdMovie& movie, const MvdMovieCollection& collection, 
-		const QString& templateName = QString());
+		const QString& templateCategory, const QString& templateName = QString());
 
 	bool movieToHtmlFile(const MvdMovie& movie, const MvdMovieCollection& collection, 
-		const QString& filename, const QString& templateName = QString());
+		const QString& filename, 
+		const QString& templateCategory, const QString& templateName = QString());
 
-	QString movieDataToHtml(const MvdMovieData& movieData, const QString& templateName = QString());
-	QString movieDataFileToHtml(const QString& movieDataFile, const QString& templateName = QString());
-	QString movieDataStringToHtml(const QString& movieDataString, const QString& templateName = QString());
+	QString movieDataToHtml(const MvdMovieData& movieData, 
+		const QString& templateCategory, const QString& templateName = QString());
+	QString movieDataFileToHtml(const QString& movieDataFile, 
+		const QString& templateCategory, const QString& templateName = QString());
+	QString movieDataStringToHtml(const QString& movieDataString, 
+		const QString& templateCategory, const QString& templateName = QString());
 
 private:
 	MvdTemplateManager();

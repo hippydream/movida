@@ -18,7 +18,6 @@
 **
 **************************************************************************/
 
-#include "browserview.h"
 #include "collectionmetaeditor.h"
 #include "collectionmodel.h"
 #include "dockwidget.h"
@@ -44,6 +43,7 @@
 #include "mvdcore/plugininterface.h"
 #include "mvdcore/settings.h"
 #include "mvdcore/templatemanager.h"
+#include "mvdshared/browserview.h"
 #include <QActionGroup>
 #include <QDir>
 #include <QFile>

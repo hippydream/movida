@@ -1,6 +1,7 @@
 HEADERS += \
 	actionlabel.h \
 	actionlabel_p.h \
+	browserview.h \
 	clearedit.h \
 	expandinglineedit.h \
 	grafx.h \
@@ -20,6 +21,7 @@ HEADERS += \
 	
 SOURCES += \
 	actionlabel.cpp \
+	browserview.cpp \
 	clearedit.cpp \
 	expandinglineedit.cpp \
 	grafx.cpp \
@@ -34,6 +36,7 @@ RESOURCES += \
 	mvdshared.qrc
 	
 FORMS += \
+	ui/browserview.ui \
 	ui/importfinalpage.ui \
 	ui/importresultspage.ui \
 	ui/importsummarypage.ui

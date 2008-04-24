@@ -10,7 +10,7 @@ win32 {
 	LIBS += -lxml2 -lxslt
 }
 TEMPLATE = app
-QT += svg network webkit
+QT += svg network
 QMAKE_TARGET_DESCRIPTION = Movida, the free movie collection manager.
 
 include(movida.pri)

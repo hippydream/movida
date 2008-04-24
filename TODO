@@ -7,22 +7,28 @@ TODO-list for movida
 SHORT-TERM (URGENT):
 
 <blue_death>	Add multiple movie editing support to single movie editor
+<blue_death>	"Drop here" message on filter bar should be moved to the info bar
+<blue_death>	Add a "OR combine" checkbox to the filter widget
+<blue_death>	Complete the default BrowserView template
+<blue_death>	Replace the import plugin's preview QTextBrowser with a MvdBrowserView
+
 
 MID-TERM:
 
+<blue_death>	Consider adding "open IMDb page" to context menu or toolbar
 <blue_death>	Distinguish between main actors and other actors (useful for the smart view and other views)
+<blue_death>	Actors should not be sorted but appended to a list whose order is preserved
 <blue_death>	Fix column width in the tree view and clean up the header and the context 
 		menu some how
 <blue_death>	Design and implement import plugin script options!!
 		(command line par returns xml with config?)
-<blue_death>	Use Qt 4.4 webkit! (wait until it's ready?)
-<blue_death>	Integrate Qt Undo Framework (won't be easy)
 <blue_death>	Make application instance unique and handle multiple collections?
 
 
 LONG-TERM:
 <blue_death>	Artwork
-<blue_death>	Metadata extraction from AVI and DVD
+<blue_death>	Metadata extraction from AVI and DVD?
+<blue_death>	Integrate Qt Undo Framework (won't be easy)
 
 
 DO-NOT-IMPLEMENT (stuff that was rejected):
