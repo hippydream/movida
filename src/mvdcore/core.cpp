@@ -151,20 +151,13 @@ void MvdCore::loadStatus()
 	Call this once on application termination to store application preferences
 	and more.
 	Subsequent calls to this method have no effect.
-	Please do not access any movida singleton (i.e. the MvdLogger) after calling this method,
-	to avoid any unpredictable
-	behaviour.
 */
 void MvdCore::storeStatus()
 {
 	Q_ASSERT(d);
 	delete d;
 	d = 0;
-
 	Movida::paths().removeDirectoryTree(Movida::paths().tempDir());
-
-	delete &(MvdSettings::instance());
-	delete &(MvdLogger::instance());
 }
 
 /*!

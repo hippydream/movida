@@ -23,8 +23,11 @@
 #include <QFile>
 #include <QDateTime>
 #include <QtGlobal>
+#include <QMutex>
 
 using namespace Movida;
+
+Q_GLOBAL_STATIC(QMutex, MvdLoggerLock)
 
 /*!
 	\class MvdLogger logger.h
@@ -38,30 +41,31 @@ using namespace Movida;
 
 
 /************************************************************************
-MvdLogger_P
+MvdLogger::Private
 *************************************************************************/
 
 //! \internal
-class MvdLogger_P
+class MvdLogger::Private
 {
 public:
-	MvdLogger_P();
-	~MvdLogger_P();
+	Private();
+	~Private();
 
 	QTextStream* stream;
 	QFile* file;
 	static bool html;
 };
-bool MvdLogger_P::html = false;
+
+bool MvdLogger::Private::html = false;
 
 //! \internal
-MvdLogger_P::MvdLogger_P()
+MvdLogger::Private::Private()
 : stream(0), file(0)
 {
 }
 
 //! \internal
-MvdLogger_P::~MvdLogger_P()
+MvdLogger::Private::~Private()
 {
 	if (stream)
 	{
@@ -80,7 +84,7 @@ MvdLogger
 
 //! \internal Private constructor.
 MvdLogger::MvdLogger()
-: QObject(), d(new MvdLogger_P)
+: QObject(), d(new Private)
 {
 	d->file = new QFile( paths().logFile() );
 	if (!d->file->open(QIODevice::ReadWrite | QIODevice::Truncate))
@@ -109,34 +113,53 @@ MvdLogger::MvdLogger()
 }
 
 //! \internal
-MvdLogger* MvdLogger::mInstance = 0;
+volatile MvdLogger* MvdLogger::mInstance = 0;
+bool MvdLogger::mDestroyed = false;
 
 /*!
 	Returns the application unique logger.
 */
 MvdLogger& MvdLogger::instance()
 {
-	if (mInstance == 0)
-		mInstance = new MvdLogger();
-	return *mInstance;
+	if (!mInstance) {
+		MvdLoggerLock();
+		if (!mInstance) {
+			if (mDestroyed)
+				throw std::runtime_error("Logger: access to dead reference");
+			create();
+		}
+	}
+
+	return (MvdLogger&) *mInstance;
 }
 
-//!
+//! Destructor.
 MvdLogger::~MvdLogger()
 {
 	delete d;
+	mInstance = 0;
+	mDestroyed = true;
+}
+
+void MvdLogger::create()
+{
+	// Local static members are instantiated as soon 
+	// as this function is entered for the first time
+	// (Scott Meyers singleton)
+	static MvdLogger instance;
+	mInstance = &instance;
 }
 
 //! Sets whether the log should be written in HTML or plain text.
 void MvdLogger::setUseHtml(bool useHtml)
 {
-	MvdLogger_P::html = useHtml;
+	MvdLogger::Private::html = useHtml;
 }
 
 //! Returns true if HTML is used when writing the log.
 bool MvdLogger::isUsingHtml()
 {
-	return MvdLogger_P::html;
+	return MvdLogger::Private::html;
 }
 
 //! Writes a single char to the log file.

@@ -23,9 +23,11 @@
 #include "xsltproc.h"
 #include "pathresolver.h"
 #include <QDir>
+#include <QMutex>
 
 using namespace Movida;
 
+Q_GLOBAL_STATIC(QMutex, MvdTemplateManagerLock)
 
 /*!
 	\class MvdTemplateManager templatemanager.h
@@ -38,18 +40,18 @@ using namespace Movida;
 
 
 /************************************************************************
-MvdTemplateManager_P
+MvdTemplateManager::Private
 *************************************************************************/
 
 //! \internal
-class MvdTemplateManager_P
+class MvdTemplateManager::Private
 {
 public:
-	MvdTemplateManager_P();
+	Private();
 };
 
 //! \internal
-MvdTemplateManager_P::MvdTemplateManager_P()
+MvdTemplateManager::Private::Private()
 {
 }
 
@@ -59,11 +61,12 @@ MvdTemplateManager
 *************************************************************************/
 
 //! \internal
-MvdTemplateManager* MvdTemplateManager::mInstance = 0;
+volatile MvdTemplateManager* MvdTemplateManager::mInstance = 0;
+bool MvdTemplateManager::mDestroyed = false;
 
 //! \internal Private constructor.
 MvdTemplateManager::MvdTemplateManager()
-: d(new MvdTemplateManager_P)
+: d(new Private)
 {
 }
 
@@ -72,18 +75,33 @@ MvdTemplateManager::MvdTemplateManager()
 */
 MvdTemplateManager& MvdTemplateManager::instance()
 {
-	if (mInstance == 0)
-		mInstance = new MvdTemplateManager();
+	if (!mInstance) {
+		MvdTemplateManagerLock();
+		if (!mInstance) {
+			if (mDestroyed)
+				throw std::runtime_error("Template Manager: access to dead reference");
+			create();
+		}
+	}
 
-	return *mInstance;
+	return (MvdTemplateManager&) *mInstance;
 }
 
 //! Destructor.
 MvdTemplateManager::~MvdTemplateManager()
 {
-	if (this == mInstance)
-		delete d;
-	else delete mInstance;
+	delete d;
+	mInstance = 0;
+	mDestroyed = true;
+}
+
+void MvdTemplateManager::create()
+{
+	// Local static members are instantiated as soon 
+	// as this function is entered for the first time
+	// (Scott Meyers singleton)
+	static MvdTemplateManager instance;
+	mInstance = &instance;
 }
 
 /*!

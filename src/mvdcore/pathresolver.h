@@ -25,13 +25,10 @@
 #include <QtGlobal>
 #include <QString>
 
-class MvdPathResolver_P;
-
 class MVD_EXPORT MvdPathResolver
 {
 public:
 	static MvdPathResolver& instance();
-	virtual ~MvdPathResolver();
 
 	bool isInitialized() const;
 
@@ -47,8 +44,16 @@ public:
 
 private:
 	MvdPathResolver();
-	static MvdPathResolver* mInstance;
-	MvdPathResolver_P* d;
+	MvdPathResolver(const MvdPathResolver&);
+	MvdPathResolver& operator=(const MvdPathResolver&);
+	virtual ~MvdPathResolver();
+
+	static void create();
+	static volatile MvdPathResolver* mInstance;
+	static bool mDestroyed;
+
+	class Private;
+	Private* d;
 };
 
 namespace Movida
