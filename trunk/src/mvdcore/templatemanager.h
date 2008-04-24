@@ -21,8 +21,6 @@
 #ifndef MVD_TEMPLATEMANAGER_H
 #define MVD_TEMPLATEMANAGER_H
 
-class MvdTemplateManager_P;
-
 #include "global.h"
 #include "movie.h"
 #include "moviedata.h"
@@ -32,7 +30,6 @@ class MVD_EXPORT MvdTemplateManager
 {
 public:
 	static MvdTemplateManager& instance();
-	virtual ~MvdTemplateManager();
 
 	QStringList templates(const QString& category) const;
 
@@ -57,8 +54,16 @@ public:
 
 private:
 	MvdTemplateManager();
-	static MvdTemplateManager* mInstance;
-	MvdTemplateManager_P* d;
+	MvdTemplateManager(const MvdTemplateManager&);
+	MvdTemplateManager& operator=(const MvdTemplateManager&);
+	virtual ~MvdTemplateManager();
+
+	static void create();
+	static volatile MvdTemplateManager* mInstance;
+	static bool mDestroyed;
+
+	class Private;
+	Private* d;
 };
 
 namespace Movida

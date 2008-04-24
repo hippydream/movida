@@ -27,6 +27,8 @@
 #include <QtGlobal>
 #include <QUuid>
 #include <QDateTime>
+#include <QMutex>
+
 #ifdef Q_WS_WIN
 #include "qt_windows.h"
 #include "qlibrary.h"
@@ -45,6 +47,8 @@
 #include <QtDebug>
 
 using namespace Movida;
+
+Q_GLOBAL_STATIC(QMutex, MvdPathResolverLock)
 
 /*!
 	\class MvdPathResolver pathresolver.h
@@ -90,10 +94,10 @@ using namespace Movida;
 MvdPathResolver_P
 *************************************************************************/
 
-class MvdPathResolver_P
+class MvdPathResolver::Private
 {
 public:
-	MvdPathResolver_P();
+	Private();
 
 	bool initialized;
 
@@ -112,7 +116,7 @@ public:
 };
 
 //! \internal Initializes paths.
-MvdPathResolver_P::MvdPathResolver_P()
+MvdPathResolver::Private::Private()
 {
 	initialized = false;
 #ifdef Q_WS_WIN
@@ -316,7 +320,7 @@ MvdPathResolver_P::MvdPathResolver_P()
 	\internal Returns the path to a system shell folder using SHGetSpecialFolderPathW or
 	SHGetSpecialFolderPathA from shell32.dll.
 */
-QString MvdPathResolver_P::specialFolder(int type)
+QString MvdPathResolver::Private::specialFolder(int type)
 {
 	QString result;
 
@@ -363,31 +367,45 @@ MvdPathResolver
 *************************************************************************/
 
 //! \internal
-MvdPathResolver* MvdPathResolver::mInstance = 0;
+volatile MvdPathResolver* MvdPathResolver::mInstance = 0;
+bool MvdPathResolver::mDestroyed = false;
 
 //!	\internal Private constructor - initialize paths.
 MvdPathResolver::MvdPathResolver()
+: d(new Private)
 {
-	d = new MvdPathResolver_P();
 }
 
 //! Returns the unique application instance.
 MvdPathResolver& MvdPathResolver::instance()
 {
-	if (mInstance == 0)
-		mInstance = new MvdPathResolver();
+	if (!mInstance) {
+		MvdPathResolverLock();
+		if (!mInstance) {
+			if (mDestroyed)
+				throw std::runtime_error("Pathresolver: access to dead reference");
+			create();
+		}
+	}
 
-	return *mInstance;
+	return (MvdPathResolver&) *mInstance;
 }
 
 //! Destructor.
 MvdPathResolver::~MvdPathResolver()
 {
-	if (this == mInstance)
-	{
-		delete d;
-	}
-	else delete mInstance;
+	delete d;
+	mInstance = 0;
+	mDestroyed = true;
+}
+
+void MvdPathResolver::create()
+{
+	// Local static members are instantiated as soon 
+	// as this function is entered for the first time
+	// (Scott Meyers singleton)
+	static MvdPathResolver instance;
+	mInstance = &instance;
 }
 
 //! Returns false if some required directory or file could not be created.

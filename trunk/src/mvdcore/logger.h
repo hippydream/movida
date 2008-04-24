@@ -25,15 +25,12 @@
 #include <QTextStream>
 #include <QString>
 
-class MvdLogger_P;
-
 class MVD_EXPORT MvdLogger : public QObject
 {
 	Q_OBJECT
 
 public:
 	static MvdLogger& instance();
-	virtual ~MvdLogger();
 
 	static void setUseHtml(bool useHtml);
 	static bool isUsingHtml();
@@ -61,8 +58,16 @@ public:
 
 private:
 	MvdLogger();
-	static MvdLogger* mInstance;
-	MvdLogger_P* d;
+	MvdLogger(const MvdLogger&);
+	MvdLogger& operator=(const MvdLogger&);
+	virtual ~MvdLogger();
+
+	static void create();
+	static volatile MvdLogger* mInstance;
+	static bool mDestroyed;
+
+	class Private;
+	Private* d;
 };
 
 namespace Movida
