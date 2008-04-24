@@ -10,7 +10,6 @@ SHORT-TERM (URGENT):
 <blue_death>	"Drop here" message on filter bar should be moved to the info bar
 <blue_death>	Add a "OR combine" checkbox to the filter widget
 <blue_death>	Complete the default BrowserView template
-<blue_death>	Replace the import plugin's preview QTextBrowser with a MvdBrowserView
 
 
 MID-TERM:

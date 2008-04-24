@@ -921,7 +921,7 @@ void MvdMainWindow::updateDetailsView()
 		return;
 	}
 
-	mDetailsView->setMovie(current);
+	mDetailsView->showMovie(current);
 }
 
 void MvdMainWindow::movieChanged(mvdid id)

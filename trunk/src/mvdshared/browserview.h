@@ -27,6 +27,7 @@
 #include <QList>
 
 class MvdMovieCollection;
+class MvdMovieData;
 class QAction;
 
 class MVD_EXPORT_SHARED MvdBrowserView : public QWidget
@@ -38,7 +39,14 @@ public:
 	virtual ~MvdBrowserView();
 
 	void setMovieCollection(MvdMovieCollection* c);
-	void setMovie(mvdid id);
+	void showMovie(mvdid id);
+
+	void showMovieData(int id);
+	int cacheMovieData(const MvdMovieData& md);
+	void clearCachedMovieData(int id);
+
+	void setControlsVisible(bool visible);
+	bool controlsVisible() const;
 
 public slots:
 	void clear();

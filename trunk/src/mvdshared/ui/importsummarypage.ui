@@ -13,16 +13,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" >
-   <property name="leftMargin" >
-    <number>0</number>
-   </property>
-   <property name="topMargin" >
-    <number>0</number>
-   </property>
-   <property name="rightMargin" >
-    <number>0</number>
-   </property>
-   <property name="bottomMargin" >
+   <property name="margin" >
     <number>0</number>
    </property>
    <item row="0" column="0" >
@@ -31,13 +22,21 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="noResultsPage" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>331</width>
+        <height>248</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
        <item row="0" column="0" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
            <height>40</height>
@@ -60,7 +59,7 @@
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
            <height>40</height>
@@ -81,7 +80,15 @@
       </layout>
      </widget>
      <widget class="QWidget" name="resultsPage" >
-      <layout class="QGridLayout" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>331</width>
+        <height>248</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2" >
        <item row="0" column="0" colspan="3" >
         <layout class="QHBoxLayout" >
          <item>
@@ -99,7 +106,7 @@
            <property name="orientation" >
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0" >
             <size>
              <width>40</width>
              <height>20</height>
@@ -120,7 +127,41 @@
         </layout>
        </item>
        <item row="1" column="0" colspan="3" >
-        <widget class="QTextBrowser" name="jobPreview" />
+        <widget class="QFrame" name="browserViewFrame" >
+         <property name="frameShape" >
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow" >
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>0</number>
+          </property>
+          <item row="0" column="0" >
+           <widget class="MvdBrowserView" native="1" name="jobPreview" />
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="2" >
+        <widget class="MvdActionLabel" name="nextResult" >
+         <property name="toolTip" >
+          <string>Shows the details for the next movie that has been selected for import</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="indent" >
+          <number>0</number>
+         </property>
+        </widget>
        </item>
        <item row="2" column="0" >
         <widget class="MvdActionLabel" name="previousResult" >
@@ -140,29 +181,13 @@
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>161</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
-       </item>
-       <item row="2" column="2" >
-        <widget class="MvdActionLabel" name="nextResult" >
-         <property name="toolTip" >
-          <string>Shows the details for the next movie that has been selected for import</string>
-         </property>
-         <property name="text" >
-          <string/>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-         <property name="indent" >
-          <number>0</number>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>
@@ -175,6 +200,11 @@
    <class>MvdActionLabel</class>
    <extends>QLabel</extends>
    <header>actionlabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MvdBrowserView</class>
+   <extends>QWidget</extends>
+   <header>browserview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
