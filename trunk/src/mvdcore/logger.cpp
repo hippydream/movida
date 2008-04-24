@@ -122,7 +122,7 @@ bool MvdLogger::mDestroyed = false;
 MvdLogger& MvdLogger::instance()
 {
 	if (!mInstance) {
-		MvdLoggerLock();
+		QMutexLocker locker(MvdLoggerLock());
 		if (!mInstance) {
 			if (mDestroyed)
 				throw std::runtime_error("Logger: access to dead reference");

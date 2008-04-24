@@ -76,7 +76,7 @@ MvdTemplateManager::MvdTemplateManager()
 MvdTemplateManager& MvdTemplateManager::instance()
 {
 	if (!mInstance) {
-		MvdTemplateManagerLock();
+		QMutexLocker locker(MvdTemplateManagerLock());
 		if (!mInstance) {
 			if (mDestroyed)
 				throw std::runtime_error("Template Manager: access to dead reference");
