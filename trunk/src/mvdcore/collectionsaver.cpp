@@ -61,7 +61,7 @@ namespace MvdCollectionSaver_P
 
 	static inline void writeDocumentRoot(MvdXmlWriter* xml, int itemCount);
 
-	static inline void writePersonList(MvdXmlWriter* xml, const QHash<mvdid, QStringList>& data);
+	static inline void writePersonList(MvdXmlWriter* xml, const QList<MvdRoleItem>& data);
 	static inline void writePersonList(MvdXmlWriter* xml, const QList<mvdid>& data);
 
 	static inline void writeUrlList(MvdXmlWriter* xml, const QList<MvdUrl>& data);
@@ -111,15 +111,16 @@ void MvdCollectionSaver_P::writeDocumentRoot(MvdXmlWriter* xml, int itemCount)
 	\endverbatim
 */
 void MvdCollectionSaver_P::writePersonList(MvdXmlWriter* xml, 
-	const QHash<mvdid, QStringList>& map)
+	const QList<MvdRoleItem>& idRoleList)
 {
 	QHash<QString,QString> attrs;
 
-	for (QHash<mvdid, QStringList>::ConstIterator it = map.constBegin();
-		it != map.constEnd(); ++it)
+	for (int i = 0; i < idRoleList.size(); ++i)
 	{
-		QStringList roles = it.value();
-		attrs.insert("id", QString::number(it.key()));
+		const MvdRoleItem& item = idRoleList.at(i);
+		mvdid id = item.first;
+		QStringList roles = item.second;
+		attrs.insert("id", QString::number(id));
 
 		if (roles.isEmpty())
 		{
@@ -425,7 +426,7 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 				xml->writeTaggedString("special", "true");
 
 			xml->writeOpenTag("cast");
-			QHash<mvdid,QStringList> persons = movie.actors();
+			QList<MvdRoleItem> persons = movie.actors();
 			if (!persons.isEmpty())
 				MvdCollectionSaver_P::writePersonList(xml, persons);
 			xml->writeCloseTag("cast");

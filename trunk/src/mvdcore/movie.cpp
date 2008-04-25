@@ -72,8 +72,8 @@ public:
 	QList<mvdid> countries;
 	QList<mvdid> languages;
 
-	QHash<mvdid, QStringList> actors;
-	QHash<mvdid, QStringList> crewMembers;
+	QList<MvdRoleItem> actors;
+	QList<MvdRoleItem> crewMembers;
 	QList<mvdid> directors;
 	QList<mvdid> producers;
 
@@ -574,46 +574,33 @@ QList<mvdid> MvdMovie::tags() const
  */
 void MvdMovie::addCrewMember(mvdid memberID, const QStringList& roles)
 {
-	if (memberID == 0)
+	if (memberID == MvdNull)
 		return;
 
 	// Clean roles
 	QStringList _roles;
-	for (int i = 0; i < roles.size(); ++i)
-		_roles.append( roles.at(i).trimmed() );
+	for (int i = 0; i < roles.size(); ++i) {
+		QString r = roles.at(i).trimmed();
+		if (!r.isEmpty())
+			_roles.append(r);
+	}
 
 	if (d->crewMembers.isEmpty())
 	{
 		detach();
-		d->crewMembers.insert(memberID, _roles);
+		d->crewMembers.append(MvdRoleItem(memberID, _roles));
 		return;
 	}
 
-	QHash<mvdid,QStringList>::Iterator itr = d->crewMembers.find(memberID);
-	if (itr != d->crewMembers.end())
-	{
-		if (roles.isEmpty())
+	
+	for (int i = 0; i < d->crewMembers.size(); ++i) {
+		const MvdRoleItem& item = d->crewMembers.at(i);
+		if (item.first == memberID)
 			return;
-
-		QStringList& dest = itr.value();
-		bool detached = false;
-
-		// append role(s)
-		for (int i = 0; i < roles.size(); ++i)
-		{
-			QString s = _roles.at(i);
-			if (dest.contains(s, Qt::CaseInsensitive))
-				continue;
-			if (!detached)
-				detach();
-			dest.append(s);
-		}
-
-		return;
 	}
 
 	detach();
-	d->crewMembers.insert(memberID, _roles);
+	d->crewMembers.append(MvdRoleItem(memberID, _roles));
 }
 
 /*!
@@ -622,11 +609,16 @@ void MvdMovie::addCrewMember(mvdid memberID, const QStringList& roles)
  */
 QStringList MvdMovie::crewMemberRoles(mvdid memberID) const
 {
-	if (memberID == 0)
+	if (memberID == MvdNull)
 		return QStringList();
 
-	QHash<mvdid,QStringList>::Iterator itr = d->crewMembers.find(memberID);
-	return itr == d->crewMembers.end() ? QStringList() : itr.value();
+	for (int i = 0; i < d->crewMembers.size(); ++i) {
+		const MvdRoleItem& item = d->crewMembers.at(i);
+		if (item.first == memberID)
+			return item.second;
+	}
+
+	return QStringList();
 }
 
 /*!
@@ -634,7 +626,12 @@ QStringList MvdMovie::crewMemberRoles(mvdid memberID) const
  */
 QList<mvdid> MvdMovie::crewMemberIDs() const
 {
-	return d->crewMembers.keys();
+	QList<mvdid> ids;
+	for (int i = 0; i < d->crewMembers.size(); ++i) {
+		const MvdRoleItem& item = d->crewMembers.at(i);
+		ids.append(item.first);
+	}
+	return ids;
 }
 
 /*!
@@ -645,23 +642,13 @@ QList<mvdid> MvdMovie::crewMemberIDs(const QString& role) const
 	if (role.isEmpty())
 		return QList<mvdid>();
 
-	QString lRole = role.toLower();
-
-	QList<mvdid> fCrew;
-
-	for (QHash<mvdid,QStringList>::ConstIterator itr = d->crewMembers.constBegin(); itr != d->crewMembers.constEnd(); ++itr)
-	{
-		for (QStringList::ConstIterator itr2 = itr.value().constBegin(); itr2 != itr.value().constEnd(); ++itr2)
-		{
-			if ((*itr2).toLower() == lRole)
-			{
-				fCrew.append(itr.key());
-				break;
-			}
-		}
+	QList<mvdid> ids;
+	for (int i = 0; i < d->crewMembers.size(); ++i) {
+		const MvdRoleItem& item = d->crewMembers.at(i);
+		if (item.second.contains(role, Qt::CaseInsensitive))
+			ids.append(item.first);
 	}
-
-	return fCrew;
+	return ids;
 }
 
 /*!
@@ -681,7 +668,7 @@ void MvdMovie::clearCrewMembers()
 	Does not check for duplicate or invalid IDs.
 	Please ensure no empty strings are set as roles!
  */
-void MvdMovie::setCrewMembers(const QHash<mvdid,QStringList>& members)
+void MvdMovie::setCrewMembers(const QList<MvdRoleItem>& members)
 {
 	if (d->crewMembers.isEmpty() && members.isEmpty())
 		return;
@@ -693,7 +680,7 @@ void MvdMovie::setCrewMembers(const QHash<mvdid,QStringList>& members)
 /*!
 	Returns the crewMembers members list for this movie.
  */
-QHash<mvdid,QStringList> MvdMovie::crewMembers() const
+QList<MvdRoleItem> MvdMovie::crewMembers() const
 {
 	return d->crewMembers;
 }
@@ -816,46 +803,33 @@ void MvdMovie::setProducers(const QList<mvdid>& prod)
  */
 void MvdMovie::addActor(mvdid actorID, const QStringList& roles)
 {
-	if (actorID == 0)
+	if (actorID == MvdNull)
 		return;
 
 	// Clean roles
 	QStringList _roles;
-	for (int i = 0; i < roles.size(); ++i)
-		_roles.append( roles.at(i).trimmed() );
+	for (int i = 0; i < roles.size(); ++i) {
+		QString r = roles.at(i).trimmed();
+		if (!r.isEmpty())
+			_roles.append(r);
+	}
 
 	if (d->actors.isEmpty())
 	{
 		detach();
-		d->actors.insert(actorID, _roles);
+		d->actors.append(MvdRoleItem(actorID, _roles));
 		return;
 	}
 
-	QHash<mvdid,QStringList>::Iterator itr = d->actors.find(actorID);
-	if (itr != d->actors.end())
-	{
-		if (roles.isEmpty())
+	
+	for (int i = 0; i < d->actors.size(); ++i) {
+		const MvdRoleItem& item = d->actors.at(i);
+		if (item.first == actorID)
 			return;
-
-		QStringList& dest = itr.value();
-		bool detached = false;
-
-		// append role(s)
-		for (int i = 0; i < roles.size(); ++i)
-		{
-			QString s = _roles.at(i);
-			if (dest.contains(s, Qt::CaseInsensitive))
-				continue;
-			if (!detached)
-				detach();
-			dest.append(s);
-		}
-
-		return;
 	}
 
 	detach();
-	d->actors.insert(actorID, _roles);
+	d->actors.append(MvdRoleItem(actorID, _roles));
 }
 
 /*!
@@ -863,7 +837,7 @@ void MvdMovie::addActor(mvdid actorID, const QStringList& roles)
 	Does not check for duplicate or invalid IDs.
 	Please ensure no empty strings are set as roles!
  */
-void MvdMovie::setActors(const QHash<mvdid,QStringList>& actors)
+void MvdMovie::setActors(const QList<MvdRoleItem>& actors)
 {
 	if (actors.isEmpty() && d->actors.isEmpty())
 		return;
@@ -877,7 +851,12 @@ void MvdMovie::setActors(const QHash<mvdid,QStringList>& actors)
  */
 QList<mvdid> MvdMovie::actorIDs() const
 {
-	return d->actors.keys();
+	QList<mvdid> ids;
+	for (int i = 0; i < d->actors.size(); ++i) {
+		const MvdRoleItem& item = d->actors.at(i);
+		ids.append(item.first);
+	}
+	return ids;
 }
 
 /*!
@@ -885,11 +864,16 @@ QList<mvdid> MvdMovie::actorIDs() const
  */
 QStringList MvdMovie::actorRoles(mvdid actorID) const
 {
-	if (actorID == 0)
+	if (actorID == MvdNull)
 		return QStringList();
 
-	QHash<mvdid,QStringList>::ConstIterator itr = d->actors.find(actorID);
-	return itr == d->actors.end() ? QStringList() : itr.value();
+	for (int i = 0; i < d->actors.size(); ++i) {
+		const MvdRoleItem& item = d->actors.at(i);
+		if (item.first == actorID)
+			return item.second;
+	}
+
+	return QStringList();
 }
 
 /*!
@@ -907,7 +891,7 @@ void MvdMovie::clearActors()
 /*!
 	Returns the actors for this movie.
  */
-QHash<mvdid,QStringList> MvdMovie::actors() const
+QList<MvdRoleItem> MvdMovie::actors() const
 {
 	return d->actors;
 }
@@ -1196,9 +1180,9 @@ QString MvdMovie::ratingTip(quint8 rating)
 QList<mvdid> MvdMovie::sharedItemIds() const
 {
 	QList<mvdid> ids;
-	ids << d->actors.keys();
+	ids << actorIDs();
 	ids << d->countries;
-	ids << d->crewMembers.keys();
+	ids << crewMemberIDs();
 	ids << d->directors;
 	ids << d->genres;
 	ids << d->languages;

@@ -91,7 +91,7 @@ private:
 	bool mModified;
 
 	void init();
-	void setPersonRoleData(const QHash<mvdid, QStringList>& d);
+	void setPersonRoleData(const QList<MvdRoleItem>& d);
 	void setSimpleData(const QList<mvdid>& d);
 
 	inline QMenu* createItemMenu(const QString& label, 

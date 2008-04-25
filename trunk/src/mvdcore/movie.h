@@ -29,6 +29,7 @@
 #include <QTime>
 
 class MvdMovie_P;
+typedef QPair<mvdid, QStringList> MvdRoleItem;
 
 class MVD_EXPORT MvdMovie
 {
@@ -115,19 +116,19 @@ public:
 	void setProducers(const QList<mvdid>& ids);
 	void clearProducers();
 	
-	QHash<mvdid,QStringList> crewMembers() const;
+	QList<MvdRoleItem> crewMembers() const;
 	QStringList crewMemberRoles(mvdid memberID) const;
 	QList<mvdid> crewMemberIDs() const;
 	QList<mvdid> crewMemberIDs(const QString& role) const;
 	void addCrewMember(mvdid id, const QStringList& roles = QStringList());
-	void setCrewMembers(const QHash<mvdid,QStringList>& members);
+	void setCrewMembers(const QList<MvdRoleItem>& members);
 	void clearCrewMembers();
 
-	QHash<mvdid,QStringList> actors() const;
+	QList<MvdRoleItem> actors() const;
 	QStringList actorRoles(mvdid actorID) const;
 	QList<mvdid> actorIDs() const;
 	void addActor(mvdid actorID, const QStringList& roles = QStringList());
-	void setActors(const QHash<mvdid,QStringList>& actors);
+	void setActors(const QList<MvdRoleItem>& actors);
 	void clearActors();
 	
 	QList<MvdUrl> urls() const;
