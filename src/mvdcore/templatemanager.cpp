@@ -288,15 +288,15 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		xml.append("\t</producers>\n");
 	}
 
-	QHash<mvdid,QStringList> idRoleList = movie.actors();
+	QList<MvdRoleItem> idRoleList = movie.actors();
 	if (!idRoleList.isEmpty())
 	{
 		xml.append("\t<cast>\n");
-		for (QHash<mvdid,QStringList>::ConstIterator it = idRoleList.constBegin();
-			it != idRoleList.constEnd(); ++it)
+		for (int i = 0; i < idRoleList.size(); ++i)
 		{
-			mvdid id = it.key();
-			QStringList roles = it.value();
+			const MvdRoleItem& item = idRoleList.at(i);
+			mvdid id = item.first;
+			QStringList roles = item.second;
 			const MvdSdItem& sd = collection.sharedData().item(id);
 			if (!sd.value.isEmpty())
 			{
@@ -321,11 +321,11 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 	if (!idRoleList.isEmpty())
 	{
 		xml.append("\t<crew>\n");
-		for (QHash<mvdid,QStringList>::ConstIterator it = idRoleList.constBegin();
-			it != idRoleList.constEnd(); ++it)
+		for (int i = 0; i < idRoleList.size(); ++i)
 		{
-			mvdid id = it.key();
-			QStringList roles = it.value();
+			const MvdRoleItem& item = idRoleList.at(i);
+			mvdid id = item.first;
+			QStringList roles = item.second;
 			const MvdSdItem& sd = collection.sharedData().item(id);
 			if (!sd.value.isEmpty())
 			{

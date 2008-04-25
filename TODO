@@ -16,7 +16,6 @@ MID-TERM:
 
 <blue_death>	Consider adding "open IMDb page" to context menu or toolbar
 <blue_death>	Distinguish between main actors and other actors (useful for the smart view and other views)
-<blue_death>	Actors should not be sorted but appended to a list whose order is preserved
 <blue_death>	Fix column width in the tree view and clean up the header and the context 
 		menu some how
 <blue_death>	Design and implement import plugin script options!!

@@ -81,6 +81,8 @@ MvdSDTreeWidget::MvdSDTreeWidget(Movida::DataRole ds, const MvdMovie& movie,
 //! \internal
 void MvdSDTreeWidget::init()
 {
+	setSortingEnabled(false);
+
 	mModified = false;
 	header()->setMovable(false);
 
@@ -184,7 +186,7 @@ void MvdSDTreeWidget::store(MvdMovie& m)
 	if (!mCollection)
 		return;
 
-	QHash<mvdid,QStringList> roleData;
+	QList<MvdRoleItem> roleData;
 	QList<mvdid> stringData;
 
 	for (int i = 0; i < topLevelItemCount(); ++i)
@@ -209,7 +211,7 @@ void MvdSDTreeWidget::store(MvdMovie& m)
 		if (id != MvdNull)
 		{
 			if (mDS == Movida::ActorRole || mDS == Movida::CrewMemberRole)
-				roleData.insert(id, splitString(item->text(MvdSDTW::RolesColumn)));
+				roleData.append(MvdRoleItem(id, splitString(item->text(MvdSDTW::RolesColumn))));
 			else stringData.append(id);
 		}
 	}
@@ -381,16 +383,16 @@ void MvdSDTreeWidget::updatedModifiedStatus()
 /*!
 	\internal Populates the view with person+role descriptions.
 */
-void MvdSDTreeWidget::setPersonRoleData(const QHash<mvdid, QStringList>& d)
+void MvdSDTreeWidget::setPersonRoleData(const QList<MvdRoleItem>& d)
 {
 	if (!mCollection)
 		return;
 
-	for (QHash<mvdid, QStringList>::ConstIterator it = d.constBegin();
-		it != d.constEnd(); ++it)
+	for (int i = 0; i < d.size(); ++i)
 	{
-		mvdid id = it.key();
-		QStringList roles = it.value();
+		const MvdRoleItem& ri = d.at(i);
+		mvdid id = ri.first;
+		QStringList roles = ri.second;
 
 		MvdSdItem pd = mCollection->sharedData().item(id);
 
@@ -615,8 +617,8 @@ void MvdSDTreeWidget::executeAction(ActionDescriptor ad, const QVariant& data)
 		Q_ASSERT(!ad.itemIds.isEmpty());
 		if (mDS == Movida::ActorRole || mDS == Movida::CrewMemberRole)
 		{
-			QHash<mvdid,QStringList> l;
-			l.insert(ad.itemIds.first(), QStringList());
+			QList<MvdRoleItem> l;
+			l.append(MvdRoleItem(ad.itemIds.first(), QStringList()));
 			setPersonRoleData(l);
 		}
 		else
@@ -683,7 +685,8 @@ MvdTreeWidgetItem* MvdSDTreeWidget::appendPlaceHolder()
 	if (mDS == Movida::NoRole)
 		return 0;
 
-	MvdTreeWidgetItem* item = new MvdTreeWidgetItem(this);
+	MvdTreeWidgetItem* item = new MvdTreeWidgetItem;
+	insertTopLevelItem(0, item);
 	item->setFlags(item->flags() | Qt::ItemIsEditable);
 	
 	QFont f = item->font(0);
