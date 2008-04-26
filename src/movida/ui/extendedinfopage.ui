@@ -5,27 +5,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
+    <width>396</width>
     <height>300</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" >
-   <property name="leftMargin" >
+  <layout class="QGridLayout" name="gridLayout" >
+   <property name="margin" >
     <number>0</number>
    </property>
-   <property name="topMargin" >
-    <number>0</number>
-   </property>
-   <property name="rightMargin" >
-    <number>0</number>
-   </property>
-   <property name="bottomMargin" >
-    <number>0</number>
-   </property>
-   <item row="0" column="0" >
+   <item row="0" column="0" colspan="2" >
     <widget class="QLabel" name="toggleLabel" >
      <property name="contextMenuPolicy" >
       <enum>Qt::NoContextMenu</enum>
@@ -41,13 +32,24 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" >
+   <item rowspan="4" row="1" column="0" >
     <widget class="QStackedWidget" name="stack" >
      <property name="currentIndex" >
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="page" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>367</width>
+        <height>258</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
        <item row="0" column="0" >
         <widget class="MvdSDTreeWidget" name="genres" >
          <column>
@@ -60,7 +62,18 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_2" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>367</width>
+        <height>258</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
        <item row="0" column="0" >
         <widget class="MvdSDTreeWidget" name="countries" >
          <column>
@@ -73,7 +86,18 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_3" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>367</width>
+        <height>258</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
        <item row="0" column="0" >
         <widget class="MvdSDTreeWidget" name="languages" >
          <column>
@@ -86,7 +110,18 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_4" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>367</width>
+        <height>258</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
        <item row="0" column="0" >
         <widget class="MvdSDTreeWidget" name="tags" >
          <column>
@@ -99,6 +134,58 @@
       </layout>
      </widget>
     </widget>
+   </item>
+   <item row="1" column="1" >
+    <spacer name="verticalSpacer_2" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>20</width>
+       <height>81</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="1" >
+    <widget class="QToolButton" name="moveUpBtn" >
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
+     <property name="toolTip" >
+      <string>Move the selected item up.</string>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" >
+    <widget class="QToolButton" name="moveDownBtn" >
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
+     <property name="toolTip" >
+      <string>Move the selected item down.</string>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" >
+    <spacer name="verticalSpacer" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>20</width>
+       <height>109</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

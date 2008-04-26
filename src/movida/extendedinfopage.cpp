@@ -46,21 +46,31 @@ MvdExtendedInfoPage::MvdExtendedInfoPage(MvdMovieCollection* c, MvdMovieEditor* 
 	genres->setDataSource(Movida::GenreRole);
 	genres->setMovieCollection(c);
 	connect(genres, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
+	connect(genres, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
 	countries->setDataSource(Movida::CountryRole);
 	countries->setMovieCollection(c);
 	connect(countries, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
+	connect(countries, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
 	languages->setDataSource(Movida::LanguageRole);
 	languages->setMovieCollection(c);
 	connect(languages, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
+	connect(languages, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
 	tags->setDataSource(Movida::TagRole);
 	tags->setMovieCollection(c);
 	connect(tags, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
+	connect(tags, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
 	linkActivated("movida://toggle-view/genres");
 	connect(toggleLabel, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)));
+	
+	moveUpBtn->setIcon(QIcon(":/images/arrow-up.svgz"));
+	moveDownBtn->setIcon(QIcon(":/images/arrow-down.svgz"));
+
+	connect(moveUpBtn, SIGNAL(clicked()), this, SLOT(moveUp()));
+	connect(moveDownBtn, SIGNAL(clicked()), this, SLOT(moveDown()));
 }
 
 /*!
@@ -156,4 +166,76 @@ void MvdExtendedInfoPage::updateModifiedStatus()
 		languages->isModified() || tags->isModified())
 		setModified(true);
 	else setModified(false);
+}
+
+void MvdExtendedInfoPage::moveUp()
+{
+	MvdSDTreeWidget* v = currentView();
+	if (!v) return;
+	QList<QTreeWidgetItem*> sel = v->selectedItems();
+	if (sel.size() != 1) return;
+	QTreeWidgetItem* item = sel.at(0);
+	if (v->isPlaceHolder(item)) return;
+	int idx = v->indexOfTopLevelItem(item);
+	if (idx <= 1)
+		return;
+	v->takeTopLevelItem(idx);
+	v->insertTopLevelItem(idx - 1, item);
+	v->setItemSelected(item, true);
+	v->setCurrentItem(item);
+}
+
+void MvdExtendedInfoPage::moveDown()
+{
+	MvdSDTreeWidget* v = currentView();
+	if (!v) return;
+	QList<QTreeWidgetItem*> sel = v->selectedItems();
+	if (sel.size() != 1) return;
+	QTreeWidgetItem* item = sel.at(0);
+	if (v->isPlaceHolder(item)) return;
+	int idx = v->indexOfTopLevelItem(item);
+	if (idx == 0 || idx == v->topLevelItemCount() - 1)
+		return;
+	v->takeTopLevelItem(idx);
+	v->insertTopLevelItem(idx + 1, item);
+	v->setItemSelected(item, true);
+	v->setCurrentItem(item);
+}
+
+void MvdExtendedInfoPage::itemSelectionChanged()
+{
+	MvdSDTreeWidget* v = currentView();
+	if (!v) return;
+	QList<QTreeWidgetItem*> sel = v->selectedItems();
+	bool up = true;
+	bool down = true;
+	if (sel.isEmpty()) {
+		up = down = false;
+	} else {
+		QTreeWidgetItem* item = sel.at(0);
+		if (v->isPlaceHolder(item)) {
+			up = down = false;
+		} else {
+			int idx = v->indexOfTopLevelItem(item);
+			up = idx > 1;
+			down = idx < v->topLevelItemCount() - 1;
+		}
+	}
+
+	moveUpBtn->setEnabled(up);
+	moveDownBtn->setEnabled(down);
+}
+
+MvdSDTreeWidget* MvdExtendedInfoPage::currentView() const
+{
+	MvdSDTreeWidget* v = 0;
+	QWidget* cw = stack->currentWidget();
+	QObjectList children = cw->children();
+	for (int i = 0; i < children.size() && !v; ++i) {
+		QObject* o = children.at(i);
+		if (o->isWidgetType()) {
+			v = qobject_cast<MvdSDTreeWidget*>(o);
+		}
+	}
+	return v;
 }

@@ -44,6 +44,12 @@ private slots:
 	void doLinkActivated(const QString& url);
 	void linkActivated(const QString& url);
 	void updateModifiedStatus();
+	void moveUp();
+	void moveDown();
+	void itemSelectionChanged();
+
+private:
+	MvdSDTreeWidget* currentView() const;
 };
 
 #endif // MVD_CREWPAGE_H

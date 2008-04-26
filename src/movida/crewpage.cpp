@@ -42,21 +42,31 @@ MvdCrewPage::MvdCrewPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 	cast->setMovieCollection(mCollection);
 	cast->setDataSource(Movida::ActorRole);
 	connect(cast, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
+	connect(cast, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
 	directors->setMovieCollection(mCollection);
 	directors->setDataSource(Movida::DirectorRole);
 	connect(directors, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
+	connect(directors, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
 	producers->setMovieCollection(mCollection);
 	producers->setDataSource(Movida::ProducerRole);
 	connect(producers, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
+	connect(producers, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
 	crew->setMovieCollection(mCollection);
 	crew->setDataSource(Movida::CrewMemberRole);
 	connect(crew, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
+	connect(crew, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
 	linkActivated("movida://toggle-view/cast");
 	connect(toggleLabel, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)));
+
+	moveUpBtn->setIcon(QIcon(":/images/arrow-up.svgz"));
+	moveDownBtn->setIcon(QIcon(":/images/arrow-down.svgz"));
+
+	connect(moveUpBtn, SIGNAL(clicked()), this, SLOT(moveUp()));
+	connect(moveDownBtn, SIGNAL(clicked()), this, SLOT(moveDown()));
 }
 
 /*!
@@ -152,4 +162,76 @@ void MvdCrewPage::updateModifiedStatus()
 		producers->isModified() || crew->isModified())
 		setModified(true);
 	else setModified(false);
+}
+
+void MvdCrewPage::moveUp()
+{
+	MvdSDTreeWidget* v = currentView();
+	if (!v) return;
+	QList<QTreeWidgetItem*> sel = v->selectedItems();
+	if (sel.size() != 1) return;
+	QTreeWidgetItem* item = sel.at(0);
+	if (v->isPlaceHolder(item)) return;
+	int idx = v->indexOfTopLevelItem(item);
+	if (idx <= 1)
+		return;
+	v->takeTopLevelItem(idx);
+	v->insertTopLevelItem(idx - 1, item);
+	v->setItemSelected(item, true);
+	v->setCurrentItem(item);
+}
+
+void MvdCrewPage::moveDown()
+{
+	MvdSDTreeWidget* v = currentView();
+	if (!v) return;
+	QList<QTreeWidgetItem*> sel = v->selectedItems();
+	if (sel.size() != 1) return;
+	QTreeWidgetItem* item = sel.at(0);
+	if (v->isPlaceHolder(item)) return;
+	int idx = v->indexOfTopLevelItem(item);
+	if (idx == 0 || idx == v->topLevelItemCount() - 1)
+		return;
+	v->takeTopLevelItem(idx);
+	v->insertTopLevelItem(idx + 1, item);
+	v->setItemSelected(item, true);
+	v->setCurrentItem(item);
+}
+
+void MvdCrewPage::itemSelectionChanged()
+{
+	MvdSDTreeWidget* v = currentView();
+	if (!v) return;
+	QList<QTreeWidgetItem*> sel = v->selectedItems();
+	bool up = true;
+	bool down = true;
+	if (sel.isEmpty()) {
+		up = down = false;
+	} else {
+		QTreeWidgetItem* item = sel.at(0);
+		if (v->isPlaceHolder(item)) {
+			up = down = false;
+		} else {
+			int idx = v->indexOfTopLevelItem(item);
+			up = idx > 1;
+			down = idx < v->topLevelItemCount() - 1;
+		}
+	}
+
+	moveUpBtn->setEnabled(up);
+	moveDownBtn->setEnabled(down);
+}
+
+MvdSDTreeWidget* MvdCrewPage::currentView() const
+{
+	MvdSDTreeWidget* v = 0;
+	QWidget* cw = stack->currentWidget();
+	QObjectList children = cw->children();
+	for (int i = 0; i < children.size() && !v; ++i) {
+		QObject* o = children.at(i);
+		if (o->isWidgetType()) {
+			v = qobject_cast<MvdSDTreeWidget*>(o);
+		}
+	}
+	return v;
 }
