@@ -77,6 +77,10 @@ public:
 
 	bool isModified() const;
 
+protected:
+	void startDrag(Qt::DropActions supportedActions);
+	void dragMoveEvent(QDragMoveEvent* event);
+
 signals:
 	void modifiedStatusChanged(bool modified);
 

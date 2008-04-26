@@ -82,6 +82,7 @@ MvdSDTreeWidget::MvdSDTreeWidget(Movida::DataRole ds, const MvdMovie& movie,
 void MvdSDTreeWidget::init()
 {
 	setSortingEnabled(false);
+	setDragDropMode(MvdSDTreeWidget::InternalMove);
 
 	mModified = false;
 	header()->setMovable(false);
@@ -327,9 +328,6 @@ void MvdSDTreeWidget::updatedModifiedStatus()
 		setModified(true);
 		return;
 	}
-
-	qSort(current);
-	qSort(original);
 
 	// implicit ASSERT(current.size() == original.size()) follows from above statement
 	for (int i = 0; i < current.size(); ++i)
@@ -774,6 +772,26 @@ void MvdSDTreeWidget::removePlaceHolder(QTreeWidgetItem* item)
 	item->setFont(1, qVariantValue<QFont>(f));
 }
 
+void MvdSDTreeWidget::startDrag(Qt::DropActions supportedActions)
+{
+	// Ensure no placeholder is involved in a drag
+	QTreeWidgetItem* item = topLevelItem(0);
+	if (item && isPlaceHolder(item)) {
+		setItemSelected(item, false);
+	}
+	MvdTreeWidget::startDrag(supportedActions);
+}
+
+void MvdSDTreeWidget::dragMoveEvent(QDragMoveEvent* event)
+{
+	MvdTreeWidget::dragMoveEvent(event); // This will update the drop indicator
+	if (dropIndicatorPosition() == MvdSDTreeWidget::OnItem) {
+		// Only accept real move operations and not replacing items!
+		event->setAccepted(false);
+		return;
+	}
+}
+
 
 /************************************************************************
 MvdSDDelegate
@@ -970,11 +988,21 @@ void MvdSDDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 	{
 		if (accept)
 		{
-			// Remove placeholder
+			// Remove placeholder property
 			t->removePlaceHolder(item);
 			if (index.column() != 0)
 				item->setText(0, tr("Undefined item", "New shared data item with no name"));
+			
+			// Move item to the bottom
+			QTreeWidget* tree = item->treeWidget();
+			tree->takeTopLevelItem(tree->indexOfTopLevelItem(item));
+			tree->insertTopLevelItem(tree->topLevelItemCount(), item);
+
+			// Add new placeholder
 			t->setCurrentItem(t->appendPlaceHolder());
+			
+			// Move focus to the view as it will have lost it
+			tree->setFocus(Qt::ActiveWindowFocusReason);
 		}
 		else
 		{
@@ -982,6 +1010,10 @@ void MvdSDDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 			t->closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
 			delete item;
 			t->setCurrentItem(t->appendPlaceHolder());
+
+			// Move focus to the view as it will have lost it
+			QTreeWidget* tree = item->treeWidget();
+			tree->setFocus(Qt::ActiveWindowFocusReason);
 		}
 	}
 }
