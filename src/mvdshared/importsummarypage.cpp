@@ -178,17 +178,15 @@ void MvdImportSummaryPage::visibleJobChanged()
 //! Shows the previous import job in the preview area.
 void MvdImportSummaryPage::previewPreviousJob()
 {
-	previousVisibleJob = currentVisibleJob;
-	--currentVisibleJob;
-	ui.jumpInput->setValue(currentVisibleJob + 1); // triggers visibleJobChanged();
+	// spinbox index starts from 1 and not from 0
+	ui.jumpInput->setValue(currentVisibleJob); // triggers visibleJobChanged();
 }
 
 //! Shows the next import job in the preview area.
 void MvdImportSummaryPage::previewNextJob()
 {
-	previousVisibleJob = currentVisibleJob;
-	++currentVisibleJob;
-	ui.jumpInput->setValue(currentVisibleJob + 1); // triggers visibleJobChanged();
+	// spinbox index starts from 1 and not from 0
+	ui.jumpInput->setValue(currentVisibleJob + 2); // triggers visibleJobChanged();
 }
 
 //! Emits the importedMoviesCountChanged() signals.
