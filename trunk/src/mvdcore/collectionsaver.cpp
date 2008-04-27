@@ -41,6 +41,11 @@
 
 using namespace Movida;
 
+namespace {
+	const int version = 1;
+}
+
+
 /*!
 	\class MvdCollectionSaver collectionsaver.h
 	\ingroup MvdCore
@@ -55,26 +60,37 @@ MvdCollectionSaver_P
 *************************************************************************/
 
 //! \internal
-namespace MvdCollectionSaver_P
+class MvdCollectionSaver::Private
 {
-	static inline QFile* createFile(const QString& name);
+public:
+	Private(MvdCollectionSaver* s) : q(s), progressReceiver(0) {}
 
-	static inline void writeDocumentRoot(MvdXmlWriter* xml, int itemCount);
+	inline QFile* createFile(const QString& name);
 
-	static inline void writePersonList(MvdXmlWriter* xml, const QList<MvdRoleItem>& data);
-	static inline void writePersonList(MvdXmlWriter* xml, const QList<mvdid>& data);
+	inline void writeDocumentRoot(MvdXmlWriter* xml, int itemCount);
 
-	static inline void writeUrlList(MvdXmlWriter* xml, const QList<MvdUrl>& data);
+	inline void writePersonList(MvdXmlWriter* xml, const QList<MvdRoleItem>& data);
+	inline void writePersonList(MvdXmlWriter* xml, const QList<mvdid>& data);
 
-	static inline void writeIdList(MvdXmlWriter* xml, const QList<mvdid>& data, const QString& tag);
-	static inline void writeStringList(MvdXmlWriter* xml, const QStringList& data, const QString& tag);
+	inline void writeUrlList(MvdXmlWriter* xml, const QList<MvdUrl>& data);
+
+	void writeIdList(MvdXmlWriter* xml, const QList<mvdid>& data, const QString& tag);
+	inline void writeStringList(MvdXmlWriter* xml, const QStringList& data, const QString& tag);
+
+	inline QString cleanHtml(QString s);
+
+	QObject* progressReceiver;
+	QString progressMember;
+
+private:
+	MvdCollectionSaver* q;
 };
 
 /*!
 	\internal Creates and opens a new file for writing.
 	Returns 0 in case of error.
 */
-QFile* MvdCollectionSaver_P::createFile(const QString& name)
+QFile* MvdCollectionSaver::Private::createFile(const QString& name)
 {
 	QFile* file = new QFile(name);
 	if (!file->open( QIODevice::WriteOnly ))
@@ -88,11 +104,11 @@ QFile* MvdCollectionSaver_P::createFile(const QString& name)
 }
 
 //! \internal
-void MvdCollectionSaver_P::writeDocumentRoot(MvdXmlWriter* xml, int itemCount)
+void MvdCollectionSaver::Private::writeDocumentRoot(MvdXmlWriter* xml, int itemCount)
 {
 	QHash<QString,QString> attrs;
 	attrs.insert("items", QString::number(itemCount));
-	attrs.insert("version", QString::number(MvdCollectionSaver::version));
+	attrs.insert("version", QString::number(::version));
 	attrs.insert("update", QDateTime::currentDateTime().toString(Qt::ISODate));
 	xml->writeOpenTag("movida-xml-doc", attrs);
 	attrs.clear();
@@ -110,7 +126,7 @@ void MvdCollectionSaver_P::writeDocumentRoot(MvdXmlWriter* xml, int itemCount)
 	</person>
 	\endverbatim
 */
-void MvdCollectionSaver_P::writePersonList(MvdXmlWriter* xml, 
+void MvdCollectionSaver::Private::writePersonList(MvdXmlWriter* xml, 
 	const QList<MvdRoleItem>& idRoleList)
 {
 	QHash<QString,QString> attrs;
@@ -152,7 +168,7 @@ void MvdCollectionSaver_P::writePersonList(MvdXmlWriter* xml,
 	<person id="23"/>
 	\endverbatim
 */
-void MvdCollectionSaver_P::writePersonList(MvdXmlWriter* xml,
+void MvdCollectionSaver::Private::writePersonList(MvdXmlWriter* xml,
 	const QList<mvdid>& list)
 {
 	QHash<QString,QString> attrs;
@@ -173,7 +189,7 @@ void MvdCollectionSaver_P::writePersonList(MvdXmlWriter* xml,
 	<$TAG id="34"/>
 	\endverbatim
 */
-void MvdCollectionSaver_P::writeIdList(MvdXmlWriter* xml, 
+void MvdCollectionSaver::Private::writeIdList(MvdXmlWriter* xml, 
 	const QList<mvdid>& list, const QString& tag)
 {
 	QHash<QString,QString> attrs;
@@ -194,7 +210,7 @@ void MvdCollectionSaver_P::writeIdList(MvdXmlWriter* xml,
 	<url description="lallalala" default="true">http://abc.com</url>
 	\endverbatim
 */
-void MvdCollectionSaver_P::writeUrlList(MvdXmlWriter* xml,
+void MvdCollectionSaver::Private::writeUrlList(MvdXmlWriter* xml,
 	const QList<MvdUrl>& list)
 {
 	QHash<QString,QString> attrs;
@@ -217,11 +233,28 @@ void MvdCollectionSaver_P::writeUrlList(MvdXmlWriter* xml,
 	<$TAG>blah blah blah</$TAG>
 	\endverbatim
 */
-void MvdCollectionSaver_P::writeStringList(MvdXmlWriter* xml,
+void MvdCollectionSaver::Private::writeStringList(MvdXmlWriter* xml,
 	const QStringList& data, const QString& tag)
 {
 	for (int i = 0; i < data.size(); ++i)
 		xml->writeTaggedString(tag, data.at(i));
+}
+
+/*!
+	\internal
+	Strips <html> and other tags from a string to allow embedding 
+	in another html document.
+*/
+QString MvdCollectionSaver::Private::cleanHtml(QString s)
+{
+	QRegExp rx("<\\s*head\\s*.*>.*</head\\s*>");
+	rx.setMinimal(true);
+	s.remove(rx);
+	rx.setPattern("<\\s*(:?html|body)\\s*.*>");
+	s.remove(rx);
+	rx.setPattern("</(:?html|body)\\s*>");
+	s.remove(rx);
+	return s;
 }
 
 
@@ -229,11 +262,21 @@ void MvdCollectionSaver_P::writeStringList(MvdXmlWriter* xml,
 MvdCollectionSaver
 *************************************************************************/
 
+MvdCollectionSaver::MvdCollectionSaver(QObject* parent)
+: QObject(parent), d(new Private(this))
+{
+}
+
+MvdCollectionSaver::~MvdCollectionSaver()
+{
+	delete d;
+}
+
 /*!
 	Attempts to write the collection to file using the given filename or 
 	the collection's filename (if \p mmcFilename is empty).
 */
-MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* collection, QString mmcFilename)
+MvdCollectionSaver::StatusCode MvdCollectionSaver::save(MvdMovieCollection* collection, QString mmcFilename)
 {
 	if (!collection)
 		return InvalidCollectionError;
@@ -280,7 +323,7 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 
 	currFile = mmcBase + "metadata.xml";
 
-	file = MvdCollectionSaver_P::createFile(currFile);
+	file = d->createFile(currFile);
 	if (!file)
 	{
 		paths().removeDirectoryTree(mmcBase, "persistent");
@@ -291,7 +334,7 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 	xml->setSkipEmptyAttributes(true);
 	xml->setSkipEmptyTags(true);
 	
-	MvdCollectionSaver_P::writeDocumentRoot(xml, 1);
+	d->writeDocumentRoot(xml, 1);
 
 	xml->writeOpenTag("info");
 
@@ -313,7 +356,7 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 
 	currFile = mmcBase + "shared.xml";
 
-	file = MvdCollectionSaver_P::createFile(currFile);
+	file = d->createFile(currFile);
 	if (file == 0)
 	{
 		paths().removeDirectoryTree(mmcBase, "persistent");
@@ -324,7 +367,7 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 	xml->setSkipEmptyAttributes(true);
 	xml->setSkipEmptyTags(true);
 	
-	MvdCollectionSaver_P::writeDocumentRoot(xml, collection->sharedData().countItems());
+	d->writeDocumentRoot(xml, collection->sharedData().countItems());
 
 	MvdSharedData::ItemList sharedData = collection->sharedData().items(Movida::NoRole);
 	if (!sharedData.isEmpty())
@@ -374,7 +417,7 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 
 	currFile = mmcBase + "collection.xml";
 
-	file = MvdCollectionSaver_P::createFile(currFile);
+	file = d->createFile(currFile);
 	if (file == 0)
 	{
 		paths().removeDirectoryTree(mmcBase, "persistent");
@@ -385,7 +428,7 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 	xml->setSkipEmptyAttributes(true);
 	xml->setSkipEmptyTags(true);
 	
-	MvdCollectionSaver_P::writeDocumentRoot(xml, collection->count());
+	d->writeDocumentRoot(xml, collection->count());
 
 	MvdMovieCollection::MovieList movies = collection->movies();
 
@@ -414,8 +457,8 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 			xml->writeTaggedString("release-year", movie.releaseYear());
 			xml->writeTaggedString("rating", QString::number(movie.rating()));
 			xml->writeTaggedString("imdb-id", movie.imdbId());
-			xml->writeTaggedString("notes", movie.notes());
-			xml->writeTaggedString("plot", movie.plot());
+			xml->writeTaggedString("notes", d->cleanHtml(movie.notes()));
+			xml->writeTaggedString("plot", d->cleanHtml(movie.plot()));
 			xml->writeTaggedString("edition", movie.edition());
 			xml->writeTaggedString("storage-id", movie.storageId());
 			if (movie.hasSpecialTagEnabled(MvdMovie::SeenTag))
@@ -428,49 +471,49 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 			xml->writeOpenTag("cast");
 			QList<MvdRoleItem> persons = movie.actors();
 			if (!persons.isEmpty())
-				MvdCollectionSaver_P::writePersonList(xml, persons);
+				d->writePersonList(xml, persons);
 			xml->writeCloseTag("cast");
 
 			xml->writeOpenTag("crew");
 			persons = movie.crewMembers();
 			if (!persons.isEmpty())
-				MvdCollectionSaver_P::writePersonList(xml, persons);
+				d->writePersonList(xml, persons);
 			xml->writeCloseTag("crew");
 
 			xml->writeOpenTag("directors");
 			QList<mvdid> ids = movie.directors();
 			if (!ids.isEmpty())
-				MvdCollectionSaver_P::writePersonList(xml, ids);
+				d->writePersonList(xml, ids);
 			xml->writeCloseTag("directors");
 
 			xml->writeOpenTag("producers");
 			ids = movie.producers();
 			if (!ids.isEmpty())
-				MvdCollectionSaver_P::writePersonList(xml, ids);
+				d->writePersonList(xml, ids);
 			xml->writeCloseTag("producers");
 
 			xml->writeOpenTag("genres");
 			ids = movie.genres();
 			if (!ids.isEmpty())
-				MvdCollectionSaver_P::writeIdList(xml, ids, "genre");
+				d->writeIdList(xml, ids, "genre");
 			xml->writeCloseTag("genres");
 
 			xml->writeOpenTag("countries");
 			ids = movie.countries();
 			if (!ids.isEmpty())
-				MvdCollectionSaver_P::writeIdList(xml, ids, "country");
+				d->writeIdList(xml, ids, "country");
 			xml->writeCloseTag("countries");
 
 			xml->writeOpenTag("languages");
 			ids = movie.languages();
 			if (!ids.isEmpty())
-				MvdCollectionSaver_P::writeIdList(xml, ids, "language");
+				d->writeIdList(xml, ids, "language");
 			xml->writeCloseTag("languages");
 
 			xml->writeOpenTag("tags");
 			ids = movie.tags();
 			if (!ids.isEmpty())
-				MvdCollectionSaver_P::writeIdList(xml, ids, "tag");
+				d->writeIdList(xml, ids, "tag");
 			xml->writeCloseTag("tags");
 
 			MvdMovie::ColorMode cmode = movie.colorMode();
@@ -482,14 +525,14 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 			if (!urls.isEmpty())
 			{
 				xml->writeOpenTag("urls");
-				MvdCollectionSaver_P::writeUrlList(xml, urls);
+				d->writeUrlList(xml, urls);
 				xml->writeCloseTag("urls");	
 			}
 
 			QStringList list = movie.specialContents();
 			xml->writeOpenTag("special-contents");
 			if (!list.isEmpty())
-				MvdCollectionSaver_P::writeStringList(xml, list, "item");
+				d->writeStringList(xml, list, "item");
 			xml->writeCloseTag("special-contents");
 
 			//! \todo regenerate name if there are possible name clashes (iow. poster filename = HASH.PROG_ID but no other filed named HASH exists any more)
@@ -545,4 +588,14 @@ MvdCollectionSaver::ErrorCode MvdCollectionSaver::save(MvdMovieCollection* colle
 	}
 
 	return NoError;
+}
+
+void MvdCollectionSaver::setProgressHandler(QObject* receiver, const char* member)
+{
+	if (!receiver || !member)
+		return;
+
+	
+	d->progressMember = QString::fromAscii(member);
+	d->progressReceiver = d->progressMember.isEmpty() ? 0 : receiver;
 }

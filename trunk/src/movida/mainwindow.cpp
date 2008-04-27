@@ -582,7 +582,8 @@ bool MvdMainWindow::saveCollectionDlg()
 			Movida::settings().setValue("movida/directories/last-collection", filename.left(sep));
 	}
 
-	MvdCollectionSaver::ErrorCode res = MvdCollectionSaver::save(mCollection, filename);
+	MvdCollectionSaver saver(this);
+	MvdCollectionSaver::StatusCode res = saver.save(mCollection, filename);
 
 	if (res != MvdCollectionSaver::NoError)
 	{
@@ -604,7 +605,8 @@ bool MvdMainWindow::saveCollection()
 	Q_ASSERT(mCollection);
 	Q_ASSERT(!mCollection->isEmpty());
 
-	MvdCollectionSaver::ErrorCode res = MvdCollectionSaver::save(mCollection);
+	MvdCollectionSaver saver(this);
+	MvdCollectionSaver::StatusCode res = saver.save(mCollection);
 	if (res != MvdCollectionSaver::NoError)
 	{
 		QMessageBox::warning(this, MVD_CAPTION, tr("Failed to save the collection."));

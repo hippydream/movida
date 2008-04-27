@@ -84,8 +84,9 @@ public:
 	QString email;
 	QString website;
 	QString notes;
-	QString dataPath;
-	QString tempPath;
+
+	mutable QString dataPath;
+	mutable QString tempPath;
 
 	// having titles and years stored in another vector too introduces some
 	// redundancy but it makes the search for potential duplicate titles 
@@ -254,7 +255,7 @@ void MvdMovieCollection::setMetaData(MetaDataType ci, const QString& val)
 	Generates a new data path if the data path is requested but none has been
 	set yet.
 */
-QString MvdMovieCollection::metaData(MetaDataType ci)
+QString MvdMovieCollection::metaData(MetaDataType ci) const
 {
 	switch (ci)
 	{
@@ -269,7 +270,8 @@ QString MvdMovieCollection::metaData(MetaDataType ci)
 	case DataPathInfo:
 		if (d->dataPath.isEmpty())
 		{
-			detach();
+			MvdMovieCollection* that = const_cast<MvdMovieCollection*>(this);
+			that->detach();
 			d->dataPath = Movida::paths().generateTempDir().append("/persistent");
 			QDir dir;
 			dir.mkpath(d->dataPath + "/images/");
@@ -278,7 +280,8 @@ QString MvdMovieCollection::metaData(MetaDataType ci)
 	case TempPathInfo:
 		if (d->tempPath.isEmpty())
 		{
-			detach();
+			MvdMovieCollection* that = const_cast<MvdMovieCollection*>(this);
+			that->detach();
 			d->tempPath = Movida::paths().generateTempDir();
 		}
 		return d->tempPath;

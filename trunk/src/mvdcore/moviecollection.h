@@ -58,7 +58,7 @@ public:
 	MvdSharedData& sharedData() const;
 
 	void setMetaData(MetaDataType ci, const QString& val);
-	QString metaData(MetaDataType ci);
+	QString metaData(MetaDataType ci) const;
 
 	int count() const;
 	bool isEmpty() const;
