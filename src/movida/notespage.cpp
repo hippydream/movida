@@ -41,8 +41,8 @@ MvdNotesPage::MvdNotesPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 	linkActivated("movida://toggle-view/plot");
 	connect(toggleLabel, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)));
 
-	connect(plot->editor(), SIGNAL(textChanged()), this, SLOT(updateModifiedStatus()));
-	connect(notes->editor(), SIGNAL(textChanged()), this, SLOT(updateModifiedStatus()));
+	connect(plot, SIGNAL(textChanged()), this, SLOT(updateModifiedStatus()));
+	connect(notes, SIGNAL(textChanged()), this, SLOT(updateModifiedStatus()));
 }
 
 /*!
@@ -63,16 +63,16 @@ QIcon MvdNotesPage::icon()
 
 void MvdNotesPage::setMovieImpl(const MvdMovie& movie)
 {
-	plot->editor()->setHtml(movie.plot());
-	mDefaultPlot = plot->editor()->toHtml();
-	notes->editor()->setHtml(movie.notes());
-	mDefaultNotes = notes->editor()->toHtml();
+	plot->setPlainText(movie.plot());
+	mDefaultPlot = plot->toPlainText();
+	notes->setPlainText(movie.notes());
+	mDefaultNotes = notes->toPlainText();
 }
 
 bool MvdNotesPage::store(MvdMovie& movie)
 {
-	movie.setNotes(notes->editor()->toHtml());
-	movie.setPlot(plot->editor()->toHtml());
+	movie.setNotes(notes->toPlainText());
+	movie.setPlot(plot->toPlainText());
 
 	return true;
 }
@@ -112,8 +112,8 @@ void MvdNotesPage::doLinkActivated(const QString& url)
 //!
 void MvdNotesPage::updateModifiedStatus()
 {
-	if (notes->editor()->toHtml().trimmed() != mDefaultNotes
-		|| plot->editor()->toHtml().trimmed() != mDefaultPlot)
+	if (notes->toPlainText().trimmed() != mDefaultNotes
+		|| plot->toPlainText().trimmed() != mDefaultPlot)
 		setModified(true);
 	else setModified(false);
 }
