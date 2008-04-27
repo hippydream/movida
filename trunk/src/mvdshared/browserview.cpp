@@ -91,6 +91,11 @@ MvdBrowserView::MvdBrowserView(QWidget* parent)
 	d->forwardAction->setIcon(QIcon(":/images/arrow-right.svgz"));
 	d->ui.forwardButton->setDefaultAction(d->forwardAction);
 
+	QWebSettings* ws = d->ui.webView->settings();
+	ws->setAttribute(QWebSettings::JavaEnabled, false);
+	ws->setAttribute(QWebSettings::PluginsEnabled, false);
+	ws->setAttribute(QWebSettings::JavascriptEnabled, false);
+	ws->setAttribute(QWebSettings::DeveloperExtrasEnabled, false);
 	// webView->installEventFilter(this);
 }
 
