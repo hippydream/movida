@@ -28,6 +28,10 @@ body {
 	min-height: 100px;
 }
 
+a, a:hover, a:visited {
+	color: #FFAA00;
+}
+
 h1, h2, h3, h4, h5, h6 {
 	margin: 0 0 10px 0;
 	padding: 0;
@@ -326,6 +330,7 @@ table.details tr.odd td {
 				</xsl:if>
 				
 				<xsl:if test="cast">
+					<a name="cast"></a>
 					<h3>Cast</h3>
 					<table class="details" cellspacing="0" border="0">
 						<col class="actor"></col><col class="role"></col>
