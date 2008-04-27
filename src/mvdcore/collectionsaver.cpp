@@ -77,8 +77,6 @@ public:
 	void writeIdList(MvdXmlWriter* xml, const QList<mvdid>& data, const QString& tag);
 	inline void writeStringList(MvdXmlWriter* xml, const QStringList& data, const QString& tag);
 
-	inline QString cleanHtml(QString s);
-
 	QObject* progressReceiver;
 	QString progressMember;
 
@@ -238,23 +236,6 @@ void MvdCollectionSaver::Private::writeStringList(MvdXmlWriter* xml,
 {
 	for (int i = 0; i < data.size(); ++i)
 		xml->writeTaggedString(tag, data.at(i));
-}
-
-/*!
-	\internal
-	Strips <html> and other tags from a string to allow embedding 
-	in another html document.
-*/
-QString MvdCollectionSaver::Private::cleanHtml(QString s)
-{
-	QRegExp rx("<\\s*head\\s*.*>.*</head\\s*>");
-	rx.setMinimal(true);
-	s.remove(rx);
-	rx.setPattern("<\\s*(:?html|body)\\s*.*>");
-	s.remove(rx);
-	rx.setPattern("</(:?html|body)\\s*>");
-	s.remove(rx);
-	return s;
 }
 
 
@@ -457,8 +438,8 @@ MvdCollectionSaver::StatusCode MvdCollectionSaver::save(MvdMovieCollection* coll
 			xml->writeTaggedString("release-year", movie.releaseYear());
 			xml->writeTaggedString("rating", QString::number(movie.rating()));
 			xml->writeTaggedString("imdb-id", movie.imdbId());
-			xml->writeTaggedString("notes", d->cleanHtml(movie.notes()));
-			xml->writeTaggedString("plot", d->cleanHtml(movie.plot()));
+			xml->writeCDataString("notes", movie.notes());
+			xml->writeCDataString("plot", movie.plot());
 			xml->writeTaggedString("edition", movie.edition());
 			xml->writeTaggedString("storage-id", movie.storageId());
 			if (movie.hasSpecialTagEnabled(MvdMovie::SeenTag))

@@ -48,6 +48,7 @@ public:
 	~MvdXmlWriter_P();
 
 	QString escape(const QString& str) const;
+	QString cdata(const QString& str) const;
 	QString openTag(const QString& tag, const QHash<QString,QString>& attributes);
 
 	QTextStream* stream;
@@ -130,6 +131,15 @@ QString MvdXmlWriter_P::escape(const QString& string) const
 	s.replace("\"", "&quot;");
 	s.replace("\'", "&apos;");
 	return s;
+}
+
+//! \internal
+QString MvdXmlWriter_P::cdata(const QString& string) const
+{
+	QString s = string;
+	s.replace("<![CDATA[", "]]>&lt;![CDATA[<![CDATA[");
+	s.replace("]]>", "]]>]]&gt;<![CDATA[");
+	return s.prepend("<![CDATA[").append("]]>");
 }
 
 //! \internal
@@ -330,6 +340,42 @@ void MvdXmlWriter::writeTaggedString(const QString& name, const QString& string,
 			(*d->stream) << d->indentString;
 
 	(*d->stream) << d->openTag(name, attrs) << d->escape(string) << "</" <<
+		d->escape(name) << ">";
+
+	if (d->autoLineBreak)
+		(*d->stream) << d->lineBreak;
+}
+
+//! Convenience method.
+void MvdXmlWriter::writeCDataString(const QString& name, const QString& string,
+	const Attribute& a1, const Attribute& a2, const Attribute& a3)
+{
+	AttributeMap a;
+	if (!a1.first.isEmpty())
+		a.insert(a1.first, a1.second);
+	if (!a2.first.isEmpty())
+		a.insert(a2.first, a2.second);
+	if (!a3.first.isEmpty())
+		a.insert(a3.first, a3.second);
+	writeCDataString(name, string, a);
+}
+
+/*!
+	Writes an opening tag, a string inside a CDATA section and a closing tag.
+	Example:
+	\verbatim <itemName attr1="value1"><![CDATA[Some funny text]]></itemName> \endverbatim
+*/
+void MvdXmlWriter::writeCDataString(const QString& name, const QString& string,
+	const AttributeMap& attrs)
+{
+	if (d->skipEmptyTags && string.isEmpty())
+		return;
+
+	if (!d->pauseIndent)
+		for (int i=0; i<d->indentLevel; ++i)
+			(*d->stream) << d->indentString;
+
+	(*d->stream) << d->openTag(name, attrs) << d->cdata(string) << "</" <<
 		d->escape(name) << ">";
 
 	if (d->autoLineBreak)
