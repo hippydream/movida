@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/Templates" >
-	<file alias="BrowserView/Default/Movie.xsl">templates/BrowserView/Default/Movie.xsl</file>
+			<file alias="BrowserView/Default/Movie.xsl">templates/BrowserView/Default/Movie.xsl</file>
     </qresource>
 </RCC>

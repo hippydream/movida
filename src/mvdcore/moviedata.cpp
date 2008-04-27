@@ -199,14 +199,26 @@ void MvdMovieData_P::writeToXml(MvdXmlWriter* writer, const MvdMovieData& movie)
 	if (!movie.isValid())
 		return;
 
+	writer->setSkipEmptyTags(true);
 	writer->writeOpenTag("movie");
 
-	writer->writeTaggedString("title", movie.title);
-	writer->writeTaggedString("original-title", movie.originalTitle);
+	if (!movie.title.isEmpty()) {
+		writer->writeTaggedString("title", movie.title);
+		if (!movie.originalTitle.isEmpty())
+			writer->writeTaggedString("original-title", movie.originalTitle);
+	} else {
+		writer->writeTaggedString("title", movie.originalTitle);
+	}
+
 	writer->writeTaggedString("release-year", movie.releaseYear);
 	writer->writeTaggedString("production-year", movie.productionYear);
 	writer->writeTaggedString("edition", movie.edition);
-	writer->writeTaggedString("imdb-id", movie.imdbId);
+	
+	if (!movie.imdbId.isEmpty()) {
+		writer->writeTaggedString("imdb-id", movie.imdbId);
+		writer->writeTaggedString("imdb-url", MvdCore::parameter("mvdcore/imdb-movie-url").toString().arg(movie.imdbId));
+	}
+
 	writer->writeTaggedString("plot", QString(movie.plot).prepend("<![CDATA[").append("]]>"));
 	writer->writeTaggedString("notes", QString(movie.notes).prepend("<![CDATA[").append("]]>"));
 	writer->writeTaggedString("storage-id", movie.storageId);
@@ -214,100 +226,127 @@ void MvdMovieData_P::writeToXml(MvdXmlWriter* writer, const MvdMovieData& movie)
 		MvdXmlWriter::Attribute("maximum", MvdCore::parameter("mvdcore/max-rating").toString()));
 	writer->writeTaggedString("running-time", QString::number(movie.runningTime));
 	writer->writeTaggedString("color-mode", MvdMovie::colorModeToString(movie.colorMode));
+	
 	if (movie.specialTags & MvdMovie::SeenTag)
 		writer->writeTaggedString("seen", "true");
 	if (movie.specialTags & MvdMovie::LoanedTag)
 		writer->writeTaggedString("loaned", "true");
 	if (movie.specialTags & MvdMovie::SpecialTag)
 		writer->writeTaggedString("special", "true");
-	writer->writeOpenTag("languages");
-	for (int i = 0; i < movie.languages.size(); ++i)
-		writer->writeTaggedString("language", movie.languages.at(i));
-	writer->writeCloseTag("languages");
-	writer->writeOpenTag("countries");
-	for (int i = 0; i < movie.countries.size(); ++i)
-		writer->writeTaggedString("country", movie.countries.at(i));
-	writer->writeCloseTag("countries");
-	writer->writeOpenTag("tags");
-	for (int i = 0; i < movie.tags.size(); ++i)
-		writer->writeTaggedString("tag", movie.tags.at(i));
-	writer->writeCloseTag("tags");
-	writer->writeOpenTag("genres");
-	for (int i = 0; i < movie.genres.size(); ++i)
-		writer->writeTaggedString("genre", movie.genres.at(i));
-	writer->writeCloseTag("genres");
 
-	writer->writeOpenTag("directors");
-	for (int i = 0; i < movie.directors.size(); ++i) {
-		const MvdMovieData::PersonData& pd = movie.directors.at(i);
-		writer->writeOpenTag("person");
-		writer->writeTaggedString("name", pd.name);
-		writer->writeTaggedString("imdb-id", pd.imdbId);
-		writer->writeCloseTag("person");
+	if (!movie.languages.isEmpty()) {
+		writer->writeOpenTag("languages");
+		for (int i = 0; i < movie.languages.size(); ++i)
+			writer->writeTaggedString("language", movie.languages.at(i));
+		writer->writeCloseTag("languages");
 	}
-	writer->writeCloseTag("directors");
 
-	writer->writeOpenTag("producers");
-	for (int i = 0; i < movie.producers.size(); ++i) {
-		const MvdMovieData::PersonData& pd = movie.producers.at(i);
-		writer->writeOpenTag("person");
-		writer->writeTaggedString("name", pd.name);
-		writer->writeTaggedString("imdb-id", pd.imdbId);
-		writer->writeCloseTag("person");
+	if (!movie.countries.isEmpty()) {
+		writer->writeOpenTag("countries");
+		for (int i = 0; i < movie.countries.size(); ++i)
+			writer->writeTaggedString("country", movie.countries.at(i));
+		writer->writeCloseTag("countries");
 	}
-	writer->writeCloseTag("producers");
+	
+	if (!movie.tags.isEmpty()) {
+		writer->writeOpenTag("tags");
+		for (int i = 0; i < movie.tags.size(); ++i)
+			writer->writeTaggedString("tag", movie.tags.at(i));
+		writer->writeCloseTag("tags");
+	}
 
-	writer->writeOpenTag("cast");
-	for (int i = 0; i < movie.actors.size(); ++i) {
-		const MvdMovieData::PersonData& pd = movie.actors.at(i);
-		writer->writeOpenTag("person");
-		writer->writeTaggedString("name", pd.name);
-		writer->writeTaggedString("imdb-id", pd.imdbId);
-		if (!pd.roles.isEmpty()) {
-			writer->writeOpenTag("roles");
-			for (int j = 0; j < pd.roles.size(); ++j) {
-				writer->writeTaggedString("role", pd.roles.at(j));
-			}
-			writer->writeCloseTag("roles");
+	if (!movie.genres.isEmpty()) {
+		writer->writeOpenTag("genres");
+		for (int i = 0; i < movie.genres.size(); ++i)
+			writer->writeTaggedString("genre", movie.genres.at(i));
+		writer->writeCloseTag("genres");
+	}
+
+	if (!movie.directors.isEmpty()) {
+		writer->writeOpenTag("directors");
+		for (int i = 0; i < movie.directors.size(); ++i) {
+			const MvdMovieData::PersonData& pd = movie.directors.at(i);
+			writer->writeOpenTag("person");
+			writer->writeTaggedString("name", pd.name);
+			writer->writeTaggedString("imdb-id", pd.imdbId);
+			writer->writeCloseTag("person");
 		}
-		writer->writeCloseTag("person");
+		writer->writeCloseTag("directors");
 	}
-	writer->writeCloseTag("cast");
 
-	writer->writeOpenTag("crew");
-	for (int i = 0; i < movie.crewMembers.size(); ++i) {
-		const MvdMovieData::PersonData& pd = movie.crewMembers.at(i);
-		writer->writeOpenTag("person");
-		writer->writeTaggedString("name", pd.name);
-		writer->writeTaggedString("imdb-id", pd.imdbId);
-		if (!pd.roles.isEmpty()) {
-			writer->writeOpenTag("roles");
-			for (int j = 0; j < pd.roles.size(); ++j) {
-				writer->writeTaggedString("role", pd.roles.at(j));
-			}
-			writer->writeCloseTag("roles");
+	if (!movie.producers.isEmpty()) {
+		writer->writeOpenTag("producers");
+		for (int i = 0; i < movie.producers.size(); ++i) {
+			const MvdMovieData::PersonData& pd = movie.producers.at(i);
+			writer->writeOpenTag("person");
+			writer->writeTaggedString("name", pd.name);
+			writer->writeTaggedString("imdb-id", pd.imdbId);
+			writer->writeCloseTag("person");
 		}
-		writer->writeCloseTag("person");
+		writer->writeCloseTag("producers");
 	}
-	writer->writeCloseTag("crew");
 
-	writer->writeOpenTag("urls");
-	for (int i = 0; i < movie.urls.size(); ++i) {
-		const MvdMovieData::UrlData& ud = movie.urls.at(i);
-			if (!ud.description.isEmpty()) {
-				if (ud.isDefault)
-					writer->writeTaggedString("url", ud.url, MvdXmlWriter::Attribute("description", ud.description),
-						MvdXmlWriter::Attribute("default", "true"));
-				else writer->writeTaggedString("url", ud.url, MvdXmlWriter::Attribute("description", ud.description));
-			} else writer->writeTaggedString("url", ud.url);
+	if (!movie.actors.isEmpty()) {
+		writer->writeOpenTag("cast");
+		for (int i = 0; i < movie.actors.size(); ++i) {
+			const MvdMovieData::PersonData& pd = movie.actors.at(i);
+			writer->writeOpenTag("person");
+			writer->writeTaggedString("name", pd.name);
+			writer->writeTaggedString("imdb-id", pd.imdbId);
+			if (!pd.roles.isEmpty()) {
+				writer->writeOpenTag("roles");
+				for (int j = 0; j < pd.roles.size(); ++j) {
+					writer->writeTaggedString("role", pd.roles.at(j));
+				}
+				writer->writeCloseTag("roles");
+			}
+			writer->writeCloseTag("person");
+		}
+		writer->writeCloseTag("cast");
 	}
-	writer->writeCloseTag("urls");
 
-	writer->writeOpenTag("special-contents");
-	for (int i = 0; i < movie.specialContents.size(); ++i) {
-			writer->writeTaggedString("item", movie.specialContents.at(i));
+	if (!movie.crewMembers.isEmpty()) {
+		writer->writeOpenTag("crew");
+		for (int i = 0; i < movie.crewMembers.size(); ++i) {
+			const MvdMovieData::PersonData& pd = movie.crewMembers.at(i);
+			writer->writeOpenTag("person");
+			writer->writeTaggedString("name", pd.name);
+			writer->writeTaggedString("imdb-id", pd.imdbId);
+			if (!pd.roles.isEmpty()) {
+				writer->writeOpenTag("roles");
+				for (int j = 0; j < pd.roles.size(); ++j) {
+					writer->writeTaggedString("role", pd.roles.at(j));
+				}
+				writer->writeCloseTag("roles");
+			}
+			writer->writeCloseTag("person");
+		}
+		writer->writeCloseTag("crew");
 	}
-	writer->writeCloseTag("special-contents");
+
+	if (!movie.urls.isEmpty()) {
+		writer->writeOpenTag("urls");
+		for (int i = 0; i < movie.urls.size(); ++i) {
+			const MvdMovieData::UrlData& ud = movie.urls.at(i);
+				if (!ud.description.isEmpty()) {
+					if (ud.isDefault)
+						writer->writeTaggedString("url", ud.url, MvdXmlWriter::Attribute("description", ud.description),
+							MvdXmlWriter::Attribute("default", "true"));
+					else writer->writeTaggedString("url", ud.url, MvdXmlWriter::Attribute("description", ud.description));
+				} else writer->writeTaggedString("url", ud.url);
+		}
+		writer->writeCloseTag("urls");
+	}
+
+	if (!movie.specialContents.isEmpty()) {
+		writer->writeOpenTag("special-contents");
+		for (int i = 0; i < movie.specialContents.size(); ++i) {
+				writer->writeTaggedString("item", movie.specialContents.at(i));
+		}
+		writer->writeCloseTag("special-contents");
+	}
+
+	writer->writeTaggedString("poster", movie.posterPath);
 
 	writer->writeCloseTag("movie");
 }

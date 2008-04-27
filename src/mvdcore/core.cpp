@@ -65,6 +65,7 @@ public:
 		parameters.insert("mvdcore/imdb-id-length", 7);
 		parameters.insert("mvdcore/imdb-id-regexp", "[0-9]{7}");
 		parameters.insert("mvdcore/imdb-id-mask", "9999999;0");
+		parameters.insert("mvdcore/imdb-movie-url", "http://akas.imdb.com/title/tt%1");
 
 		// The Oberammergau Passion Play of 1898 was the first commercial
 		// motion picture ever produced. :)

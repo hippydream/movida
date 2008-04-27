@@ -57,7 +57,7 @@ public:
 	};
 
 	MvdCollectionLoader(QObject* parent = 0);
-	~MvdCollectionLoader();
+	virtual ~MvdCollectionLoader();
 
 	void setProgressHandler(QObject* receiver, const char* member);
 	StatusCode load(MvdMovieCollection* collection, QString file = QString());

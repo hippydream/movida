@@ -25,10 +25,12 @@
 #include "moviecollection.h"
 #include <QObject>
 
-class MVD_EXPORT MvdCollectionSaver
+class MVD_EXPORT MvdCollectionSaver : QObject
 {
+	Q_OBJECT
+
 public:
-	enum ErrorCode
+	enum StatusCode
 	{
 		NoError = 0,
 		InvalidCollectionError,
@@ -39,9 +41,15 @@ public:
 		UnknownError
 	};
 
-	static const quint8 version = 1;
+	MvdCollectionSaver(QObject* parent = 0);
+	virtual ~MvdCollectionSaver();
 	
-	static ErrorCode save(MvdMovieCollection* collection, QString file = QString());
+	void setProgressHandler(QObject* receiver, const char* member);
+	StatusCode save(MvdMovieCollection* collection, QString file = QString());
+
+private:
+	class Private;
+	Private* d;
 };
 
 #endif // MVD_COLLECTIONSAVER_H

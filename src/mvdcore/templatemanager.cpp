@@ -18,12 +18,14 @@
 **
 **************************************************************************/
 
+#include "core.h"
 #include "templatemanager.h"
 #include "shareddata.h"
 #include "xsltproc.h"
 #include "pathresolver.h"
 #include <QDir>
 #include <QMutex>
+#include <QUrl>
 
 using namespace Movida;
 
@@ -146,13 +148,15 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 
 	QString xml = "<movie>\n";
 
-	QString s = movie.title();
-	if (!s.isEmpty())
-		xml.append(QString("\t<title>%1</title>\n").arg(s));
+	QString s = movie.validTitle();
+	xml.append(QString("\t<title>%1</title>\n").arg(s));
 
-	s = movie.originalTitle();
-	if (!s.isEmpty())
-		xml.append(QString("\t<original-title>%1</original-title>\n").arg(s));
+	s = movie.title();
+	if (!s.isEmpty()) {
+		s = movie.originalTitle();
+		if (!s.isEmpty())
+			xml.append(QString("\t<original-title>%1</original-title>\n").arg(s));
+	}
 
 	s = movie.releaseYear();
 	if (!s.isEmpty())
@@ -167,8 +171,10 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		xml.append(QString("\t<edition>%1</edition>\n").arg(s));
 
 	s = movie.imdbId();
-	if (!s.isEmpty())
-		xml.append(QString("\t<imdb-id>%1</imdb-id>\n").arg(s));
+	if (!s.isEmpty()) {
+		s = MvdCore::parameter("mvdcore/imdb-movie-url").toString().arg(s);
+		xml.append(QString("\t<imdb-url>%1</imdb-url>\n").arg(s));
+	}
 
 	s = movie.plot();
 	if (!s.isEmpty())
@@ -187,8 +193,11 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		xml.append(QString("\t<rating>%1</rating>\n").arg(sh));
 
 	sh = movie.runningTime();
-	if (sh != 0)
+	if (sh != 0) {
 		xml.append(QString("\t<running-time>%1</running-time>\n").arg(sh));
+		s = movie.runningTimeString();
+		xml.append(QString("\t<running-time-string>%1</running-time-string>\n").arg(s));
+	}
 
 	s = movie.colorModeString();
 	if (!s.isEmpty())
@@ -375,8 +384,29 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 		xml.append("\t</special-contents>\n");
 	}
 
-	xml.append("</movie>");
+	MvdMovie::Tags tags = movie.specialTags();
+	if (tags & MvdMovie::SeenTag) {
+		xml.append("\t<seen>true</seen>\n");
+	}
+	if (tags & MvdMovie::LoanedTag) {
+		xml.append("\t<loaned>true</loaned>\n");
+	}
+	if (tags & MvdMovie::SpecialTag) {
+		xml.append("\t<special>true</special>\n");
+	}
 
+	s = movie.poster();
+	if (!s.isEmpty()) {
+		QString p = collection.metaData(MvdMovieCollection::DataPathInfo);
+		p.append("/images/").append(s);
+		QUrl url = QUrl::fromLocalFile(p);
+		xml.append(QString("\t<poster>%1</poster>\n").arg(url.toString()));
+	}
+
+	xml.append("</movie>");
+	QFile f("c:\\movie.xml");
+	f.open(QIODevice::WriteOnly);
+	f.write(xml.toUtf8());
 	return xml;
 }
 
