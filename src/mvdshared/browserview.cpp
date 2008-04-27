@@ -112,7 +112,7 @@ void MvdBrowserView::setMovieCollection(MvdMovieCollection* c)
 
 void MvdBrowserView::clear()
 {
-	d->ui.webView->setUrl(QUrl("about:blank"));
+	d->ui.webView->setHtml(QString());
 }
 
 void MvdBrowserView::setHtml(const QString& s)
