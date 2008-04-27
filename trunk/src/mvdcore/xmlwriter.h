@@ -56,6 +56,8 @@ public:
 	void writeAtomTag(const QString& name, const AttributeMap& attrs = AttributeMap());
 	void writeTaggedString(const QString& name, const QString& string, const Attribute& a1, const Attribute& a2 = Attribute(), const Attribute& a3 = Attribute());
 	void writeTaggedString(const QString& name, const QString& string, const AttributeMap& attrs = AttributeMap());
+	void writeCDataString(const QString& name, const QString& string, const Attribute& a1, const Attribute& a2 = Attribute(), const Attribute& a3 = Attribute());
+	void writeCDataString(const QString& name, const QString& string, const AttributeMap& attrs = AttributeMap());
 
 	void writeComment(const QString& comment);
 	void startComment();

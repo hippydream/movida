@@ -98,8 +98,6 @@ public:
 	QStringList parseStringDescriptions(xmlDocPtr doc, xmlNodePtr node, 
 		const QString& tag);
 
-	QString cleanHtml(QString s);
-
 	MvdCollectionLoader* q;
 
 	QObject* progressReceiver;
@@ -340,7 +338,7 @@ void MvdCollectionLoader::Private::parseCollection(xmlDocPtr doc, xmlNodePtr cur
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setNotes(cleanHtml(_X(attr)));
+					movie.setNotes(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -358,7 +356,7 @@ void MvdCollectionLoader::Private::parseCollection(xmlDocPtr doc, xmlNodePtr cur
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setPlot(cleanHtml(_X(attr)));
+					movie.setPlot(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -766,23 +764,6 @@ bool MvdCollectionLoader::Private::loadXmlDocument(const QString& path, xmlDocPt
 	}
 
 	return true;
-}
-
-/*!
-	\internal
-	Strips <html> and other tags from a string to allow embedding 
-	in another html document.
-*/
-QString MvdCollectionLoader::Private::cleanHtml(QString s)
-{
-	QRegExp rx("<\\s*head\\s*.*>.*</head\\s*>");
-	rx.setMinimal(true);
-	s.remove(rx);
-	rx.setPattern("<\\s*(:?html|body)\\s*.*>");
-	s.remove(rx);
-	rx.setPattern("</(:?html|body)\\s*>");
-	s.remove(rx);
-	return s;
 }
 
 
