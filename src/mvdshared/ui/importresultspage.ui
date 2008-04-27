@@ -13,16 +13,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" >
-   <property name="leftMargin" >
-    <number>0</number>
-   </property>
-   <property name="topMargin" >
-    <number>0</number>
-   </property>
-   <property name="rightMargin" >
-    <number>0</number>
-   </property>
-   <property name="bottomMargin" >
+   <property name="margin" >
     <number>0</number>
    </property>
    <item row="0" column="0" >
@@ -31,13 +22,24 @@
       <number>1</number>
      </property>
      <widget class="QWidget" name="noResultsPage" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>331</width>
+        <height>248</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
        <item row="0" column="0" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
            <height>40</height>
@@ -60,7 +62,7 @@
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>20</width>
            <height>40</height>
@@ -81,12 +83,28 @@
       </layout>
      </widget>
      <widget class="QWidget" name="resultsPage" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>331</width>
+        <height>248</height>
+       </rect>
+      </property>
       <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
        <item row="0" column="0" >
         <widget class="QTreeWidget" name="results" >
          <property name="rootIsDecorated" >
           <bool>false</bool>
          </property>
+         <column>
+          <property name="text" >
+           <string>1</string>
+          </property>
+         </column>
         </widget>
        </item>
        <item row="1" column="0" >
