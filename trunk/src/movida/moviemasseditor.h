@@ -48,7 +48,6 @@ private slots:
 	void cancelTriggered();
 	void storeTriggered();
 	void linkActivated(const QString& url);
-	void doLinkActivated(const QString& url);
 	void ratingHovered(int);
 	void updateUi();
 

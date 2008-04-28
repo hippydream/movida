@@ -48,7 +48,6 @@ protected:
 
 private slots:
 	void linkActivated(const QString& url);
-	void doLinkActivated(const QString& url);
 	void ratingHovered(int);
 	void selectMoviePoster();
 	void setMoviePoster(const QString& path = QString());

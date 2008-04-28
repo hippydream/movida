@@ -41,7 +41,6 @@ public:
 	bool store(MvdMovie& movie);
 
 private slots:
-	void doLinkActivated(const QString& url);
 	void linkActivated(const QString& url);
 	void updateModifiedStatus();
 
