@@ -80,12 +80,6 @@ bool MvdNotesPage::store(MvdMovie& movie)
 //! \internal
 void MvdNotesPage::linkActivated(const QString& url)
 {
-	//! \bug Temporary bug fix. Trolltech task tracker #172324, scheduled for Qt 4.3.2 (http://trolltech.com/developer/task-tracker/index_html?method=entry&id=172324)
-	Q_ASSERT(QMetaObject::invokeMethod(this, "doLinkActivated", Qt::QueuedConnection, Q_ARG(QString, url)));
-}
-
-void MvdNotesPage::doLinkActivated(const QString& url)
-{
 	MvdCore::LabelAction a = MvdCore::parseLabelAction(url);
 	if (!a.isValid())
 		return;
