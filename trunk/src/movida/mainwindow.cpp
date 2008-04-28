@@ -909,21 +909,16 @@ void MvdMainWindow::movieViewSelectionChanged()
 void MvdMainWindow::updateDetailsView()
 {
 	QModelIndexList list = mTreeView->selectedRows();
+	QList<mvdid> ids;
 
-	if (list.size() != 1)
-	{
-		mDetailsView->clear();
-		return;
+	for (int i = 0; i < list.size(); ++i) {
+		const QModelIndex& index = list.at(i);
+		mvdid id = movieIndexToId(index);
+		if (id != MvdNull)
+			ids.append(id);
 	}
-
-	mvdid current = movieIndexToId(list.at(0));
-	if (current == 0) 
-	{
-		mDetailsView->clear();
-		return;
-	}
-
-	mDetailsView->showMovie(current);
+	
+	mDetailsView->showMovies(ids);
 }
 
 void MvdMainWindow::movieChanged(mvdid id)

@@ -39,18 +39,21 @@ public:
 	virtual ~MvdBrowserView();
 
 	void setMovieCollection(MvdMovieCollection* c);
-	void showMovie(mvdid id);
 
-	void showMovieData(int id);
 	int cacheMovieData(const MvdMovieData& md);
 	void clearCachedMovieData(int id);
 
 	void setControlsVisible(bool visible);
 	bool controlsVisible() const;
 
+	void showMovie(mvdid id);
+	void showMovies(const QList<mvdid>& ids);
+	void showMovieData(int id);
+
 public slots:
 	void clear();
-	void setHtml(const QString& s);
+	void blank();
+	void setUrl(QString url);
 
 	bool eventFilter(QObject* o, QEvent* e);
 

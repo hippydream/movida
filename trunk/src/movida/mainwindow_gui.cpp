@@ -114,8 +114,7 @@ void MvdMainWindow::setupUi()
 	addDockWidget(Qt::RightDockWidgetArea, mDetailsDock);
 
 	mDetailsView = new MvdBrowserView;
-	//mDetailsView->setSearchPaths(QStringList() << 
-	//	Movida::paths().resourcesDir().append("Templates/Movie/"));
+	mDetailsView->blank();
 	mDetailsDock->setWidget(mDetailsView);
 	
 	mSharedDataDock = new MvdDockWidget(tr("Shared data"), this);
