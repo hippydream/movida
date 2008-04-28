@@ -20,11 +20,13 @@
 
 #include "browserview.h"
 #include "ui_browserview.h"
+#include "mvdcore/core.h"
 #include "mvdcore/movie.h"
 #include "mvdcore/moviecollection.h"
 #include "mvdcore/pathresolver.h"
 #include "mvdcore/templatemanager.h"
 #include <QGridLayout>
+#include <QRegExp>
 #include <QtWebKit>
 
 namespace {
@@ -120,9 +122,106 @@ void MvdBrowserView::clear()
 	d->ui.webView->setHtml(QString());
 }
 
-void MvdBrowserView::setHtml(const QString& s)
+void MvdBrowserView::blank()
 {
-	d->ui.webView->setHtml(s);
+	setUrl(QLatin1String("about:blank"));
+}
+
+void MvdBrowserView::setUrl(QString url)
+{
+	bool special = false;
+	MvdCore::ActionUrl aurl;
+	
+	QRegExp rx("[a-z]+:[a-z]+");
+	if (rx.exactMatch(url)) {
+		// Special URL like "about:blank"
+		special = true;
+	} else {
+		aurl = MvdCore::parseActionUrl(url);
+		if (!aurl.isValid()) {
+			special = true;
+			url = QLatin1String("about:blank");
+		}
+	}
+
+	if (!special) {
+		bool ok = false;
+
+		// movida://movie/id/14,23,54,53
+		if (aurl.action == QLatin1String("movie")) {
+			QStringList sl = aurl.parameter.split(QChar('/'));
+			if (sl.size() == 2) {
+				QString s = sl.at(0);
+				if (s == QLatin1String("id")) {
+					sl = sl.at(1).split(QChar(','), QString::SkipEmptyParts);
+					QList<mvdid> ids;
+					if (!sl.isEmpty()) {
+						foreach (QString s, sl) {
+							mvdid id = s.toUInt(&ok);
+							if (!ok) continue;
+							ids.append(id);
+						}
+					}
+					ok = true;
+					int c = ids.size();
+					if (c == 0)
+						ok = false;
+					else if (c == 1)
+						showMovie(ids.at(0));
+					else showMovies(ids);
+				}
+			}
+		} else {
+
+		}
+
+		if (!ok) {
+			url = QLatin1String("about:blank");
+			special = true;
+		}
+	} // !special
+
+	if (!special)
+		return;
+
+	QStringList list = url.split(QChar(':'));
+	Q_ASSERT(list.size() == 2);
+	aurl.action = list.at(0);
+	aurl.parameter = list.at(1);
+
+	if (aurl.action != QLatin1String("about")) {
+		aurl.action = QLatin1String("about");
+		aurl.parameter = QLatin1String("blank");
+	}
+
+	if (aurl.parameter == QLatin1String("blank")) {
+		d->ui.webView->setHtml(QLatin1String("<html><body><h1>Please select one or more movies</h1></body></html>"));
+	}
+}
+
+/*!
+	Shows the movies with given ids in the view using the currently 
+	selected template. This method will call showMovie(mvdid) if the
+	ids list contains only one id and blank() if the list is empty.
+
+	Pages for multiple movies are never cached.
+
+	See setMovieData(const MvdMovieData&) to show a movie that is not part
+	of any collection.
+
+	\see setMovieCollection(MvdMovieCollection*)
+*/
+void MvdBrowserView::showMovies(const QList<mvdid>& ids)
+{
+	if (ids.isEmpty()) {
+		blank();
+		return;
+	} else if (ids.count() == 1) {
+		showMovie(ids.at(0));
+		return;
+	}
+
+	d->ui.webView->setHtml(QLatin1String("<html><body><h1>Multiple movies selected</h1></body></html>"));
 }
 
 /*!
@@ -144,9 +243,10 @@ void MvdBrowserView::setHtml(const QString& s)
 */
 void MvdBrowserView::showMovie(mvdid id)
 {
-	clear();
-	if (id == MvdNull || !d->collection)
+	if (id == MvdNull || !d->collection) {
+		blank();
 		return;
+	}
 
 	QString path;
 	int idx = d->automaticCache.indexOf(Private::CachedPage(id));
@@ -180,6 +280,8 @@ void MvdBrowserView::showMovie(mvdid id)
 	
 	if (!path.isEmpty()) {
 		d->ui.webView->setUrl(QUrl::fromLocalFile(path));
+	} else {
+		blank();
 	}
 }
 
@@ -234,17 +336,19 @@ int MvdBrowserView::cacheMovieData(const MvdMovieData& md)
 */
 void MvdBrowserView::showMovieData(int id)
 {
-	clear();
-
-	if (id < 0)
+	if (id < 0) {
+		blank();
 		return;
+	}
 
 	foreach (const Private::CachedPage& p, d->manualCache) {
 		if (p.id == (quint64)id) {
 			d->ui.webView->setUrl(QUrl::fromLocalFile(p.path));
-			break;
+			return;
 		}
 	}
+
+	blank();
 }
 
 void MvdBrowserView::clearCachedMovieData(int id)
