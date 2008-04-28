@@ -120,7 +120,7 @@ bool MvdExtendedInfoPage::store(MvdMovie& movie)
 //! \internal
 void MvdExtendedInfoPage::linkActivated(const QString& url)
 {
-	MvdCore::LabelAction a = MvdCore::parseLabelAction(url);
+	MvdCore::ActionUrl a = MvdCore::parseActionUrl(url);
 	if (!a.isValid())
 		return;
 

@@ -368,9 +368,9 @@ void Movida::xmlStructuredErrorHandler(void* userData, xmlErrorPtr error)
 	}
 }
 
-MvdCore::LabelAction MvdCore::parseLabelAction(const QString& url)
+MvdCore::ActionUrl MvdCore::parseActionUrl(const QString& url)
 {
-	LabelAction a;
+	ActionUrl a;
 
 	QRegExp rx("^movida://([^/]*)/?([^/]*)?$");
 	if (rx.indexIn(url) >= 0)

@@ -116,7 +116,7 @@ bool MvdCrewPage::store(MvdMovie& movie)
 //! \internal
 void MvdCrewPage::linkActivated(const QString& url)
 {
-	MvdCore::LabelAction a = MvdCore::parseLabelAction(url);
+	MvdCore::ActionUrl a = MvdCore::parseActionUrl(url);
 	if (!a.isValid())
 		return;
 

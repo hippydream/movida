@@ -234,7 +234,7 @@ bool MvdMainInfoPage::store(MvdMovie& movie)
 //! \internal
 void MvdMainInfoPage::linkActivated(const QString& url)
 {
-	MvdCore::LabelAction a = MvdCore::parseLabelAction(url);
+	MvdCore::ActionUrl a = MvdCore::parseActionUrl(url);
 	if (!a.isValid())
 		return;
 
