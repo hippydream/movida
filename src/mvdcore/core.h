@@ -35,7 +35,7 @@ class MvdPluginContext;
 class MVD_EXPORT MvdCore
 {
 public:
-	struct LabelAction
+	struct ActionUrl
 	{
 		inline bool isValid() const { return !action.isEmpty(); }
 
@@ -69,7 +69,7 @@ public:
 	static QString decodeXmlEntities(const char* s);
 	static QString decodeXmlEntities(QString s);
 
-	static LabelAction parseLabelAction(const QString& url);
+	static ActionUrl parseActionUrl(const QString& url);
 
 	static QString locateApplication(QString name, LocateOptions options = IncludeApplicationPath);
 
