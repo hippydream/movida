@@ -33,6 +33,10 @@
 #include <QPixmap>
 #include <QUuid>
 
+#define __COLLECTION_CHANGED \
+	if (!d->modified) { d->modified = true; emit modified(); } \
+	emit changed();
+
 /*!
 	\class MvdMovieCollection moviecollection.h
 	\ingroup MvdCore Shared
@@ -228,13 +232,11 @@ void MvdMovieCollection::setMetaData(MetaDataType ci, const QString& val)
 		d->website = val;
 		break;
 	case DataPathInfo:
-		detach();
 		if (!d->dataPath.isEmpty())
 			Movida::paths().removeDirectoryTree(d->dataPath);
 		d->dataPath = val;
 		break;
 	case TempPathInfo:
-		detach();
 		if (!d->tempPath.isEmpty())
 			Movida::paths().removeDirectoryTree(d->tempPath);
 		d->tempPath = val;
@@ -246,8 +248,8 @@ void MvdMovieCollection::setMetaData(MetaDataType ci, const QString& val)
 		;
 	}
 
-	d->modified = true;
-	emit modified();
+	__COLLECTION_CHANGED
+	emit metaDataChanged(ci);
 }
 
 /*!
@@ -382,12 +384,7 @@ mvdid MvdMovieCollection::addMovie(const MvdMovie& movie)
 		sd.addMovieLink(sd_id, movie_id);
 	}
 	
-	if (!d->modified)
-	{
-		d->modified = true;
-		emit modified();
-	}
-	
+	__COLLECTION_CHANGED
 	emit movieAdded(movie_id);
 	return movie_id;
 }
@@ -628,12 +625,7 @@ void MvdMovieCollection::updateMovie(mvdid id, const MvdMovie& movie)
 		sd.addMovieLink(sd_id, id);
 	}
 	
-	if (!d->modified)
-	{
-		d->modified = true;
-		emit modified();
-	}
-	
+	__COLLECTION_CHANGED
 	emit movieChanged(id);
 }
 
@@ -702,12 +694,7 @@ void MvdMovieCollection::removeMovie(mvdid id)
 	
 	d->movies.erase(movieIterator);
 	
-	if (!d->modified)
-	{
-		d->modified = true;
-		emit modified();
-	}
-	
+	__COLLECTION_CHANGED
 	emit movieRemoved(id);
 }
 
@@ -724,12 +711,7 @@ void MvdMovieCollection::clear()
 	d->quickLookupTable.clear();
 	d->id = 1;
 	
-	if (!d->modified)
-	{
-		d->modified = true;
-		emit modified();
-	}
-		
+	__COLLECTION_CHANGED
 	emit cleared();
 }
 

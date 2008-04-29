@@ -255,7 +255,7 @@ private slots:
 	void treeViewSorted(int logicalIndex);
 	void unloadPlugins();
 	void updateCaption();
-	void updateDetailsView();
+	void updateBrowserView();
 	void updateFileMenu();
 	void updateViewSortMenu();
 	void zoomIn();

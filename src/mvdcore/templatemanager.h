@@ -52,6 +52,10 @@ public:
 	QString movieDataStringToHtml(const QString& movieDataString, 
 		const QString& templateCategory, const QString& templateName = QString());
 
+	bool collectionToHtmlFile(MvdMovieCollection* collection, 
+		const QString& filename, 
+		const QString& templateCategory, const QString& templateName = QString());
+
 private:
 	MvdTemplateManager();
 	MvdTemplateManager(const MvdTemplateManager&);

@@ -665,8 +665,6 @@ void MvdMainWindow::collectionModified()
 	mA_FileNew->setDisabled(isNewCollection && isEmpty);
 	mA_FileSave->setDisabled(!isModified || isNewCollection || isEmpty);
 	mA_FileSaveAs->setDisabled(isEmpty);
-
-	updateDetailsView();
 }
 
 /*!
@@ -903,10 +901,10 @@ void MvdMainWindow::movieViewSelectionChanged()
 	mA_CollMedMovie->setEnabled(list.size() > 1);
 	mA_CollDupMovie->setEnabled(list.size() == 1);
 
-	updateDetailsView();
+	updateBrowserView();
 }
 
-void MvdMainWindow::updateDetailsView()
+void MvdMainWindow::updateBrowserView()
 {
 	QModelIndexList list = mTreeView->selectedRows();
 	QList<mvdid> ids;
@@ -927,9 +925,6 @@ void MvdMainWindow::movieChanged(mvdid id)
 
 	if (current == 0)
 		return;
-
-	if (current == id)
-		updateDetailsView();
 }
 
 void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)

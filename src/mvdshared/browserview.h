@@ -59,6 +59,7 @@ public slots:
 
 private slots:
 	void invalidateMovie(mvdid id);
+	void invalidateBlank();
 
 private:
 	class Private;

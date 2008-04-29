@@ -114,7 +114,7 @@ void MvdMainWindow::setupUi()
 	addDockWidget(Qt::RightDockWidgetArea, mDetailsDock);
 
 	mDetailsView = new MvdBrowserView;
-	mDetailsView->blank();
+	mDetailsView->setControlsVisible(false);
 	mDetailsDock->setWidget(mDetailsView);
 	
 	mSharedDataDock = new MvdDockWidget(tr("Shared data"), this);
