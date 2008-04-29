@@ -94,7 +94,8 @@ signals:
 	void movieAdded(mvdid id);
 	void movieChanged(mvdid id);
 	void movieRemoved(mvdid id);
-	
+	void metaDataChanged(MvdMovieCollection::MetaDataType t);
+	void changed();
 	void cleared();
 	void modified();
 	void saved();

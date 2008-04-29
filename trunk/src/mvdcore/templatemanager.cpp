@@ -23,6 +23,7 @@
 #include "shareddata.h"
 #include "xsltproc.h"
 #include "pathresolver.h"
+#include "xmlwriter.h"
 #include <QDir>
 #include <QMutex>
 #include <QUrl>
@@ -514,6 +515,43 @@ QString MvdTemplateManager::movieDataStringToHtml(const QString& movieDataString
 
 	MvdXsltProc xsl(path);
 	return xsl.processText(movieDataString);
+}
+
+//! Uses the default template if \p templateName is empty.
+bool MvdTemplateManager::collectionToHtmlFile(MvdMovieCollection* collection,
+	const QString& filename, const QString& templateCategory, const QString& templateName)
+{
+	QString out;
+	MvdXmlWriter xml(&out);
+	xml.setSkipEmptyTags(true);
+	xml.setSkipEmptyAttributes(true);
+
+	QString name = collection ? 
+		collection->metaData(MvdMovieCollection::NameInfo) : QString();
+	xml.writeOpenTag("collection-info", 
+		MvdXmlWriter::Attribute("movies", QString::number(collection ? collection->count() : 0)),
+		MvdXmlWriter::Attribute("name", name)
+	);
+	
+	if (collection) {
+		// NameInfo, OwnerInfo, EMailInfo, WebsiteInfo, NotesInfo
+		xml.writeTaggedString("owner", collection->metaData(MvdMovieCollection::OwnerInfo));
+		xml.writeTaggedString("email", collection->metaData(MvdMovieCollection::EMailInfo));
+		xml.writeTaggedString("website", collection->metaData(MvdMovieCollection::WebsiteInfo));
+		xml.writeTaggedString("notes", collection->metaData(MvdMovieCollection::NotesInfo));
+	}
+	
+	xml.writeCloseTag("collection-info");
+
+	QString path = paths().resourcesDir().append("Templates/").append(templateCategory).append("/").append(templateName).append("/Collection.xsl");
+	if (templateName.isEmpty() || !QFile::exists(path))
+		path = QString(":/Templates/%1/Default/Collection.xsl").arg(templateCategory);
+
+	MvdXsltProc xsl(path);
+	QFile file(filename);
+	if (!file.open(QIODevice::WriteOnly))
+		return false;
+	return xsl.processTextToDevice(out, &file);
 }
 
 //! Convenience method to access the MvdTemplateManager singleton.
