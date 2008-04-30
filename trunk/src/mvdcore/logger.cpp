@@ -24,6 +24,7 @@
 #include <QDateTime>
 #include <QtGlobal>
 #include <QMutex>
+#include <stdexcept>
 
 using namespace Movida;
 

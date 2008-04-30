@@ -27,6 +27,7 @@
 #include <QDir>
 #include <QMutex>
 #include <QUrl>
+#include <stdexcept>
 
 using namespace Movida;
 
