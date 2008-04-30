@@ -28,6 +28,7 @@
 #include <QUuid>
 #include <QDateTime>
 #include <QMutex>
+#include <stdexcept>
 
 #ifdef Q_WS_WIN
 #include "qt_windows.h"
