@@ -59,7 +59,6 @@ Q_GLOBAL_STATIC(QMutex, MvdPathResolverLock)
 	The returned paths always end with a directory separator.
 
 	<b>Movida::paths()</b> can be used as a convenience method to access the singleton.
-	<b>Movida::pid()</b> can be used to retrieve the process ID.
 
 	Please refer to the individual methods for the location of the path on
 	each platform.
@@ -584,16 +583,6 @@ bool MvdPathResolver::removeDirectoryTree(const QString& path, const QString& ex
 		dir.rmdir(dir.absolutePath());
 
 	return ok;
-}
-
-//! Returns the application process ID.
-int Movida::pid()
-{
-#ifdef Q_WS_WIN
-	return (int) GetCurrentProcessId();
-#else
-	return (int) getpid();
-#endif // Q_WS_WIN
 }
 
 //! Convenience method to access the MvdPathResolver singleton.
