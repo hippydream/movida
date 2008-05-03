@@ -59,7 +59,6 @@ private:
 namespace Movida
 {
 	MVD_EXPORT extern MvdPathResolver& paths();
-	MVD_EXPORT extern int pid();
 }
 
 #endif // MVD_PATHRESOLVER_H
