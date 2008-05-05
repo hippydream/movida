@@ -18,8 +18,6 @@ body {
 	border: 1px solid #848484;
 	font-size: 65%;
 	font-family: 'Trebuchet MS', Verdana, Georgia, Arial, sans-serif;
-	height: 100%;
-	min-height: 100px;
 }
 
 a, a:hover, a:visited {

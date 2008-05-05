@@ -1,5 +1,7 @@
 <RCC>
 	<qresource prefix="/images" >
+		<!-- ACTIONS -->
+		<file alias="document-save.svgz">images/actions/document-save.svgz</file>
 		<!-- MISC -->
 		<file alias="clear-edit.png">images/misc/clear-edit.png</file>
 		<file alias="bold.svgz">images/misc/format-text-bold.svgz</file>
