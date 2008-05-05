@@ -24,19 +24,40 @@
 #include "mvdcore/movie.h"
 #include "mvdcore/moviecollection.h"
 #include "mvdcore/pathresolver.h"
+#include "mvdcore/settings.h"
 #include "mvdcore/templatemanager.h"
+#include <QContextMenuEvent>
+#include <QFile>
+#include <QFileDialog>
 #include <QGridLayout>
+#include <QMenu>
 #include <QRegExp>
 #include <QtWebKit>
+//! \todo REMOVE INCLUDE
+#include <QMessageBox>
 
 namespace {
 	static const int MaxCachedPages = 100;
 };
 
 
+//////////////////////////////////////////////////////////////////////////
+// MvdBrowserView::Private
+//////////////////////////////////////////////////////////////////////////
+
 class MvdBrowserView::Private
 {
 public:
+	enum ContextMenuPosition {
+		InvalidContextMenuPosition = 0,
+		OnPoster
+	};
+
+	enum Action {
+		NoAction = 0,
+		SavePoster
+	};
+
 	struct CachedPage {
 		CachedPage(quint64 id) : id(id), usage(0) {}
 		CachedPage(quint64 id, const QString& s) : id(id), path(s), usage(0) {}
@@ -49,7 +70,7 @@ public:
 	};
 	typedef QList<CachedPage> PageCache;
 
-	Private() : collection(0), manualCacheId(0)
+	Private(MvdBrowserView* v) : collection(0), manualCacheId(0), q(v)
 	{}
 
 	~Private() {
@@ -59,6 +80,8 @@ public:
 	void updateCache();
 	void purgeCache();
 	QString retrievePath(bool global);
+	void populateContextMenu(QMenu* menu, ContextMenuPosition pos) const;
+	void contextMenuActionTriggered(const QWebHitTestResult& hit, Action a);
 
 	QAction* backAction;
 	QAction* reloadAction;
@@ -75,6 +98,7 @@ public:
 	QString blank;
 
 	Ui::MvdBrowserView ui;
+	MvdBrowserView* q;
 };
 
 QString MvdBrowserView::Private::retrievePath(bool global)
@@ -97,8 +121,46 @@ QString MvdBrowserView::Private::retrievePath(bool global)
 	return path;
 }
 
+void MvdBrowserView::Private::populateContextMenu(QMenu* menu, ContextMenuPosition pos) const
+{
+	Q_ASSERT(menu && (int)pos);
+
+	switch (pos) {
+	case OnPoster:
+		{
+			QAction* a = menu->addAction(QIcon(":/images/document-save.svgz"), tr("Save movie poster..."));
+			a->setData((uint)SavePoster);
+		}
+	}
+}
+
+void MvdBrowserView::Private::contextMenuActionTriggered(const QWebHitTestResult& hit, Action a)
+{
+	switch (a) {
+	case SavePoster: 
+		{
+			QString sourceFile = hit.imageUrl().toLocalFile();
+			QString lastDir = Movida::settings().value("movida/browserview/saveposterdialog").toString();
+			QString destFile = QFileDialog::getSaveFileName(q, MVD_CAPTION, lastDir, q->tr("PNG image files (*.png)"));
+			if (destFile.isEmpty()) return;
+			QFile dest(destFile);
+			if (dest.exists())
+				dest.remove();
+			if (!QFile::copy(sourceFile, destFile)) {
+				//! \todo Add some messaging API to MvdCore
+				QMessageBox::warning(q, MVD_CAPTION, q->tr("Failed to save poster."));
+			}
+		}
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// MvdBrowserView
+//////////////////////////////////////////////////////////////////////////
+
 MvdBrowserView::MvdBrowserView(QWidget* parent)
-: QWidget(parent), d(new Private)
+: QWidget(parent), d(new Private(this))
 {
 	d->ui.setupUi(this);
 
@@ -119,7 +181,8 @@ MvdBrowserView::MvdBrowserView(QWidget* parent)
 	ws->setAttribute(QWebSettings::PluginsEnabled, false);
 	ws->setAttribute(QWebSettings::JavascriptEnabled, false);
 	ws->setAttribute(QWebSettings::DeveloperExtrasEnabled, false);
-	// webView->installEventFilter(this);
+
+	d->ui.webView->installEventFilter(this);
 }
 
 MvdBrowserView::~MvdBrowserView()
@@ -390,13 +453,68 @@ void MvdBrowserView::clearCachedMovieData(int id)
 
 bool MvdBrowserView::eventFilter(QObject* o, QEvent* e)
 {
-	/*if (o == webView) {
+	if (o == d->ui.webView) {
 		switch (e->type()) {
-		case QEvent::ContextMenu: return true;
+		case QEvent::ContextMenu: {
+			QContextMenuEvent* cme = static_cast<QContextMenuEvent*>(e);
+			showContextMenu(cme);
+			return true;
+			}
 		}
-	}*/
+	}
 
 	return QWidget::eventFilter(o, e);
+}
+
+void MvdBrowserView::showContextMenu(QContextMenuEvent* e)
+{
+	Q_ASSERT(e);
+	QPoint pos = e->pos();
+	QWebFrame* frame = currentFrame();
+	if (!frame) return;
+	
+	QWebHitTestResult hit = frame->hitTestContent(pos);
+
+	//! \todo Bug report submitted to Trolltech on 05/05/2008
+	// if (hit.isNull()) return;
+
+	QMenu* menu = new QMenu;
+	QUrl imageUrl = hit.imageUrl();
+	if (!imageUrl.isEmpty() && d->collection) {
+		QUrl dp = QUrl::fromLocalFile(d->collection->metaData(MvdMovieCollection::DataPathInfo));
+		if (imageUrl.path().startsWith(dp.path())) {
+			d->populateContextMenu(menu, Private::OnPoster);
+		}
+	}
+
+	QAction* res = menu->isEmpty() ? 0 : menu->exec(d->ui.webView->mapToGlobal(pos));
+
+	if (!res) {
+		delete menu;
+		return;
+	}
+
+	bool ok;
+	uint id = res->data().toUInt(&ok);
+	delete menu;
+
+	if (!ok || !id) return;
+	d->contextMenuActionTriggered(hit, (Private::Action) id);
+}
+
+QWebFrame* MvdBrowserView::currentFrame() const
+{
+	return d->ui.webView->page()->currentFrame();
+}
+
+QWebPage* MvdBrowserView::page() const
+{
+	return d->ui.webView->page();
+}
+
+QWebView* MvdBrowserView::webView() const
+{
+	return d->ui.webView;
 }
 
 void MvdBrowserView::invalidateMovie(mvdid id)

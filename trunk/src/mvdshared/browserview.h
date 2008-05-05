@@ -29,6 +29,9 @@
 class MvdMovieCollection;
 class MvdMovieData;
 class QAction;
+class QWebView;
+class QWebPage;
+class QWebFrame;
 
 class MVD_EXPORT_SHARED MvdBrowserView : public QWidget
 {
@@ -56,6 +59,13 @@ public slots:
 	void setUrl(QString url);
 
 	bool eventFilter(QObject* o, QEvent* e);
+
+protected:
+	virtual void showContextMenu(QContextMenuEvent* e);
+
+	QWebFrame* currentFrame() const;
+	QWebPage* page() const;
+	QWebView* webView() const;
 
 private slots:
 	void invalidateMovie(mvdid id);
