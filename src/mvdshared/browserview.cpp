@@ -147,8 +147,9 @@ void MvdBrowserView::Private::contextMenuActionTriggered(const QWebHitTestResult
 			if (dest.exists())
 				dest.remove();
 			if (!QFile::copy(sourceFile, destFile)) {
-				//! \todo Add some messaging API to MvdCore
-				QMessageBox::warning(q, MVD_CAPTION, q->tr("Failed to save poster."));
+				Movida::error(q->tr("Failed to save poster."));
+			} else {
+				Movida::info(q->tr("Movie poster saved."));
 			}
 		}
 	}
