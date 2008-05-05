@@ -38,6 +38,7 @@
 #include <QtGlobal>
 #include <QDir>
 #include <QDebug>
+#include <iostream>
 
 using namespace Movida;
 
@@ -47,6 +48,27 @@ using namespace Movida;
 
 	\brief Application core: initialization and utility methods.
 */
+
+namespace {
+	static Movida::MessageHandler msgHandler = 0;
+	static Movida::MessageHandler oldMsgHandler = 0;
+
+	void dispatchMessage(Movida::MessageType t, const QString& m)
+	{
+		if (!msgHandler) return;
+		msgHandler(t, m);
+	}
+
+	void defaultMessageHandler(Movida::MessageType t, const QString& m)
+	{
+		switch (t) {
+		case Movida::InformationMessage: std::cout << "[INFO]: " << qPrintable(m) << std::endl; break;
+		case Movida::WarningMessage: std::cout << "[WARNING]: " << qPrintable(m) << std::endl; break;
+		case Movida::ErrorMessage: std::cout << "[ERROR]: " << qPrintable(m) << std::endl; break;
+		default: ;
+		}
+	}
+}
 
 
 /************************************************************************
@@ -85,6 +107,9 @@ public:
 
 		// 2:02
 		parameters.insert("mvdcore/running-time-format", "h'h' mm'min'");
+
+		// Register default message handler
+		Movida::registerMessageHandler(defaultMessageHandler);
 	}
 
 	QHash<QString,QVariant> parameters;
@@ -553,3 +578,32 @@ QString MvdCore::getWindowsRegString(HKEY key, const QString& subKey)
 }
 
 #endif
+
+void Movida::info(const QString& msg)
+{
+	::dispatchMessage(InformationMessage, msg);
+}
+
+void Movida::warning(const QString& msg)
+{
+	::dispatchMessage(WarningMessage, msg);
+}
+
+void Movida::error(const QString& msg)
+{
+	::dispatchMessage(ErrorMessage, msg);
+}
+
+void Movida::registerMessageHandler(MessageHandler handler)
+{
+	if (!::msgHandler) {
+		if (::oldMsgHandler) {
+			::msgHandler = ::oldMsgHandler;
+			::oldMsgHandler = 0;
+		}
+		return;
+	}
+
+	::oldMsgHandler = ::msgHandler;
+	::msgHandler = handler;
+}

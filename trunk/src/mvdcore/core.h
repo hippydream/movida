@@ -32,6 +32,22 @@
 class MvdCore_P;
 class MvdPluginContext;
 
+namespace Movida {
+	enum MessageType
+	{
+		InformationMessage,
+		WarningMessage,
+		ErrorMessage
+	};
+	
+	MVD_EXPORT extern void info(const QString& msg);
+	MVD_EXPORT extern void warning(const QString& msg);
+	MVD_EXPORT extern void error(const QString& msg);
+
+	typedef void (*MessageHandler)(MessageType, const QString& msg);
+	MVD_EXPORT extern void registerMessageHandler(Movida::MessageHandler handler);
+}
+
 class MVD_EXPORT MvdCore
 {
 public:

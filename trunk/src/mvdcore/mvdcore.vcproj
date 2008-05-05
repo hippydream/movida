@@ -517,20 +517,6 @@
 			<File
 				RelativePath="..\..\tmp\mvdcore\moc\moc_collectionsaver.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\tmp\mvdcore\moc\moc_logger.cpp"
