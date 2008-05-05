@@ -22,6 +22,7 @@
 #define MVD_MAINWINDOW_H
 
 #include "movieeditor.h"
+#include "mvdcore/core.h"
 #include "mvdcore/global.h"
 #include <QMainWindow>
 #include <QStringList>
@@ -72,6 +73,7 @@ public:
 	MvdFilterWidget* filterWidget() const;
 
 	virtual QMenu* createPopupMenu();
+	virtual void dispatchMessage(Movida::MessageType t, const QString& m);
 
 public slots:
 	bool loadCollection(const QString& file);
@@ -209,6 +211,7 @@ private:
 	mvdid movieIndexToId(const QModelIndex& index) const;
 	QModelIndex movieIdToIndex(mvdid id) const;
 	bool shouldShowQuickFilter() const;
+	void registerMessageHandler();
 
 private slots:
 	bool closeCollection();
@@ -264,6 +267,7 @@ private slots:
 
 namespace Movida {
 	extern MvdMainWindow* MainWindow;
+	extern void mainWindowMessageHandler(Movida::MessageType t, const QString& m);
 }
 
 #endif // MVD_MAINWINDOW_H

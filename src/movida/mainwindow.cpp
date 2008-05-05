@@ -35,7 +35,6 @@
 #include "smartview.h"
 #include "mvdcore/collectionloader.h"
 #include "mvdcore/collectionsaver.h"
-#include "mvdcore/core.h"
 #include "mvdcore/logger.h"
 #include "mvdcore/movie.h"
 #include "mvdcore/moviecollection.h"
@@ -189,6 +188,7 @@ mDraggingSharedData(false), mSavedFilterMessage(0)
 
 	createNewCollection();
 	loadPlugins();
+	registerMessageHandler();
 
 	statusBar()->showMessage(tr("Movida is ready!"));
 	iLog() << "Movida is ready!";
@@ -1689,4 +1689,25 @@ MvdFilterWidget* MvdMainWindow::filterWidget() const
 void MvdMainWindow::infoPanelClosedByUser()
 {
 	mInfoPanelClosedByUser = true;
+}
+
+void MvdMainWindow::registerMessageHandler()
+{
+	Movida::registerMessageHandler(mainWindowMessageHandler);
+}
+
+void MvdMainWindow::dispatchMessage(Movida::MessageType t, const QString& m)
+{
+	switch (t) {
+	case Movida::InformationMessage: mInfoPanel->showTemporaryMessage(m); break;
+	case Movida::WarningMessage: mInfoPanel->showTemporaryMessage(m); break;
+	case Movida::ErrorMessage: mInfoPanel->showTemporaryMessage(m); break;
+	default: ;
+	}
+}
+
+void Movida::mainWindowMessageHandler(Movida::MessageType t, const QString& m)
+{
+	if (MainWindow)
+		MainWindow->dispatchMessage(t, m);
 }
