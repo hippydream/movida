@@ -596,7 +596,7 @@ void Movida::error(const QString& msg)
 
 void Movida::registerMessageHandler(MessageHandler handler)
 {
-	if (!::msgHandler) {
+	if (!handler) {
 		if (::oldMsgHandler) {
 			::msgHandler = ::oldMsgHandler;
 			::oldMsgHandler = 0;
