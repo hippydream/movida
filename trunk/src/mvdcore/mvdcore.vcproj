@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="mvdcore"
 	ProjectGUID="{119CD80F-DBC3-38B5-8203-75A4FC029A83}"
+	RootNamespace="mvdcore"
 	Keyword="Qt4VSv1.0"
 	>
 	<Platforms>
@@ -263,6 +264,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\templatecache.cpp"
+				>
+			</File>
+			<File
 				RelativePath="templatemanager.cpp"
 				>
 			</File>
@@ -481,6 +486,32 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\templatecache.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing templatecache.h..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdcore\moc&quot; -I&quot;.\..\..\tmp\mvdcore\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;.\templatecache.h&quot; -o &quot;.\..\..\tmp\mvdcore\moc\moc_templatecache.cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;.\templatecache.h"
+						Outputs="&quot;.\..\..\tmp\mvdcore\moc\moc_templatecache.cpp&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing templatecache.h..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdcore\moc&quot; -I&quot;.\..\..\tmp\mvdcore\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;.\templatecache.h&quot; -o &quot;.\..\..\tmp\mvdcore\moc\moc_templatecache.cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;.\templatecache.h"
+						Outputs="&quot;.\..\..\tmp\mvdcore\moc\moc_templatecache.cpp&quot;"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="templatemanager.h"
 				>
 			</File>
@@ -533,6 +564,24 @@
 			<File
 				RelativePath="..\..\tmp\mvdcore\moc\moc_shareddata.cpp"
 				>
+			</File>
+			<File
+				RelativePath="..\..\tmp\mvdcore\moc\moc_templatecache.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\tmp\mvdcore\rcc\qrc_mvdcore.cpp"
