@@ -32,10 +32,14 @@
 #include <QRect>
 #include <QPoint>
 #include <QSize>
+#include <QMutex>
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
+#include <stdexcept>
 
 using namespace Movida;
+
+Q_GLOBAL_STATIC(QMutex, MvdSettingsLock)
 
 /*!
 	\class MvdSettings settings.h
@@ -471,44 +475,59 @@ MvdSettings
 *************************************************************************/
 
 //! \internal
-MvdSettings* MvdSettings::mInstance = 0;
+volatile MvdSettings* MvdSettings::mInstance = 0;
+bool MvdSettings::mDestroyed = false;
 
 //! \internal Private constructor.
 MvdSettings::MvdSettings()
 {
+	QSettings::Format xmlFormat = QSettings::registerFormat("xml", 
+		MvdSettings_P::readXmlSettings, MvdSettings_P::writeXmlSettings);
+	QSettings::setPath(xmlFormat, QSettings::UserScope, Movida::paths().settingsDir());
+
+#if defined(Q_WS_WIN)
+	mSettings = new QSettings(xmlFormat, QSettings::UserScope,
+		QCoreApplication::organizationName(), QCoreApplication::applicationName());
+#else
+	// QSettings appends "{Org}/{App}.xml" so we need a hack to store settings in $HOME/.{Org}!
+	mSettings = new QSettings(xmlFormat, QSettings::UserScope,
+		QCoreApplication::organizationName().prepend("."), QCoreApplication::applicationName());
+#endif
 }
 
+
 /*!
-	Returns the application unique preferences instance.
+Returns the application unique settings manager.
 */
 MvdSettings& MvdSettings::instance()
 {
-	if (mInstance == 0) {
-		QSettings::Format xmlFormat = QSettings::registerFormat("xml", 
-			MvdSettings_P::readXmlSettings, MvdSettings_P::writeXmlSettings);
-		QSettings::setPath(xmlFormat, QSettings::UserScope, Movida::paths().settingsDir());
-
-#if defined(Q_WS_WIN)
-		MvdSettings_P::settings = new QSettings(xmlFormat, QSettings::UserScope,
-			QCoreApplication::organizationName(), QCoreApplication::applicationName());
-#else
-		// QSettings appends "{Org}/{App}.xml" so we need a hack to store settings in $HOME/.{Org}!
-		MvdSettings_P::settings = new QSettings(xmlFormat, QSettings::UserScope,
-			QCoreApplication::organizationName().prepend("."), QCoreApplication::applicationName());
-#endif
-
-		mInstance = new MvdSettings;
+	if (!mInstance) {
+		QMutexLocker locker(MvdSettingsLock());
+		if (!mInstance) {
+			if (mDestroyed)
+				throw std::runtime_error("Settings: access to dead reference");
+			create();
+		}
 	}
-	return *mInstance;
+
+	return (MvdSettings&) *mInstance;
 }
 
-/*!
-	Frees any allocated resources.
-*/
+//! Destructor.
 MvdSettings::~MvdSettings()
 {
-	if (MvdSettings_P::settings)
-		MvdSettings_P::settings->sync();
+	delete mSettings;
+	mInstance = 0;
+	mDestroyed = true;
+}
+
+void MvdSettings::create()
+{
+	// Local static members are instantiated as soon 
+	// as this function is entered for the first time
+	// (Scott Meyers singleton)
+	static MvdSettings instance;
+	mInstance = &instance;
 }
 
 /*!
@@ -526,7 +545,7 @@ MvdSettings& Movida::settings()
 */
 void MvdSettings::clear()
 {
-	MvdSettings_P::settings->clear();
+	mSettings->clear();
 }
 
 /*!
@@ -535,19 +554,19 @@ void MvdSettings::clear()
 */
 void MvdSettings::beginGroup(const QString& prefix)
 {
-	MvdSettings_P::settings->beginGroup(prefix);
+	mSettings->beginGroup(prefix);
 }
 
 //! Resets the group to what it was before the corresponding beginGroup() call. 
 void MvdSettings::endGroup()
 {
-	MvdSettings_P::settings->endGroup();
+	mSettings->endGroup();
 }
 
 //! Returns the current group as set by beginGroup().
 QString MvdSettings::group() const
 {
-	return MvdSettings_P::settings->group();
+	return mSettings->group();
 }
 
 /*!
@@ -556,7 +575,7 @@ QString MvdSettings::group() const
 */
 int MvdSettings::beginReadArray(const QString& prefix)
 {
-	return MvdSettings_P::settings->beginReadArray(prefix);
+	return mSettings->beginReadArray(prefix);
 }
 
 /*!
@@ -566,7 +585,7 @@ int MvdSettings::beginReadArray(const QString& prefix)
 */
 void MvdSettings::beginWriteArray(const QString& prefix, int size)
 {
-	MvdSettings_P::settings->beginWriteArray(prefix, size);
+	mSettings->beginWriteArray(prefix, size);
 }
 
 /*! Sets the current array index to i. Calls to functions such as setValue(), value(), remove(), 
@@ -575,13 +594,13 @@ void MvdSettings::beginWriteArray(const QString& prefix, int size)
 */
 void MvdSettings::setArrayIndex(int i)
 {
-	MvdSettings_P::settings->setArrayIndex(i);
+	mSettings->setArrayIndex(i);
 }
 
 //! Closes the array that was started using beginReadArray() or beginWriteArray().
 void MvdSettings::endArray()
 {
-	MvdSettings_P::settings->endArray();
+	mSettings->endArray();
 }
 
 /*! Returns true if there exists a setting called key; returns false otherwise. 
@@ -589,13 +608,13 @@ void MvdSettings::endArray()
 */
 bool MvdSettings::contains(const QString& key) const
 {
-	return MvdSettings_P::settings->contains(key);
+	return mSettings->contains(key);
 }
 
 //! Removes the setting key and any sub-settings of key.
 void MvdSettings::remove(const QString& key)
 {
-	MvdSettings_P::settings->remove(key);
+	mSettings->remove(key);
 }
 
 /*! Sets the value of setting key to value but only if the key does not exist already.
@@ -604,7 +623,7 @@ void MvdSettings::setDefaultValue(const QString& key, const QVariant& value)
 {
 	if (contains(key))
 		return;
-	MvdSettings_P::settings->setValue(key, value);
+	mSettings->setValue(key, value);
 }
 
 /*! Sets the value of setting key to value. 
@@ -612,7 +631,7 @@ void MvdSettings::setDefaultValue(const QString& key, const QVariant& value)
 */
 void MvdSettings::setValue(const QString& key, const QVariant& value)
 {
-	MvdSettings_P::settings->setValue(key, value);
+	mSettings->setValue(key, value);
 }
 
 /*! Returns the value for setting key. If the setting doesn't exist, returns defaultValue. 
@@ -622,13 +641,13 @@ QVariant MvdSettings::value(const QString& key, const QVariant& defaultValue) co
 {
 	if (!contains(key))
 		qDebug("MvdSettings: key not found: %s", key.toLatin1().constData());
-	return MvdSettings_P::settings->value(key, defaultValue);
+	return mSettings->value(key, defaultValue);
 }
 
 //! Returns a status code indicating the first error that was met, or NoError if no error occurred. 
 MvdSettings::Status MvdSettings::status() const
 {
-	QSettings::Status s = MvdSettings_P::settings->status();
+	QSettings::Status s = mSettings->status();
 	switch (s)
 	{
 	case QSettings::AccessError: return AccessError;
