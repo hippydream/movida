@@ -26,6 +26,7 @@
 #include "mvdcore/pathresolver.h"
 #include "mvdcore/settings.h"
 #include "mvdcore/templatemanager.h"
+#include "mvdcore/templatecache.h"
 #include <QContextMenuEvent>
 #include <QFile>
 #include <QFileDialog>
@@ -33,12 +34,6 @@
 #include <QMenu>
 #include <QRegExp>
 #include <QtWebKit>
-//! \todo REMOVE INCLUDE
-#include <QMessageBox>
-
-namespace {
-	static const int MaxCachedPages = 100;
-};
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -58,28 +53,9 @@ public:
 		SavePoster
 	};
 
-	struct CachedPage {
-		CachedPage(quint64 id) : id(id), usage(0) {}
-		CachedPage(quint64 id, const QString& s) : id(id), path(s), usage(0) {}
-		bool operator<(const CachedPage& o) const { return usage > o.usage; }
-		bool operator==(const CachedPage& o) const { return id == o.id; }
-
-		quint64 id;
-		QString path;
-		int usage;
-	};
-	typedef QList<CachedPage> PageCache;
-
-	Private(MvdBrowserView* v) : collection(0), manualCacheId(0), q(v)
+	Private(MvdBrowserView* v) : collection(0), q(v)
 	{}
 
-	~Private() {
-		purgeCache();
-	};
-
-	void updateCache();
-	void purgeCache();
-	QString retrievePath(bool global);
 	void populateContextMenu(QMenu* menu, ContextMenuPosition pos) const;
 	void contextMenuActionTriggered(const QWebHitTestResult& hit, Action a);
 
@@ -88,38 +64,9 @@ public:
 	QAction* forwardAction;
 	MvdMovieCollection* collection;
 
-	//! \todo Make cache a global singleton!
-	PageCache automaticCache;
-	PageCache manualCache;
-	quint64 manualCacheId;
-
-	QString cacheDir;
-	QString templateName;
-	QString blank;
-
 	Ui::MvdBrowserView ui;
 	MvdBrowserView* q;
 };
-
-QString MvdBrowserView::Private::retrievePath(bool global)
-{
-	QString path;
-	if (!global && collection) {
-		path = collection->metaData(MvdMovieCollection::TempPathInfo).append("/templates/");
-	} else {
-		if (cacheDir.isEmpty()) {
-			cacheDir = Movida::paths().generateTempDir();
-		}
-		path = QString(cacheDir).append("/templates/");
-	}
-
-	if (!QFile::exists(path)) {
-		QDir dir;
-		dir.mkpath(path);
-	}
-
-	return path;
-}
 
 void MvdBrowserView::Private::populateContextMenu(QMenu* menu, ContextMenuPosition pos) const
 {
@@ -194,12 +141,6 @@ MvdBrowserView::~MvdBrowserView()
 void MvdBrowserView::setMovieCollection(MvdMovieCollection* c)
 {
 	d->collection = c;
-
-	if (c) {
-		connect (c, SIGNAL(movieRemoved(mvdid)), SLOT(invalidateMovie(mvdid)));
-		connect (c, SIGNAL(movieChanged(mvdid)), SLOT(invalidateMovie(mvdid)));
-		connect (c, SIGNAL(changed()), SLOT(invalidateBlank()));
-	}
 }
 
 void MvdBrowserView::clear()
@@ -209,21 +150,10 @@ void MvdBrowserView::clear()
 
 void MvdBrowserView::blank()
 {
-	if (d->blank.isEmpty()) {
-		d->blank = d->retrievePath(true);
-		d->blank.append("blank.html");
-		if (QFile::exists(d->blank))
-			QFile::remove(d->blank);
-		bool res = Movida::tmanager().collectionToHtmlFile(
-			d->collection, d->blank, QLatin1String("BrowserView"), d->templateName);
-		if (!res) {
-			d->blank.clear();
-			clear();
-			return;
-		}
-	}
-
-	d->ui.webView->setUrl(QUrl::fromLocalFile(d->blank));
+	QString path = Movida::tcache().blank(d->collection);
+	if (path.isEmpty())
+		clear();
+	else d->ui.webView->setUrl(QUrl::fromLocalFile(path));
 }
 
 void MvdBrowserView::setUrl(QString url)
@@ -347,35 +277,11 @@ void MvdBrowserView::showMovie(mvdid id)
 		return;
 	}
 
-	QString path;
-	int idx = d->automaticCache.indexOf(Private::CachedPage(id));
-	if (idx >= 0) {
-		Private::CachedPage& cp = d->automaticCache[idx];
-		++cp.usage;
-		path = cp.path;
-	}
-
+	QString path = Movida::tcache().movie(d->collection, id);
 	if (path.isEmpty()) {
-		// Parse and cache HTML
-		path = d->retrievePath(false);
-		path.append(QString("bvt_%1.html").arg(id));
-		if (QFile::exists(path)) QFile::remove(path);
-
-		bool res = Movida::tmanager().movieToHtmlFile(d->collection->movie(id), *d->collection, 
-			path, QLatin1String("BrowserView"), d->templateName);
-
-		if (res) {
-			if (d->automaticCache.size() == MaxCachedPages)
-				d->updateCache();
-			d->automaticCache.append(Private::CachedPage(id, path));
-		}
-		else path.clear();
-	}
-	
-	if (!path.isEmpty()) {
-		d->ui.webView->setUrl(QUrl::fromLocalFile(path));
-	} else {
 		blank();
+	} else {
+		d->ui.webView->setUrl(QUrl::fromLocalFile(path));
 	}
 }
 
@@ -398,25 +304,7 @@ int MvdBrowserView::cacheMovieData(const MvdMovieData& md)
 	if (!md.isValid())
 		return -1;
 
-	QString path = d->retrievePath(true);
-	if (!QFile::exists(path)) {
-		QDir dir;
-		dir.mkpath(path);
-	}
-
-	quint64 id = ++d->manualCacheId;
-	path.append(QString("bvrt_%1.html").arg(id));
-	if (QFile::exists(path)) QFile::remove(path);
-
-	bool res = Movida::tmanager().movieDataToHtmlFile(md, 
-		path, QLatin1String("BrowserView"), d->templateName);
-
-	if (res) {
-		d->manualCache.append(Private::CachedPage(id, path));
-		return id;
-	}
-
-	return -1;
+	return Movida::tcache().cacheMovieData(md);
 }
 
 /*!
@@ -426,30 +314,16 @@ int MvdBrowserView::cacheMovieData(const MvdMovieData& md)
 */
 void MvdBrowserView::showMovieData(int id)
 {
-	if (id < 0) {
+	QString path = Movida::tcache().movieData(id);
+	if (path.isEmpty())
 		blank();
-		return;
-	}
-
-	foreach (const Private::CachedPage& p, d->manualCache) {
-		if (p.id == (quint64)id) {
-			d->ui.webView->setUrl(QUrl::fromLocalFile(p.path));
-			return;
-		}
-	}
-
-	blank();
+	else
+		d->ui.webView->setUrl(QUrl::fromLocalFile(path));
 }
 
 void MvdBrowserView::clearCachedMovieData(int id)
 {
-	for (int i = 0; i < d->manualCache.size(); ++i) {
-		const Private::CachedPage& p = d->manualCache.at(i);
-		if (p.id == (quint64)id) {
-			d->manualCache.removeAt(i);
-			break;
-		}
-	}
+	Movida::tcache().clearCachedMovieData(id);
 }
 
 bool MvdBrowserView::eventFilter(QObject* o, QEvent* e)
@@ -516,49 +390,6 @@ QWebPage* MvdBrowserView::page() const
 QWebView* MvdBrowserView::webView() const
 {
 	return d->ui.webView;
-}
-
-void MvdBrowserView::invalidateMovie(mvdid id)
-{
-	// Remove movie from cache
-	int idx = d->automaticCache.indexOf(Private::CachedPage(id));
-	if (idx < 0)
-		return;
-
-	QString path = d->automaticCache[idx].path;
-	QFile::remove(path);
-	d->automaticCache.removeAt(idx);
-}
-
-void MvdBrowserView::invalidateBlank()
-{
-	// Remove blank page from cache
-	if (d->blank.isEmpty()) return;
-	QFile::remove(d->blank);
-	d->blank.clear();
-}
-
-void MvdBrowserView::Private::updateCache()
-{
-	qSort(automaticCache);
-	int last = automaticCache.size();
-	while (automaticCache.size() > (MaxCachedPages / 2)) {
-		CachedPage p = automaticCache.takeAt(--last);
-		QFile::remove(p.path);
-	}
-}
-
-void MvdBrowserView::Private::purgeCache()
-{
-	while (!automaticCache.isEmpty()) {
-		CachedPage p = automaticCache.takeAt(0);
-		QFile::remove(p.path);
-	}
-
-	while (!manualCache.isEmpty()) {
-		CachedPage p = manualCache.takeAt(0);
-		QFile::remove(p.path);
-	}
 }
 
 void MvdBrowserView::setControlsVisible(bool visible)

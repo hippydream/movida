@@ -67,10 +67,6 @@ protected:
 	QWebPage* page() const;
 	QWebView* webView() const;
 
-private slots:
-	void invalidateMovie(mvdid id);
-	void invalidateBlank();
-
 private:
 	class Private;
 	Private* d;

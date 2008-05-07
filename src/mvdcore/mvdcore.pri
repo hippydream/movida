@@ -14,6 +14,7 @@ HEADERS += \
 	sditem.h \
 	settings.h \
 	shareddata.h \
+	templatecache.h \
 	templatemanager.h \
 	unzip.h \
 	xmlwriter.h \
@@ -35,6 +36,7 @@ SOURCES += \
 	plugininterface.cpp \
 	settings.cpp \
 	shareddata.cpp \
+	templatecache.cpp \
 	templatemanager.cpp \
 	unzip.cpp \
 	xmlwriter.cpp \
