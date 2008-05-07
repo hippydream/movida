@@ -24,6 +24,8 @@
 #include "global.h"
 #include <QVariant>
 
+class QSettings;
+
 class MVD_EXPORT MvdSettings
 {
 public:
@@ -35,7 +37,6 @@ public:
 	};
 
 	static MvdSettings& instance();
-	virtual ~MvdSettings();
 
 	void clear();
 
@@ -58,8 +59,16 @@ public:
 	Status status() const;
 
 private:
-	static MvdSettings* mInstance;
 	MvdSettings();
+	MvdSettings(const MvdSettings&);
+	MvdSettings& operator=(const MvdSettings&);
+	virtual ~MvdSettings();
+
+	static void create();
+	static volatile MvdSettings* mInstance;
+	static bool mDestroyed;
+
+	QSettings* mSettings;
 };
 
 namespace Movida
