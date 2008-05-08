@@ -7,7 +7,7 @@ DLLDESTDIR = $${ROOT}/bin
 win32 {
 	LIBS += -llibxml2 -llibxslt
 } else {
-	LIBS += -lxml2 -lxslt
+	LIBS += -lz -lxml2 -lxslt
 }
 TEMPLATE = lib
 CONFIG += dll
