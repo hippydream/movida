@@ -78,6 +78,7 @@ void MvdBrowserView::Private::populateContextMenu(QMenu* menu, ContextMenuPositi
 			QAction* a = menu->addAction(QIcon(":/images/document-save.svgz"), tr("Save movie poster..."));
 			a->setData((uint)SavePoster);
 		}
+	default: ;
 	}
 }
 
@@ -99,6 +100,7 @@ void MvdBrowserView::Private::contextMenuActionTriggered(const QWebHitTestResult
 				Movida::info(q->tr("Movie poster saved."));
 			}
 		}
+	default: ;
 	}
 }
 
@@ -335,6 +337,7 @@ bool MvdBrowserView::eventFilter(QObject* o, QEvent* e)
 			showContextMenu(cme);
 			return true;
 			}
+		default: ;
 		}
 	}
 
