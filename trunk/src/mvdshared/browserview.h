@@ -25,6 +25,7 @@
 #include "mvdcore/global.h"
 #include <QWidget>
 #include <QList>
+#include <QUrl>
 
 class MvdMovieCollection;
 class MvdMovieData;
@@ -59,6 +60,9 @@ public slots:
 	void setUrl(QString url);
 
 	bool eventFilter(QObject* o, QEvent* e);
+
+signals:
+	void linkClicked(const QUrl& url);
 
 protected:
 	virtual void showContextMenu(QContextMenuEvent* e);

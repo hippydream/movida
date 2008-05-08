@@ -1711,3 +1711,66 @@ void Movida::mainWindowMessageHandler(Movida::MessageType t, const QString& m)
 	if (MainWindow)
 		MainWindow->dispatchMessage(t, m);
 }
+
+void MvdMainWindow::linkClicked(const QUrl& url)
+{
+	MvdCore::ActionUrl aurl = MvdCore::parseActionUrl(url);
+	if (!aurl.isValid()) {
+		Movida::wLog() << "MainWindow: malformed action URL: " << aurl;
+		return;
+	}
+
+	if (aurl.action == QLatin1String("plugin")) {
+		QStringList sl = aurl.parameter.split(QChar('/'), QString::SkipEmptyParts);
+		if (sl.size() < 2) {
+			Movida::wLog() << "MainWindow: invalid action URL: " << aurl;
+			return;
+		}
+		
+		QString pluginId = sl.at(0);
+		MvdPluginInterface* plugin = locatePlugin(pluginId);
+		if (!plugin) {
+			Movida::wLog() << "MainWindow: failed to dispatch action URL " << aurl << " to plugin " << pluginId;
+			return;
+		}
+
+		Movida::iLog() << "MainWindow: dispatching action URL " << aurl << " to plugin " << pluginId;
+		QString action = sl.at(1);
+		sl.removeAt(0); // Remove plugin id
+		sl.removeAt(0); // Remove action name
+		plugin->actionTriggered(action, sl);
+		return;
+	}
+	
+	if (aurl.action != QLatin1String("movida")) {
+		Movida::wLog() << "MainWindow: unsupported action URL: " << aurl;
+		return;
+	}
+
+	QStringList sl = aurl.parameter.split(QChar('/'), QString::SkipEmptyParts);
+	if (sl.isEmpty()) { // We require at least an action
+		Movida::wLog() << "MainWindow: invalid action URL: " << aurl;
+		return;
+	}
+
+	bool handled = false;
+	QString action = sl.takeAt(0);
+	if (action == QLatin1String("collection") && !sl.isEmpty()) {
+		action = sl.takeAt(0);
+		if (action == QLatin1String("add")) {
+			addMovie();
+			handled = true;
+		}
+	}
+}
+
+//! \todo Move plugin handling to mvdcore library and add a hook to register UI actions.
+MvdPluginInterface* MvdMainWindow::locatePlugin(const QString& id) const
+{
+	foreach (MvdPluginInterface* iface, mPlugins) {
+		if (iface->id() == id) {
+			return iface;
+		}
+	}
+	return 0;
+}

@@ -75,6 +75,8 @@ public:
 	virtual QMenu* createPopupMenu();
 	virtual void dispatchMessage(Movida::MessageType t, const QString& m);
 
+	MvdPluginInterface* locatePlugin(const QString& id) const;
+
 public slots:
 	bool loadCollection(const QString& file);
 	void filter(QString s);
@@ -231,6 +233,7 @@ private slots:
 	void externalActionTriggered(const QString& id, const QVariant& data);
 	void httpRequestFinished(int id, bool error);
 	void infoPanelClosedByUser();
+	void linkClicked(const QUrl& url);
 	void loadLastCollection();
 	void loadPlugins();
 	void loadPluginsFromDir(const QString& path);

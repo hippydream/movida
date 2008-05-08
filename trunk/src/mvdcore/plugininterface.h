@@ -86,13 +86,16 @@ public:
 	virtual PluginInfo info() const = 0;
 	virtual QList<PluginAction> actions() const = 0;
 
-	virtual void actionTriggeredImplementation(const QString& name) = 0;
+	virtual void actionTriggeredImplementation(const QString& name, const QStringList& parameters) = 0;
 
 	QString dataStore(Movida::Scope scope = Movida::UserScope) const;
 	void setDataStore(const QString& path, Movida::Scope scope = Movida::UserScope);
 
+	QString id() const;
+	QString name() const;
+
 public slots:
-	void actionTriggered(const QString& name);
+	void actionTriggered(const QString& name, const QStringList& parameters = QStringList());
 
 private:
 	MvdPluginInterface_P* d;

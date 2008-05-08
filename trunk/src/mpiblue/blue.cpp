@@ -113,7 +113,7 @@ QList<MvdPluginInterface::PluginAction> MpiBlue::actions() const
 	return list;
 }
 
-void MpiBlue::actionTriggeredImplementation(const QString& name)
+void MpiBlue::actionTriggeredImplementation(const QString& name, const QStringList& parameters)
 {
 	if (name == "imdb-import") {
 		MpiMovieImport mi(parent() ? parent() : this);

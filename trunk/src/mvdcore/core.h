@@ -23,6 +23,7 @@
 
 #include "global.h"
 #include <QVariant>
+#include <QUrl>
 #include <QtGlobal>
 #ifdef Q_OS_WIN32
 # include "qt_windows.h"
@@ -54,7 +55,8 @@ public:
 	struct ActionUrl
 	{
 		inline bool isValid() const { return !action.isEmpty(); }
-
+		operator QString() const;
+		
 		QString action;
 		QString parameter;
 	};
@@ -86,6 +88,7 @@ public:
 	static QString decodeXmlEntities(QString s);
 
 	static ActionUrl parseActionUrl(const QString& url);
+	static ActionUrl parseActionUrl(const QUrl& url) { return parseActionUrl(url.toString()); }
 
 	static QString locateApplication(QString name, LocateOptions options = IncludeApplicationPath);
 

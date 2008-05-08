@@ -5,7 +5,7 @@
 ]>
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/TR/xhtml1/strict">
-            
+
 	<xsl:template match="collection-info">
 		<html>
 			<head>
@@ -128,16 +128,16 @@ p {
 				<h3>Statistics</h3>
 				<xsl:choose>
 					<xsl:when test="@movies = 0">
-						<p>The collection is currently empty. You can either <a href="movida://collection/add">add movies manually</a>
+						<p>The collection is currently empty. You can either <a href="movida://movida/collection/add">add movies manually</a>
 						or import from other sources like the Internet.</p>
 					</xsl:when>
 					<xsl:when test="@movies = 1">
-						<p>The collection contains only one movie. You can either <a href="movida://collection/add">add movies
+						<p>The collection contains only one movie. You can either <a href="movida://movida/collection/add">add movies
 						manually</a> or import from other sources like the Internet.</p>
 					</xsl:when>
 					<xsl:otherwise>
 						<p>The collection contains <xsl:value-of select="@movies" /> movies. You can either 
-						<a href="movida://collection/add">add movies manually</a> or import from other sources like the Internet.</p>
+						<a href="movida://movida/collection/add">add movies manually</a> or import from other sources like the Internet.</p>
 					</xsl:otherwise>
 				</xsl:choose>
 				

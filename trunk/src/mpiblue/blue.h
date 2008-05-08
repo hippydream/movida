@@ -95,7 +95,7 @@ public:
 	QString lastError() const;
 	PluginInfo info() const;
 	QList<PluginAction> actions() const;
-	void actionTriggeredImplementation(const QString& name);
+	void actionTriggeredImplementation(const QString& name, const QStringList& parameters);
 
 	QString tempDir();
 
