@@ -42,6 +42,7 @@ public:
 private slots:
 	void invalidateMovie(mvdid id);
 	void invalidateCollection();
+	void deregisterCollection(QObject* o);
 
 private:
 	MvdTemplateCache();
@@ -50,7 +51,6 @@ private:
 	virtual ~MvdTemplateCache();
 
 	void registerCollection(MvdMovieCollection* collection);
-	void deregisterCollection(QObject* o);
 
 	static void create();
 	static volatile MvdTemplateCache* mInstance;
