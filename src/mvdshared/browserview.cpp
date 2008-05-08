@@ -352,10 +352,10 @@ void MvdBrowserView::showContextMenu(QContextMenuEvent* e)
 {
 	Q_ASSERT(e);
 	QPoint pos = e->pos();
-	QWebFrame* frame = currentFrame();
-	if (!frame) return;
+	QWebFrame* f = frame();
+	if (!f) return;
 	
-	QWebHitTestResult hit = frame->hitTestContent(pos);
+	QWebHitTestResult hit = f->hitTestContent(pos);
 
 	//! \todo Bug report submitted to Trolltech on 05/05/2008
 	// if (hit.isNull()) return;
@@ -384,9 +384,9 @@ void MvdBrowserView::showContextMenu(QContextMenuEvent* e)
 	d->contextMenuActionTriggered(hit, (Private::Action) id);
 }
 
-QWebFrame* MvdBrowserView::currentFrame() const
+QWebFrame* MvdBrowserView::frame() const
 {
-	return d->ui.webView->page()->currentFrame();
+	return d->ui.webView->page()->mainFrame();
 }
 
 QWebPage* MvdBrowserView::page() const

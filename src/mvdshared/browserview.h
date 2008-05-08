@@ -67,7 +67,7 @@ signals:
 protected:
 	virtual void showContextMenu(QContextMenuEvent* e);
 
-	QWebFrame* currentFrame() const;
+	QWebFrame* frame() const;
 	QWebPage* page() const;
 	QWebView* webView() const;
 
