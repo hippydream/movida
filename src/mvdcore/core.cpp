@@ -397,7 +397,8 @@ MvdCore::ActionUrl MvdCore::parseActionUrl(const QString& url)
 {
 	ActionUrl a;
 
-	QRegExp rx("^movida://([^/]*)/?([^/]*)?$");
+	QRegExp rx("^movida://([^/]+)(?:/(.+))?$");
+	rx.setMinimal(true);
 	if (rx.indexIn(url) >= 0)
 	{
 		a.action = rx.cap(1);
@@ -606,4 +607,12 @@ void Movida::registerMessageHandler(MessageHandler handler)
 
 	::oldMsgHandler = ::msgHandler;
 	::msgHandler = handler;
+}
+
+MvdCore::ActionUrl::operator QString() const
+{
+	if (action.isEmpty()) return QString();
+	if (parameter.isEmpty()) return QString();
+	QString s = action;
+	return s.append(QLatin1Char('/')).append(parameter);
 }

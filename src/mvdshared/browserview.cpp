@@ -132,7 +132,11 @@ MvdBrowserView::MvdBrowserView(QWidget* parent)
 	ws->setAttribute(QWebSettings::JavascriptEnabled, false);
 	ws->setAttribute(QWebSettings::DeveloperExtrasEnabled, false);
 
+	d->ui.webView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+
 	d->ui.webView->installEventFilter(this);
+
+	connect( d->ui.webView, SIGNAL(linkClicked(QUrl)), this, SIGNAL(linkClicked(QUrl)) );
 }
 
 MvdBrowserView::~MvdBrowserView()

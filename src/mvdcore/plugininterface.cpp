@@ -54,9 +54,9 @@ MvdPluginInterface::~MvdPluginInterface()
 	delete d;
 }
 
-void MvdPluginInterface::actionTriggered(const QString& name)
+void MvdPluginInterface::actionTriggered(const QString& name, const QStringList& parameters)
 {
-	actionTriggeredImplementation(name);
+	actionTriggeredImplementation(name, parameters);
 }
 
 //! Returns the data store path for this plugin. The directory is ensured to exist.
@@ -79,4 +79,18 @@ void MvdPluginInterface::setDataStore(const QString& path, Movida::Scope scope)
 	if (scope == Movida::UserScope)
 		d->userDataStore = path;
 	else d->globalDataStore = path;
+}
+
+//! Convenience method, returns the plugin's unique id.
+QString MvdPluginInterface::id() const
+{
+	MvdPluginInterface::PluginInfo nfo = info();
+	return nfo.uniqueId;
+}
+
+//! Convenience method, returns the plugin's name.
+QString MvdPluginInterface::name() const
+{
+	MvdPluginInterface::PluginInfo nfo = info();
+	return nfo.name;
 }

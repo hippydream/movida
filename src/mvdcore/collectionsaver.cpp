@@ -63,7 +63,7 @@ MvdCollectionSaver_P
 class MvdCollectionSaver::Private
 {
 public:
-	Private(MvdCollectionSaver* s) : q(s), progressReceiver(0) {}
+	Private(MvdCollectionSaver* s) : progressReceiver(0), q(s) {}
 
 	inline QFile* createFile(const QString& name);
 

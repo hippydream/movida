@@ -593,6 +593,8 @@ void MvdMainWindow::setupConnections()
 	connect( mSmartView, SIGNAL( contextMenuRequested(const QModelIndex&) ), this, SLOT( showMovieContextMenu(const QModelIndex&) ) );
 
 	connect( mMainViewStack, SIGNAL(currentChanged(int)), this, SLOT(currentViewChanged()) );
+
+	connect( mDetailsView, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClicked(QUrl)) );
 	
 	connect( mFilterWidget, SIGNAL(hideRequest()), this, SLOT(resetFilter()) );
 	connect( mFilterWidget, SIGNAL(caseSensitivityChanged()), this, SLOT(filter()) );
