@@ -406,9 +406,6 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 	}
 
 	xml.append("</movie>");
-	QFile f("c:\\movie.xml");
-	f.open(QIODevice::WriteOnly);
-	f.write(xml.toUtf8());
 	return xml;
 }
 
