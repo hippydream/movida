@@ -72,6 +72,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalOptions="&quot;/MANIFESTDEPENDENCY:type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos; processorArchitecture=&apos;*&apos;&quot;"
 				AdditionalDependencies="mvdcore.lib mvdshared.lib libxml2.lib $(QTDIR)\lib\QtGuid4.lib $(QTDIR)\lib\QtNetworkd4.lib $(QTDIR)\lib\QtCored4.lib"
 				OutputFile="..\..\bin\mpiblue.dll"
 				SuppressStartupBanner="true"
@@ -103,8 +104,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copy mpiblue.dll to $(APPDATA)\42cows.org\Movida\Resources\Plugins"
-				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;$(APPDATA)\42cows.org\Movida\Resources\Plugins&quot;"
+				Description="Copy mpiblue.dll to ..\..\..\..\Documents and Settings\blue\Application Data\42cows.org\Movida\Resources\Plugins"
+				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;..\..\..\..\Documents and Settings\blue\Application Data\42cows.org\Movida\Resources\Plugins&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -165,6 +166,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalOptions="&quot;/MANIFESTDEPENDENCY:type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos; processorArchitecture=&apos;*&apos;&quot;"
 				AdditionalDependencies="mvdcore.lib mvdshared.lib libxml2.lib $(QTDIR)\lib\QtGui4.lib $(QTDIR)\lib\QtNetwork4.lib $(QTDIR)\lib\QtCore4.lib"
 				OutputFile="..\..\bin\mpiblue.dll"
 				LinkIncremental="1"
@@ -197,8 +199,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copy mpiblue.dll to $(APPDATA)\42cows.org\Movida\Resources\Plugins"
-				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;$(APPDATA)\42cows.org\Movida\Resources\Plugins&quot;"
+				Description="Copy mpiblue.dll to ..\..\..\..\Documents and Settings\blue\Application Data\42cows.org\Movida\Resources\Plugins"
+				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;..\..\..\..\Documents and Settings\blue\Application Data\42cows.org\Movida\Resources\Plugins&quot;"
 			/>
 		</Configuration>
 	</Configurations>
