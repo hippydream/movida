@@ -165,7 +165,7 @@ void MvdBrowserView::blank()
 void MvdBrowserView::setUrl(QString url)
 {
 	bool special = false;
-	MvdCore::ActionUrl aurl;
+	MvdActionUrl aurl;
 	
 	QRegExp rx("[a-z]+:[a-z]+");
 	if (rx.exactMatch(url)) {

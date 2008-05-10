@@ -232,7 +232,7 @@ bool MvdMultiPageDialog::advancedControlEnabled(int control)
 //! \internal
 void MvdMultiPageDialog::linkActivated(const QString& url)
 {
-	MvdCore::ActionUrl a = MvdCore::parseActionUrl(url);
+	MvdActionUrl a = MvdCore::parseActionUrl(url);
 	if (!a.isValid())
 		return;
 
