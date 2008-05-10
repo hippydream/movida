@@ -55,7 +55,7 @@ MvdTemplateCache::Private
 class MvdTemplateCache::Private
 {
 public:
-	Private() {
+	Private() : manualCacheId(0) {
 	}
 
 	~Private() {
