@@ -158,7 +158,7 @@ bool MvdMovieMassEditor::storeMovies()
 //! \internal
 void MvdMovieMassEditor::linkActivated(const QString& url)
 {
-	MvdCore::ActionUrl a = MvdCore::parseActionUrl(url);
+	MvdActionUrl a = MvdCore::parseActionUrl(url);
 	if (!a.isValid())
 		return;
 

@@ -1714,7 +1714,7 @@ void Movida::mainWindowMessageHandler(Movida::MessageType t, const QString& m)
 
 void MvdMainWindow::linkClicked(const QUrl& url)
 {
-	MvdCore::ActionUrl aurl = MvdCore::parseActionUrl(url);
+	MvdActionUrl aurl = MvdCore::parseActionUrl(url);
 	if (!aurl.isValid()) {
 		Movida::wLog() << "MainWindow: malformed action URL: " << aurl;
 		return;

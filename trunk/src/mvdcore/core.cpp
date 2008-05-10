@@ -393,9 +393,9 @@ void Movida::xmlStructuredErrorHandler(void* userData, xmlErrorPtr error)
 	}
 }
 
-MvdCore::ActionUrl MvdCore::parseActionUrl(const QString& url)
+MvdActionUrl MvdCore::parseActionUrl(const QString& url)
 {
-	ActionUrl a;
+	MvdActionUrl a;
 
 	QRegExp rx("^movida://([^/]+)(?:/(.+))?$");
 	rx.setMinimal(true);
@@ -609,7 +609,7 @@ void Movida::registerMessageHandler(MessageHandler handler)
 	::msgHandler = handler;
 }
 
-MvdCore::ActionUrl::operator QString() const
+MvdActionUrl::operator QString() const
 {
 	if (action.isEmpty()) return QString();
 	if (parameter.isEmpty()) return QString();
