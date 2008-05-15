@@ -43,9 +43,10 @@
 class MvdBrowserView::Private
 {
 public:
-	enum ContextMenuPosition {
-		InvalidContextMenuPosition = 0,
-		OnPoster
+	enum Context {
+		InvalidContext = 0,
+		PosterContext,
+		RatingContext
 	};
 
 	enum Action {
@@ -56,7 +57,8 @@ public:
 	Private(MvdBrowserView* v) : collection(0), q(v)
 	{}
 
-	void populateContextMenu(QMenu* menu, ContextMenuPosition pos) const;
+	Context context(const QString& s) const;
+	void populateContextMenu(QMenu* menu, Context pos) const;
 	void contextMenuActionTriggered(const QWebHitTestResult& hit, Action a);
 
 	QAction* backAction;
@@ -68,16 +70,32 @@ public:
 	MvdBrowserView* q;
 };
 
-void MvdBrowserView::Private::populateContextMenu(QMenu* menu, ContextMenuPosition pos) const
+MvdBrowserView::Private::Context MvdBrowserView::Private::context(const QString& s) const
+{
+	if (s == QLatin1String("poster"))
+		return PosterContext;
+	else if (s == QLatin1String("rating"))
+		return RatingContext;
+	return InvalidContext;
+}
+
+void MvdBrowserView::Private::populateContextMenu(QMenu* menu, Context pos) const
 {
 	Q_ASSERT(menu && (int)pos);
 
 	switch (pos) {
-	case OnPoster:
-		{
-			QAction* a = menu->addAction(QIcon(":/images/document-save.svgz"), tr("Save movie poster..."));
-			a->setData((uint)SavePoster);
-		}
+	case PosterContext:
+	{
+		QAction* a = menu->addAction(QIcon(":/images/document-save.svgz"), tr("Save movie poster..."));
+		a->setData((uint)SavePoster);
+	}
+	break;
+	case RatingContext:
+	{
+		QAction* a = menu->addAction(tr("Clear rating"));
+		a->setData((uint)PosterContext);
+	}
+	break;
 	default: ;
 	}
 }
@@ -361,11 +379,21 @@ void MvdBrowserView::showContextMenu(QContextMenuEvent* e)
 	// if (hit.isNull()) return;
 
 	QMenu* menu = new QMenu;
-	QUrl imageUrl = hit.imageUrl();
-	if (!imageUrl.isEmpty() && d->collection) {
+	QUrl url = hit.imageUrl();
+	if (!url.isEmpty() && d->collection) {
 		QUrl dp = QUrl::fromLocalFile(d->collection->metaData(MvdMovieCollection::DataPathInfo));
-		if (imageUrl.path().startsWith(dp.path())) {
-			d->populateContextMenu(menu, Private::OnPoster);
+		if (url.path().startsWith(dp.path())) {
+			d->populateContextMenu(menu, Private::PosterContext);
+		}
+	}
+
+	url = hit.linkUrl();
+	if (!url.isEmpty() && d->collection) {
+		if (url.scheme() == QLatin1String("movida")) {
+			MvdActionUrl aurl = MvdCore::parseActionUrl(url);
+			if (aurl.isValid() && aurl.action == QLatin1String("context") && !aurl.parameter.isEmpty()) {
+				d->populateContextMenu(menu, d->context(aurl.parameter));
+			}
 		}
 	}
 
