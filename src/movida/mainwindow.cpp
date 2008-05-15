@@ -351,6 +351,7 @@ void MvdMainWindow::updateFileMenu()
 	if (updateList)
 		Movida::settings().setValue("movida/recent-files", list);
 
+	mA_FileOpenLast->setDisabled(list.isEmpty());
 	mMN_FileMRU->setDisabled(list.isEmpty());
 	mMN_FileMRU->clear();
 	

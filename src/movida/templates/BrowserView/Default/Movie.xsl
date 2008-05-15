@@ -5,7 +5,7 @@
 ]>
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/TR/xhtml1/strict">
-            
+
 	<xsl:template match="movie">
 		<html>
 			<head>
@@ -57,6 +57,10 @@ h3 {
 	font-size: 1.4em;
 	margin-bottom: 10px;
 	border-bottom: 2px solid #222;
+}
+
+a.fakelink {
+	cursor: none;
 }
 
 img#poster {
@@ -168,11 +172,13 @@ table.details tr.odd td {
 							</xsl:choose>
 							<xsl:choose>
 								<xsl:when test="rating">
+									<a href="movida://context/rating" class="fakelink">
 									<div id="rating_out">
 										<xsl:variable name="rating"><xsl:value-of select="rating"/></xsl:variable>
 										<xsl:variable name="ratingw"><xsl:value-of select="$rating * 18" /></xsl:variable>
 										<div id="rating_in" style="width:{$ratingw}" />
 									</div>
+									</a>
 								</xsl:when>
 								<xsl:otherwise>
 									<div id="rating_out">
