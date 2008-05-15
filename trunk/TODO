@@ -8,12 +8,12 @@ SHORT-TERM (URGENT):
 
 <blue_death>	Add multiple movie editing support to single movie editor
 <blue_death>	"Drop here" message on filter bar should be moved to the info bar
-<blue_death>	Add a "OR combine" checkbox to the filter widget
+<blue_death>	Add a "OR combine" checkbox to the filter widget (IS THIS REALLY NECESSARY?)
+<blue_death>	Merge production and release year. KEEP-IT-SIMPLE!
 
 MID-TERM:
 
 <blue_death>	Consider adding "open IMDb page" to context menu or toolbar
-<blue_death>	Distinguish between main actors and other actors (useful for the smart view and other views)
 <blue_death>	Fix column width in the tree view and clean up the header and the context 
 		menu some how
 <blue_death>	Design and implement import plugin script options!!
