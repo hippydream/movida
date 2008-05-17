@@ -5,24 +5,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>530</width>
+    <width>635</width>
     <height>349</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Links</string>
   </property>
-  <layout class="QGridLayout" >
-   <property name="leftMargin" >
-    <number>0</number>
-   </property>
-   <property name="topMargin" >
-    <number>0</number>
-   </property>
-   <property name="rightMargin" >
-    <number>0</number>
-   </property>
-   <property name="bottomMargin" >
+  <layout class="QGridLayout" name="gridLayout" >
+   <property name="margin" >
     <number>0</number>
    </property>
    <item row="0" column="0" colspan="5" >
@@ -56,7 +47,7 @@ Toggle the checkbox to set a URL as default.</string>
      <property name="sizeType" >
       <enum>QSizePolicy::Fixed</enum>
      </property>
-     <property name="sizeHint" >
+     <property name="sizeHint" stdset="0" >
       <size>
        <width>20</width>
        <height>20</height>
@@ -80,21 +71,21 @@ Toggle the checkbox to set a URL as default.</string>
    <item row="3" column="1" >
     <widget class="QLineEdit" name="imdbInput" >
      <property name="sizePolicy" >
-      <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+      <sizepolicy vsizetype="Preferred" hsizetype="Fixed" >
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
      <property name="minimumSize" >
       <size>
-       <width>60</width>
+       <width>100</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize" >
       <size>
-       <width>60</width>
-       <height>20</height>
+       <width>100</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="inputMask" >
@@ -122,7 +113,7 @@ Toggle the checkbox to set a URL as default.</string>
      <property name="sizeType" >
       <enum>QSizePolicy::Fixed</enum>
      </property>
-     <property name="sizeHint" >
+     <property name="sizeHint" stdset="0" >
       <size>
        <width>16</width>
        <height>23</height>
@@ -157,9 +148,9 @@ Toggle the checkbox to set a URL as default.</string>
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="sizeHint" >
+     <property name="sizeHint" stdset="0" >
       <size>
-       <width>244</width>
+       <width>200</width>
        <height>23</height>
       </size>
      </property>

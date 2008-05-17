@@ -171,10 +171,7 @@
            <enum>Qt::NoContextMenu</enum>
           </property>
           <property name="text" >
-           <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;">&lt;a href="movida://select/poster">&lt;span style=" text-decoration: underline; color:#0000ff;">Set&lt;/span>&lt;/a> a movie poster&lt;/p>&lt;/body>&lt;/html></string>
+           <string>&lt;a href="movida://select/poster"&gt;Set&lt;/a&gt; a movie poster</string>
           </property>
           <property name="textFormat" >
            <enum>Qt::AutoText</enum>
@@ -331,10 +328,7 @@ p, li { white-space: pre-wrap; }
            <enum>Qt::NoContextMenu</enum>
           </property>
           <property name="text" >
-           <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">minutes (&lt;a href="movida://clear/runningtime">&lt;span style=" text-decoration: underline; color:#0000ff;">clear&lt;/span>&lt;/a> running time)&lt;/p>&lt;/body>&lt;/html></string>
+           <string>minutes (&lt;a href="movida://clear/runningtime"&gt;clear&lt;/a&gt; running time)</string>
           </property>
           <property name="textInteractionFlags" >
            <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::NoTextInteraction</set>
