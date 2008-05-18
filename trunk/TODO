@@ -10,6 +10,8 @@ SHORT-TERM (URGENT):
 <blue_death>	"Drop here" message on filter bar should be moved to the info bar
 <blue_death>	Add a "OR combine" checkbox to the filter widget (IS THIS REALLY NECESSARY?)
 <blue_death>	Merge production and release year. KEEP-IT-SIMPLE!
+<blue_death>	Fix MvdClearEdit clear button with some styles
+<blue_death>	Clearing the current filter should make the view scroll to the first selected item
 
 MID-TERM:
 
