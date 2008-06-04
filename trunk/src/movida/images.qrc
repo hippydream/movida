@@ -51,7 +51,4 @@
         <file alias="zoom-original.svgz" >images/actions/zoom-original.svgz</file>
         <file alias="zoom-out.svgz" >images/actions/zoom-out.svgz</file>
     </qresource>
-    <qresource prefix="/fonts" >
-        <file alias="logo" >images/misc/forte.ttf</file>
-    </qresource>
 </RCC>
