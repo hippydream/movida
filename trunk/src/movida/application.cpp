@@ -30,6 +30,7 @@
 #include <QTextCodec>
 #include <QDir>
 #include <QFile>
+#include <QFontDatabase>
 #include <QMessageBox>
 #include <iostream>
 #include <cstdlib>
@@ -187,6 +188,11 @@ int MvdApplication::init()
 		if (!MvdCore::initCore()) {
 			QMessageBox::warning(0, MVD_CAPTION, tr("Failed to initialize the application.\nPlease see the log file for details."));
 			return MVD_ERROR_INIT;
+		}
+
+		int logoFont = QFontDatabase::addApplicationFont(":/fonts/logo");
+		if (logoFont == -1) {
+			Movida::wLog() << "MvdApplication: Failed to load logo font.";
 		}
 
 		mMainWindow = new MvdMainWindow;

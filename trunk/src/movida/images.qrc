@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/images" >
-				<file alias="reload.svgz" >images/actions/reload.svgz</file>
+        <file alias="reload.svgz" >images/actions/reload.svgz</file>
         <file alias="application-exit.svgz" >images/actions/application-exit.svgz</file>
         <file alias="arrow-down-double.svgz" >images/actions/arrow-down-double.svgz</file>
         <file alias="arrow-down.svgz" >images/actions/arrow-down.svgz</file>
@@ -50,5 +50,8 @@
         <file alias="zoom-in.svgz" >images/actions/zoom-in.svgz</file>
         <file alias="zoom-original.svgz" >images/actions/zoom-original.svgz</file>
         <file alias="zoom-out.svgz" >images/actions/zoom-out.svgz</file>
+    </qresource>
+    <qresource prefix="/fonts" >
+        <file alias="logo" >images/misc/forte.ttf</file>
     </qresource>
 </RCC>
