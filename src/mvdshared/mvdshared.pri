@@ -3,6 +3,7 @@ HEADERS += \
 	actionlabel_p.h \
 	browserview.h \
 	clearedit.h \
+	clearspin.h \
 	expandinglineedit.h \
 	grafx.h \
 	importdialog.h \
@@ -23,6 +24,7 @@ SOURCES += \
 	actionlabel.cpp \
 	browserview.cpp \
 	clearedit.cpp \
+	clearspin.cpp \
 	expandinglineedit.cpp \
 	grafx.cpp \
 	importdialog.cpp \
