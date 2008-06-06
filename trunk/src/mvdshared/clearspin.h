@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: clearedit.h
+** Filename: clearspin.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,25 +18,28 @@
 **
 **************************************************************************/
 
-#ifndef MVD_CLEAREDIT_H
-#define MVD_CLEAREDIT_H
+#ifndef MVD_CLEARSPIN_H
+#define MVD_CLEARSPIN_H
 
 #include "sharedglobal.h"
-#include <QLineEdit>
+#include <QSpinBox>
 
-class MVD_EXPORT_SHARED MvdClearEdit : public QLineEdit
+class MVD_EXPORT_SHARED MvdClearSpin : public QSpinBox
 {
 	Q_OBJECT
 
 public:
-	MvdClearEdit(QWidget* parent = 0);
+	MvdClearSpin(QWidget* parent = 0);
 
-	void setPlaceHolder(const QString& s);
-	QString placeHolder() const;
+	QSize sizeHint() const;
 
 protected:
-	virtual void resizeEvent(QResizeEvent* );
-	virtual void paintEvent(QPaintEvent* );
+	virtual void paintEvent(QPaintEvent*);
+	virtual void resizeEvent(QResizeEvent*);
+	virtual void showEvent(QShowEvent*);
+
+protected slots:
+	virtual void clearButtonClicked();
 
 private slots:
 	void updateClearButton(const QString& text);
