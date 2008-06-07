@@ -74,7 +74,7 @@ void MvdClearSpin::resizeEvent(QResizeEvent* e)
 	QRect r = style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxEditField, this);
 	d->clearButton->move(
 		r.right() - d->pixmapSize.width() - ::Spacing,
-		(int)ceil((r.bottom() + 1 - d->pixmapSize.height()) / 2.0)
+		(int)ceil((r.height() - d->pixmapSize.height()) / 2.0)
 	);
 }
 
