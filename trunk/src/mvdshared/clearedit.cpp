@@ -72,7 +72,7 @@ void MvdClearEdit::resizeEvent(QResizeEvent* e)
 
 	d->clearButton->move(
 		r.right() - d->pixmapSize.width() - ::Spacing - frameWidth,
-		(int)ceil((r.bottom() + 1 - d->pixmapSize.height()) / 2.0)
+		(int)ceil((r.height() - 2 * frameWidth - d->pixmapSize.height()) / 2.0)
 	);
 }
 
