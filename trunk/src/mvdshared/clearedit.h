@@ -34,6 +34,8 @@ public:
 	void setPlaceHolder(const QString& s);
 	QString placeHolder() const;
 
+	QSize sizeHint() const;
+
 protected:
 	virtual void resizeEvent(QResizeEvent* );
 	virtual void paintEvent(QPaintEvent* );

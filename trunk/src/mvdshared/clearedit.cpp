@@ -23,9 +23,15 @@
 #include <QStyle>
 #include <QPainter>
 #include <QStyleOptionFrameV2>
+#include <math.h>
 
+// From QLineEdit
 #define verticalMargin 1
 #define horizontalMargin 2
+
+namespace {
+	static const int Spacing = 2;
+};
 
 class MvdClearEdit::Private
 {
@@ -34,12 +40,14 @@ public:
 
 	QToolButton* clearButton;
 	QString placeHolder;
+	QSize pixmapSize;
 };
 
 MvdClearEdit::MvdClearEdit(QWidget* parent)
 : QLineEdit(parent), d(new Private)
 {
 	QPixmap pixmap(":/images/clear-edit.png");
+	d->pixmapSize = pixmap.size();
 
 	d->clearButton = new QToolButton(this);
 	d->clearButton->setToolTip(tr("Click to clear the text."));
@@ -52,20 +60,28 @@ MvdClearEdit::MvdClearEdit(QWidget* parent)
 
 	connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateClearButton(const QString&)));
 	
-	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-	setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(d->clearButton->sizeHint().width() + frameWidth + 1));
-	
-	QSize msz = minimumSizeHint();
-	setMinimumSize(qMax(msz.width(), d->clearButton->sizeHint().height() + frameWidth * 2 + 2),
-		qMax(msz.height(), d->clearButton->sizeHint().height() + frameWidth * 2 + 2));
+	setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(d->pixmapSize.width() + 2 * ::Spacing));
 }
 
-void MvdClearEdit::resizeEvent(QResizeEvent*)
+void MvdClearEdit::resizeEvent(QResizeEvent* e)
 {
-	QSize sz = d->clearButton->sizeHint();
+	QLineEdit::resizeEvent(e);
+
+	QRect r(rect());
 	int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-	d->clearButton->move(rect().right() - frameWidth - sz.width(),
-		(rect().bottom() + 1 - sz.height())/2);
+
+	d->clearButton->move(
+		r.right() - d->pixmapSize.width() - ::Spacing - frameWidth,
+		(int)ceil((r.bottom() + 1 - d->pixmapSize.height()) / 2.0)
+	);
+}
+
+QSize MvdClearEdit::sizeHint() const
+{
+	QSize sz = QLineEdit::sizeHint();
+	sz.rwidth() += d->pixmapSize.width() + 2 * ::Spacing;
+	sz.setHeight(qMax(sz.height(), d->pixmapSize.height()));
+	return sz;
 }
 
 void MvdClearEdit::updateClearButton(const QString& text)
@@ -88,6 +104,8 @@ QString MvdClearEdit::placeHolder() const
 void MvdClearEdit::paintEvent(QPaintEvent* e)
 {
 	QLineEdit::paintEvent(e);
+
+	// Draw place holder
 	if (d->placeHolder.isEmpty() || !text().isEmpty() || hasFocus())
 		return;
 
