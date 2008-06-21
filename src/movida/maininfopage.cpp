@@ -46,6 +46,7 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
 {
 	setupUi(this);
+
 	int w = MvdCore::parameter("movida/poster-default-width").toInt();
 	qreal ar = MvdCore::parameter("movida/poster-aspect-ratio").toDouble();
 	int h = int(w / ar);
@@ -66,18 +67,32 @@ mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
 
 	int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
 
-	mDefaultPYear = mDefaultRYear = minYear;
+	mDefaultYear = minYear;
 
-	Ui::MvdMainInfoPage::productionYear->setMinimum(minYear);
-	Ui::MvdMainInfoPage::productionYear->setMaximum(date.year());
-	Ui::MvdMainInfoPage::productionYear->setSpecialValueText("-");
-
-	Ui::MvdMainInfoPage::releaseYear->setMaximum(date.year());
-	Ui::MvdMainInfoPage::releaseYear->setMinimum(minYear);
-	Ui::MvdMainInfoPage::releaseYear->setSpecialValueText("-");
+	Ui::MvdMainInfoPage::year->setMinimum(minYear);
+	Ui::MvdMainInfoPage::year->setMaximum(date.year());
+	Ui::MvdMainInfoPage::year->setSpecialValueText("-");
 
 	ratingHovered(-1);
 	setMoviePoster();
+
+	//! \todo Use better icons for poster buttons
+	QIcon setPosterIcon(":/images/edit-add.svgz");
+	QIcon remPosterIcon(":/images/edit-delete.svgz");
+
+	setPosterButton->setToolTip(tr("Set movie poster."));
+	setPosterButton->setIcon(setPosterIcon);
+	setPosterButton->setIconSize(QSize(16, 16));
+	setPosterButton->setCursor(Qt::PointingHandCursor);
+	setPosterButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
+
+	removePosterButton->setToolTip(tr("Remove movie poster."));
+	removePosterButton->setIcon(remPosterIcon);
+	removePosterButton->setIconSize(QSize(16, 16));
+	removePosterButton->setCursor(Qt::PointingHandCursor);
+	removePosterButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
+	removePosterButton->setEnabled(false);
+
 
 	markAsSeen->setIcon(QIcon(":/images/seen.svgz"));
 	markAsSpecial->setIcon(QIcon(":/images/special.svgz"));
@@ -90,13 +105,11 @@ mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
 	Ui::MvdMainInfoPage::version->setMaxLength(maxInputLength);
 	Ui::MvdMainInfoPage::storageID->setMaxLength(maxInputLength);
 
-	connect (Ui::MvdMainInfoPage::clearProductionYear, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
-	connect (Ui::MvdMainInfoPage::clearReleaseYear, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
-	connect (Ui::MvdMainInfoPage::clearRunningTime, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
 	connect (Ui::MvdMainInfoPage::ratingStatus, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
 	connect (Ui::MvdMainInfoPage::ratingLabel, SIGNAL(hovered(int)), this, SLOT(ratingHovered(int)) );
 	connect (Ui::MvdMainInfoPage::poster, SIGNAL(clicked()), this, SLOT(selectMoviePoster()) );
-	connect (Ui::MvdMainInfoPage::posterStatus, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
+	connect (Ui::MvdMainInfoPage::setPosterButton, SIGNAL(clicked()), this, SLOT(selectMoviePoster()) );
+	connect (Ui::MvdMainInfoPage::removePosterButton, SIGNAL(clicked()), this, SLOT(setMoviePoster()) );
 
 	connect (Ui::MvdMainInfoPage::title, SIGNAL(textEdited(const QString&)), this, SLOT(validate()) );
 	connect (Ui::MvdMainInfoPage::originalTitle, SIGNAL(textEdited(const QString&)), this, SLOT(validate()) );
@@ -105,8 +118,7 @@ mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
 	connect (Ui::MvdMainInfoPage::originalTitle, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::version, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::storageID, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::productionYear, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::releaseYear, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
+	connect (Ui::MvdMainInfoPage::year, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::lengthMinutes, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::ratingLabel, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::markAsSeen, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
@@ -161,14 +173,9 @@ void MvdMainInfoPage::setMovieImpl(const MvdMovie& movie)
 	
 	int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
 
-	//! \todo convert year values to uint
 	QString s = movie.productionYear();
-	mDefaultPYear = s.isEmpty() ? minYear : s.toUShort();
-	productionYear->setValue(mDefaultPYear);
-
-	s = movie.releaseYear();
-	mDefaultRYear = s.isEmpty() ? minYear : s.toUShort();
-	releaseYear->setValue(mDefaultRYear);
+	mDefaultYear = s.isEmpty() ? minYear : s.toUShort();
+	year->setValue(mDefaultYear);
 
 	mDefaultRunningTime = movie.runningTime();
 	lengthMinutes->setValue(mDefaultRunningTime);
@@ -204,8 +211,7 @@ bool MvdMainInfoPage::store(MvdMovie& movie)
 	movie.setOriginalTitle(originalTitle->text());
 	movie.setEdition(version->text());
 	movie.setStorageId(storageID->text());
-	movie.setProductionYear(QString::number(productionYear->value()));
-	movie.setReleaseYear(QString::number(releaseYear->value()));
+	movie.setProductionYear(QString::number(year->value()));
 	movie.setRunningTime(lengthMinutes->value());
 	movie.setRating(ratingLabel->value());
 	movie.setSpecialTagEnabled(MvdMovie::SeenTag, markAsSeen->isChecked());
@@ -240,25 +246,12 @@ void MvdMainInfoPage::linkActivated(const QString& url)
 
 	if (a.action == "clear")
 	{
-		if (a.parameter == "productionyear")
-			productionYear->setValue(productionYear->minimum());
-		else if (a.parameter == "releaseyear")
-			releaseYear->setValue(releaseYear->minimum());
-		else if (a.parameter == "runningtime")
-			lengthMinutes->setValue(lengthMinutes->minimum());
-		else if (a.parameter == "rating")
+		if (a.parameter == "rating")
 		{
 			ratingLabel->setValue(0);
 			// Update status text
 			ratingHovered(-1);
 		}
-		else if (a.parameter == "poster")
-			setMoviePoster();
-	}
-	else if (a.action == "select")
-	{
-		if (a.parameter == "poster")
-			selectMoviePoster();
 	}
 }
 
@@ -310,7 +303,7 @@ void MvdMainInfoPage::setMoviePoster(const QString& path)
 
 		if (!path.isEmpty())
 		{
-			posterStatus->setText(tr("Failed to load image file."));
+			//posterStatus->setText(tr("Failed"));
 			mStatusTimer->start(MvdCore::parameter("movida/message-timeout-ms").toUInt());
 			return;
 		}
@@ -355,8 +348,8 @@ bool MvdMainInfoPage::posterDragEntered(const QMimeData& mimeData) const
 		}
 	}
 
-	if (accept)
-		posterStatus->setText(tr("Drop to set the image as movie poster."));
+	/*if (accept)
+		posterStatus->setText(tr("Drop here"));*/
 	return accept;
 }
 
@@ -403,9 +396,7 @@ bool MvdMainInfoPage::posterDropped(const QMimeData& mimeData)
 
 void MvdMainInfoPage::resetPosterStatus()
 {
-	QString noPosterString = tr("<a href='movida://select/poster'>Set</a> a movie poster");
-	QString hasPosterString = tr("<a href='movida://clear/poster'>Remove</a> or <a href='movida://select/poster'>change</a> the poster");
-	posterStatus->setText(mPosterPath.isEmpty() ? noPosterString : hasPosterString);
+	removePosterButton->setEnabled(!mPosterPath.isEmpty());
 }
 
 void MvdMainInfoPage::statusTimeout()
@@ -453,8 +444,7 @@ void MvdMainInfoPage::updateModifiedStatus()
 		|| originalTitle->text().trimmed() != mDefaultOriginalTitle
 		|| version->text().trimmed() != mDefaultEdition
 		|| storageID->text().trimmed() != mDefaultStorageId
-		|| productionYear->value() != mDefaultPYear
-		|| releaseYear->value() != mDefaultRYear
+		|| year->value() != mDefaultYear
 		|| lengthMinutes->value() != mDefaultRunningTime
 		|| ratingLabel->value() != mDefaultRating
 		|| posterChanged 

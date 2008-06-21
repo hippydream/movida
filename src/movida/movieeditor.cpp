@@ -46,7 +46,8 @@
 MvdMovieEditor::MvdMovieEditor(MvdMovieCollection* c, QWidget* parent)
 : MvdMultiPageDialog(parent), mCollection(c), mMovieId(MvdNull)
 {
-	setWindowTitle(tr("movida movie editor"));
+	setWindowTitle(tr("%1 Editor", "Movie editor title").arg(QCoreApplication::applicationName()));
+	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	QDialogButtonBox* box = MvdMultiPageDialog::buttonBox();
 	mHelpButton = box->addButton(QDialogButtonBox::Help);
@@ -93,6 +94,11 @@ MvdMovieEditor::MvdMovieEditor(MvdMovieCollection* c, QWidget* parent)
 	connect( mNextButton, SIGNAL(clicked()), this, SIGNAL(nextRequested()) );
 
 	connect( this, SIGNAL(currentPageChanged(MvdMPDialogPage*)), this, SLOT(currentPageChanged(MvdMPDialogPage*)) );
+}
+
+QSize MvdMovieEditor::sizeHint() const
+{
+	return QSize(600, 520);
 }
 
 /*!
