@@ -44,6 +44,8 @@ public:
 	bool isModified() const;
 	bool isValid() const;
 
+	virtual QSize sizeHint() const;
+
 public slots:
 	void setPreviousEnabled(bool enabled);
 	void setNextEnabled(bool enabled);

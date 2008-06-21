@@ -63,8 +63,7 @@ private:
 	QString mDefaultOriginalTitle;
 	QString mDefaultEdition;
 	QString mDefaultStorageId;
-	quint16 mDefaultPYear;
-	quint16 mDefaultRYear;
+	quint16 mDefaultYear;
 	quint16 mDefaultRunningTime;
 	quint8 mDefaultRating;
 	bool mDefaultIsFavorite;
