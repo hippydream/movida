@@ -62,6 +62,7 @@ mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
 	Ui::MvdMainInfoPage::lengthMinutes->setMaximum(maxRuntime);
 	Ui::MvdMainInfoPage::lengthMinutes->setMinimum(0);
 	Ui::MvdMainInfoPage::lengthMinutes->setSpecialValueText("-");
+	Ui::MvdMainInfoPage::lengthMinutes->setSuffix(tr("min", "Running time minutes suffix"));
 
 	QDate date = QDate::currentDate();
 
@@ -102,7 +103,6 @@ mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
 	int maxInputLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
 	Ui::MvdMainInfoPage::title->setMaxLength(maxInputLength);
 	Ui::MvdMainInfoPage::originalTitle->setMaxLength(maxInputLength);
-	Ui::MvdMainInfoPage::version->setMaxLength(maxInputLength);
 	Ui::MvdMainInfoPage::storageID->setMaxLength(maxInputLength);
 
 	connect (Ui::MvdMainInfoPage::ratingStatus, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
@@ -116,7 +116,6 @@ mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
 
 	connect (Ui::MvdMainInfoPage::title, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::originalTitle, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::version, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::storageID, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::year, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
 	connect (Ui::MvdMainInfoPage::lengthMinutes, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
@@ -161,8 +160,6 @@ void MvdMainInfoPage::setMovieImpl(const MvdMovie& movie)
 	title->setText(mDefaultTitle);
 	mDefaultOriginalTitle = movie.originalTitle();
 	originalTitle->setText(mDefaultOriginalTitle);
-	mDefaultEdition = movie.edition();
-	version->setText(mDefaultEdition);
 	mDefaultStorageId = movie.storageId();
 	storageID->setText(mDefaultStorageId);
 
@@ -209,7 +206,6 @@ bool MvdMainInfoPage::store(MvdMovie& movie)
 
 	movie.setTitle(title->text());
 	movie.setOriginalTitle(originalTitle->text());
-	movie.setEdition(version->text());
 	movie.setStorageId(storageID->text());
 	movie.setProductionYear(QString::number(year->value()));
 	movie.setRunningTime(lengthMinutes->value());
@@ -442,7 +438,6 @@ void MvdMainInfoPage::updateModifiedStatus()
 
 	if (title->text().trimmed() != mDefaultTitle
 		|| originalTitle->text().trimmed() != mDefaultOriginalTitle
-		|| version->text().trimmed() != mDefaultEdition
 		|| storageID->text().trimmed() != mDefaultStorageId
 		|| year->value() != mDefaultYear
 		|| lengthMinutes->value() != mDefaultRunningTime

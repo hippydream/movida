@@ -61,7 +61,6 @@ private slots:
 private:
 	QString mDefaultTitle;
 	QString mDefaultOriginalTitle;
-	QString mDefaultEdition;
 	QString mDefaultStorageId;
 	quint16 mDefaultYear;
 	quint16 mDefaultRunningTime;
