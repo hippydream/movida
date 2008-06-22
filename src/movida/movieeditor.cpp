@@ -47,6 +47,8 @@ MvdMovieEditor::MvdMovieEditor(MvdMovieCollection* c, QWidget* parent)
 : MvdMultiPageDialog(parent), mCollection(c), mMovieId(MvdNull)
 {
 	setWindowTitle(tr("%1 Editor", "Movie editor title").arg(QCoreApplication::applicationName()));
+	
+	resize(sizeHint());
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	QDialogButtonBox* box = MvdMultiPageDialog::buttonBox();
@@ -98,7 +100,7 @@ MvdMovieEditor::MvdMovieEditor(MvdMovieCollection* c, QWidget* parent)
 
 QSize MvdMovieEditor::sizeHint() const
 {
-	return QSize(640, 600);
+	return QSize(600, 600);
 }
 
 /*!
