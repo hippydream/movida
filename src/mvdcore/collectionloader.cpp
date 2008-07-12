@@ -362,12 +362,12 @@ void MvdCollectionLoader::Private::parseCollection(xmlDocPtr doc, xmlNodePtr cur
 			}
 			else if (nodeName == "producers")
 				parsePersonIdList(doc, mNode, idMapper, &movie, Movida::ProducerRole);
-			else if (nodeName == "production-year")
+			else if (nodeName == "year")
 			{
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
 				if (attr)
 				{
-					movie.setProductionYear(_X(attr));
+					movie.setYear(_X(attr));
 					xmlFree(attr);
 				}
 			}
@@ -377,15 +377,6 @@ void MvdCollectionLoader::Private::parseCollection(xmlDocPtr doc, xmlNodePtr cur
 				if (attr)
 				{
 					movie.setRating(MvdCore::atoid((const char*) attr));
-					xmlFree(attr);
-				}
-			}
-			else if (nodeName == "release-year")
-			{
-				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
-				if (attr)
-				{
-					movie.setReleaseYear(_X(attr));
 					xmlFree(attr);
 				}
 			}

@@ -393,10 +393,10 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 		//////////// Year
 		textOptions.headingLevel = TextOptions::H2_HeadingLevel;
 
-		columnIndex = model->index(index.row(), int(Movida::ReleaseYearAttribute), index.parent());
+		columnIndex = model->index(index.row(), int(Movida::YearAttribute), index.parent());
 		text = columnIndex.data(Movida::SmartViewDisplayRole).toString();
 		if (!text.isEmpty()) {
-			text.prepend(Movida::movieAttributeString(Movida::ReleaseYearAttribute, Movida::SmartViewContext));
+			text.prepend(Movida::movieAttributeString(Movida::YearAttribute, Movida::SmartViewContext));
 			rCurrentText.setTop(rCurrentText.top() + br.height());
 			drawItemText(painter, option, rCurrentText, text, textOptions, &br);
 		}

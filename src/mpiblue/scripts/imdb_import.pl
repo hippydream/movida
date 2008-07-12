@@ -157,7 +157,7 @@ while (<F_IN>) {
 	
 	if (!$hasTitle and /$rxTitle/i) {
 		print F_OUT "\t\t<original-title>$1</original-title>\n";
-		print F_OUT "\t\t<release-year>$2</release-year>\n";
+		print F_OUT "\t\t<year>$2</year>\n";
 		$hasTitle = 1;
 		
 	} elsif (!$hasPosters and /$rxPoster/i) {

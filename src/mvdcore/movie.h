@@ -53,11 +53,8 @@ public:
 
 	QString validTitle() const;
 
-	QString releaseYear() const;
-	bool setReleaseYear(const QString& s);
-
-	QString productionYear() const;
-	bool setProductionYear(const QString& s);
+	QString year() const;
+	bool setYear(const QString& s);
 
 	QString imdbId() const;
 	void setImdbId(const QString& s);

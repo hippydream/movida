@@ -434,8 +434,7 @@ MvdCollectionSaver::StatusCode MvdCollectionSaver::save(MvdMovieCollection* coll
 			xml->writeTaggedString("title", movie.title());
 			xml->writeTaggedString("original-title", movie.originalTitle());
 			xml->writeTaggedString("running-time", QString::number(movie.runningTime()));
-			xml->writeTaggedString("production-year", movie.productionYear());
-			xml->writeTaggedString("release-year", movie.releaseYear());
+			xml->writeTaggedString("year", movie.year());
 			xml->writeTaggedString("rating", QString::number(movie.rating()));
 			xml->writeTaggedString("imdb-id", movie.imdbId());
 			xml->writeCDataString("notes", movie.notes());

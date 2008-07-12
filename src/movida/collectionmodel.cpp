@@ -138,8 +138,7 @@ void MvdCollectionModel_P::sort(Movida::MovieAttribute attribute, Qt::SortOrder 
 		{
 		case Movida::TitleAttribute: w.data = movie.title(); l << w; break;
 		case Movida::OriginalTitleAttribute: w.data = movie.originalTitle(); l << w; break;
-		case Movida::ProductionYearAttribute: w.data = movie.productionYear(); l << w; break;
-		case Movida::ReleaseYearAttribute: w.data = movie.releaseYear(); l << w; break;
+		case Movida::YearAttribute: w.data = movie.year(); l << w; break;
 		case Movida::DirectorsAttribute: w.data = dataList(movie.directors(), Movida::PersonRole); l << w; break;
 		case Movida::ProducersAttribute: w.data = dataList(movie.producers(), Movida::PersonRole); l << w; break;
 		case Movida::CastAttribute: w.data = dataList(movie.actorIDs(), Movida::PersonRole); l << w; break;
@@ -458,9 +457,8 @@ QVariant MvdCollectionModel::data(const QModelIndex& index, int role) const
 	case Movida::LanguagesAttribute: return d->dataList(movie.languages(), Movida::LanguageRole, role);
 	case Movida::OriginalTitleAttribute: return movie.originalTitle();
 	case Movida::ProducersAttribute: return d->dataList(movie.producers(), Movida::PersonRole, role);
-	case Movida::ProductionYearAttribute: return movie.productionYear();
+	case Movida::YearAttribute: return movie.year();
 	case Movida::RatingAttribute: return movie.rating();
-	case Movida::ReleaseYearAttribute: return movie.releaseYear();
 	case Movida::RunningTimeAttribute: 
 		if (role == Movida::RawDataRole)
 			return movie.runningTime();
