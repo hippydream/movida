@@ -620,16 +620,13 @@ void MpiMovieImport::httpResponseHeader(const QHttpResponseHeader& responseHeade
 			QUrl locationUrl(location);
 
 			QHttpRequestHeader requestHeader = mHttpHandler->currentRequest();
-			QString s = requestHeader.value("If-Modified-Since");
 
-			// Release temporary file
-			/*mHttpHandler->blockSignals(true);
-			mHttpHandler->abort();
-			mHttpHandler->blockSignals(false);*/
-			
 			// Reset temp file
 			if (mTempFile) {
-				deleteTemporaryFile(&mTempFile);
+				// We cannot simply delete the file because there
+				// might be some data to be written onto it.
+				mTemporaryData.append(mTempFile->fileName());
+				mTempFile = 0;
 				mTempFile = createTemporaryFile();
 				if (!mTempFile) {
 					mImportDialog->done(MvdImportDialog::CriticalError);
@@ -646,8 +643,10 @@ void MpiMovieImport::httpResponseHeader(const QHttpResponseHeader& responseHeade
 			
 			iLog() << "MpiMovieImport: Redirecting to " << mCurrentLocation;
 						
-			//requestHeader.setRequest(requestHeader.method(), mCurrentLocation);
-			mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
+			requestHeader.setRequest(requestHeader.method(), mCurrentLocation);
+			QHttp::ConnectionMode cm = locationUrl.scheme() == QLatin1String("https") ? QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp;
+			mHttpHandler->setHost(locationUrl.host(), cm, locationUrl.port(80));
+			mRequestId = mHttpHandler->request(requestHeader, 0, mTempFile);
 		}
 		break;
 	case SuccessClass:
