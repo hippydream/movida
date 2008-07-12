@@ -100,7 +100,7 @@ MvdMovieEditor::MvdMovieEditor(MvdMovieCollection* c, QWidget* parent)
 
 QSize MvdMovieEditor::sizeHint() const
 {
-	return QSize(600, 600);
+	return QSize(600, 500);
 }
 
 /*!
