@@ -61,7 +61,7 @@ public:
 	enum PropertyName
 	{
 		InvalidProperty = 0,
-		Title, OriginalTitle, ReleaseYear, ProductionYear, Edition, ImdbId,
+		Title, OriginalTitle, Year, ImdbId,
 		Plot, Notes, StorageId, RunningTime, Rating, ColorMode, Languages,
 		Countries, Tags, Genres, Directors, Producers, CrewMembers, Actors,
 		Urls, SpecialContents, PosterPath, SeenTag, SpecialTag, LoanedTag
@@ -85,9 +85,7 @@ public:
 
 	QString title;
 	QString originalTitle;
-	QString releaseYear;
-	QString productionYear;
-	QString edition;
+	QString year;
 	QString imdbId;
 	QString plot;
 	QString notes;

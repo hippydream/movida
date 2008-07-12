@@ -56,8 +56,7 @@ public:
 	QString imdbId;
 	QString plot;
 	QString notes;
-	QString productionYear;
-	QString releaseYear;
+	QString year;
 	QString storageId;
 	QString poster;
 
@@ -104,8 +103,7 @@ MvdMovie_P::MvdMovie_P(const MvdMovie_P& other)
 	poster = other.poster;
 	plot = other.plot;
 	notes = other.notes;
-	productionYear = other.productionYear;
-	releaseYear = other.releaseYear;
+	year = other.year;
 	storageId = other.storageId;
 
 	runningTime = other.runningTime;
@@ -255,51 +253,28 @@ QString MvdMovie::validTitle() const
 	return d->title.isEmpty() ? d->originalTitle : d->title;
 }
 
-//! Returns the release year.
-QString MvdMovie::releaseYear() const
+//! Returns the prduction year.
+QString MvdMovie::year() const
 {
-	return d->releaseYear;
-}
-
-/*!
-	Sets the release year and returns true iif s is a valid 4-digit year.
-	Clears the year if \p s is empty or
-	MvdCore::parameter("mvdcore/min-movie-year")-1.
-	'Valid' means a year >= MvdCore::parameter("mvdcore/min-movie-year")
-	and <= currentYear().
-*/
-bool MvdMovie::setReleaseYear(const QString& s)
-{
-	int y = d->isValidYear(s);
-	if (y < 0)
-		return false;
-
-	detach();
-	d->releaseYear = y == 0 ? QString() : QString::number(y);
-	return true;
-}
-
-//! Returns the production year.
-QString MvdMovie::productionYear() const
-{
-	return d->productionYear;
+	return d->year;
 }
 
 /*!
 	Sets the production year and returns true iif s is a valid 4-digit year.
+
 	Clears the year if \p s is empty or
 	MvdCore::parameter("mvdcore/min-movie-year")-1.
 	'Valid' means a year >= MvdCore::parameter("mvdcore/min-movie-year")
 	and <= currentYear().
 */
-bool MvdMovie::setProductionYear(const QString& s)
+bool MvdMovie::setYear(const QString& s)
 {
 	int y = d->isValidYear(s);
 	if (y < 0)
 		return false;
 
 	detach();
-	d->productionYear = y == 0 ? QString() : QString::number(y);
+	d->year = y == 0 ? QString() : QString::number(y);
 	return true;
 }
 

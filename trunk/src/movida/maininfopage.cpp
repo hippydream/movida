@@ -170,7 +170,7 @@ void MvdMainInfoPage::setMovieImpl(const MvdMovie& movie)
 	
 	int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
 
-	QString s = movie.productionYear();
+	QString s = movie.year();
 	mDefaultYear = s.isEmpty() ? minYear : s.toUShort();
 	year->setValue(mDefaultYear);
 
@@ -207,7 +207,7 @@ bool MvdMainInfoPage::store(MvdMovie& movie)
 	movie.setTitle(title->text());
 	movie.setOriginalTitle(originalTitle->text());
 	movie.setStorageId(storageID->text());
-	movie.setProductionYear(QString::number(year->value()));
+	movie.setYear(QString::number(year->value()));
 	movie.setRunningTime(lengthMinutes->value());
 	movie.setRating(ratingLabel->value());
 	movie.setSpecialTagEnabled(MvdMovie::SeenTag, markAsSeen->isChecked());

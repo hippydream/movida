@@ -31,8 +31,7 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 	case NoAttributeFilter:
 		list << TitleAttribute;
 		list << OriginalTitleAttribute;
-		list << ProductionYearAttribute;
-		list << ReleaseYearAttribute;
+		list << YearAttribute;
 		list << RunningTimeAttribute;
 		list << RatingAttribute;
 		list << StorageIdAttribute;
@@ -53,8 +52,7 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 	case MainAttributeFilter:
 		list << TitleAttribute;
 		list << OriginalTitleAttribute;
-		list << ProductionYearAttribute;
-		list << ReleaseYearAttribute;
+		list << YearAttribute;
 		list << RunningTimeAttribute;
 		list << StorageIdAttribute;
 		list << RatingAttribute;
@@ -62,7 +60,7 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
 	case SmartViewAttributeFilter:
 		list << TitleAttribute;
 		list << RunningTimeAttribute;
-		list << ReleaseYearAttribute;
+		list << YearAttribute;
 		list << DirectorsAttribute;
 		list << CastAttribute;
 		list << ProducersAttribute;
@@ -89,15 +87,10 @@ QString Movida::movieAttributeString(MovieAttribute attribute, AttributeContext 
 			return QCoreApplication::translate("MovieAttribute", "Original title: ", "Smart view context");
 		return QCoreApplication::translate("MovieAttribute", "Original title", "No special context");
 		
-	case ProductionYearAttribute: 
+	case YearAttribute: 
 		if (context == SmartViewContext)
 			return QCoreApplication::translate("MovieAttribute", "Produced in ", "Smart view context");
 		return QCoreApplication::translate("MovieAttribute", "Production year", "No special context");
-
-	case ReleaseYearAttribute: 
-		if (context == SmartViewContext)
-			return QCoreApplication::translate("MovieAttribute", "Released in ", "Smart view context");
-		return QCoreApplication::translate("MovieAttribute", "Release year", "No special context");
 
 	case ProducersAttribute: 
 		if (context == SmartViewContext)

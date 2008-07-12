@@ -58,8 +58,7 @@ namespace Movida
 	{
 		TitleAttribute,
 		OriginalTitleAttribute,
-		ProductionYearAttribute,
-		ReleaseYearAttribute,
+		YearAttribute,
 		ProducersAttribute,
 		DirectorsAttribute,
 		CastAttribute,

@@ -210,8 +210,7 @@ void MvdMovieData_P::writeToXml(MvdXmlWriter* writer, const MvdMovieData& movie)
 		writer->writeTaggedString("title", movie.originalTitle);
 	}
 
-	writer->writeTaggedString("release-year", movie.releaseYear);
-	writer->writeTaggedString("production-year", movie.productionYear);
+	writer->writeTaggedString("year", movie.year);
 	
 	if (!movie.imdbId.isEmpty()) {
 		writer->writeTaggedString("imdb-id", movie.imdbId);
@@ -476,12 +475,12 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "producers")) {
 				QList<PersonData> pd = MvdMovieData_P::extractPersonData(resultNode, doc);
 				producers = pd;
-			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "production-year")) {
+			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "year")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
 				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
 				xmlFree(c);
 				if (MvdCore::isValidYear(s))
-					productionYear = s;
+					year = s;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "rating")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
 				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
@@ -503,12 +502,6 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 						n = mvdMaximum;
 					rating = (int)n;
 				}
-			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "release-year")) {
-				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
-				xmlFree(c);
-				if (MvdCore::isValidYear(s))
-					releaseYear = s;
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "running-time")) {
 				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
 				QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();

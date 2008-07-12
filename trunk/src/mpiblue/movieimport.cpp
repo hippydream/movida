@@ -971,7 +971,7 @@ bool MpiMovieImport::parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QS
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "year")) {
 				xmlChar* text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
 				if (text)
-					result.data.productionYear = QString::fromLatin1((const char*)text).trimmed();
+					result.data.year = QString::fromLatin1((const char*)text).trimmed();
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "url")) {
 				xmlChar* text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
 				if (text)
@@ -994,7 +994,7 @@ bool MpiMovieImport::parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QS
 				mImportDialog->addSection(group);
 				groupAdded = true;
 			}
-			int id = mImportDialog->addMatch(result.data.title, result.data.productionYear, notes);
+			int id = mImportDialog->addMatch(result.data.title, result.data.year, notes);
 			mSearchResults.insert(id, result);
 		}
 

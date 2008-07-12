@@ -144,6 +144,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 	const MvdMovieCollection& collection)
 {
 	//! \todo movie to MvdMovie class!
+	//! \todo sanitize xml (maybe in mvdmovie or moviedata class?)
 
 	if (!movie.isValid())
 		return QString();
@@ -160,13 +161,9 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 			xml.append(QString("\t<original-title>%1</original-title>\n").arg(s));
 	}
 
-	s = movie.releaseYear();
+	s = movie.year();
 	if (!s.isEmpty())
-		xml.append(QString("\t<release-year>%1</release-year>\n").arg(s));
-
-	s = movie.productionYear();
-	if (!s.isEmpty())
-		xml.append(QString("\t<production-year>%1</production-year>\n").arg(s));
+		xml.append(QString("\t<year>%1</year>\n").arg(s));
 
 	s = movie.imdbId();
 	if (!s.isEmpty()) {

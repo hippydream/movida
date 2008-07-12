@@ -11,9 +11,9 @@
 			<head>
 				<title>
 					<xsl:value-of select="title"/>
-					<xsl:if test="release-year and release-year != ''">
+					<xsl:if test="year and year != ''">
 						<xsl:text> (</xsl:text>
-						<xsl:value-of select="release-year"/>
+						<xsl:value-of select="year"/>
 						<xsl:text>)</xsl:text>
 					</xsl:if>
 				</title>
@@ -148,7 +148,7 @@ table.details tr.odd td {
 				</xsl:if>
 				<h1>
 					<xsl:value-of select="title"/>
-					<xsl:if test="string(production-year)"> (<xsl:value-of select="production-year"/>)</xsl:if>
+					<xsl:if test="string(year)"> (<xsl:value-of select="year"/>)</xsl:if>
 				</h1>
 				<h2><xsl:if test="string(original-title) and string(original-title) != string(title)">
 					(<xsl:value-of select="original-title"/>)
@@ -262,18 +262,6 @@ table.details tr.odd td {
 				
 				<h3>Details</h3>
 				<table cellspacing="0" border="0" class="detailed_info">
-					<xsl:if test="string(edition)">
-					<tr>
-						<th>Edition:</th>
-						<td><xsl:value-of select="edition"/></td>
-					</tr>
-					</xsl:if>
-					<xsl:if test="string(release-year)">
-					<tr>
-						<th>Release year:</th>
-						<td><xsl:value-of select="release-year"/></td>
-					</tr>
-					</xsl:if>
 					<xsl:if test="genres">
 					<tr>
 						<th>Genres:</th>

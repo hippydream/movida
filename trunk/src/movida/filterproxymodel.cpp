@@ -31,7 +31,7 @@ MvdFilterProxyModel::MvdFilterProxyModel(QObject* parent)
 {
 	mMovieAttributes << Movida::TitleAttribute << Movida::OriginalTitleAttribute 
 		<< Movida::DirectorsAttribute << Movida::CastAttribute // Producers are not so relevant - avoid bloating search results
-		<< Movida::ProductionYearAttribute << Movida::ReleaseYearAttribute // Numeric values - won't bloat search results
+		<< Movida::YearAttribute // Numeric values - won't bloat search results
 		<< Movida::TagsAttribute;
 	mSortColumn = (int) Movida::TitleAttribute;
 	mSortOrder = Qt::AscendingOrder;

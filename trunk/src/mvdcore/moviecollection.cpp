@@ -329,7 +329,7 @@ mvdid MvdMovieCollection::addMovie(const MvdMovie& movie)
 
 	title = title.toLower();
 
-	QString released = movie.releaseYear();
+	QString released = movie.year();
 
 	bool ok;
 	int releasedInt = released.toInt(&ok);
@@ -403,8 +403,7 @@ mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
 	MvdMovie m;
 	m.setTitle(movie.title);
 	m.setOriginalTitle(movie.originalTitle);
-	m.setReleaseYear(movie.releaseYear);
-	m.setProductionYear(movie.productionYear);
+	m.setYear(movie.year);
 	m.setImdbId(movie.imdbId);
 	m.setPlot(movie.plot);
 	m.setNotes(movie.notes);
@@ -526,7 +525,7 @@ void MvdMovieCollection::updateMovie(mvdid id, const MvdMovie& movie)
 
 	title = title.toLower();
 
-	QString released = movie.releaseYear();
+	QString released = movie.year();
 
 	bool ok;
 	int releasedInt = released.toInt(&ok);
@@ -550,7 +549,7 @@ void MvdMovieCollection::updateMovie(mvdid id, const MvdMovie& movie)
 
 		oldTitle = oldTitle.toLower();
 		
-		QString oldReleased = oldMovie.releaseYear();
+		QString oldReleased = oldMovie.year();
 		int oldReleasedInt = oldReleased.toInt(&ok);
 		if (!ok)
 			oldReleasedInt = -1;
@@ -662,7 +661,7 @@ void MvdMovieCollection::removeMovie(mvdid id)
 
 		title = title.toLower();
 
-		QString released = movie.releaseYear();
+		QString released = movie.year();
 		
 		bool ok;
 		int releasedInt = released.toInt(&ok);
@@ -751,7 +750,7 @@ QList<mvdid> MvdMovieCollection::movieIds() const
 
 /*!
 	Returns true if the collection contains a movie with given title 
-	(case insensitive compare) and release year.
+	(case insensitive compare) and production year.
 	The title is either the localized title or the original title if
 	the localized is missing.
  */
