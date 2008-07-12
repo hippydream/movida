@@ -563,7 +563,7 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 		iLog() << "MpiMovieImport: Http host lookup finished.";
 		return;
 	} else {
-		iLog() << "MpiMovieImport: Http request finished.";
+		iLog() << QString("MpiMovieImport: Http request finished.");
 	}
 
 	if (!mTempFile)
@@ -574,7 +574,10 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 		return;
 	}
 
+	mTempFile->flush();
 	mTempFile->seek(0);
+
+	QString s = mTempFile->fileName();
 
 	switch (mCurrentState) {
 		case FetchingResultsScriptState:
@@ -616,22 +619,34 @@ void MpiMovieImport::httpResponseHeader(const QHttpResponseHeader& responseHeade
 			QString location = responseHeader.value("Location");
 			QUrl locationUrl(location);
 
+			QHttpRequestHeader requestHeader = mHttpHandler->currentRequest();
+			QString s = requestHeader.value("If-Modified-Since");
+
+			// Release temporary file
+			/*mHttpHandler->blockSignals(true);
+			mHttpHandler->abort();
+			mHttpHandler->blockSignals(false);*/
+			
 			// Reset temp file
-			if (mTempFile)
+			if (mTempFile) {
 				deleteTemporaryFile(&mTempFile);
-			mTempFile = createTemporaryFile();
-			if (!mTempFile)
-			{
-				mImportDialog->done(MvdImportDialog::CriticalError);
-				mHttpHandler->abort();
-				return;
+				mTempFile = createTemporaryFile();
+				if (!mTempFile) {
+					mImportDialog->done(MvdImportDialog::CriticalError);
+					mHttpHandler->abort();
+					return;
+				}
 			}
 
 			QString query = locationUrl.encodedQuery();
 			mCurrentLocation = locationUrl.path();
+			
 			if (!query.isEmpty())
 				mCurrentLocation.append("?").append(query);
+			
 			iLog() << "MpiMovieImport: Redirecting to " << mCurrentLocation;
+						
+			//requestHeader.setRequest(requestHeader.method(), mCurrentLocation);
 			mRequestId = mHttpHandler->get(mCurrentLocation, mTempFile);
 		}
 		break;

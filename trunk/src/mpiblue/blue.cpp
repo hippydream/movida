@@ -32,6 +32,8 @@
 #include <libxml/parser.h>
 #include <math.h>
 
+#define MPIBLUE_DISABLE_ENGINE_UPDATES
+
 using namespace Movida;
 
 Q_DECLARE_METATYPE(MpiBlue::Engine*);
@@ -369,6 +371,10 @@ QString MpiBlue::updateIntervalToString(UpdateInterval i, quint8 hours)
 //! Returns true if an engine can be updated and requires an update.
 bool MpiBlue::engineRequiresUpdate(const Engine& engine)
 {
+#ifdef MPIBLUE_DISABLE_ENGINE_UPDATES
+	return false;
+#endif
+
 	if (!engine.updateUrl.startsWith("http://"))
 		return false;
 		
