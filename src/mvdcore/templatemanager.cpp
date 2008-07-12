@@ -168,10 +168,6 @@ QString MvdTemplateManager::movieToXml(const MvdMovie& movie,
 	if (!s.isEmpty())
 		xml.append(QString("\t<production-year>%1</production-year>\n").arg(s));
 
-	s = movie.edition();
-	if (!s.isEmpty())
-		xml.append(QString("\t<edition>%1</edition>\n").arg(s));
-
 	s = movie.imdbId();
 	if (!s.isEmpty()) {
 		s = MvdCore::parameter("mvdcore/imdb-movie-url").toString().arg(s);

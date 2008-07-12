@@ -440,7 +440,6 @@ MvdCollectionSaver::StatusCode MvdCollectionSaver::save(MvdMovieCollection* coll
 			xml->writeTaggedString("imdb-id", movie.imdbId());
 			xml->writeCDataString("notes", movie.notes());
 			xml->writeCDataString("plot", movie.plot());
-			xml->writeTaggedString("edition", movie.edition());
 			xml->writeTaggedString("storage-id", movie.storageId());
 			if (movie.hasSpecialTagEnabled(MvdMovie::SeenTag))
 				xml->writeTaggedString("seen", "true");
