@@ -32,7 +32,7 @@
 #include <libxml/parser.h>
 #include <math.h>
 
-#define MPIBLUE_DISABLE_ENGINE_UPDATES
+// #define MPIBLUE_DISABLE_ENGINE_UPDATES
 
 using namespace Movida;
 
