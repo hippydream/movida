@@ -212,7 +212,6 @@ void MvdMovieData_P::writeToXml(MvdXmlWriter* writer, const MvdMovieData& movie)
 
 	writer->writeTaggedString("release-year", movie.releaseYear);
 	writer->writeTaggedString("production-year", movie.productionYear);
-	writer->writeTaggedString("edition", movie.edition);
 	
 	if (!movie.imdbId.isEmpty()) {
 		writer->writeTaggedString("imdb-id", movie.imdbId);
@@ -441,10 +440,6 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "directors")) {
 				QList<PersonData> pd = MvdMovieData_P::extractPersonData(resultNode, doc);
 				directors = pd;
-			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "edition")) {
-				xmlChar* c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-				edition = MvdCore::decodeXmlEntities((const char*)c).trimmed();
-				xmlFree(c);
 			} else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "genres")) {
 				QStringList sl = MvdMovieData_P::extractStringList(resultNode, doc, "genre");
 				genres = sl;

@@ -405,7 +405,6 @@ mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
 	m.setOriginalTitle(movie.originalTitle);
 	m.setReleaseYear(movie.releaseYear);
 	m.setProductionYear(movie.productionYear);
-	m.setEdition(movie.edition);
 	m.setImdbId(movie.imdbId);
 	m.setPlot(movie.plot);
 	m.setNotes(movie.notes);

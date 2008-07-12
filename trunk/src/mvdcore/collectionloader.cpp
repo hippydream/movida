@@ -403,15 +403,6 @@ void MvdCollectionLoader::Private::parseCollection(xmlDocPtr doc, xmlNodePtr cur
 				QStringList list = parseStringDescriptions(doc, mNode, "item");
 				movie.setSpecialContents(list);
 			}
-			else if (nodeName == "edition")
-			{
-				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);
-				if (attr)
-				{
-					movie.setEdition(_X(attr));
-					xmlFree(attr);
-				}
-			}
 			else if (nodeName == "poster")
 			{
 				attr = xmlNodeListGetString(doc, mNode->xmlChildrenNode, 1);

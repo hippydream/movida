@@ -53,7 +53,6 @@ public:
 
 	QString title;
 	QString originalTitle;
-	QString edition;
 	QString imdbId;
 	QString plot;
 	QString notes;
@@ -101,7 +100,6 @@ MvdMovie_P::MvdMovie_P(const MvdMovie_P& other)
 
 	title = other.title;
 	originalTitle = other.originalTitle;
-	edition = other.edition;
 	imdbId = other.imdbId;
 	poster = other.poster;
 	plot = other.plot;
@@ -303,19 +301,6 @@ bool MvdMovie::setProductionYear(const QString& s)
 	detach();
 	d->productionYear = y == 0 ? QString() : QString::number(y);
 	return true;
-}
-
-//! Returns the edition.
-QString MvdMovie::edition() const
-{
-	return d->edition;
-}
-
-//! Sets the edition.
-void MvdMovie::setEdition(const QString& s)
-{
-	detach();
-	d->edition = d->cleanString(s);
 }
 
 //! Returns the IMDb id.

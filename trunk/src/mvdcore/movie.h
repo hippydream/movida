@@ -59,9 +59,6 @@ public:
 	QString productionYear() const;
 	bool setProductionYear(const QString& s);
 
-	QString edition() const;
-	void setEdition(const QString& s);
-
 	QString imdbId() const;
 	void setImdbId(const QString& s);
 
