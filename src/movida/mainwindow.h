@@ -78,6 +78,8 @@ public:
 
 	MvdPluginInterface* locatePlugin(const QString& id) const;
 
+	QList<mvdid> selectedMovies() const;
+
 public slots:
 	bool loadCollection(const QString& file);
 	void filter(QString s);
@@ -213,8 +215,8 @@ private:
 	void setupDebugTools();
 #endif
 	void createNewCollection();
-	mvdid movieIndexToId(const QModelIndex& index) const;
-	QModelIndex movieIdToIndex(mvdid id) const;
+	inline mvdid movieIndexToId(const QModelIndex& index) const;
+	inline QModelIndex movieIdToIndex(mvdid id) const;
 	bool shouldShowQuickFilter() const;
 	void registerMessageHandler();
 

@@ -22,7 +22,6 @@
 #include "mvdcore/core.h"
 #include "mvdcore/logger.h"
 #include "mvdcore/settings.h"
-#include "mvdshared/exportdialog.h"
 #include <QRegExp>
 #include <QDir>
 #include <QFile>
@@ -47,9 +46,19 @@ void MpiMovieExport::run()
 {
 	mExportDialog = new MvdExportDialog(qobject_cast<QWidget*>(parent()));
 	
+	connect( mExportDialog, SIGNAL(exportRequest(int,MvdExportDialog::ExportOptions)),
+		this, SLOT(exportRequest(int,MvdExportDialog::ExportOptions)) );
 	/*connect( mExportDialog, SIGNAL(resetRequest()),
 		this, SLOT(reset()) );*/
 
+	int csvEngine = mExportDialog->registerEngine(tr("CSV/TSV file"));
+	int movidaXmlEngine = mExportDialog->registerEngine(tr("Movida XML file"));
+
 	mExportDialog->setWindowModality(Qt::WindowModal);
 	mExportDialog->exec();
+}
+
+void MpiMovieExport::exportRequest(int engine, const MvdExportDialog::ExportOptions& opt)
+{
+	qDebug("Export");
 }

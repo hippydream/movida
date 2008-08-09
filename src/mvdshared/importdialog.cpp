@@ -437,7 +437,11 @@ void MvdImportDialog::keyPressEvent(QKeyEvent* e)
 bool MvdImportDialog::confirmCloseWizard()
 {
 	QString msg;
-	if (!isBusy() && currentId() != MvdImportDialog_P::FinalPage) {
+	bool isImportantPage = currentId() != MvdImportDialog_P::FinalPage && currentId() != MvdImportDialog_P::StartPage;
+
+	if (!isBusy()) {
+		if (!isImportantPage)
+			return true;
 		msg = tr("Are you sure you want to close the wizard?");
 	} else {
 		switch (currentId()) {
