@@ -71,6 +71,8 @@ private:
 	int mDefaultSpecialTags;
 
 	QTimer* mStatusTimer;
+
+	QString mMainCaption;
 };
 
 #endif // MVD_MAININFOPAGE_H

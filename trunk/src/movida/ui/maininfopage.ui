@@ -17,7 +17,7 @@
     <number>0</number>
    </property>
    <item row="0" column="0" colspan="2" >
-    <widget class="QLabel" name="labCaptionMessage" >
+    <widget class="QLabel" name="mainCaption" >
      <property name="text" >
       <string>&lt;b>Main Information&lt;/b></string>
      </property>
@@ -266,7 +266,7 @@
     </spacer>
    </item>
    <item row="4" column="0" colspan="2" >
-    <widget class="QLabel" name="labCaptionMessage_2" >
+    <widget class="QLabel" name="specialTagsCaption" >
      <property name="text" >
       <string>&lt;b>Special Tags&lt;/b></string>
      </property>
@@ -334,7 +334,7 @@
     </spacer>
    </item>
    <item row="8" column="0" colspan="2" >
-    <widget class="QLabel" name="labCaptionMessage_3" >
+    <widget class="QLabel" name="ratingCaption" >
      <property name="text" >
       <string>&lt;b>Rating&lt;/b></string>
      </property>
