@@ -51,11 +51,13 @@ void MvdCollectionMetaEditor::accept()
 	if (!mCollection)
 		return;
 
-	mCollection->setMetaData(MvdMovieCollection::NameInfo, name->text().trimmed());
-	mCollection->setMetaData(MvdMovieCollection::OwnerInfo, owner->text().trimmed());
-	mCollection->setMetaData(MvdMovieCollection::EMailInfo, mail->text().trimmed());
-	mCollection->setMetaData(MvdMovieCollection::WebsiteInfo, website->text().trimmed());
-	mCollection->setMetaData(MvdMovieCollection::NotesInfo, notes->toPlainText().trimmed());
+	if (isModified()) {
+		mCollection->setMetaData(MvdMovieCollection::NameInfo, name->text().trimmed());
+		mCollection->setMetaData(MvdMovieCollection::OwnerInfo, owner->text().trimmed());
+		mCollection->setMetaData(MvdMovieCollection::EMailInfo, mail->text().trimmed());
+		mCollection->setMetaData(MvdMovieCollection::WebsiteInfo, website->text().trimmed());
+		mCollection->setMetaData(MvdMovieCollection::NotesInfo, notes->toPlainText().trimmed());
+	}
 
 	QDialog::accept();
 }
@@ -88,7 +90,7 @@ void MvdCollectionMetaEditor::closeEvent(QCloseEvent* e)
 			return;
 	}
 
-	QDialog::closeEvent(e);
+	QDialog::close();
 }
 
 //!

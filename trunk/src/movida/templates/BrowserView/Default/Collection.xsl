@@ -120,7 +120,7 @@ p {
 					</xsl:when>
 					<xsl:otherwise>
 						<p>There is no information associated to this collection. You can set the collection owner and other properties
-						 using the &quot;About this collection&quot; item in the &quot;Collection&quot; menu.
+						 using the <a href="movida://movida/collection/about">About this collection</a> item in the Collection menu.
 						</p>
 					</xsl:otherwise>
 				</xsl:choose>

@@ -37,13 +37,13 @@
 #include "mvdcore/collectionsaver.h"
 #include "mvdcore/logger.h"
 #include "mvdcore/movie.h"
-#include "mvdcore/moviecollection.h"
 #include "mvdcore/pathresolver.h"
 #include "mvdcore/plugininterface.h"
 #include "mvdcore/settings.h"
 #include "mvdcore/templatemanager.h"
 #include "mvdshared/browserview.h"
 #include <QActionGroup>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
@@ -653,6 +653,7 @@ void MvdMainWindow::createNewCollection()
 	mDetailsView->setMovieCollection(mCollection);
 
 	connect (mCollection, SIGNAL(modified()), this, SLOT(collectionModified()) );
+	connect (mCollection, SIGNAL(metaDataChanged(int, QString)), this, SLOT(collectionMetaDataChanged(int)) );
 	connect (mCollection, SIGNAL(movieChanged(mvdid)), this, SLOT(movieChanged(mvdid)) );
 }
 
@@ -666,6 +667,13 @@ void MvdMainWindow::collectionModified()
 	mA_FileNew->setDisabled(isNewCollection && isEmpty);
 	mA_FileSave->setDisabled(!isModified || isNewCollection || isEmpty);
 	mA_FileSaveAs->setDisabled(isEmpty);
+}
+
+void MvdMainWindow::collectionMetaDataChanged(int _t)
+{
+	MvdMovieCollection::MetaDataType t = (MvdMovieCollection::MetaDataType)(_t);
+	if (t == MvdMovieCollection::NameInfo)
+		updateCaption();
 }
 
 /*!
@@ -1225,7 +1233,7 @@ MvdMovieCollection* MvdMainWindow::currentCollection()
 }
 
 //! Shows the collection metadata editor.
-void MvdMainWindow::showMetaEditor()
+void MvdMainWindow::showCollectionMeta()
 {
 	//! Handle read-only collections
 	MvdCollectionMetaEditor editor(this);
@@ -1715,6 +1723,11 @@ void Movida::mainWindowMessageHandler(Movida::MessageType t, const QString& m)
 
 void MvdMainWindow::linkClicked(const QUrl& url)
 {
+	if (url.scheme() == QLatin1String("http")) {
+		QDesktopServices::openUrl(url);
+		return;
+	}
+
 	MvdActionUrl aurl = MvdCore::parseActionUrl(url);
 	if (!aurl.isValid()) {
 		Movida::wLog() << "MainWindow: malformed action URL: " << aurl;
@@ -1760,6 +1773,9 @@ void MvdMainWindow::linkClicked(const QUrl& url)
 		action = sl.takeAt(0);
 		if (action == QLatin1String("add")) {
 			addMovie();
+			handled = true;
+		} else if (action == QLatin1String("about")) {
+			showCollectionMeta();
 			handled = true;
 		}
 	}
