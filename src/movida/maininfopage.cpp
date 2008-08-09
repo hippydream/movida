@@ -129,7 +129,7 @@ mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
 	mStatusTimer->setSingleShot(true);
 	connect(mStatusTimer, SIGNAL(timeout()), this, SLOT(statusTimeout()));
 
-	setValid(false);
+	setValid(true);
 	validate();
 }
 
@@ -405,18 +405,28 @@ void MvdMainInfoPage::validate()
 	QString titleString = title->text().trimmed();
 	QString otitleString = originalTitle->text().trimmed();
 
-	bool invalid = titleString.isEmpty() && otitleString.isEmpty();
+	bool valid = !(titleString.isEmpty() && otitleString.isEmpty());
+	bool wasValid = isValid();
 
 	QPalette p = palette();
-	if (invalid)
+	if (!valid)
 		p.setColor(QPalette::Normal, QPalette::Base, QColor("#ede055"));
 	title->setPalette(p);
 	originalTitle->setPalette(p);
 
-	setValid(!invalid);
+	setValid(valid);
 
-	if (dialog())
-		dialog()->setSubtitle(invalid ? tr("Invalid movie!") : titleString.isEmpty() ? otitleString : titleString);
+	if (MvdMultiPageDialog* mpd = dialog())
+		mpd->setSubtitle(!valid ? tr("Invalid movie") : titleString.isEmpty() ? otitleString : titleString);
+
+	if (mMainCaption.isEmpty())
+		mMainCaption = mainCaption->text();
+
+	if (!valid && wasValid) {
+		mainCaption->setText(mMainCaption + QLatin1String("<b>: </b>") + tr("please enter a valid title."));
+	} else if (valid && !wasValid) {
+		mainCaption->setText(mMainCaption);
+	}
 }
 
 //!
