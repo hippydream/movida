@@ -80,21 +80,23 @@ namespace MvdXslt
 
 
 /************************************************************************
-MvdXsltProc_P
+MvdXsltProc::Private
 *************************************************************************/
 
 //! \internal
-class MvdXsltProc_P
+class MvdXsltProc::Private
 {
 public:
-	MvdXsltProc_P();
+	Private();
 	bool loadXslt(const QString& path);
+	xmlDocPtr applyStylesheet(xmlDocPtr doc, 
+		const MvdXsltProc::ParameterList& params) const;
 
 	xsltStylesheetPtr stylesheet;
 };
 
 //! \internal
-MvdXsltProc_P::MvdXsltProc_P()
+MvdXsltProc::Private::Private()
 : stylesheet(0)
 {
 	// init libxslt
@@ -103,7 +105,7 @@ MvdXsltProc_P::MvdXsltProc_P()
 }
 
 //! \internal
-bool MvdXsltProc_P::loadXslt(const QString& path)
+bool MvdXsltProc::Private::loadXslt(const QString& path)
 {
 	if (stylesheet)
 	{
@@ -113,26 +115,65 @@ bool MvdXsltProc_P::loadXslt(const QString& path)
 
 	QFile file(path);
 	if (!file.open(QIODevice::ReadOnly)) {
-		eLog() << "MvdXsltProc_P: Failed to open " << path << " for reading (" << file.errorString() << ").";
+		eLog() << "MvdXsltProc: Failed to open " << path << " for reading (" << file.errorString() << ").";
 		return false;
 	}
 
 	QByteArray buffer = file.readAll();
 	if (buffer.isEmpty()) {
-		eLog() << "MvdXsltProc_P: Failed to read " << path << ".";
+		eLog() << "MvdXsltProc: Failed to read " << path << ".";
 		return false;
 	}
 
 	xmlDocPtr doc = xmlParseMemory(buffer.data(), buffer.size());
 	if (!doc) {
-		eLog() << "MvdXsltProc_P: Invalid XML file: " << path;
+		eLog() << "MvdXsltProc: Invalid XML file: " << path;
 		return false;
 	}
 
 	stylesheet = xsltParseStylesheetDoc(doc);
 	if (!stylesheet)
-		eLog() << "MvdXsltProc_P: Invalid XSL file: " << path;
+		eLog() << "MvdXsltProc: Invalid XSL file: " << path;
 	return stylesheet;
+}
+
+xmlDocPtr MvdXsltProc::Private::applyStylesheet(xmlDocPtr doc, 
+	const MvdXsltProc::ParameterList& params) const
+{
+	/*
+		I know it looks silly, but libxslt expects the parameter array
+		to consist at most of 16 name-value pairs + a final null, so
+		we need a fixed size array with 17 positions.
+	*/
+	static const int MaxXsltParameters = 16;
+	const char* c_params[MaxXsltParameters + 1];
+	c_params[0] = NULL;
+
+	int paramCount = 0;
+	ParameterList::ConstIterator it = params.constBegin();
+	while (it != params.constEnd() && paramCount != MaxXsltParameters) {
+		const QString& k = it.key();
+		const QString& v = it.value();
+		
+		if (k.isEmpty())
+			continue;
+
+		char* c_k = qstrdup(k.toUtf8().data());
+		char* c_v = qstrdup(v.toUtf8().data());
+
+		c_params[paramCount] = c_k;
+		c_params[paramCount + 1] = c_v;
+		paramCount += 2;
+	}
+
+	xmlDocPtr tDoc = xsltApplyStylesheet(stylesheet, doc, c_params);
+	
+	if (paramCount) {
+		for (int i = 0; i < paramCount; ++i)
+			delete c_params[i];
+	}
+
+	return tDoc;
 }
 
 
@@ -150,7 +191,7 @@ MvdXsltProc::MvdXsltProc()
 
 //! Creates a xsl processor for the specified XSL file.
 MvdXsltProc::MvdXsltProc(const QString& xslpath)
-: d(new MvdXsltProc_P)
+: d(new Private)
 {
 	d->loadXslt(xslpath);
 }
@@ -168,7 +209,7 @@ bool MvdXsltProc::loadXslFile(const QString& xslpath)
 }
 
 //! Applies XSL transformations to the text using the previously loaded stylesheet.
-QString MvdXsltProc::processText(const QString& txt)
+QString MvdXsltProc::processText(const QString& txt, const ParameterList& params)
 {
 	if (txt.isEmpty() || !isOk())
 		return QString();
@@ -179,7 +220,7 @@ QString MvdXsltProc::processText(const QString& txt)
 	if (!doc)
 		return QString();
 
-	xmlDocPtr res = xsltApplyStylesheet(d->stylesheet, doc, NULL);
+	xmlDocPtr res = d->applyStylesheet(doc, params);
 	if (!res)
 		return QString();
 
@@ -194,7 +235,7 @@ QString MvdXsltProc::processText(const QString& txt)
 }
 
 //! Applies XSL transformations to the file using the previously loaded stylesheet.
-QString MvdXsltProc::processFile(const QString& file)
+QString MvdXsltProc::processFile(const QString& file, const ParameterList& params)
 {
 	if (!QFile::exists(file) || !isOk())
 		return QString();
@@ -203,7 +244,7 @@ QString MvdXsltProc::processFile(const QString& file)
 	if (!doc)
 		return QString();
 
-	xmlDocPtr res = xsltApplyStylesheet(d->stylesheet, doc, NULL);
+	xmlDocPtr res = d->applyStylesheet(doc, params);
 	if (!res)
 		return QString();
 
@@ -218,7 +259,8 @@ QString MvdXsltProc::processFile(const QString& file)
 }
 
 //! Applies XSL transformations to the text using the previously loaded stylesheet and writes the result to a device.
-bool MvdXsltProc::processTextToDevice(const QString& txt, QIODevice* dev)
+bool MvdXsltProc::processTextToDevice(const QString& txt, QIODevice* dev,
+	const ParameterList& params)
 {
 	if (txt.isEmpty() || !isOk())
 		return false;
@@ -229,7 +271,7 @@ bool MvdXsltProc::processTextToDevice(const QString& txt, QIODevice* dev)
 	if (!doc)
 		return false;
 
-	xmlDocPtr res = xsltApplyStylesheet(d->stylesheet, doc, NULL);
+	xmlDocPtr res = d->applyStylesheet(doc, params);
 	if (!res)
 		return false;
 
@@ -247,7 +289,8 @@ bool MvdXsltProc::processTextToDevice(const QString& txt, QIODevice* dev)
 }
 
 //! Applies XSL transformations to the file using the previously loaded stylesheet and writes the result to a device.
-bool MvdXsltProc::processFileToDevice(const QString& file, QIODevice* dev)
+bool MvdXsltProc::processFileToDevice(const QString& file, QIODevice* dev,
+	const ParameterList& params)
 {
 	if (!QFile::exists(file) || !isOk() || !dev)
 		return false;
@@ -256,7 +299,7 @@ bool MvdXsltProc::processFileToDevice(const QString& file, QIODevice* dev)
 	if (!doc)
 		return false;
 
-	xmlDocPtr res = xsltApplyStylesheet(d->stylesheet, doc, NULL);
+	xmlDocPtr res = d->applyStylesheet(doc, params);
 	if (!res)
 		return false;
 

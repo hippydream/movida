@@ -22,13 +22,15 @@
 #define MVD_XSLTPROC_H
 
 #include "global.h"
+#include <QHash>
 
-class MvdXsltProc_P;
 class QIODevice;
 
 class MVD_EXPORT MvdXsltProc
 {
 public:
+	typedef QHash<QString, QString> ParameterList;
+
 	MvdXsltProc();
 	MvdXsltProc(const QString& xslpath);
 
@@ -36,14 +38,19 @@ public:
 
 	bool loadXslFile(const QString& xslpath);
 
-	QString processText(const QString& txt);
-	QString processFile(const QString& file);
+	QString processText(const QString& txt, 
+		const ParameterList& params = ParameterList());
+	QString processFile(const QString& file, 
+		const ParameterList& params = ParameterList());
 
-	bool processTextToDevice(const QString& txt, QIODevice* dev);
-	bool processFileToDevice(const QString& file, QIODevice* dev);
+	bool processTextToDevice(const QString& txt, QIODevice* dev, 
+		const ParameterList& params = ParameterList());
+	bool processFileToDevice(const QString& file, QIODevice* dev, 
+		const ParameterList& params = ParameterList());
 
 private:
-	MvdXsltProc_P* d;
+	class Private;
+	Private* d;
 };
 
 #endif // MVD_XSLTPROC_H

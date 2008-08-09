@@ -249,7 +249,7 @@ void MvdMovieCollection::setMetaData(MetaDataType ci, const QString& val)
 	}
 
 	__COLLECTION_CHANGED
-	emit metaDataChanged(ci);
+	emit metaDataChanged((int)ci, val);
 }
 
 /*!

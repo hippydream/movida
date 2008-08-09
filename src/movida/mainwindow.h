@@ -24,6 +24,7 @@
 #include "movieeditor.h"
 #include "mvdcore/core.h"
 #include "mvdcore/global.h"
+#include "mvdcore/moviecollection.h"
 #include <QMainWindow>
 #include <QStringList>
 #include <QAbstractItemView>
@@ -224,6 +225,7 @@ private slots:
 	void addMovie();
 	void addRecentFile(const QString& file);
 	void collectionModified();
+	void collectionMetaDataChanged(int t);
 	void currentViewChanged();
 	void duplicateCurrentMovie();
 	void editMovie(const QModelIndex& index);
@@ -253,7 +255,7 @@ private slots:
 	void setMoviePoster(quint32 movieId, const QUrl& url);
 	void showFilterWidget();
 	void showLog();
-	void showMetaEditor();
+	void showCollectionMeta();
 	void showMovieContextMenu(const QModelIndex& index);
 	void showPreferences();
 	void showSharedDataEditor();

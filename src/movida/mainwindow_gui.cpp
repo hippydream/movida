@@ -577,7 +577,7 @@ void MvdMainWindow::setupConnections()
 	connect ( mA_CollEdtMovie, SIGNAL( triggered() ), this, SLOT ( editSelectedMovies() ) );
 	connect ( mA_CollMedMovie, SIGNAL( triggered() ), this, SLOT ( massEditSelectedMovies() ) );
 	connect ( mA_CollDupMovie, SIGNAL( triggered() ), this, SLOT ( duplicateCurrentMovie() ) );
-	connect ( mA_CollMeta, SIGNAL( triggered() ), this, SLOT ( showMetaEditor() ) );
+	connect ( mA_CollMeta, SIGNAL( triggered() ), this, SLOT ( showCollectionMeta() ) );
 
 	connect(mA_LockToolBars, SIGNAL(toggled(bool)), this, SLOT(lockToolBars(bool)));
 
