@@ -22,11 +22,13 @@
 #define MVD_IMPORTSUMMARY_H
 
 #include "ui_importsummarypage.h"
-#include "importpage.h"
+#include "sharedglobal.h"
+#include "importexportpage.h"
+#include "mvdcore/moviedata.h"
 
 class QTemporaryFile;
 
-class MvdImportSummaryPage : public MvdImportPage
+class MvdImportSummaryPage : public MvdImportExportPage
 {
 	Q_OBJECT
 	Q_PROPERTY(int importedMoviesCount READ importedMoviesCount)
@@ -34,7 +36,7 @@ class MvdImportSummaryPage : public MvdImportPage
 public:
 	MvdImportSummaryPage(QWidget* parent = 0);
 
-	void showMessage(const QString& msg, MvdImportDialog::MessageType t);
+	void showMessage(const QString& msg, MvdShared::MessageType t);
 
 	void initializePage();
 	void cleanupPage();

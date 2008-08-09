@@ -21,20 +21,22 @@
 #ifndef MVD_IMPORTFINAL_H
 #define MVD_IMPORTFINAL_H
 
-#include "importpage.h"
+#include "sharedglobal.h"
+#include "importexportpage.h"
 #include "ui_importfinalpage.h"
+#include "mvdcore/moviedata.h"
 
 class QLabel;
 class QRadioButton;
 
-class MvdImportFinalPage : public MvdImportPage
+class MvdImportFinalPage : public MvdImportExportPage
 {
 	Q_OBJECT
 
 public:
 	MvdImportFinalPage(QWidget* parent = 0);
 
-	void showMessage(const QString& msg, MvdImportDialog::MessageType t);
+	void showMessage(const QString& msg, MvdShared::MessageType t);
 
 	void initializePage();
 	void cleanupPage();

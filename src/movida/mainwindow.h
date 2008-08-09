@@ -100,6 +100,7 @@ private:
 	QAction* mA_FileOpen;
 	QAction* mA_FileOpenLast;
 	QAction* mA_FileImport;
+	QAction* mA_FileExport;
 	QAction* mA_FileRecent;
 	QAction* mA_FileSave;
 	QAction* mA_FileSaveAs;
@@ -143,6 +144,7 @@ private:
 	// Sub menus
 	QMenu* mMN_FileMRU;
 	QMenu* mMN_FileImport;
+	QMenu* mMN_FileExport;
 	QMenu* mMN_ViewSort;
 
 	// Tool bars
@@ -265,6 +267,7 @@ private slots:
 	void updateCaption();
 	void updateBrowserView();
 	void updateFileMenu();
+	void updatePluginsMenu();
 	void updateViewSortMenu();
 	void zoomIn();
 	void zoomOut();

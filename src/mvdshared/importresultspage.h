@@ -21,15 +21,16 @@
 #ifndef MVD_IMPORTRESULTSPAGE_H
 #define MVD_IMPORTRESULTSPAGE_H
 
-#include "importpage.h"
 #include "ui_importresultspage.h"
+#include "sharedglobal.h"
+#include "importexportpage.h"
 
 class QLabel;
 class QStackedWidget;
 class QTreeWidget;
 class QTreeWidgetItem;
 
-class MvdImportResultsPage : public MvdImportPage
+class MvdImportResultsPage : public MvdImportExportPage
 {
 	Q_OBJECT
 	Q_PROPERTY(int resultsCount READ resultsCount)
@@ -49,7 +50,7 @@ public:
 
 	QList<int> jobs() const;
 
-	void showMessage(const QString& msg, MvdImportDialog::MessageType t);
+	void showMessage(const QString& msg, MvdShared::MessageType t);
 	void setBusyStatus(bool busy);
 
 	void setProgress(int v);

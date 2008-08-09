@@ -19,6 +19,7 @@
 **************************************************************************/
 
 #include "blue.h"
+#include "movieexport.h"
 #include "movieimport.h"
 #include "mvdcore/core.h"
 #include "mvdcore/logger.h"
@@ -100,27 +101,37 @@ QList<MvdPluginInterface::PluginAction> MpiBlue::actions() const
 	QList<MvdPluginInterface::PluginAction> list;
 	
 	MvdPluginInterface::PluginAction a;
-	a.text = tr("IMDb movie import");
-	a.helpText = tr("Import movies from the IMDb website.");
-	a.name = "imdb-import";
+	a.text = tr("Movida import wizard");
+	a.helpText = tr("Import movies from the Internet or from common file formats.");
+	a.name = "import";
 	a.type = MvdPluginInterface::ImportAction;
 	list << a;
 
-	a.text = tr("Reload engines");
-	a.helpText = tr("Reloads the custom engines.");
+	a.text = tr("Movida export wizard");
+	a.helpText = tr("Exports movies to common file formats.");
+	a.name = "export";
+	a.type = MvdPluginInterface::ExportAction;
+	list << a;
+
+	a.text = tr("Reload import engines");
+	a.helpText = tr("Reloads the import scripts.");
 	a.name = "reload-engines";
 	a.type = MvdPluginInterface::GenericAction;
 	list << a;
+
 
 	return list;
 }
 
 void MpiBlue::actionTriggeredImplementation(const QString& name, const QStringList& parameters)
 {
-	if (name == "imdb-import") {
+	if (name == QLatin1String("import")) {
 		MpiMovieImport mi(parent() ? parent() : this);
-		mi.runImdbImport(mEngines);
-	} else if (name == "reload-engines") {
+		mi.run(mEngines);
+	} else if (name == QLatin1String("export")) {
+		MpiMovieExport me(parent() ? parent() : this);
+		me.run();
+	} else if (name == QLatin1String("reload-engines")) {
 		loadEngines();
 	}
 }

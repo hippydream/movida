@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: sharedglobal.h
+** Filename: movieexport.cpp
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,30 +18,38 @@
 **
 **************************************************************************/
 
-#ifndef MVD_SHAREDGLOBAL_H
-#define MVD_SHAREDGLOBAL_H
+#include "movieexport.h"
+#include "mvdcore/core.h"
+#include "mvdcore/logger.h"
+#include "mvdcore/settings.h"
+#include "mvdshared/exportdialog.h"
+#include <QRegExp>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
+#include <QTemporaryFile>
+#include <QDateTime>
+#include <QLocale>
 
-#include "mvdcore/global.h"
-#include <QtGlobal>
+using namespace Movida;
 
-#ifndef MVD_EXPORT_SHARED
-# ifdef Q_OS_WIN
-#  if defined(MVD_BUILD_SHARED_DLL)
-#   define MVD_EXPORT_SHARED __declspec(dllexport)
-#  else
-#   define MVD_EXPORT_SHARED __declspec(dllimport)
-#  endif // MVD_BUILD_SHARED_DLL
-# else // Q_OS_WIN
-#  define MVD_EXPORT_SHARED
-# endif
-#endif // MVD_EXPORT_SHARED
+MpiMovieExport::MpiMovieExport(QObject* parent)
+: QObject(parent)
+{
+}
 
-namespace MvdShared {
-	enum MessageType {
-		InfoMessage = 0,
-		WarningMessage,
-		ErrorMessage
-	};
-};
+MpiMovieExport::~MpiMovieExport()
+{
+}
 
-#endif // MVD_SHAREDGLOBAL_H
+void MpiMovieExport::run()
+{
+	mExportDialog = new MvdExportDialog(qobject_cast<QWidget*>(parent()));
+	
+	/*connect( mExportDialog, SIGNAL(resetRequest()),
+		this, SLOT(reset()) );*/
+
+	mExportDialog->setWindowModality(Qt::WindowModal);
+	mExportDialog->exec();
+}

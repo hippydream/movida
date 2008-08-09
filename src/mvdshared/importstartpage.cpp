@@ -42,7 +42,7 @@
 	select a search engine (if more than one are available).
 */
 MvdImportStartPage::MvdImportStartPage(QWidget* parent)
-: MvdImportPage(parent)
+: MvdImportExportPage(parent)
 {
 	setTitle(tr("Movida Internet import wizard"));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import-wizard/watermark.png"));

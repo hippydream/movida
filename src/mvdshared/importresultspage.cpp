@@ -47,7 +47,7 @@ using namespace MovidaShared;
 	select what to import.
 */
 MvdImportResultsPage::MvdImportResultsPage(QWidget* parent)
-: MvdImportPage(parent), matchId(0), lastSelectedMatches(0), locked(false), currentSection(0)
+: MvdImportExportPage(parent), matchId(0), lastSelectedMatches(0), locked(false), currentSection(0)
 {
 	setTitle(tr("Search results"));
 	setSubTitle(tr("Please select the items you want to import.\nYou can confirm each single import after viewing all the movie details in the next page."));
@@ -86,7 +86,7 @@ int MvdImportResultsPage::selectedResultsCount() const
 //! Override. Unlocks the UI if it was locked.
 void MvdImportResultsPage::setBusyStatus(bool busy)
 {
-	MvdImportPage::setBusyStatus(busy);
+	MvdImportExportPage::setBusyStatus(busy);
 
 	if (locked && !busy) {
 		setLock(false);
@@ -134,7 +134,7 @@ void MvdImportResultsPage::cleanupPage()
 }
 
 //! Override.
-void MvdImportResultsPage::showMessage(const QString& msg, MvdImportDialog::MessageType t)
+void MvdImportResultsPage::showMessage(const QString& msg, MvdShared::MessageType t)
 {
 	Q_UNUSED(t);
 	if (ui.stack->currentIndex() == 1)
@@ -363,15 +363,15 @@ void MvdImportResultsPage::resultsSelectionChanged()
 	if (showItemCount)
 	{
 		if (matches == 0)
-			showMessage(tr("No matches found."), MvdImportDialog::InfoMessage);
+			showMessage(tr("No matches found."), MvdShared::InfoMessage);
 		else if (selectedMatches == 0)
-			showMessage(tr("%1 match(es) found. None have been selected for import.", "Found results", matches).arg(matches), MvdImportDialog::InfoMessage);
+			showMessage(tr("%1 match(es) found. None have been selected for import.", "Found results", matches).arg(matches), MvdShared::InfoMessage);
 		else if (selectedMatches == matches)
-			showMessage(tr("%1 match(es) found and selected for import.", "Found results.", matches).arg(matches), MvdImportDialog::InfoMessage);
-		else showMessage(tr("%1 of %2 matches have been selected for import.", "Found results. # of selected messages is given for plural form.", selectedMatches).arg(selectedMatches).arg(matches), MvdImportDialog::InfoMessage);
+			showMessage(tr("%1 match(es) found and selected for import.", "Found results.", matches).arg(matches), MvdShared::InfoMessage);
+		else showMessage(tr("%1 of %2 matches have been selected for import.", "Found results. # of selected messages is given for plural form.", selectedMatches).arg(selectedMatches).arg(matches), MvdShared::InfoMessage);
 	}
 	else {
-		showMessage(text, MvdImportDialog::InfoMessage);
+		showMessage(text, MvdShared::InfoMessage);
 		Q_ASSERT(QMetaObject::invokeMethod(this, "ensureItemVisible", Qt::QueuedConnection));
 	}
 

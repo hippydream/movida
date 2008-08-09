@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: sharedglobal.h
+** Filename: exportdialog_p.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,30 +18,32 @@
 **
 **************************************************************************/
 
-#ifndef MVD_SHAREDGLOBAL_H
-#define MVD_SHAREDGLOBAL_H
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the MvdShared API.  It exists for the convenience
+// of Movida.  This header file may change from version to version without notice, 
+// or even be removed.
+//
+// We mean it.
+//
 
-#include "mvdcore/global.h"
-#include <QtGlobal>
+#ifndef MVD_EXPORTDIALOG_P_H
+#define MVD_EXPORTDIALOG_P_H
 
-#ifndef MVD_EXPORT_SHARED
-# ifdef Q_OS_WIN
-#  if defined(MVD_BUILD_SHARED_DLL)
-#   define MVD_EXPORT_SHARED __declspec(dllexport)
-#  else
-#   define MVD_EXPORT_SHARED __declspec(dllimport)
-#  endif // MVD_BUILD_SHARED_DLL
-# else // Q_OS_WIN
-#  define MVD_EXPORT_SHARED
-# endif
-#endif // MVD_EXPORT_SHARED
+#include "exportdialog.h"
+#include <QStringList>
 
-namespace MvdShared {
-	enum MessageType {
-		InfoMessage = 0,
-		WarningMessage,
-		ErrorMessage
-	};
+//! \internal
+class MvdExportDialog::Private
+{
+public:
+	enum { StartPage, FinalPage };
+
+	bool closing;
+	MvdExportDialog::Result exportResult;
+	MvdExportDialog::ErrorType errorType;
 };
 
-#endif // MVD_SHAREDGLOBAL_H
+#endif // MVD_EXPORTDIALOG_P_H

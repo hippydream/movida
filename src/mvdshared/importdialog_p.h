@@ -54,7 +54,7 @@ public:
 	quint8 importSteps;
 	quint32 importCount;
 	quint8 searchSteps;
-	MvdImportDialog::ImportResult importResult;
+	MvdImportDialog::Result importResult;
 	MvdImportDialog::ErrorType errorType;
 
 	QStringList buildQueryList(QString s) const;

@@ -67,7 +67,7 @@ public:
 
 	struct PluginAction
 	{
-		PluginAction() : type(GenericAction) {}
+		PluginAction(ActionType t = GenericAction) : type(t) {}
 
 		QIcon icon;
 		QString text;

@@ -21,7 +21,8 @@
 #ifndef MVD_IMPORTSTARTPAGE_H
 #define MVD_IMPORTSTARTPAGE_H
 
-#include "importpage.h"
+#include "sharedglobal.h"
+#include "importexportpage.h"
 #include "searchengine.h"
 
 class MvdActionLabel;
@@ -30,7 +31,7 @@ class QLabel;
 class QComboBox;
 class QPushButton;
 
-class MvdImportStartPage : public MvdImportPage
+class MvdImportStartPage : public MvdImportExportPage
 {
 	Q_OBJECT
 

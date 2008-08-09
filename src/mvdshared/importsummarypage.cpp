@@ -38,7 +38,7 @@ using namespace Movida;
 */
 
 MvdImportSummaryPage::MvdImportSummaryPage(QWidget* parent)
-: MvdImportPage(parent), locked(false), previousVisibleJob(-1), currentVisibleJob(-1)
+: MvdImportExportPage(parent), locked(false), previousVisibleJob(-1), currentVisibleJob(-1)
 {
 	setTitle(tr("Import summary."));
 	setSubTitle(tr("This page shows a preview of the movies you have selected for import.\nIf you have changed your mind, you can still exclude some movie from the import process."));
@@ -87,7 +87,7 @@ void MvdImportSummaryPage::setBusyStatus(bool busy)
 	if (!busy && locked)
 		setLock(false);
 
-	MvdImportPage::setBusyStatus(busy);
+	MvdImportExportPage::setBusyStatus(busy);
 }
 
 //! Adds a movie data object to the import list.
@@ -112,7 +112,7 @@ void MvdImportSummaryPage::setLock(bool lock)
 		if (jobs.isEmpty()) {
 			showMessage(tr("No movie has been selected for import.\nPlease press the %1 button to repeat the search.")
 				.arg(this->wizard()->buttonText(QWizard::BackButton)),
-				MvdImportDialog::InfoMessage);
+				MvdShared::InfoMessage);
 			return;
 		} else if (jobs.size() > 1) {
 			ui.jumpLabel->setEnabled(true);
@@ -129,7 +129,7 @@ void MvdImportSummaryPage::setLock(bool lock)
 }
 
 //! Override.
-void MvdImportSummaryPage::showMessage(const QString& msg, MvdImportDialog::MessageType t)
+void MvdImportSummaryPage::showMessage(const QString& msg, MvdShared::MessageType t)
 {
 	Q_UNUSED(t);
 	ui.stack->setCurrentIndex(0);
@@ -142,8 +142,7 @@ void MvdImportSummaryPage::initializePage()
 	setBusyStatus(true);
 	setLock(true);
 
-	showMessage(tr("Downloading movie data."), 
-		MvdImportDialog::InfoMessage);
+	showMessage(tr("Downloading movie data."), MvdShared::InfoMessage);
 }
 
 void MvdImportSummaryPage::cleanupPage()
