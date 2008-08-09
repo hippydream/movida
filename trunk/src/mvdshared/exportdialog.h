@@ -22,6 +22,7 @@
 #define MVD_EXPORTDIALOG_H
 
 #include "sharedglobal.h"
+#include "exportengine.h"
 #include <QDialog>
 #include <QHash>
 #include <QVariant>
@@ -62,7 +63,7 @@ public:
 
 	MvdExportDialog(QWidget* parent = 0);
 
-	int registerEngine(const QString& engine);
+	int registerEngine(const MvdExportEngine& engine);
 
 	virtual int nextId() const;
 

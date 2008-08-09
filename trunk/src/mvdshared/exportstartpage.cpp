@@ -54,72 +54,68 @@ MvdExportStartPage::MvdExportStartPage(QWidget* parent)
 	setTitle(tr("Movida export wizard"));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import-wizard/watermark.png"));
 
-	infoLabel = new QLabel;
-	infoLabel->setWordWrap(true);
-	infoLabel->setText(tr("Please select an output format. You might be prompted for further options on the following page."));
+	mInfoLabel = new QLabel;
+	mInfoLabel->setWordWrap(true);
+	mInfoLabel->setText(tr("Please select an output format. You might be prompted for further options on the following page."));
 	
-	engineCombo = new QComboBox;
-	connect( engineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(engineChanged()) );
+	mEngineCombo = new QComboBox;
+	connect( mEngineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(engineChanged()) );
 
 	QGridLayout* gridLayout = new QGridLayout(this);
-	gridLayout->addWidget(infoLabel, 0, 0, 1, 2);
+	gridLayout->addWidget(mInfoLabel, 0, 0, 1, 2);
 	gridLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed), 1, 1, 1, 1);
 
 	QFormLayout* engineLayout = new QFormLayout;
 
 	QLabel* engineLabel = new QLabel(this);
 	engineLabel->setText(tr("Output format:"));
-	engineLayout->addRow(engineLabel, engineCombo);
+	engineLayout->addRow(engineLabel, mEngineCombo);
 	
-	exportSelectedButton = new QRadioButton(tr("Export selected movies"), this);
-	exportAllButton = new QRadioButton(tr("Export entire collection"), this);
+	mExportSelectedButton = new QRadioButton(tr("Export selected movies"), this);
+	mExportAllButton = new QRadioButton(tr("Export entire collection"), this);
 
 	if (hasSelectedMovies) {
-		exportSelectedButton->setChecked(true);
+		mExportSelectedButton->setChecked(true);
 	} else {
-		exportSelectedButton->setVisible(false);
-		exportAllButton->setVisible(false);
-		exportSelectedButton->setEnabled(false);
-		exportAllButton->setChecked(true);
+		mExportSelectedButton->setVisible(false);
+		mExportAllButton->setVisible(false);
+		mExportSelectedButton->setEnabled(false);
+		mExportAllButton->setChecked(true);
 	}
 
 	engineLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Expanding));
-	engineLayout->addRow(exportSelectedButton);
-	engineLayout->addRow(exportAllButton);
+	engineLayout->addRow(mExportSelectedButton);
+	engineLayout->addRow(mExportAllButton);
 
 	gridLayout->addLayout(engineLayout, 2, 0, 1, 2);
 
 	gridLayout->addItem(new QSpacerItem(20, 60, QSizePolicy::Minimum, QSizePolicy::Expanding), 3, 0, 1, 1);
 
-	controls = new MvdActionLabel(this);
-	configureEngineId = controls->addControl(tr("Configure format"), false);
-	configurePluginId = controls->addControl(tr("Configure plugin"), true);
-	connect( controls, SIGNAL(controlTriggered(int)), this, SLOT(controlTriggered(int)) );
+	mControls = new MvdActionLabel(this);
+	mConfigureEngineId = mControls->addControl(tr("Configure format"), false);
+	mConfigurePluginId = mControls->addControl(tr("Configure plugin"), true);
+	connect( mControls, SIGNAL(controlTriggered(int)), this, SLOT(controlTriggered(int)) );
 
 	gridLayout->addItem(new QSpacerItem(60, 20, QSizePolicy::Expanding, QSizePolicy::Minimum), 4, 0, 1, 1);
-	gridLayout->addWidget(controls, 4, 1, 1, 1);
+	gridLayout->addWidget(mControls, 4, 1, 1, 1);
 }
 
 //! \internal
 void MvdExportStartPage::engineChanged()
 {
-	/*if (engines.isEmpty())
+	if (mEngines.isEmpty())
 		return;
 
-	const MvdSearchEngine& e = engines.at(engineCombo->currentIndex());
-
-	QRegExp rx(e.validator);
-	queryInput->setValidator(new MvdQueryValidator(this));
-
-	controls->setControlEnabled(configureEngineId, e.canConfigure);*/
+	const MvdExportEngine& e = mEngines.at(mEngineCombo->currentIndex());
+	mControls->setControlEnabled(mConfigureEngineId, e.canConfigure);
 }
 
 //! \internal
 void MvdExportStartPage::controlTriggered(int id)
 {
-	if (id == configureEngineId) {
-		emit engineConfigurationRequest(engineCombo->currentIndex());
-	} else if (id == configurePluginId) {
+	if (id == mConfigureEngineId) {
+		emit engineConfigurationRequest(mEngineCombo->currentIndex());
+	} else if (id == mConfigurePluginId) {
 		QMessageBox::information(this, "Movida blue plugin", "Sorry, this feature has not been implemented yet.");
 	}
 }
@@ -127,7 +123,7 @@ void MvdExportStartPage::controlTriggered(int id)
 //! Returns the ID of the currently selected search engine.
 int MvdExportStartPage::engine() const
 {
-	return engineCombo->currentIndex();
+	return mEngineCombo->currentIndex();
 }
 
 //! Resets anything before the page is shown.
@@ -141,8 +137,11 @@ void MvdExportStartPage::reset()
 	setBusyStatus(false);
 }
 
-int MvdExportStartPage::registerEngine(const QString& engine)
+int MvdExportStartPage::registerEngine(const MvdExportEngine& engine)
 {
-	engineCombo->addItem(engine);
-	return engineCombo->count() - 1;
+	if (mEngines.contains(engine))
+		return -1;
+	mEngines.append(engine);
+	mEngineCombo->addItem(engine.name);
+	return mEngineCombo->count() - 1;
 }

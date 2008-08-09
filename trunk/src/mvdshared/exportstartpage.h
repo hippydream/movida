@@ -23,7 +23,7 @@
 
 #include "sharedglobal.h"
 #include "importexportpage.h"
-#include "searchengine.h"
+#include "exportengine.h"
 
 class MvdActionLabel;
 class QLabel;
@@ -41,7 +41,7 @@ public:
 	virtual void initializePage();
 	void reset();
 
-	int registerEngine(const QString& engine);
+	int registerEngine(const MvdExportEngine& engine);
 
 	int engine() const;
 
@@ -53,13 +53,14 @@ private slots:
 	void controlTriggered(int);
 
 private:
-	QLabel* infoLabel;
-	QComboBox* engineCombo;
-	QRadioButton* exportSelectedButton;
-	QRadioButton* exportAllButton;
-	MvdActionLabel* controls;
-	int configureEngineId;
-	int configurePluginId;
+	QLabel* mInfoLabel;
+	QComboBox* mEngineCombo;
+	QRadioButton* mExportSelectedButton;
+	QRadioButton* mExportAllButton;
+	MvdActionLabel* mControls;
+	int mConfigureEngineId;
+	int mConfigurePluginId;
+	QList<MvdExportEngine> mEngines;
 };
 
 #endif // MVD_EXPORTSTARTPAGE_H
