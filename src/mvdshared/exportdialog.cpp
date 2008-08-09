@@ -254,9 +254,9 @@ bool MvdExportDialog::confirmCloseWizard()
 /*!
 	Adds an export engine to the wizard.
 */
-int MvdExportDialog::registerEngine(const QString& engine)
+int MvdExportDialog::registerEngine(const MvdExportEngine& engine)
 {
-	QString s = engine.trimmed();
+	QString s = engine.name.trimmed();
 	if (!d->startPage || s.isEmpty())
 		return -1;
 

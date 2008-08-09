@@ -36,9 +36,17 @@ public:
 
 private slots:
 	void exportRequest(int engine, const MvdExportDialog::ExportOptions& opt);
+	void engineConfigurationRequest(int engine);
+	void customCsvSeparatorTriggered();
 
 private:
+	void showCsvConfigurationDlg();
+
 	MvdExportDialog* mExportDialog;
+	int mCsvEngineId;
+	int mMovidaXmlEngineId;
+	QChar mCsvSeparator;
+	bool mIgnoreHeader;
 };
 
 #endif // MPI_MOVIEEXPORT_H

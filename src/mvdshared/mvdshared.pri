@@ -7,6 +7,7 @@ HEADERS += \
 	expandinglineedit.h \
 	exportdialog.h \
 	exportdialog_p.h \
+	exportengine.h \	
 	exportstartpage.h \
 	grafx.h \
 	importdialog.h \

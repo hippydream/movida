@@ -11,4 +11,5 @@ SOURCES += \
 
 RESOURCES += mpiblue.qrc
 	
-FORMS += 
+FORMS += \
+	ui/csvexportconfig.ui
