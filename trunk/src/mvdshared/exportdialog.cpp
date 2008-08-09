@@ -59,8 +59,13 @@ MvdExportDialog::MvdExportDialog(QWidget* parent)
 	d->closing = false;
 	d->errorType = UnknownError;
 
+	d->startPage = new MvdExportStartPage;
+	setPage(Private::StartPage, d->startPage);
+
 	setStartId(Private::StartPage);
 
+	connect( d->startPage, SIGNAL(engineConfigurationRequest(int)), 
+		this, SIGNAL(engineConfigurationRequest(int)) );
 	connect( this, SIGNAL(currentIdChanged(int)),
 		this, SLOT(pageChanged(int)) );
 
@@ -154,6 +159,8 @@ void MvdExportDialog::pageChanged(int id)
 	switch (id) {
 	case Private::StartPage:
 	{
+		// Reset all pages
+		d->startPage->reset();
 		d->exportResult = Success;
 		emit resetRequest();
 	} break;
@@ -226,7 +233,11 @@ void MvdExportDialog::keyPressEvent(QKeyEvent* e)
 bool MvdExportDialog::confirmCloseWizard()
 {
 	QString msg;
-	if (!isBusy() && currentId() != Private::FinalPage) {
+	bool isImportantPage = currentId() != Private::FinalPage && currentId() != Private::StartPage;
+
+	if (!isBusy()) {
+		if (!isImportantPage)
+			return true;
 		msg = tr("Are you sure you want to close the wizard?");
 	} else {
 		/*switch (currentId()) {
@@ -238,4 +249,16 @@ bool MvdExportDialog::confirmCloseWizard()
 	}
 
 	return QMessageBox::question(this, MVD_CAPTION, msg, QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
+}
+
+/*!
+	Adds an export engine to the wizard.
+*/
+int MvdExportDialog::registerEngine(const QString& engine)
+{
+	QString s = engine.trimmed();
+	if (!d->startPage || s.isEmpty())
+		return -1;
+
+	return d->startPage->registerEngine(engine);
 }

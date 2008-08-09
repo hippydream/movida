@@ -38,6 +38,7 @@ public:
 
 	MvdMovieCollection* collection;
 	QHash<QString, QVariant> properties;
+	QList<mvdid> selectedMovies;
 };
 
 class MVD_EXPORT MvdPluginInterface : public QObject

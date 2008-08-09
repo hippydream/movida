@@ -33,6 +33,7 @@
 #define MVD_EXPORTDIALOG_P_H
 
 #include "exportdialog.h"
+#include "exportstartpage.h"
 #include <QStringList>
 
 //! \internal
@@ -40,6 +41,8 @@ class MvdExportDialog::Private
 {
 public:
 	enum { StartPage, FinalPage };
+
+	MvdExportStartPage* startPage;
 
 	bool closing;
 	MvdExportDialog::Result exportResult;

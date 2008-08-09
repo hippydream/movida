@@ -29,7 +29,6 @@
 #include <QWizard>
 #include <QStringList>
 
-
 class MVD_EXPORT_SHARED MvdExportDialog : public QWizard
 {
 	Q_OBJECT
@@ -52,7 +51,18 @@ public:
 		FileError
 	};
 
+	enum ExportType {
+		ExportSelectedMovies = 0,
+		ExportCollection
+	};
+
+	struct ExportOptions {
+		ExportType type;
+	};
+
 	MvdExportDialog(QWidget* parent = 0);
+
+	int registerEngine(const QString& engine);
 
 	virtual int nextId() const;
 
@@ -79,7 +89,8 @@ protected:
 	void keyPressEvent(QKeyEvent* e);
 
 signals:
-	void exportRequest(const QList<mvdid>& movies);
+	void engineConfigurationRequest(int engine);
+	void exportRequest(int engine, const MvdExportDialog::ExportOptions& options);
 	void resetRequest();
 
 private slots:

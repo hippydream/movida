@@ -211,6 +211,19 @@ MvdMainWindow::~MvdMainWindow()
 {
 }
 
+mvdid MvdMainWindow::movieIndexToId(const QModelIndex& index) const
+{
+	bool ok;
+	mvdid id = mFilterModel->data(index, Movida::IdRole).toUInt(&ok);
+	return ok ? id : MvdNull;
+}
+
+QModelIndex MvdMainWindow::movieIdToIndex(mvdid id) const
+{
+	QModelIndex index = mMovieModel->findMovie(id);
+	return index.isValid() ? mFilterModel->mapFromSource(index) : QModelIndex();
+}
+
 /*!
 	Shows the preferences dialog.
 	\todo maybe dialog pages should better not be added here
@@ -761,13 +774,19 @@ void MvdMainWindow::editSelectedMovies()
 		editMovie(list.at(0));
 }
 
-void MvdMainWindow::massEditSelectedMovies()
+QList<mvdid> MvdMainWindow::selectedMovies() const
 {
 	QModelIndexList list = mTreeView->selectedRows();
-	if (list.size() > 1) {
-		QList<mvdid> ids;
-		for (int i = 0; i < list.size(); ++i)
-			ids << movieIndexToId(list.at(i));
+	QList<mvdid> ids;
+	for (int i = 0; i < list.size(); ++i)
+		ids << movieIndexToId(list.at(i));
+	return ids;
+}
+
+void MvdMainWindow::massEditSelectedMovies()
+{
+	QList<mvdid> ids = selectedMovies();
+	if (ids.size() > 1) {
 		MvdMovieMassEditor med(mCollection, this);
 		med.setMovies(ids);
 		med.exec();
@@ -871,19 +890,6 @@ void MvdMainWindow::editMovie(const QModelIndex& index)
 		mMovieEditor->exec();
 }
 
-mvdid MvdMainWindow::movieIndexToId(const QModelIndex& index) const
-{
-	bool ok;
-	mvdid id = mFilterModel->data(index, Movida::IdRole).toUInt(&ok);
-	return ok ? id : MvdNull;
-}
-
-QModelIndex MvdMainWindow::movieIdToIndex(mvdid id) const
-{
-	QModelIndex index = mMovieModel->findMovie(id);
-	return index.isValid() ? mFilterModel->mapFromSource(index) : QModelIndex();
-}
-
 void MvdMainWindow::removeSelectedMovies()
 {
 	QModelIndexList list = mTreeView->selectedRows();
@@ -958,16 +964,7 @@ void MvdMainWindow::movieViewSelectionChanged()
 
 void MvdMainWindow::updateBrowserView()
 {
-	QModelIndexList list = mTreeView->selectedRows();
-	QList<mvdid> ids;
-
-	for (int i = 0; i < list.size(); ++i) {
-		const QModelIndex& index = list.at(i);
-		mvdid id = movieIndexToId(index);
-		if (id != MvdNull)
-			ids.append(id);
-	}
-	
+	QList<mvdid> ids = selectedMovies();
 	mDetailsView->showMovies(ids);
 }
 
@@ -1581,7 +1578,9 @@ void MvdMainWindow::pluginActionTriggered()
 	if (!iface) return;
 
 	MvdPluginContext* context = MvdCore::pluginContext();
-	
+	Q_ASSERT(context);
+
+	context->selectedMovies = selectedMovies();
 
 	// Update plugin context
 	iface->actionTriggered(actionName);

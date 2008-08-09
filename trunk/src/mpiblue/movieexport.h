@@ -22,8 +22,7 @@
 #define MPI_MOVIEEXPORT_H
 
 #include "blue.h"
-
-class MvdExportDialog;
+#include "mvdshared/exportdialog.h"
 
 class MpiMovieExport : QObject
 {
@@ -34,6 +33,9 @@ public:
 	virtual ~MpiMovieExport();
 
 	void run();
+
+private slots:
+	void exportRequest(int engine, const MvdExportDialog::ExportOptions& opt);
 
 private:
 	MvdExportDialog* mExportDialog;

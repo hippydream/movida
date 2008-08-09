@@ -6,6 +6,8 @@ HEADERS += \
 	clearspin.h \
 	expandinglineedit.h \
 	exportdialog.h \
+	exportdialog_p.h \
+	exportstartpage.h \
 	grafx.h \
 	importdialog.h \
 	importdialog_p.h \
@@ -27,6 +29,7 @@ SOURCES += \
 	clearspin.cpp \
 	expandinglineedit.cpp \
 	exportdialog.cpp \
+	exportstartpage.cpp \
 	grafx.cpp \
 	importdialog.cpp \
 	importfinalpage.cpp \
