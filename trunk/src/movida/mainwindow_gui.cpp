@@ -163,6 +163,7 @@ void MvdMainWindow::createActions()
 	mA_FileOpenLast->setIcon(QIcon(":/images/document-reopen.svgz"));
 
 	mA_FileImport = createAction();
+	mA_FileExport = createAction();
 
 	mA_FileRecent = createAction();
 	
@@ -277,6 +278,9 @@ void MvdMainWindow::createMenus()
 	mMN_FileImport = new QMenu(tr("&Import"), this);
 	mA_FileImport->setMenu(mMN_FileImport);
 
+	mMN_FileExport = new QMenu(tr("&Export"), this);
+	mA_FileExport->setMenu(mMN_FileExport);
+
 	mMN_FileMRU = new QMenu(tr("&Recent"), this);
 	mA_FileRecent->setMenu(mMN_FileMRU);
 
@@ -295,6 +299,7 @@ void MvdMainWindow::createMenus()
 	mMN_File->addAction(mA_FileOpenLast);
 	mMN_File->addAction(mA_FileRecent);
 	mMN_File->addAction(mA_FileImport);
+	mMN_File->addAction(mA_FileExport);
 	mMN_File->addSeparator();
 	mMN_File->addAction(mA_FileSave);
 	mMN_File->addAction(mA_FileSaveAs);
@@ -392,6 +397,12 @@ void MvdMainWindow::retranslateUi()
 	longInfo = tr("Import movies from other applications and file formats or from external sources like the Internet.");
 	shortcut.clear();
 	initAction(mA_FileImport, text, shortInfo, longInfo, shortcut);
+
+	text = tr("&Export");
+	shortInfo = tr("Export movies to other formats");
+	longInfo = tr("Export movies to other formats supported by other applications.");
+	shortcut.clear();
+	initAction(mA_FileExport, text, shortInfo, longInfo, shortcut);
 
 	text = tr("R&ecent Files");
 	shortInfo = tr("Re-open a recently used collection");
@@ -571,6 +582,7 @@ void MvdMainWindow::setupConnections()
 
 	connect ( mMN_FileMRU, SIGNAL(triggered(QAction*)), this, SLOT(openRecentFile(QAction*)) );
 	connect ( mMN_File, SIGNAL(aboutToShow()), this, SLOT(updateFileMenu()) );
+	connect ( mMN_Plugins, SIGNAL(aboutToShow()), this, SLOT(updatePluginsMenu()) );
 
 	connect ( mA_CollAddMovie, SIGNAL( triggered() ), this, SLOT ( addMovie() ) );
 	connect ( mA_CollRemMovie, SIGNAL( triggered() ), this, SLOT ( removeSelectedMovies() ) );

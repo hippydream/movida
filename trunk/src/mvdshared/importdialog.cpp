@@ -20,7 +20,6 @@
 
 #include "importdialog.h"
 #include "importdialog_p.h"
-#include "labelanimator.h"
 #include "mvdcore/core.h"
 #include "mvdcore/plugininterface.h"
 #include "mvdcore/settings.h"
@@ -75,8 +74,6 @@ MvdImportDialog::MvdImportDialog(QWidget* parent)
 : QWizard(parent), d(new MvdImportDialog_P)
 {
 	//! \todo Check for supported engine URLs and handle file:// protocol with a QFileBrowser and a query-like filter instead of a standard query input widget
-
-	// Add pages
 
 	d->closing = false;
 	d->importSteps = 1;
@@ -146,17 +143,17 @@ int MvdImportDialog::nextId() const
 	for the same request (i.e. after the searchRequest() signal and before the
 	importRequest() signal) leads to undefined behavior!
 */
-void MvdImportDialog::done(ImportResult res)
+void MvdImportDialog::done(Result res)
 {
 	d->importResult = res;
 
-	MvdImportPage* p = dynamic_cast<MvdImportPage*>(currentPage());
+	MvdImportExportPage* p = dynamic_cast<MvdImportExportPage*>(currentPage());
 	if (p)
 		p->setBusyStatus(false);
 }
 
 //! Returns the result of the latest import request as the client specified when calling done().
-MvdImportDialog::ImportResult MvdImportDialog::importResult() const
+MvdImportDialog::Result MvdImportDialog::result() const
 {
 	return d->importResult;
 }
@@ -186,9 +183,9 @@ int MvdImportDialog::registerEngine(const MvdSearchEngine& engine)
 }
 
 //! Shows a status message if the current page supports it.
-void MvdImportDialog::showMessage(const QString& msg, MessageType type)
+void MvdImportDialog::showMessage(const QString& msg, MvdShared::MessageType type)
 {
-	MvdImportPage* p = dynamic_cast<MvdImportPage*>(currentPage());
+	MvdImportExportPage* p = dynamic_cast<MvdImportExportPage*>(currentPage());
 	if (p)
 		p->showMessage(msg, type);
 }
@@ -292,7 +289,7 @@ void MvdImportDialog::accept()
 	QDialog::accept();
 }
 
-//! \p id is the new page to be showed.
+//! \p id is the new page to be shown.
 void MvdImportDialog::pageChanged(int id)
 {
 	switch (id) {
@@ -374,7 +371,7 @@ void MvdImportDialog::pageChanged(int id)
 	default: ;
 	}
 
-	MvdImportPage* p = qobject_cast<MvdImportPage*>(page(id));
+	MvdImportExportPage* p = qobject_cast<MvdImportExportPage*>(page(id));
 	if (p)
 		p->updateButtons();
 }
@@ -382,7 +379,7 @@ void MvdImportDialog::pageChanged(int id)
 //! Convenience method. Returns true if the current page has the preventCloseWhenBusy property set to true.
 bool MvdImportDialog::preventCloseWhenBusy() const
 {
-	if (MvdImportPage* p = qobject_cast<MvdImportPage*>(currentPage()))
+	if (MvdImportExportPage* p = qobject_cast<MvdImportExportPage*>(currentPage()))
 		if (p->preventCloseWhenBusy())
 			return true;
 	return false;
@@ -391,7 +388,7 @@ bool MvdImportDialog::preventCloseWhenBusy() const
 //! Convenience method. Returns true if the current page is busy.
 bool MvdImportDialog::isBusy() const
 {
-	if (MvdImportPage* p = qobject_cast<MvdImportPage*>(currentPage()))
+	if (MvdImportExportPage* p = qobject_cast<MvdImportExportPage*>(currentPage()))
 		if (p->busyStatus())
 			return true;
 	return false;

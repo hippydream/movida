@@ -50,7 +50,7 @@ MpiMovieImport::~MpiMovieImport()
 }
 
 //! Entry point for the "imdb-import" action.
-void MpiMovieImport::runImdbImport(const QList<MpiBlue::Engine*>& engines)
+void MpiMovieImport::run(const QList<MpiBlue::Engine*>& engines)
 {
 	mImportDialog = new MvdImportDialog(qobject_cast<QWidget*>(parent()));
 	
@@ -520,7 +520,7 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 			case QHttp::ConnectionRefused: msg = tr("Sorry but the search engine refused the connection."); break;
 			default: msg = tr("Failed to connect to the Internet.");
 			}
-			mImportDialog->showMessage(msg, MvdImportDialog::ErrorMessage);
+			mImportDialog->showMessage(msg, MvdShared::ErrorMessage);
 		}
 
 		if (mTempFile)
@@ -725,7 +725,7 @@ void MpiMovieImport::processMoviePoster()
 {
 	if (!mTempFile) {
 		mImportDialog->showMessage(tr("Failed to download movie poster."), 
-			MvdImportDialog::ErrorMessage);
+			MvdShared::ErrorMessage);
 		completeJob();
 		return;
 	}

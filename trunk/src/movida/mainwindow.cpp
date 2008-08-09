@@ -71,6 +71,16 @@ MvdMainWindow* Movida::MainWindow = 0;
 
 Q_DECLARE_METATYPE(MvdCollectionLoader::Info);
 
+namespace {
+	struct PluginAction
+	{
+		QString name;
+		int type;
+	};
+}
+Q_DECLARE_METATYPE(::PluginAction);
+
+
 
 /*!
 	\class MvdMainWindow mainwindow.h
@@ -330,8 +340,8 @@ void MvdMainWindow::addRecentFile(const QString& file)
 }
 
 /*!
-	Checks and updates the status of the File submenu (e.g. removing non existing
-	recent files and disabling empty menus).
+	Checks and updates the status of the file menu.
+	This method is called before the file menu is shown.
 */
 void MvdMainWindow::updateFileMenu()
 {
@@ -362,8 +372,37 @@ void MvdMainWindow::updateFileMenu()
 		a->setData(QVariant(list.at(i)));
 	}
 
-	// IMPORT
+	// IMPORT/EXPORT
+	bool hasMovies = mCollection && !mCollection->isEmpty();
 	mMN_FileImport->setDisabled(mMN_FileImport->isEmpty());
+	mMN_FileExport->setDisabled(!hasMovies || mMN_FileExport->isEmpty());
+}
+
+/*!
+	Checks and updates the status of the Plugins menu.
+	This method is called before the plugins menu is shown.
+*/
+void MvdMainWindow::updatePluginsMenu()
+{
+	if (mMN_Plugins->isEmpty())
+		return;
+
+	bool hasMovies = mCollection && !mCollection->isEmpty();
+
+	QList<QAction*> l = mMN_Plugins->actions();
+	for (int i = 0; i < l.size(); ++i) {
+		QMenu* m = l.at(i)->menu();
+		if (!m) continue;
+		QList<QAction*> ml = m->actions();
+		for (int j = 0; j < ml.size(); ++j) {
+			QAction* a = ml.at(j);
+			PluginAction pa = a->data().value<PluginAction>();
+			MvdPluginInterface::ActionTypes types = (MvdPluginInterface::ActionTypes)pa.type;
+			if (types.testFlag(MvdPluginInterface::ExportAction)) {
+				a->setEnabled(hasMovies);
+			}
+		}
+	}
 }
 
 //! Populates the sort menu according to the current view.
@@ -949,11 +988,15 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	QAction* deleteSelected = 0;
 
 	bool currentIsSelected = false;
+	bool hasMovies = mCollection && !mCollection->isEmpty();
 
 	addNew = menu.addAction(tr("New movie..."));
-	if (!mMN_FileImport->isEmpty()) {
-		menu.addMenu(mMN_FileImport);
-	}
+
+	menu.addMenu(mMN_FileImport);
+	mMN_FileImport->setEnabled(!mMN_FileImport->isEmpty());
+
+	menu.addMenu(mMN_FileExport);
+	mMN_FileExport->setEnabled(!mMN_FileExport->isEmpty() && hasMovies);
 
 	QModelIndexList selected = mSelectionModel->selectedRows();
 	mvdid currentId = movieIndexToId(index);
@@ -1197,7 +1240,11 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 			qa->setText(a.text);
 			qa->setStatusTip(a.helpText);
 			qa->setIcon(a.icon);
-			qa->setData(QString("%1/%2").arg(info.uniqueId.trimmed()).arg(a.name));
+
+			PluginAction pa;
+			pa.name = QString("%1/%2").arg(info.uniqueId.trimmed()).arg(a.name);
+			pa.type = a.type;
+			qa->setData(QVariant::fromValue<PluginAction>(pa));
 
 			connect( qa, SIGNAL(triggered()), this, SLOT(pluginActionTriggered()) );
 
@@ -1205,6 +1252,10 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 
 			if (a.type.testFlag(MvdPluginInterface::ImportAction)) {
 				mMN_FileImport->addAction(qa);
+			}
+
+			if (a.type.testFlag(MvdPluginInterface::ExportAction)) {
+				mMN_FileExport->addAction(qa);
 			}
 		}
 
@@ -1504,7 +1555,8 @@ void MvdMainWindow::pluginActionTriggered()
 	QAction* a = qobject_cast<QAction*>(sender());
 	if (!a) return;
 
-	QStringList l = a->data().toString().split(QLatin1Char('/'));
+	PluginAction pa = a->data().value<PluginAction>();
+	QStringList l = pa.name.split(QLatin1Char('/'));
 	if (l.size() != 2) return;
 
 	QString pluginName = l[0];

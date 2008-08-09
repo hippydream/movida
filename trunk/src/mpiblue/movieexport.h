@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: sharedglobal.h
+** Filename: movieexport.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,30 +18,25 @@
 **
 **************************************************************************/
 
-#ifndef MVD_SHAREDGLOBAL_H
-#define MVD_SHAREDGLOBAL_H
+#ifndef MPI_MOVIEEXPORT_H
+#define MPI_MOVIEEXPORT_H
 
-#include "mvdcore/global.h"
-#include <QtGlobal>
+#include "blue.h"
 
-#ifndef MVD_EXPORT_SHARED
-# ifdef Q_OS_WIN
-#  if defined(MVD_BUILD_SHARED_DLL)
-#   define MVD_EXPORT_SHARED __declspec(dllexport)
-#  else
-#   define MVD_EXPORT_SHARED __declspec(dllimport)
-#  endif // MVD_BUILD_SHARED_DLL
-# else // Q_OS_WIN
-#  define MVD_EXPORT_SHARED
-# endif
-#endif // MVD_EXPORT_SHARED
+class MvdExportDialog;
 
-namespace MvdShared {
-	enum MessageType {
-		InfoMessage = 0,
-		WarningMessage,
-		ErrorMessage
-	};
+class MpiMovieExport : QObject
+{
+	Q_OBJECT
+
+public:
+	MpiMovieExport(QObject* parent = 0);
+	virtual ~MpiMovieExport();
+
+	void run();
+
+private:
+	MvdExportDialog* mExportDialog;
 };
 
-#endif // MVD_SHAREDGLOBAL_H
+#endif // MPI_MOVIEEXPORT_H

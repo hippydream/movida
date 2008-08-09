@@ -18,25 +18,26 @@
 **
 **************************************************************************/
 
-#ifndef MVD_IMPORTPAGE_H
-#define MVD_IMPORTPAGE_H
+#ifndef MVD_IMPORTEXPORTPAGE_H
+#define MVD_IMPORTEXPORTPAGE_H
 
+#include "exportdialog.h"
 #include "importdialog.h"
 #include <QWizardPage>
 
 /*!
-	\class MvdImportPage importpage.h
+	\class MvdImportExportPage importexportpage.h
 	\ingroup MovidaShared
 
-	\brief Base class for a movie import wizard page.
+	\brief Base class for a movie import/export wizard page.
 */
 
-class MvdImportPage : public QWizardPage
+class MvdImportExportPage : public QWizardPage
 {
 	Q_OBJECT
 
 public:
-	MvdImportPage(QWidget* parent = 0)
+	MvdImportExportPage(QWidget* parent = 0)
 	: QWizardPage(parent), busy(false), preventCloseOnBusy(false) { }
 	
 	virtual void setBusyStatus(bool busy)
@@ -44,7 +45,7 @@ public:
 
 	bool busyStatus() const { return busy; }
 
-	virtual void showMessage(const QString& msg, MvdImportDialog::MessageType t)
+	virtual void showMessage(const QString& msg, MvdShared::MessageType t)
 	{ Q_UNUSED(msg); Q_UNUSED(t); }
 
 	//! Re-implements the superclass method to ensure that the status is not busy.
@@ -66,14 +67,27 @@ public:
 	virtual void updateButtons()
 	{ }
 	
-	//! This method is supposed to do what it tells.. reset the page and prepare for a new search.
+	//! This method is supposed to do what it tells.. reset the page and prepare for a new import/export.
 	virtual void reset()
 	{ }
 
+	/*! Convenience method, returns a pointer to the import dialog using this page. 
+		Do not call this from a MvdExportDialog. Use exportDialog() instead.
+	*/
 	MvdImportDialog* importDialog() const
 	{
 		MvdImportDialog* w = qobject_cast<MvdImportDialog*>(wizard());
-		Q_ASSERT_X(w, "MvdImportPage::importDialog()", "Internal error.");
+		Q_ASSERT_X(w, "MvdImportExportPage::importDialog()", "Internal error.");
+		return w;
+	}
+
+	/*! Convenience method, returns a pointer to the export dialog using this page. 
+		Do not call this from a MvdImportDialog. Use importDialog() instead.
+	*/
+	MvdExportDialog* exportDialog() const
+	{
+		MvdExportDialog* w = qobject_cast<MvdExportDialog*>(wizard());
+		Q_ASSERT_X(w, "MvdImportExportPage::exportDialog()", "Internal error.");
 		return w;
 	}
 
@@ -82,4 +96,4 @@ private:
 	bool preventCloseOnBusy;
 };
 
-#endif // MVD_IMPORTPAGE_H
+#endif // MVD_IMPORTEXPORTPAGE_H

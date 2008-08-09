@@ -44,7 +44,7 @@ public:
 	MpiMovieImport(QObject* parent = 0);
 	virtual ~MpiMovieImport();
 
-	void runImdbImport(const QList<MpiBlue::Engine*>& engines);
+	void run(const QList<MpiBlue::Engine*>& engines);
 
 private slots:
 	void reset();
@@ -131,7 +131,7 @@ private:
 	State mCurrentState;
 	QString mNextUrl;
 	int mCurrentImportJob;
-	MvdImportDialog::ImportResult mImportResult;
+	MvdImportDialog::Result mImportResult;
 	
 	QHash<int,MpiBlue::Engine*> mRegisteredEngines;
 	QHash<int,SearchResult> mSearchResults;

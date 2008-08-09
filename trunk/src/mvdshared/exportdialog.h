@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: importdialog.h
+** Filename: exportdialog.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,12 +18,10 @@
 **
 **************************************************************************/
 
-#ifndef MVD_IMPORTDIALOG_H
-#define MVD_IMPORTDIALOG_H
+#ifndef MVD_EXPORTDIALOG_H
+#define MVD_EXPORTDIALOG_H
 
 #include "sharedglobal.h"
-#include "searchengine.h"
-#include "mvdcore/moviedata.h"
 #include <QDialog>
 #include <QHash>
 #include <QVariant>
@@ -31,12 +29,8 @@
 #include <QWizard>
 #include <QStringList>
 
-class MvdImportDialog_P;
-class MvdImportStartPage;
-class MvdImportResultsPage;
-class MvdImportFinalPage;
 
-class MVD_EXPORT_SHARED MvdImportDialog : public QWizard
+class MVD_EXPORT_SHARED MvdExportDialog : public QWizard
 {
 	Q_OBJECT
 
@@ -45,11 +39,9 @@ public:
 	enum Result {
 		/*! No error occurred. */
 		Success = 0,
-		/* Movie data import failed for some movie */
-		MovieDataFailed,
-		/* Movie poster import failed for some movie */
-		MoviePosterFailed,
-		/* No search could be performed or some other critical error occurred. */
+		/* Export failed for some movie */
+		Failed,
+		/* No export could be performed or some other critical error occurred. */
 		CriticalError
 	};
 
@@ -57,30 +49,14 @@ public:
 	enum ErrorType {
 		UnknownError = 0,
 		NetworkError,
-		FileError,
-		InvalidEngineError,
-		EngineError
+		FileError
 	};
 
-	MvdImportDialog(QWidget* parent = 0);
+	MvdExportDialog(QWidget* parent = 0);
 
 	virtual int nextId() const;
 
-	int registerEngine(const MvdSearchEngine& engine);
-
 	void showMessage(const QString& msg, MvdShared::MessageType type = MvdShared::InfoMessage);
-
-	void setImportSteps(quint8 s);
-	void setNextImportStep();
-
-	void setSearchSteps(quint8 s);
-	void setNextSearchStep();
-
-	int addMatch(const QString& title, const QString& year, const QString& notes = QString());
-	void addMovieData(const MvdMovieData& md);
-
-	void addSection(const QString& title, const QString& notes = QString());
-	void addSubSection(const QString& title, const QString& notes = QString());
 
 	void setErrorType(ErrorType type);
 	ErrorType errorType() const;
@@ -103,16 +79,15 @@ protected:
 	void keyPressEvent(QKeyEvent* e);
 
 signals:
-	void engineConfigurationRequest(int engine);
-	void searchRequest(const QString& query, int engine);
-	void importRequest(const QList<int>& matches);
+	void exportRequest(const QList<mvdid>& movies);
 	void resetRequest();
 
 private slots:
 	void pageChanged(int newPage);
 
 private:
-	MvdImportDialog_P* d;
+	class Private;
+	Private* d;
 };
 
-#endif // MVD_IMPORTDIALOG_H
+#endif // MVD_EXPORTDIALOG_H

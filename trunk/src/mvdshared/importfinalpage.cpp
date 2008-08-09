@@ -58,7 +58,7 @@ using namespace Movida;
 */
 
 MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
-: MvdImportPage(parent), mPendingButtonUpdates(false)
+: MvdImportExportPage(parent), mPendingButtonUpdates(false)
 {
 	setTitle(tr("We are all done!"));
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/import-wizard/watermark.png"));
@@ -77,7 +77,7 @@ void MvdImportFinalPage::setBusyStatus(bool busy)
 	if (busy == busyStatus())
 		return;
 
-	MvdImportPage::setBusyStatus(busy);
+	MvdImportExportPage::setBusyStatus(busy);
 	
 	MVD_ENABLE_CLOSE_BTN(!busy)
 
@@ -99,7 +99,7 @@ void MvdImportFinalPage::setBusyStatus(bool busy)
 }
 
 //! Override.
-void MvdImportFinalPage::showMessage(const QString& msg, MvdImportDialog::MessageType t)
+void MvdImportFinalPage::showMessage(const QString& msg, MvdShared::MessageType t)
 {
 	Q_UNUSED(t);
 	ui.messageLabel->setText(msg);
@@ -107,7 +107,7 @@ void MvdImportFinalPage::showMessage(const QString& msg, MvdImportDialog::Messag
 
 void MvdImportFinalPage::initializePage()
 {
-	showMessage("Importing movies...", MvdImportDialog::InfoMessage);
+	showMessage(tr("Importing movies..."), MvdShared::InfoMessage);
 	setBusyStatus(true);
 }
 
@@ -120,7 +120,7 @@ void MvdImportFinalPage::initializePageInternal()
 	QString msg;
 	bool hasSomeImport = importedMovies > 0;
 
-	if (importDialog()->importResult() == MvdImportDialog::CriticalError) {
+	if (importDialog()->result() == MvdImportDialog::CriticalError) {
 		hasSomeImport = false;
 
 		switch (importDialog()->errorType()) {
@@ -146,15 +146,15 @@ void MvdImportFinalPage::initializePageInternal()
 			msg = tr("No movie has been selected for import.\n\nYou can use the wizard for a different search or just continue having fun with movida.");
 		} else {
 			msg = tr("%1 movie(s) have been imported with success.", "Number of actually imported movies", importedMovies).arg(importedMovies);
-			if (importDialog()->importResult() == MvdImportDialog::MovieDataFailed) {
+			if (importDialog()->result() == MvdImportDialog::MovieDataFailed) {
 				msg.append(tr("\n\nSome movies could not be imported for some movie and you will have to repeat the process, possibly using a different search engine, or add them manually."));
-			} else if (importDialog()->importResult() == MvdImportDialog::MoviePosterFailed) {
+			} else if (importDialog()->result() == MvdImportDialog::MoviePosterFailed) {
 				msg.append(tr("\n\nThe movie poster could not be imported for some movie and you will have to import it manually."));
 			}
 		}
 	}
 
-	showMessage(msg, MvdImportDialog::InfoMessage);
+	showMessage(msg, MvdShared::InfoMessage);
 	ui.filterMovies->setEnabled(hasSomeImport);
 }
 
@@ -201,11 +201,11 @@ void MvdImportFinalPage::importMovies(const MvdMovieDataList& movies)
 		const MvdMovieData& m = movies.at(i);
 		QString s = m.title.isEmpty() ? m.originalTitle : m.title;
 		if (movies.size() == 1) {
-			showMessage(tr("Importing '%1'...").arg(s), MvdImportDialog::InfoMessage);
+			showMessage(tr("Importing '%1'...").arg(s), MvdShared::InfoMessage);
 		} else {
 			if (i == movies.size() - 1)
-				showMessage(tr("Importing the last movie: '%1'...").arg(s), MvdImportDialog::InfoMessage);
-			else showMessage(tr("Importing '%1'. %2 movie(s) remaining...", "# of movies not imported yet", movies.size() - 1 - i).arg(s).arg(movies.size() - 1 - i), MvdImportDialog::InfoMessage);
+				showMessage(tr("Importing the last movie: '%1'...").arg(s), MvdShared::InfoMessage);
+			else showMessage(tr("Importing '%1'. %2 movie(s) remaining...", "# of movies not imported yet", movies.size() - 1 - i).arg(s).arg(movies.size() - 1 - i), MvdShared::InfoMessage);
 		}
 	
 		MvdMovieCollection* collection = MvdCore::pluginContext()->collection;

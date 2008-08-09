@@ -5,15 +5,15 @@ HEADERS += \
 	clearedit.h \
 	clearspin.h \
 	expandinglineedit.h \
+	exportdialog.h \
 	grafx.h \
 	importdialog.h \
 	importdialog_p.h \
 	importfinalpage.h \
-	importpage.h \
+	importexportpage.h \
 	importresultspage.h \
 	importstartpage.h \
 	importsummarypage.h \
-	labelanimator.h \
 	queryvalidator.h \
 	richtexteditor.h \
 	richtexteditor_p.h \
@@ -26,6 +26,7 @@ SOURCES += \
 	clearedit.cpp \
 	clearspin.cpp \
 	expandinglineedit.cpp \
+	exportdialog.cpp \
 	grafx.cpp \
 	importdialog.cpp \
 	importfinalpage.cpp \

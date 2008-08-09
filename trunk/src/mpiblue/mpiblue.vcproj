@@ -80,6 +80,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=""
 				SubSystem="2"
+				LinkTimeCodeGeneration="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -104,8 +105,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copy mpiblue.dll to ..\..\..\..\Documents and Settings\blue\Application Data\42cows.org\Movida\Resources\Plugins"
-				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;..\..\..\..\Documents and Settings\blue\Application Data\42cows.org\Movida\Resources\Plugins&quot;"
+				Description="Copy mpiblue.dll to $(APPDATA)\42cows.org\Movida\Resources\Plugins"
+				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;$(APPDATA)\42cows.org\Movida\Resources\Plugins&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -175,6 +176,7 @@
 				GenerateDebugInformation="false"
 				ProgramDatabaseFile=""
 				SubSystem="2"
+				LinkTimeCodeGeneration="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -199,8 +201,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copy mpiblue.dll to ..\..\..\..\Documents and Settings\blue\Application Data\42cows.org\Movida\Resources\Plugins"
-				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;..\..\..\..\Documents and Settings\blue\Application Data\42cows.org\Movida\Resources\Plugins&quot;"
+				Description="Copy mpiblue.dll to $(APPDATA)\42cows.org\Movida\Resources\Plugins"
+				CommandLine="copy  &quot;$(TargetPath)&quot; &quot;$(APPDATA)\42cows.org\Movida\Resources\Plugins&quot;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -214,6 +216,10 @@
 			>
 			<File
 				RelativePath="blue.cpp"
+				>
+			</File>
+			<File
+				RelativePath="movieexport.cpp"
 				>
 			</File>
 			<File
@@ -235,7 +241,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC blue.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMPI_BUILD_BLUE_DLL -DQT_DLL -DQT_PLUGIN -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mpiblue\moc&quot; -I&quot;.\..\..\tmp\mpiblue\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;blue.h&quot; -o &quot;..\..\tmp\mpiblue\moc\moc_blue.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMPI_BUILD_BLUE_DLL -DQT_DLL -DQT_PLUGIN -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\mpiblue\moc&quot; -I&quot;..\..\tmp\mpiblue\\ui&quot; -I$(QTDIR)\mkspecs\win32-msvc2005 -D_MSC_VER=1400 -DWIN32 blue.h -o ..\..\tmp\mpiblue\moc\moc_blue.cpp&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;blue.h"
 						Outputs="..\..\tmp\mpiblue\moc\moc_blue.cpp"
 					/>
@@ -246,7 +252,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC blue.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMPI_BUILD_BLUE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_PLUGIN -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mpiblue\moc&quot; -I&quot;.\..\..\tmp\mpiblue\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;blue.h&quot; -o &quot;..\..\tmp\mpiblue\moc\moc_blue.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMPI_BUILD_BLUE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_PLUGIN -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\mpiblue\moc&quot; -I&quot;..\..\tmp\mpiblue\\ui&quot; -I$(QTDIR)\mkspecs\win32-msvc2005 -D_MSC_VER=1400 -DWIN32 blue.h -o ..\..\tmp\mpiblue\moc\moc_blue.cpp&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;blue.h"
 						Outputs="..\..\tmp\mpiblue\moc\moc_blue.cpp"
 					/>
@@ -257,6 +263,32 @@
 				>
 			</File>
 			<File
+				RelativePath="movieexport.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="MOC movieexport.h"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMPI_BUILD_BLUE_DLL -DQT_DLL -DQT_PLUGIN -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\mpiblue\moc&quot; -I&quot;..\..\tmp\mpiblue\\ui&quot; -I$(QTDIR)\mkspecs\win32-msvc2005 -D_MSC_VER=1400 -DWIN32 movieexport.h -o ..\..\tmp\mpiblue\moc\moc_movieexport.cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieexport.h"
+						Outputs="..\..\tmp\mpiblue\moc\moc_movieexport.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="MOC movieexport.h"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMPI_BUILD_BLUE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_PLUGIN -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\mpiblue\moc&quot; -I&quot;..\..\tmp\mpiblue\\ui&quot; -I$(QTDIR)\mkspecs\win32-msvc2005 -D_MSC_VER=1400 -DWIN32 movieexport.h -o ..\..\tmp\mpiblue\moc\moc_movieexport.cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieexport.h"
+						Outputs="..\..\tmp\mpiblue\moc\moc_movieexport.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="movieimport.h"
 				>
 				<FileConfiguration
@@ -265,7 +297,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movieimport.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMPI_BUILD_BLUE_DLL -DQT_DLL -DQT_PLUGIN -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mpiblue\moc&quot; -I&quot;.\..\..\tmp\mpiblue\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;movieimport.h&quot; -o &quot;..\..\tmp\mpiblue\moc\moc_movieimport.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMPI_BUILD_BLUE_DLL -DQT_DLL -DQT_PLUGIN -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\mpiblue\moc&quot; -I&quot;..\..\tmp\mpiblue\\ui&quot; -I$(QTDIR)\mkspecs\win32-msvc2005 -D_MSC_VER=1400 -DWIN32 movieimport.h -o ..\..\tmp\mpiblue\moc\moc_movieimport.cpp&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieimport.h"
 						Outputs="..\..\tmp\mpiblue\moc\moc_movieimport.cpp"
 					/>
@@ -276,7 +308,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movieimport.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMPI_BUILD_BLUE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_PLUGIN -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mpiblue\moc&quot; -I&quot;.\..\..\tmp\mpiblue\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;movieimport.h&quot; -o &quot;..\..\tmp\mpiblue\moc\moc_movieimport.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMPI_BUILD_BLUE_DLL -DQT_DLL -DQT_NO_DEBUG -DQT_PLUGIN -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\mpiblue\moc&quot; -I&quot;..\..\tmp\mpiblue\\ui&quot; -I$(QTDIR)\mkspecs\win32-msvc2005 -D_MSC_VER=1400 -DWIN32 movieimport.h -o ..\..\tmp\mpiblue\moc\moc_movieimport.cpp&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieimport.h"
 						Outputs="..\..\tmp\mpiblue\moc\moc_movieimport.cpp"
 					/>
@@ -290,6 +322,10 @@
 			>
 			<File
 				RelativePath="..\..\tmp\mpiblue\moc\moc_blue.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tmp\mpiblue\moc\moc_movieexport.cpp"
 				>
 			</File>
 			<File
