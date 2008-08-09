@@ -333,7 +333,7 @@ void MvdImportDialog::pageChanged(int id)
 			}
 
 			if (update) {
-				int maxCount = Movida::settings().value("movida/use-history").toInt();
+				int maxCount = Movida::settings().value("movida/max-history-items").toInt();
 				while (history.count() > maxCount)
 					history.takeFirst();
 				Movida::settings().setValue("movida/history/movie-import", history);
