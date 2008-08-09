@@ -376,6 +376,10 @@ void MvdMainWindow::updateFileMenu()
 	bool hasMovies = mCollection && !mCollection->isEmpty();
 	mMN_FileImport->setDisabled(mMN_FileImport->isEmpty());
 	mMN_FileExport->setDisabled(!hasMovies || mMN_FileExport->isEmpty());
+
+	if (hasMovies && !mMN_FileExport->isEmpty()) {
+		updatePluginsMenu();
+	}
 }
 
 /*!
@@ -997,6 +1001,9 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 
 	menu.addMenu(mMN_FileExport);
 	mMN_FileExport->setEnabled(!mMN_FileExport->isEmpty() && hasMovies);
+
+	if (!mMN_FileExport->isEmpty() && hasMovies)
+		updatePluginsMenu();
 
 	QModelIndexList selected = mSelectionModel->selectedRows();
 	mvdid currentId = movieIndexToId(index);
