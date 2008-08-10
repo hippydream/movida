@@ -99,7 +99,8 @@ MvdExportStartPage::MvdExportStartPage(QWidget* parent)
 		mExportAllButton->setChecked(true);
 	}
 
-	engineLayout->addItem(new QSpacerItem(20, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
+	if (hasSelectedMovies)
+		engineLayout->addItem(new QSpacerItem(20, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 	engineLayout->addRow(mExportSelectedButton);
 	engineLayout->addRow(mExportAllButton);
 
@@ -146,8 +147,9 @@ void MvdExportStartPage::engineChanged()
 		mNextButtonText = wizard()->buttonText(QWizard::NextButton);
 
 	bool customAttributes = e.options & MvdExportEngine::CustomizableAttributesOption;
+	bool customize = customAttributes && mCustomizeAttributes->isChecked();
 	wizard()->setButtonText(QWizard::NextButton, 
-		customAttributes && mCustomizeAttributes->isChecked() ? mNextButtonText : tr("&Export"));
+		customize ? mNextButtonText : tr("&Export"));
 
 	mCustomizeAttributes->setEnabled(customAttributes);
 }
@@ -185,7 +187,7 @@ MvdExportEngine::EngineOptions MvdExportStartPage::currentEngineOptions() const
 	Returns true if the currently selected engine supports to customize
 	exported attributes and the user has asked to do so.
 */
-bool MvdExportStartPage::customizeAttributes() const
+bool MvdExportStartPage::configStepRequired() const
 {
 	const MvdExportEngine& e = mEngines.at(mEngineCombo->currentIndex());
 	return e.options & MvdExportEngine::CustomizableAttributesOption && mCustomizeAttributes->isChecked();
@@ -194,6 +196,12 @@ bool MvdExportStartPage::customizeAttributes() const
 //! Resets anything before the page is shown.
 void MvdExportStartPage::initializePage()
 {
+}
+
+//! This method is called when the user hits the "back" button.
+void MvdExportStartPage::cleanupPage()
+{
+	engineChanged();
 }
 
 //!

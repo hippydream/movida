@@ -41,7 +41,6 @@ MvdExportConfigPage::MvdExportConfigPage(QWidget* parent)
 {
 	setTitle(tr("Export configuration"));
 	setSubTitle(tr("Please select the attributes you want to be exported and eventually their order."));
-	setCommitPage(true);
 
 	ui.setupUi(this);
 	
@@ -58,7 +57,7 @@ MvdExportConfigPage::MvdExportConfigPage(QWidget* parent)
 //! Initialize page each time it is shown.
 void MvdExportConfigPage::initializePage()
 {
-	
+	wizard()->setButtonText(QWizard::NextButton, tr("&Export"));
 }
 
 //! This method is called when the user hits the "back" button.

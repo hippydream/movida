@@ -43,6 +43,7 @@ public:
 	virtual ~MvdExportStartPage();
 
 	virtual void initializePage();
+	virtual void cleanupPage();
 	void reset();
 
 	int registerEngine(const MvdExportEngine& engine);
@@ -50,7 +51,7 @@ public:
 	MvdExportEngine currentEngine() const;
 	MvdExportEngine::EngineOptions currentEngineOptions() const;
 
-	bool customizeAttributes() const;
+	bool configStepRequired() const;
 
 	virtual bool isComplete() const;
 

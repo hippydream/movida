@@ -102,8 +102,8 @@ void MvdExportFinalPage::showMessage(const QString& msg, MovidaShared::MessageTy
 
 void MvdExportFinalPage::initializePage()
 {
-	showMessage(tr("Exporting movies..."), MovidaShared::InfoMessage);
-	setBusyStatus(true);
+	showMessage(tr("TODO"), MovidaShared::InfoMessage);
+	// setBusyStatus(true);
 }
 
 void MvdExportFinalPage::initializePageInternal()
