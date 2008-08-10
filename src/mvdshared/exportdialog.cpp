@@ -70,6 +70,8 @@ MvdExportDialog::MvdExportDialog(QWidget* parent)
 
 	setStartId(Private::StartPage);
 
+	setOption(QWizard::DisabledBackButtonOnLastPage);
+
 	connect( d->startPage, SIGNAL(engineConfigurationRequest(int)), 
 		this, SIGNAL(engineConfigurationRequest(int)) );
 	connect( this, SIGNAL(currentIdChanged(int)),
@@ -93,8 +95,10 @@ int MvdExportDialog::nextId() const
 
 	switch (currentId()) {
 	case Private::StartPage:
-		return d->startPage->customizeAttributes() ? 
-			Private::ConfigPage : Private::FinalPage;
+	{
+		bool config = d->startPage->configStepRequired();
+		return config ? Private::ConfigPage : Private::FinalPage;
+	}
 	case Private::ConfigPage:
 		return Private::FinalPage;
 	default:
