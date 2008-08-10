@@ -54,6 +54,7 @@ public:
 	}
 
 	QString name;
+	QString urlFilter;
 	EngineOptions options;
 
 	bool canConfigure;

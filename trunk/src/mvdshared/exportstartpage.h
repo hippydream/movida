@@ -26,10 +26,13 @@
 #include "exportengine.h"
 
 class MvdActionLabel;
-class QLabel;
+class MvdClearEdit;
+class QCheckBox;
 class QComboBox;
+class QLabel;
 class QPushButton;
 class QRadioButton;
+class QToolButton;
 
 class MvdExportStartPage : public MvdImportExportPage
 {
@@ -37,6 +40,7 @@ class MvdExportStartPage : public MvdImportExportPage
 
 public:
 	MvdExportStartPage(QWidget* parent = 0);
+	virtual ~MvdExportStartPage();
 
 	virtual void initializePage();
 	void reset();
@@ -45,22 +49,30 @@ public:
 
 	int engine() const;
 
+	virtual bool isComplete() const;
+
 signals:
 	void engineConfigurationRequest(int engine);
 
 private slots:
 	void engineChanged();
 	void controlTriggered(int);
+	void browseForUrl();
 
 private:
 	QLabel* mInfoLabel;
 	QComboBox* mEngineCombo;
+	MvdClearEdit* mUrl;
+	QToolButton* mUrlBrowse;
 	QRadioButton* mExportSelectedButton;
 	QRadioButton* mExportAllButton;
+	QCheckBox* mCustomizeAttributes;
 	MvdActionLabel* mControls;
 	int mConfigureEngineId;
 	int mConfigurePluginId;
 	QList<MvdExportEngine> mEngines;
+	QString mNextButtonText;
+	QString mLastDir;
 };
 
 #endif // MVD_EXPORTSTARTPAGE_H

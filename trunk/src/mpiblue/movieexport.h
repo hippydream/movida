@@ -46,7 +46,7 @@ private:
 	int mCsvEngineId;
 	int mMovidaXmlEngineId;
 	QChar mCsvSeparator;
-	bool mIgnoreHeader;
+	bool mWriteHeader;
 };
 
 #endif // MPI_MOVIEEXPORT_H

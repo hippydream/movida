@@ -20,16 +20,20 @@
 
 #include "exportstartpage.h"
 #include "actionlabel.h"
+#include "clearedit.h"
 #include "mvdcore/core.h"
 #include "mvdcore/plugininterface.h"
 #include "mvdcore/settings.h"
-#include <QLabel>
+#include <QCheckBox>
 #include <QComboBox>
+#include <QFileDialog>
+#include <QFormLayout>
 #include <QGridLayout>
+#include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QRadioButton>
-#include <QFormLayout>
-#include <QMessageBox>
+#include <QToolButton>
 
 /*!
 	\class MvdExportStartPage exportstartpage.h
@@ -67,12 +71,24 @@ MvdExportStartPage::MvdExportStartPage(QWidget* parent)
 
 	QFormLayout* engineLayout = new QFormLayout;
 
-	QLabel* engineLabel = new QLabel(this);
-	engineLabel->setText(tr("Output format:"));
-	engineLayout->addRow(engineLabel, mEngineCombo);
+	engineLayout->addRow(tr("&Format:"), mEngineCombo);
+
+	mUrl = new MvdClearEdit(this);
+	mUrlBrowse = new QToolButton(this);
+	mUrlBrowse->setText(tr("&Browse"));
+	connect(mUrl, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
+	connect(mUrlBrowse, SIGNAL(clicked()), this, SLOT(browseForUrl()));
+
+	QHBoxLayout* urlLayout = new QHBoxLayout;
+	urlLayout->addWidget(mUrl);
+	urlLayout->addWidget(mUrlBrowse);
+
+	QLabel* urlLabel = new QLabel(tr("&Path:"), this);
+	urlLabel->setBuddy(mUrl);
+	engineLayout->addRow(urlLabel, urlLayout);
 	
-	mExportSelectedButton = new QRadioButton(tr("Export selected movies"), this);
-	mExportAllButton = new QRadioButton(tr("Export entire collection"), this);
+	mExportSelectedButton = new QRadioButton(tr("Export &selected movies"), this);
+	mExportAllButton = new QRadioButton(tr("Export entire &collection"), this);
 
 	if (hasSelectedMovies) {
 		mExportSelectedButton->setChecked(true);
@@ -83,9 +99,15 @@ MvdExportStartPage::MvdExportStartPage(QWidget* parent)
 		mExportAllButton->setChecked(true);
 	}
 
-	engineLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Expanding));
+	engineLayout->addItem(new QSpacerItem(20, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 	engineLayout->addRow(mExportSelectedButton);
 	engineLayout->addRow(mExportAllButton);
+
+	mCustomizeAttributes = new QCheckBox(tr("Select exported &attributes"), this);
+	connect(mCustomizeAttributes, SIGNAL(toggled(bool)), this, SLOT(engineChanged()));
+
+	engineLayout->addItem(new QSpacerItem(20, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
+	engineLayout->addRow(mCustomizeAttributes);
 
 	gridLayout->addLayout(engineLayout, 2, 0, 1, 2);
 
@@ -98,6 +120,17 @@ MvdExportStartPage::MvdExportStartPage(QWidget* parent)
 
 	gridLayout->addItem(new QSpacerItem(60, 20, QSizePolicy::Expanding, QSizePolicy::Minimum), 4, 0, 1, 1);
 	gridLayout->addWidget(mControls, 4, 1, 1, 1);
+
+	bool rem = Movida::settings().value("movida/directories/remember").toBool();
+	if (rem)
+		mLastDir = Movida::settings().value("plugins/blue/directories/movie-export").toString();
+}
+
+MvdExportStartPage::~MvdExportStartPage()
+{
+	bool rem = Movida::settings().value("movida/directories/remember").toBool();
+	if (rem && !mLastDir.isEmpty())
+		Movida::settings().setValue("plugins/blue/directories/movie-export", mLastDir);
 }
 
 //! \internal
@@ -108,6 +141,15 @@ void MvdExportStartPage::engineChanged()
 
 	const MvdExportEngine& e = mEngines.at(mEngineCombo->currentIndex());
 	mControls->setControlEnabled(mConfigureEngineId, e.canConfigure);
+
+	if (mNextButtonText.isEmpty())
+		mNextButtonText = wizard()->buttonText(QWizard::NextButton);
+
+	bool customAttributes = e.options & MvdExportEngine::CustomizableAttributesOption;
+	wizard()->setButtonText(QWizard::NextButton, 
+		customAttributes && mCustomizeAttributes->isChecked() ? mNextButtonText : tr("&Export"));
+
+	mCustomizeAttributes->setEnabled(customAttributes);
 }
 
 //! \internal
@@ -144,4 +186,30 @@ int MvdExportStartPage::registerEngine(const MvdExportEngine& engine)
 	mEngines.append(engine);
 	mEngineCombo->addItem(engine.name);
 	return mEngineCombo->count() - 1;
+}
+
+void MvdExportStartPage::browseForUrl()
+{
+	const MvdExportEngine& e = mEngines.at(mEngineCombo->currentIndex());
+
+	mLastDir = mUrl->text();
+	QFileInfo info(mLastDir);
+	mLastDir = info.absolutePath();
+
+	QString filter = e.urlFilter;
+	QString filename = QFileDialog::getSaveFileName(this, MVD_CAPTION, mLastDir, filter);
+	if (filename.isEmpty())
+		return;
+
+	mUrl->setText(filename);
+}
+
+bool MvdExportStartPage::isComplete() const
+{
+	QString filename = mUrl->text().trimmed();
+	if (filename.isEmpty())
+		return false;
+
+	QFileInfo info(filename);
+	return !info.isDir();
 }
