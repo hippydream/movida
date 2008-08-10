@@ -46,8 +46,11 @@ public:
 	void reset();
 
 	int registerEngine(const MvdExportEngine& engine);
+	int currentEngineId() const;
+	MvdExportEngine currentEngine() const;
+	MvdExportEngine::EngineOptions currentEngineOptions() const;
 
-	int engine() const;
+	bool customizeAttributes() const;
 
 	virtual bool isComplete() const;
 

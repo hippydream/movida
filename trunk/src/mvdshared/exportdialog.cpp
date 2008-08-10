@@ -62,6 +62,12 @@ MvdExportDialog::MvdExportDialog(QWidget* parent)
 	d->startPage = new MvdExportStartPage;
 	setPage(Private::StartPage, d->startPage);
 
+	d->configPage = new MvdExportConfigPage;
+	setPage(Private::ConfigPage, d->configPage);
+
+	d->finalPage = new MvdExportFinalPage;
+	setPage(Private::FinalPage, d->finalPage);
+
 	setStartId(Private::StartPage);
 
 	connect( d->startPage, SIGNAL(engineConfigurationRequest(int)), 
@@ -85,10 +91,15 @@ int MvdExportDialog::nextId() const
 		return Private::FinalPage;
 	}
 
-	/*switch (currentId()) {
+	switch (currentId()) {
+	case Private::StartPage:
+		return d->startPage->customizeAttributes() ? 
+			Private::ConfigPage : Private::FinalPage;
+	case Private::ConfigPage:
+		return Private::FinalPage;
 	default:
 		return -1;
-	}*/
+	}
 
 	return -1;
 }
@@ -132,7 +143,7 @@ MvdExportDialog::ErrorType MvdExportDialog::errorType() const
 }
 
 //! Shows a status message if the current page supports it.
-void MvdExportDialog::showMessage(const QString& msg, MvdShared::MessageType type)
+void MvdExportDialog::showMessage(const QString& msg, MovidaShared::MessageType type)
 {
 	MvdImportExportPage* p = dynamic_cast<MvdImportExportPage*>(currentPage());
 	if (p)
@@ -164,6 +175,16 @@ void MvdExportDialog::pageChanged(int id)
 		d->exportResult = Success;
 		emit resetRequest();
 	} break;
+	case Private::ConfigPage:
+	{
+
+	}
+	break;
+	case Private::FinalPage:
+	{
+		
+	}
+	break;
 	default: ;
 	}
 

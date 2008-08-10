@@ -34,15 +34,19 @@
 
 #include "exportdialog.h"
 #include "exportstartpage.h"
+#include "exportconfigpage.h"
+#include "exportfinalpage.h"
 #include <QStringList>
 
 //! \internal
 class MvdExportDialog::Private
 {
 public:
-	enum { StartPage, FinalPage };
+	enum { StartPage, ConfigPage, FinalPage };
 
 	MvdExportStartPage* startPage;
+	MvdExportConfigPage* configPage;
+	MvdExportFinalPage* finalPage;
 
 	bool closing;
 	MvdExportDialog::Result exportResult;

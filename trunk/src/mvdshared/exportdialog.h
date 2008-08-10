@@ -67,7 +67,7 @@ public:
 
 	virtual int nextId() const;
 
-	void showMessage(const QString& msg, MvdShared::MessageType type = MvdShared::InfoMessage);
+	void showMessage(const QString& msg, MovidaShared::MessageType type = MovidaShared::InfoMessage);
 
 	void setErrorType(ErrorType type);
 	ErrorType errorType() const;

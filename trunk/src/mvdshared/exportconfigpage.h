@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: importfinalpage.h
+** Filename: exportconfigpage.h
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,50 +18,25 @@
 **
 **************************************************************************/
 
-#ifndef MVD_IMPORTFINAL_H
-#define MVD_IMPORTFINAL_H
+#ifndef MVD_EXPORTCONFIGPAGE_H
+#define MVD_EXPORTCONFIGPAGE_H
 
+#include "ui_exportconfigpage.h"
 #include "sharedglobal.h"
 #include "importexportpage.h"
-#include "ui_importfinalpage.h"
-#include "mvdcore/moviedata.h"
 
-class QLabel;
-class QRadioButton;
-
-class MvdImportFinalPage : public MvdImportExportPage
+class MvdExportConfigPage : public MvdImportExportPage
 {
 	Q_OBJECT
 
 public:
-	MvdImportFinalPage(QWidget* parent = 0);
-
-	void showMessage(const QString& msg, MovidaShared::MessageType t);
+	MvdExportConfigPage(QWidget* parent = 0);
 
 	void initializePage();
 	void cleanupPage();
-	void setBusyStatus(bool busy);
-	void reset();
-
-	virtual bool validatePage();
-	virtual void updateButtons();
-
-	QList<mvdid> importedMovies() const { return mImportedMovies; }
-	bool filterImportedMovies() const { return ui.filterMovies->isChecked(); }
-
-public slots:
-	virtual void importMovies(const MvdMovieDataList& movies);
-
-private slots:
-	void restartWizardToggled();
-	void initializePageInternal();
 
 private:
-	Ui::MvdImportFinalPage ui;
-
-	bool mPendingButtonUpdates;
-	QString mFinishButtonText;
-	QList<mvdid> mImportedMovies;
+	Ui::MvdExportConfigPage ui;
 };
 
-#endif // MVD_IMPORTFINAL_H
+#endif // MVD_EXPORTCONFIGPAGE_H

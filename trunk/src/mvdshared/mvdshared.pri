@@ -5,15 +5,17 @@ HEADERS += \
 	clearedit.h \
 	clearspin.h \
 	expandinglineedit.h \
+	exportconfigpage.h \
 	exportdialog.h \
 	exportdialog_p.h \
 	exportengine.h \	
+	exportfinalpage.h \
 	exportstartpage.h \
 	grafx.h \
 	importdialog.h \
 	importdialog_p.h \
-	importfinalpage.h \
 	importexportpage.h \
+	importfinalpage.h \
 	importresultspage.h \
 	importstartpage.h \
 	importsummarypage.h \
@@ -29,7 +31,9 @@ SOURCES += \
 	clearedit.cpp \
 	clearspin.cpp \
 	expandinglineedit.cpp \
+	exportconfigpage.cpp \
 	exportdialog.cpp \
+	exportfinalpage.cpp \
 	exportstartpage.cpp \
 	grafx.cpp \
 	importdialog.cpp \
@@ -44,6 +48,8 @@ RESOURCES += \
 	
 FORMS += \
 	ui/browserview.ui \
+	ui/exportconfigpage.ui \
+	ui/exportfinalpage.ui \
 	ui/importfinalpage.ui \
 	ui/importresultspage.ui \
 	ui/importsummarypage.ui

@@ -134,7 +134,7 @@ void MvdImportResultsPage::cleanupPage()
 }
 
 //! Override.
-void MvdImportResultsPage::showMessage(const QString& msg, MvdShared::MessageType t)
+void MvdImportResultsPage::showMessage(const QString& msg, MovidaShared::MessageType t)
 {
 	Q_UNUSED(t);
 	if (ui.stack->currentIndex() == 1)
@@ -363,15 +363,15 @@ void MvdImportResultsPage::resultsSelectionChanged()
 	if (showItemCount)
 	{
 		if (matches == 0)
-			showMessage(tr("No matches found."), MvdShared::InfoMessage);
+			showMessage(tr("No matches found."), MovidaShared::InfoMessage);
 		else if (selectedMatches == 0)
-			showMessage(tr("%1 match(es) found. None have been selected for import.", "Found results", matches).arg(matches), MvdShared::InfoMessage);
+			showMessage(tr("%1 match(es) found. None have been selected for import.", "Found results", matches).arg(matches), MovidaShared::InfoMessage);
 		else if (selectedMatches == matches)
-			showMessage(tr("%1 match(es) found and selected for import.", "Found results.", matches).arg(matches), MvdShared::InfoMessage);
-		else showMessage(tr("%1 of %2 matches have been selected for import.", "Found results. # of selected messages is given for plural form.", selectedMatches).arg(selectedMatches).arg(matches), MvdShared::InfoMessage);
+			showMessage(tr("%1 match(es) found and selected for import.", "Found results.", matches).arg(matches), MovidaShared::InfoMessage);
+		else showMessage(tr("%1 of %2 matches have been selected for import.", "Found results. # of selected messages is given for plural form.", selectedMatches).arg(selectedMatches).arg(matches), MovidaShared::InfoMessage);
 	}
 	else {
-		showMessage(text, MvdShared::InfoMessage);
+		showMessage(text, MovidaShared::InfoMessage);
 		Q_ASSERT(QMetaObject::invokeMethod(this, "ensureItemVisible", Qt::QueuedConnection));
 	}
 

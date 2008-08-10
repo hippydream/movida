@@ -520,7 +520,7 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 			case QHttp::ConnectionRefused: msg = tr("Sorry but the search engine refused the connection."); break;
 			default: msg = tr("Failed to connect to the Internet.");
 			}
-			mImportDialog->showMessage(msg, MvdShared::ErrorMessage);
+			mImportDialog->showMessage(msg, MovidaShared::ErrorMessage);
 		}
 
 		if (mTempFile)
@@ -725,7 +725,7 @@ void MpiMovieImport::processMoviePoster()
 {
 	if (!mTempFile) {
 		mImportDialog->showMessage(tr("Failed to download movie poster."), 
-			MvdShared::ErrorMessage);
+			MovidaShared::ErrorMessage);
 		completeJob();
 		return;
 	}

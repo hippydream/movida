@@ -36,7 +36,7 @@
 # endif
 #endif // MVD_EXPORT_SHARED
 
-namespace MvdShared {
+namespace MovidaShared {
 	enum MessageType {
 		InfoMessage = 0,
 		WarningMessage,

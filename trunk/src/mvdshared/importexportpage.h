@@ -45,7 +45,7 @@ public:
 
 	bool busyStatus() const { return busy; }
 
-	virtual void showMessage(const QString& msg, MvdShared::MessageType t)
+	virtual void showMessage(const QString& msg, MovidaShared::MessageType t)
 	{ Q_UNUSED(msg); Q_UNUSED(t); }
 
 	//! Re-implements the superclass method to ensure that the status is not busy.
