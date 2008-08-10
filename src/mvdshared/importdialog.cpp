@@ -183,7 +183,7 @@ int MvdImportDialog::registerEngine(const MvdSearchEngine& engine)
 }
 
 //! Shows a status message if the current page supports it.
-void MvdImportDialog::showMessage(const QString& msg, MvdShared::MessageType type)
+void MvdImportDialog::showMessage(const QString& msg, MovidaShared::MessageType type)
 {
 	MvdImportExportPage* p = dynamic_cast<MvdImportExportPage*>(currentPage());
 	if (p)

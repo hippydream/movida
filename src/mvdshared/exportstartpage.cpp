@@ -71,7 +71,7 @@ MvdExportStartPage::MvdExportStartPage(QWidget* parent)
 
 	QFormLayout* engineLayout = new QFormLayout;
 
-	engineLayout->addRow(tr("&Format:"), mEngineCombo);
+	engineLayout->addRow(tr("F&ormat:"), mEngineCombo);
 
 	mUrl = new MvdClearEdit(this);
 	mUrlBrowse = new QToolButton(this);
@@ -163,9 +163,32 @@ void MvdExportStartPage::controlTriggered(int id)
 }
 
 //! Returns the ID of the currently selected search engine.
-int MvdExportStartPage::engine() const
+int MvdExportStartPage::currentEngineId() const
 {
 	return mEngineCombo->currentIndex();
+}
+
+MvdExportEngine MvdExportStartPage::currentEngine() const
+{
+	if (mEngines.isEmpty()) return MvdExportEngine();
+	return mEngines.at(mEngineCombo->currentIndex());
+}
+
+MvdExportEngine::EngineOptions MvdExportStartPage::currentEngineOptions() const
+{
+	if (mEngines.isEmpty()) return MvdExportEngine::NoEngineOption;
+	const MvdExportEngine& e = mEngines.at(mEngineCombo->currentIndex());
+	return e.options;
+}
+
+/*!
+	Returns true if the currently selected engine supports to customize
+	exported attributes and the user has asked to do so.
+*/
+bool MvdExportStartPage::customizeAttributes() const
+{
+	const MvdExportEngine& e = mEngines.at(mEngineCombo->currentIndex());
+	return e.options & MvdExportEngine::CustomizableAttributesOption && mCustomizeAttributes->isChecked();
 }
 
 //! Resets anything before the page is shown.

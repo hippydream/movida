@@ -50,7 +50,7 @@ public:
 
 	QList<int> jobs() const;
 
-	void showMessage(const QString& msg, MvdShared::MessageType t);
+	void showMessage(const QString& msg, MovidaShared::MessageType t);
 	void setBusyStatus(bool busy);
 
 	void setProgress(int v);

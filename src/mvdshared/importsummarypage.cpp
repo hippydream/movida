@@ -112,7 +112,7 @@ void MvdImportSummaryPage::setLock(bool lock)
 		if (jobs.isEmpty()) {
 			showMessage(tr("No movie has been selected for import.\nPlease press the %1 button to repeat the search.")
 				.arg(this->wizard()->buttonText(QWizard::BackButton)),
-				MvdShared::InfoMessage);
+				MovidaShared::InfoMessage);
 			return;
 		} else if (jobs.size() > 1) {
 			ui.jumpLabel->setEnabled(true);
@@ -129,7 +129,7 @@ void MvdImportSummaryPage::setLock(bool lock)
 }
 
 //! Override.
-void MvdImportSummaryPage::showMessage(const QString& msg, MvdShared::MessageType t)
+void MvdImportSummaryPage::showMessage(const QString& msg, MovidaShared::MessageType t)
 {
 	Q_UNUSED(t);
 	ui.stack->setCurrentIndex(0);
@@ -142,7 +142,7 @@ void MvdImportSummaryPage::initializePage()
 	setBusyStatus(true);
 	setLock(true);
 
-	showMessage(tr("Downloading movie data."), MvdShared::InfoMessage);
+	showMessage(tr("Downloading movie data."), MovidaShared::InfoMessage);
 }
 
 void MvdImportSummaryPage::cleanupPage()

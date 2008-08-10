@@ -68,7 +68,7 @@ public:
 
 	int registerEngine(const MvdSearchEngine& engine);
 
-	void showMessage(const QString& msg, MvdShared::MessageType type = MvdShared::InfoMessage);
+	void showMessage(const QString& msg, MovidaShared::MessageType type = MovidaShared::InfoMessage);
 
 	void setImportSteps(quint8 s);
 	void setNextImportStep();

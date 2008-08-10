@@ -36,7 +36,7 @@ class MvdImportSummaryPage : public MvdImportExportPage
 public:
 	MvdImportSummaryPage(QWidget* parent = 0);
 
-	void showMessage(const QString& msg, MvdShared::MessageType t);
+	void showMessage(const QString& msg, MovidaShared::MessageType t);
 
 	void initializePage();
 	void cleanupPage();

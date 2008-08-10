@@ -1,5 +1,5 @@
 /**************************************************************************
-** Filename: importfinalpage.cpp
+** Filename: exportfinalpage.cpp
 **
 ** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
 **
@@ -18,14 +18,13 @@
 **
 **************************************************************************/
 
-#include "importfinalpage.h"
-#include "importdialog.h"
-#include "importdialog_p.h"
+#include "exportfinalpage.h"
+#include "exportdialog.h"
+#include "exportdialog_p.h"
 #include "actionlabel.h"
 #include "movida/guiglobal.h"
 #include "mvdcore/core.h"
 #include "mvdcore/plugininterface.h"
-#include "mvdcore/templatemanager.h"
 #include "mvdcore/settings.h"
 #include "mvdcore/logger.h"
 #include <QLabel>
@@ -51,13 +50,13 @@
 using namespace Movida;
 
 /*!
-	\class MvdImportFinalPage importfinalpage.h
+	\class MvdExportFinalPage exportfinalpage.h
 	\ingroup MovidaShared
 
-	\brief Last page of the import wizard, showing the results of the import.
+	\brief Last page of the export wizard, showing the results of the export.
 */
 
-MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
+MvdExportFinalPage::MvdExportFinalPage(QWidget* parent)
 : MvdImportExportPage(parent), mPendingButtonUpdates(false)
 {
 	setTitle(tr("We are all done!"));
@@ -66,13 +65,11 @@ MvdImportFinalPage::MvdImportFinalPage(QWidget* parent)
 	setPreventCloseWhenBusy(true);
 	ui.setupUi(this);
 
-	ui.filterMovies->setChecked(settings().value("movida/import-wizard/auto-create-filter", true).toBool());
-
 	connect(ui.restartWizard, SIGNAL(toggled(bool)), this, SLOT(restartWizardToggled()));
 }
 
 //! Override. Locks or unlocks (part of) the GUI.
-void MvdImportFinalPage::setBusyStatus(bool busy)
+void MvdExportFinalPage::setBusyStatus(bool busy)
 {
 	if (busy == busyStatus())
 		return;
@@ -90,34 +87,28 @@ void MvdImportFinalPage::setBusyStatus(bool busy)
 	ui.restartWizard->setEnabled(!busy);
 
 	if (busy) {
-		ui.filterMovies->setEnabled(false);
+		
 	} else {
-		int importedMovies =  field("importedMoviesCount").toInt();
-		bool hasSomeImports = importedMovies > 0;
-		ui.filterMovies->setEnabled(hasSomeImports && ui.closeWizard->isChecked());
+		
 	}
 }
 
 //! Override.
-void MvdImportFinalPage::showMessage(const QString& msg, MovidaShared::MessageType t)
+void MvdExportFinalPage::showMessage(const QString& msg, MovidaShared::MessageType t)
 {
 	Q_UNUSED(t);
 	ui.messageLabel->setText(msg);
 }
 
-void MvdImportFinalPage::initializePage()
+void MvdExportFinalPage::initializePage()
 {
-	showMessage(tr("Importing movies..."), MovidaShared::InfoMessage);
+	showMessage(tr("Exporting movies..."), MovidaShared::InfoMessage);
 	setBusyStatus(true);
 }
 
-void MvdImportFinalPage::initializePageInternal()
+void MvdExportFinalPage::initializePageInternal()
 {
-	int totalMatches = field("resultsCount").toInt();
-	int selectedMatches = field("selectedResultsCount").toInt();
-	int importedMovies =  field("importedMoviesCount").toInt();
-
-	QString msg;
+	/*QString msg;
 	bool hasSomeImport = importedMovies > 0;
 
 	if (importDialog()->result() == MvdImportDialog::CriticalError) {
@@ -154,76 +145,40 @@ void MvdImportFinalPage::initializePageInternal()
 		}
 	}
 
-	showMessage(msg, MovidaShared::InfoMessage);
-	ui.filterMovies->setEnabled(hasSomeImport);
+	showMessage(msg, MvdShared::InfoMessage);
+	ui.filterMovies->setEnabled(hasSomeImport);*/
 }
 
-void MvdImportFinalPage::cleanupPage()
+void MvdExportFinalPage::cleanupPage()
 {
 	//setBusyStatus(false);
 }
 
 //! Toggles the finish/new_search button.
-void MvdImportFinalPage::restartWizardToggled()
+void MvdExportFinalPage::restartWizardToggled()
 {
 	if (mFinishButtonText.isEmpty())
 		mFinishButtonText = wizard()->buttonText(QWizard::FinishButton);
 
-	wizard()->setButtonText(QWizard::FinishButton, ui.restartWizard->isChecked() ? tr("&New Search") : mFinishButtonText);
-
-	int importedMovies =  field("importedMoviesCount").toInt();
-	bool hasSomeImports = importedMovies > 0;
-
-	ui.filterMovies->setEnabled(hasSomeImports && ui.closeWizard->isChecked());
+	wizard()->setButtonText(QWizard::FinishButton, ui.restartWizard->isChecked() ? tr("&New Export") : mFinishButtonText);
 }
 
 /*! Returns false and calls QWizard::restart() if a new search is to be performed. Returns true, causing the wizard to
 	close (as this is supposed to be the last page) otherwise.
 */
-bool MvdImportFinalPage::validatePage()
+bool MvdExportFinalPage::validatePage()
 {
 	if (ui.restartWizard->isChecked()) {
 		Q_ASSERT(QMetaObject::invokeMethod(wizard(), "restart", Qt::QueuedConnection));
 		return false;
 	}
 
-	settings().setValue("movida/import-wizard/auto-create-filter", ui.filterMovies->isChecked());
-
 	return true;
-}
-
-//! Does the actual movie import.
-void MvdImportFinalPage::importMovies(const MvdMovieDataList& movies)
-{
-	setBusyStatus(true);
-
-	for (int i = 0; i < movies.size(); ++i) {
-		const MvdMovieData& m = movies.at(i);
-		QString s = m.title.isEmpty() ? m.originalTitle : m.title;
-		if (movies.size() == 1) {
-			showMessage(tr("Importing '%1'...").arg(s), MovidaShared::InfoMessage);
-		} else {
-			if (i == movies.size() - 1)
-				showMessage(tr("Importing the last movie: '%1'...").arg(s), MovidaShared::InfoMessage);
-			else showMessage(tr("Importing '%1'. %2 movie(s) remaining...", "# of movies not imported yet", movies.size() - 1 - i).arg(s).arg(movies.size() - 1 - i), MovidaShared::InfoMessage);
-		}
-	
-		MvdMovieCollection* collection = MvdCore::pluginContext()->collection;
-		Q_ASSERT(collection);
-
-		mvdid movieId = collection->addMovie(m);
-		mImportedMovies << movieId;
-
-		QCoreApplication::processEvents();
-	}
-
-	setBusyStatus(false);
-	initializePageInternal();
 }
 
 //! \todo Remove this code if next Qt versions will allow to lock the wizard.
 //! Forces the buttons to lock or unlock.
-void MvdImportFinalPage::updateButtons()
+void MvdExportFinalPage::updateButtons()
 {
 	if (mPendingButtonUpdates) {
 		mPendingButtonUpdates = false;
@@ -238,7 +193,7 @@ void MvdImportFinalPage::updateButtons()
 }
 
 //!
-void MvdImportFinalPage::reset()
+void MvdExportFinalPage::reset()
 {
 	setBusyStatus(false);
 }
