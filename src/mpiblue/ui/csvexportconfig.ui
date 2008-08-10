@@ -82,9 +82,9 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2" >
       <item row="0" column="0" >
-       <widget class="QCheckBox" name="ignoreHeader" >
+       <widget class="QCheckBox" name="writeHeader" >
         <property name="text" >
-         <string>Ignore first line</string>
+         <string>Write attribute names to first line</string>
         </property>
        </widget>
       </item>

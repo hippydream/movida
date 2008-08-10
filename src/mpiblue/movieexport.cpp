@@ -41,7 +41,7 @@ MpiMovieExport::MpiMovieExport(QObject* parent)
 : QObject(parent)
 {
 	mCsvSeparator = QChar(',');
-	mIgnoreHeader = false;
+	mWriteHeader = false;
 }
 
 MpiMovieExport::~MpiMovieExport()
@@ -59,12 +59,14 @@ void MpiMovieExport::run()
 	/*connect( mExportDialog, SIGNAL(resetRequest()),
 		this, SLOT(reset()) );*/
 
-	MvdExportEngine csvEngine(tr("CSV/TSV file"));
+	MvdExportEngine csvEngine(tr("CSV/TSV File"));
+	csvEngine.urlFilter = tr("CSV/TSV Files (*.csv; *.tsv);;All Files (*.*)");
 	csvEngine.options = MvdExportEngine::CustomizableAttributesOption;
 	csvEngine.canConfigure = true;
 	mCsvEngineId = mExportDialog->registerEngine(csvEngine);
 
-	MvdExportEngine movidaXmlEngine(tr("Movida XML file"));
+	MvdExportEngine movidaXmlEngine(tr("Movida XML File"));
+	movidaXmlEngine.urlFilter = tr("XML Files (*.xml);;All Files (*.*)");
 	mMovidaXmlEngineId = mExportDialog->registerEngine(movidaXmlEngine);
 
 	mExportDialog->setWindowModality(Qt::WindowModal);
@@ -119,7 +121,7 @@ void MpiMovieExport::showCsvConfigurationDlg()
 		ui.otherSeparator->setChecked(true);
 		ui.otherSeparatorInput->setText(mCsvSeparator);
 	}
-	ui.ignoreHeader->setChecked(mIgnoreHeader);
+	ui.writeHeader->setChecked(mWriteHeader);
 	int res = dialog.exec();
 	if (res != QDialog::Accepted) 
 		return;
@@ -131,5 +133,5 @@ void MpiMovieExport::showCsvConfigurationDlg()
 		QString s = ui.otherSeparatorInput->text();
 		mCsvSeparator = s.isEmpty() ? QChar(',') : s.at(0);
 	}
-	mIgnoreHeader = ui.ignoreHeader->isChecked();
+	mWriteHeader = ui.writeHeader->isChecked();
 }

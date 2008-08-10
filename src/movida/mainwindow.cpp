@@ -136,7 +136,7 @@ mDraggingSharedData(false), mSavedFilterMessage(0)
 	// Set default settings
 	p.setDefaultValue("movida/maximum-recent-files", 5);
 	p.setDefaultValue("movida/confirm-delete-movie", true);
-	p.setDefaultValue("movida/directories/use-last-collection", true);
+	p.setDefaultValue("movida/directories/remember", true);
 	p.setDefaultValue("movida/movie-list/initials", false);
 	p.setDefaultValue("movida/use-history", true);
 	p.setDefaultValue("movida/max-history-items", 20);
@@ -589,7 +589,7 @@ bool MvdMainWindow::loadCollectionDlg()
 	
 	MvdSettings& p = Movida::settings();
 
-	QString lastDir = p.value("movida/directories/last-collection").toString();
+	QString lastDir = p.value("movida/directories/collection").toString();
 
 	QString file = QFileDialog::getOpenFileName(
 		this, MVD_CAPTION, 
@@ -603,8 +603,8 @@ bool MvdMainWindow::loadCollectionDlg()
 	int sep = file.lastIndexOf("/");
 	if (sep > 0)
 	{
-		if (p.value("movida/directories/use-last-collection").toBool())
-			p.setValue("movida/directories/last-collection", file.left(sep));
+		if (p.value("movida/directories/remember").toBool())
+			p.setValue("movida/directories/collection", file.left(sep));
 	}
 	
 	addRecentFile(file);
@@ -621,7 +621,7 @@ bool MvdMainWindow::saveCollectionDlg()
 	Q_ASSERT(mCollection);
 	Q_ASSERT(!mCollection->isEmpty());
 
-	QString lastDir = Movida::settings().value("movida/directories/last-collection").toString();
+	QString lastDir = Movida::settings().value("movida/directories/collection").toString();
 
 	QString filename = QFileDialog::getSaveFileName(this, MVD_CAPTION, lastDir, "*.mmc");
 	if (filename.isEmpty())
@@ -635,8 +635,8 @@ bool MvdMainWindow::saveCollectionDlg()
 	int sep = filename.lastIndexOf("/");
 	if (sep > 0)
 	{
-		if (Movida::settings().value("movida/directories/use-last-collection").toBool())
-			Movida::settings().setValue("movida/directories/last-collection", filename.left(sep));
+		if (Movida::settings().value("movida/directories/remember").toBool())
+			Movida::settings().setValue("movida/directories/collection", filename.left(sep));
 	}
 
 	MvdCollectionSaver saver(this);
