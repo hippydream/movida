@@ -137,13 +137,14 @@ mDraggingSharedData(false), mSavedFilterMessage(0)
 	p.setDefaultValue("movida/maximum-recent-files", 5);
 	p.setDefaultValue("movida/confirm-delete-movie", true);
 	p.setDefaultValue("movida/directories/remember", true);
-	p.setDefaultValue("movida/movie-list/initials", false);
+	p.setDefaultValue("movida/movie-list/initials", false); //! \todo: rename to movie-view
 	p.setDefaultValue("movida/use-history", true);
 	p.setDefaultValue("movida/max-history-items", 20);
 	p.setDefaultValue("movida/quick-filter/case-sensitive", false);
 	p.setDefaultValue("movida/quick-filter/attributes", mFilterModel->quickFilterAttributes());
 	p.setDefaultValue("movida/view-mode", "smart");
 	p.setDefaultValue("movida/smart-view/item-size", "medium");
+	p.setDefaultValue("movida/movie-view/wheel-up-magnifies", true);
 
 	// Initialize core library && load user settings
 	QStringList recentFiles = p.value("movida/recent-files").toStringList();
@@ -1392,6 +1393,26 @@ bool MvdMainWindow::eventFilter(QObject* o, QEvent* e)
 				// Any attempt to use DragLeave or Drop failed.
 				connect(_e->mimeData(), SIGNAL(destroyed()), SLOT(sdeDragEnded()));
 				sdeDragStarted();
+			}
+		} else if (e->type() == QEvent::Wheel && o == mSmartView->viewport()) {
+			if (qApp->keyboardModifiers() == Qt::ControlModifier) {
+				QWheelEvent* we = static_cast<QWheelEvent*>(e);
+				
+				bool zoomInReq = we->delta() >= 0;
+				if (!Movida::settings().value("movida/movie-view/wheel-up-magnifies").toBool())
+					zoomInReq = !zoomInReq; // Invert direction
+		
+				QAction* za = zoomInReq ? mA_ViewModeZoomIn : mA_ViewModeZoomOut;
+		
+				int numDegrees = qAbs(we->delta()) / 8;
+				int numSteps = numDegrees / 15;
+
+				for (int i = 0; i < numSteps && za->isEnabled(); ++i) {
+					if (zoomInReq)
+						zoomIn();
+					else zoomOut();
+				}
+				return true; // Filter out or the view will scroll!
 			}
 		}
 	}

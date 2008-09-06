@@ -646,4 +646,3 @@ void MvdMainWindow::initAction(QAction* action, const QString& text, const QStri
 	action->setWhatsThis(longInfo);
 	action->setShortcut(shortcut);
 }
-
