@@ -460,26 +460,29 @@ void MvdMainWindow::updateViewSortMenu()
 */
 void MvdMainWindow::updateCaption()
 {
-	QString name;
+	QString windowTitle;
 	if (mCollection)
-		name = mCollection->metaData(MvdMovieCollection::NameInfo);
+		windowTitle = mCollection->metaData(MvdMovieCollection::NameInfo);
 	
-	if (mCollection && !name.isEmpty()) {
+	if (mCollection && !windowTitle.isEmpty()) {
 		;
 	} else if (!mCollection || mCollection->fileName().isEmpty()) {
-		name = tr("New Collection");
+		windowTitle = tr("New Collection");
 	} else {
 		if (!mCollection->path().isEmpty())
-			name = mCollection->path();
-		else name = mCollection->fileName();
+			windowTitle = mCollection->path();
+		else windowTitle = mCollection->fileName();
 	}
 
-	name = QString("%1 - %2").arg(MVD_CAPTION).arg(name);
+	windowTitle.append(QLatin1String("[*]"));
 
-	if (mCollection && mCollection->isModified())
-		name.append("*");
+#ifndef Q_WS_MAC
+	QString appName = QApplication::applicationName();
+	if (!appName.isEmpty())
+		windowTitle += QLatin1String(" ") + QChar(0x2014) + QLatin1String(" ") + appName;
+#endif
 
-	setWindowTitle(name);
+	setWindowTitle(windowTitle);
 }
 
 /*!
@@ -716,10 +719,11 @@ void MvdMainWindow::createNewCollection()
 
 void MvdMainWindow::collectionModified()
 {
-	updateCaption();
 	bool isEmpty = mCollection->isEmpty();
 	bool isNewCollection = mCollection->path().isEmpty();
 	bool isModified = mCollection->isModified();
+
+	setWindowModified(isModified);
 
 	mA_FileNew->setDisabled(isNewCollection && isEmpty);
 	mA_FileSave->setDisabled(!isModified || isNewCollection || isEmpty);
