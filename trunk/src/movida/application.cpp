@@ -26,6 +26,8 @@
 #include "mvdcore/settings.h"
 #include "mvdcore/pathresolver.h"
 #include <QtGlobal>
+#include <QStyle>
+#include <QStyleFactory>
 #include <QTranslator>
 #include <QTextCodec>
 #include <QDir>
@@ -189,6 +191,20 @@ int MvdApplication::init()
 			return MVD_ERROR_INIT;
 		}
 
+		QStyle* currentStyle = MvdApplication::style();
+		if (currentStyle) {
+			iLog() << "Using '" << currentStyle->objectName() << "' style.";
+		}
+
+#ifdef Q_WS_X11
+		if (currentStyle->objectName() == QLatin1String("windows")) {
+			QStyle* s = QStyleFactory::create(QLatin1String("plastique"));
+			if (s) {
+				MvdApplication::setStyle(s);
+				iLog() << "Switching to '" << s->objectName() << "' style.";
+			}
+		}
+#endif
 		mMainWindow = new MvdMainWindow;
 		setActiveWindow(mMainWindow);
 		connect(this, SIGNAL(lastWindowClosed()), this, SLOT(quit()));
