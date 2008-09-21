@@ -7,7 +7,7 @@ CONFIG += ordered debug warn_on
 
 QMAKE_TARGET_COMPANY = Angius Fabrizio
 QMAKE_TARGET_PRODUCT = Movida
-QMAKE_TARGET_COPYRIGHT = Copyright (C) 2007 Angius Fabrizio
+QMAKE_TARGET_COPYRIGHT = Copyright (C) 2008 Angius Fabrizio
 
 INCLUDEPATH += $${ROOT}/src $${ROOT}/src/3rdparty $${ROOT}/src/3rdparty/iconv
 DEPENDPATH += $${ROOT}/src $${ROOT}/src/3rdparty
