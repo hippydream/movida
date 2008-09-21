@@ -431,7 +431,7 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 			if (!text.isEmpty()) {
 				rCurrentText.setTop(rCurrentText.top() + br.height() + HalfPadding);
 				text.prepend(Movida::movieAttributeString(Movida::CastAttribute, Movida::SmartViewContext));
-				drawItemText(painter, option, rCurrentText, text, textOptions, &br, 2);
+				drawItemText(painter, option, rCurrentText, text, textOptions, &br, 3);
 			}
 		}
 
@@ -542,7 +542,7 @@ void MvdSmartViewDelegate::drawItemText(QPainter* painter, const QStyleOptionVie
 	}
 
 	if (maxLines > 1) {
-		rect.setHeight(qMin(rect.height(), fm.lineSpacing() * maxLines));
+		rect.setHeight(qMin(rect.height(), fm.lineSpacing() * maxLines + 1));
 	}
 
 	int maxH = rect.height();
