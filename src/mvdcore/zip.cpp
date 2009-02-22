@@ -30,6 +30,7 @@
 #include <QtGlobal>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <stdlib.h>
 #include <time.h>
 
 using namespace Movida;

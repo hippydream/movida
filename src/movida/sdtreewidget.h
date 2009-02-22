@@ -39,9 +39,9 @@ public:
 		ShowEditorAction, ShowItemSelectorAction,
 		NoAction
 	};
-
-	//! \internal
-	typedef struct ActionDescriptor
+    
+    //! \internal
+	struct ActionDescriptor
 	{
 		ActionDescriptor() : type(NoAction), current(false) {}
 		ActionDescriptor(ActionType atype) : type(atype), current(false) {}

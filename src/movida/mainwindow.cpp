@@ -838,9 +838,9 @@ void MvdMainWindow::editMovie(const QModelIndex& index)
 {
 	mvdid id = movieIndexToId(index);
 	bool resetRequired = false;
-	bool exec;
+	bool exec = mMovieEditor.isNull();
 
-	if (exec = mMovieEditor.isNull()) {
+	if (exec) {
 		mMovieEditor = new MvdMovieEditor(mCollection, this);
 		mMovieEditor->setAttribute(Qt::WA_DeleteOnClose, true);
 	}

@@ -19,6 +19,7 @@
 **************************************************************************/
 
 #include "clearspin.h"
+#include <QApplication>
 #include <QToolButton>
 #include <QStyle>
 #include <QPainter>
@@ -26,75 +27,85 @@
 #include <math.h>
 
 namespace {
-	static const int Spacing = 2;
+    //! Check out style issues with Oxygen
+    static int spacing() {
+        QStyle* s = QApplication::style();
+        QString n = s->objectName();
+        if (n == QLatin1String("oxygen"))
+            return 3;
+        return 2;
+    }
 };
 
 class MvdClearSpin::Private
 {
 public:
-	Private() : clearButton(0) {}
+        Private() : clearButton(0) {}
 
-	QToolButton* clearButton;
-	QSize pixmapSize;
+        QToolButton* clearButton;
+        QSize pixmapSize;
 };
 
 MvdClearSpin::MvdClearSpin(QWidget* parent)
 : QSpinBox(parent), d(new Private)
 {
-	QPixmap pixmap(":/images/clear-edit.png");
-	d->pixmapSize = pixmap.size();
+        QPixmap pixmap(":/images/clear-edit.png");
+        d->pixmapSize = pixmap.size();
 
-	d->clearButton = new QToolButton(this);
-	d->clearButton->setToolTip(tr("Click to clear the text."));
-	d->clearButton->setIcon(QIcon(pixmap));
-	d->clearButton->setIconSize(pixmap.size());
-	d->clearButton->setCursor(Qt::PointingHandCursor);
-	d->clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
-	d->clearButton->hide();
-	connect(d->clearButton, SIGNAL(clicked()), this, SLOT(clearButtonClicked()));
+        d->clearButton = new QToolButton(this);
+        d->clearButton->setToolTip(tr("Click to clear the text."));
+        d->clearButton->setIcon(QIcon(pixmap));
+        d->clearButton->setIconSize(pixmap.size());
+        d->clearButton->setCursor(Qt::PointingHandCursor);
+        d->clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
+        d->clearButton->setFocusPolicy(Qt::NoFocus);
+        d->clearButton->hide();
+        connect(d->clearButton, SIGNAL(clicked()), this, SLOT(clearButtonClicked()));
 
-	connect(this, SIGNAL(valueChanged(const QString&)), this, SLOT(updateClearButton(const QString&)));
+        connect(this, SIGNAL(valueChanged(const QString&)), this, SLOT(updateClearButton(const QString&)));
+
+        setStyleSheet(QString("QSpinBox { padding-right: %1; }").arg(d->pixmapSize.width() + 2 * ::spacing() + 1));
 }
 
 QSize MvdClearSpin::sizeHint() const
 {
-	QSize sz = QSpinBox::sizeHint();
-	sz.rwidth() += d->pixmapSize.width() + 2 * ::Spacing;
-	sz.setHeight(qMax(sz.height(), d->pixmapSize.height()));
-	return sz;
+        QSize sz = QSpinBox::sizeHint();
+//        sz.rwidth() += d->pixmapSize.width() + 2 * ::spacing();
+//        sz.setHeight(qMax(sz.height(), d->pixmapSize.height()));
+        return sz;
 }
 
 void MvdClearSpin::resizeEvent(QResizeEvent* e)
 {
-	QSpinBox::resizeEvent(e);
+        QSpinBox::resizeEvent(e);
 
-	QStyleOptionSpinBox opt;
-	initStyleOption(&opt);
+        QStyleOptionSpinBox opt;
+        initStyleOption(&opt);
 
-	QRect r = style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxEditField, this);
-	d->clearButton->move(
-		r.right() - d->pixmapSize.width() - ::Spacing,
-		(int)ceil((r.height() - d->pixmapSize.height()) / 2.0)
-	);
+        QRect r = style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxEditField, this);
+        d->clearButton->move(
+                r.right(),
+                (int)ceil((r.height() - d->pixmapSize.height()) / 2.0) + ::spacing()
+        );
 }
 
 void MvdClearSpin::paintEvent(QPaintEvent* e)
 {
-	QSpinBox::paintEvent(e);
+        QSpinBox::paintEvent(e);
 }
 
 void MvdClearSpin::updateClearButton(const QString& text)
 {
-	d->clearButton->setVisible(!text.isEmpty() && text != specialValueText());
+        d->clearButton->setVisible(!text.isEmpty() && text != specialValueText());
 }
 
 void MvdClearSpin::clearButtonClicked()
 {
-	setValue(minimum());
+        setValue(minimum());
 }
 
 void MvdClearSpin::showEvent(QShowEvent* e)
 {
-	QSpinBox::showEvent(e);
-	updateClearButton(text());
+        QSpinBox::showEvent(e);
+        updateClearButton(text());
 }
