@@ -16,6 +16,13 @@ DEPENDPATH += $${ROOT}/src $${ROOT}/src/3rdparty
 win32 { LIBS += -L$${ROOT}/lib/win32/ }
 LIBS += -L$${ROOT}/lib/
 
+linux-g++ {
+  # Thanks to Paul John Floyd for suggesting this trick:
+  # http://paulf.free.fr/undocumented_qmake.html
+  DOLLAR = $
+  QMAKE_LFLAGS += -Wl,-rpath,\'$${DOLLAR}$${DOLLAR}ORIGIN/../lib\'
+}
+
 TEMP = $${ROOT}/tmp/$${TARGET}/
 MOC_DIR = $${TEMP}/moc
 UI_DIR = $${TEMP}/ui

@@ -27,326 +27,345 @@
 #include "linkspage.h"
 #include "mvdcore/movie.h"
 #include "mvdcore/moviecollection.h"
-#include <QMessageBox>
+#include "mvdshared/messagebox.h"
 #include <QCloseEvent>
 #include <QPushButton>
-#include <QMessageBox>
 
 /*!
-	\class MvdMovieEditor movieeditor.h
-	\ingroup Movida
+        \class MvdMovieEditor movieeditor.h
+        \ingroup Movida
 
-	\brief Movie editor dialog.
+        \brief Movie editor dialog.
 */
 
 
 /*!
-	Creates a new dialog for editing of movie descriptions.
+        Creates a new dialog for editing of movie descriptions.
 */
 MvdMovieEditor::MvdMovieEditor(MvdMovieCollection* c, QWidget* parent)
 : MvdMultiPageDialog(parent), mCollection(c), mMovieId(MvdNull)
 {
-	setWindowTitle(tr("%1 Editor", "Movie editor title").arg(QCoreApplication::applicationName()));
-	
-	resize(sizeHint());
-	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        setWindowTitle(tr("%1 Editor", "Movie editor title").arg(QCoreApplication::applicationName()));
 
-	QDialogButtonBox* box = MvdMultiPageDialog::buttonBox();
-	mHelpButton = box->addButton(QDialogButtonBox::Help);
-	mHelpButton->setEnabled(false);
-	mPreviousButton = box->addButton(tr("&Previous"), QDialogButtonBox::ActionRole);
-	mPreviousButton->setEnabled(false);
-	mNextButton = box->addButton(tr("&Next"), QDialogButtonBox::ActionRole);
-	mNextButton->setEnabled(false);
-	mOkButton = box->addButton(QDialogButtonBox::Ok);
-	box->addButton(QDialogButtonBox::Cancel);
+        resize(sizeHint());
+        setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-	MvdMovieEditorPage* page;
+        QStyle* s = style();
 
-	page = new MvdMainInfoPage(c, this);
-	mPages.append(page);
-	addPage(page);
+        QDialogButtonBox* box = MvdMultiPageDialog::buttonBox();
+        mHelpButton = box->addButton(QDialogButtonBox::Help);
+        mHelpButton->setIcon(s->standardIcon(QStyle::SP_DialogHelpButton));
+        mHelpButton->setText(tr("&Help"));
+        mHelpButton->setEnabled(false);
 
-	page = new MvdExtendedInfoPage(c, this);
-	mPages.append(page);
-	addPage(page);
+        mPreviousButton = box->addButton(tr("&Previous"), QDialogButtonBox::ActionRole);
+        mPreviousButton->setIcon(s->standardIcon(QStyle::SP_ArrowLeft));
+        mPreviousButton->setEnabled(false);
 
-	page = new MvdCrewPage(c, this);
-	mPages.append(page);
-	addPage(page);
+        mNextButton = box->addButton(tr("&Next"), QDialogButtonBox::ActionRole);
+        mNextButton->setIcon(s->standardIcon(QStyle::SP_ArrowRight));
+        mNextButton->setEnabled(false);
 
-	page = new MvdNotesPage(c, this);
-	mPages.append(page);
-	addPage(page);
+        mOkButton = box->addButton(QDialogButtonBox::Ok);
+        mOkButton->setIcon(s->standardIcon(QStyle::SP_DialogOkButton));
+        mOkButton->setText(tr("&OK"));
 
-	page = new MvdLinksPage(c, this);
-	mPages.append(page);
-	addPage(page);
+        mCancelButton = box->addButton(QDialogButtonBox::Cancel);
+        mCancelButton->setIcon(s->standardIcon(QStyle::SP_DialogCancelButton));
+        mCancelButton->setText(tr("&Cancel"));
 
-	mResetPageId = addAdvancedControl(tr("reset this page"), false);
-	mResetAllId = addAdvancedControl(tr("reset all"), false);
-	mStoreChangesId = addAdvancedControl(tr("store changes"), false);
+        MvdMovieEditorPage* page;
 
-	setAdvancedControlsVisible(true);
+        page = new MvdMainInfoPage(c, this);
+        mPages.append(page);
+        addPage(page);
 
-	connect( box, SIGNAL(rejected()), this, SLOT(cancelTriggered()) );
-	connect( box, SIGNAL(accepted()), this, SLOT(storeTriggered()) );
+        page = new MvdExtendedInfoPage(c, this);
+        mPages.append(page);
+        addPage(page);
 
-	connect( mPreviousButton, SIGNAL(clicked()), this, SIGNAL(previousRequested()) );
-	connect( mNextButton, SIGNAL(clicked()), this, SIGNAL(nextRequested()) );
+        page = new MvdCrewPage(c, this);
+        mPages.append(page);
+        addPage(page);
 
-	connect( this, SIGNAL(currentPageChanged(MvdMPDialogPage*)), this, SLOT(currentPageChanged(MvdMPDialogPage*)) );
+        page = new MvdNotesPage(c, this);
+        mPages.append(page);
+        addPage(page);
+
+        page = new MvdLinksPage(c, this);
+        mPages.append(page);
+        addPage(page);
+
+//        mResetPageId = addAdvancedControl(tr("Reset Page"), false);
+//        mResetAllId = addAdvancedControl(tr("Reset Movie"), false);
+//        mStoreChangesId = addAdvancedControl(tr("Apply"), false);
+
+        QDialogButtonBox* advBB = advancedButtonBox();
+        advBB->addButton(QDialogButtonBox::Apply);
+        setAdvancedControlsVisible(true);
+
+        connect( box, SIGNAL(rejected()), this, SLOT(cancelTriggered()) );
+        connect( box, SIGNAL(accepted()), this, SLOT(storeTriggered()) );
+
+        connect( mPreviousButton, SIGNAL(clicked()), this, SIGNAL(previousRequested()) );
+        connect( mNextButton, SIGNAL(clicked()), this, SIGNAL(nextRequested()) );
+
+        connect( this, SIGNAL(currentPageChanged(MvdMPDialogPage*)), this, SLOT(currentPageChanged(MvdMPDialogPage*)) );
 }
 
 QSize MvdMovieEditor::sizeHint() const
 {
-	return QSize(600, 500);
+        return QSize(600, 500);
 }
 
 /*!
-	Sets data from a new movie removing any previously set info.
-	Returns false if the movie has not been set (i.e. there was another
-	movie being edited and the user didn't want to lose it).
+        Sets data from a new movie removing any previously set info.
+        Returns false if the movie has not been set (i.e. there was another
+        movie being edited and the user didn't want to lose it).
 */
 bool MvdMovieEditor::setMovie(mvdid id, bool confirmIfModified)
 {
-	if (mCollection == 0)
-		return false;
+        if (mCollection == 0)
+                return false;
 
-	if (confirmIfModified && isModified())
-	{
-		if (!confirmDiscardMovie())
-			return false;
-	}
+        if (confirmIfModified && isModified())
+        {
+                if (!confirmDiscardMovie())
+                        return false;
+        }
 
-	MvdMovie movie = mCollection->movie(id);
+        MvdMovie movie = mCollection->movie(id);
 
-	for (int i = 0; i < mPages.size(); ++i)
-	{
-		MvdMovieEditorPage* p = mPages.at(i);
-		p->setMovie(movie);
-		p->setModified(false);
-	}
+        for (int i = 0; i < mPages.size(); ++i)
+        {
+                MvdMovieEditorPage* p = mPages.at(i);
+                p->setMovie(movie);
+                p->setModified(false);
+        }
 
-	mMovieId = id;
+        mMovieId = id;
 
-	return true;
+        return true;
 }
 
 /*!
-	Returns the movie id set with setMovie() or after a new movie has been added to the collection.
+        Returns the movie id set with setMovie() or after a new movie has been added to the collection.
 */
 mvdid MvdMovieEditor::movieId() const
 {
-	return mMovieId;
+        return mMovieId;
 }
 
 void MvdMovieEditor::cancelTriggered()
 {
-	bool discard = confirmDiscardMovie();
+        bool discard = confirmDiscardMovie();
 
-	if (!discard)
-		return;
+        if (!discard)
+                return;
 
-	reject();
+        reject();
 }
 
 /*!
-	\internal Returns true if the movie is not modified or asks the user
-	if the changes should be discarded or stored otherwise.
+        \internal Returns true if the movie is not modified or asks the user
+        if the changes should be discarded or stored otherwise.
 */
 bool MvdMovieEditor::confirmDiscardMovie()
 {
-	if (discardChanges())
-		return true;
+        if (discardChanges())
+                return true;
 
-	bool modified = isModified();
-	bool discard = true;
+        bool modified = isModified();
+        bool discard = true;
 
-	//! \todo validate first
-	if (modified)
-	{
-		bool valid = isValid();
-		QString msg = valid ? 
-			tr("The movie has been modified. Do you want to save the movie, discard the changes or cancel the operation?")
-			: tr("The movie has been modified but cannot be saved because required data is missing. Do you want to discard the changes or cancel the operation?");
+        //! \todo validate first
+        if (modified)
+        {
+                bool valid = isValid();
+                QString msg = valid ?
+                        tr("Movie modified. Save or discard changes?")
+                        : tr("Required data is missing. Discard changes?");
 
-		int res = valid ? 
-			QMessageBox::question(this, MVD_CAPTION, msg, QMessageBox::Save, QMessageBox::Discard, QMessageBox::Cancel)
-			: QMessageBox::question(this, MVD_CAPTION, msg, QMessageBox::Discard, QMessageBox::Cancel);
+                int res = valid ?
+                        MvdMessageBox::question(this, tr("Movie Editor"), msg, MvdMessageBox::Save | MvdMessageBox::Discard | MvdMessageBox::Cancel)
+                        : MvdMessageBox::question(this, tr("Movie Editor"), msg, MvdMessageBox::Discard | MvdMessageBox::Cancel);
 
-		if (res == QMessageBox::Save)
-			discard = storeMovie();
-		else if (res == QMessageBox::Cancel)
-			discard = false;
-	}
+                if (res == MvdMessageBox::Save)
+                        discard = storeMovie();
+                else if (res == MvdMessageBox::Cancel)
+                        discard = false;
+        }
 
-	return discard;
+        return discard;
 }
 
 //! \internal \todo Handle ESC key
 void MvdMovieEditor::closeEvent(QCloseEvent* e)
 {
-	bool discard = confirmDiscardMovie();
+        bool discard = confirmDiscardMovie();
 
-	if (discard) {
-		reject();
-		e->accept();
-	} else {
-		e->ignore();
-	}
+        if (discard) {
+                reject();
+                e->accept();
+        } else {
+                e->ignore();
+        }
 }
 
 void MvdMovieEditor::storeTriggered()
 {
-	if (mCollection == 0)
-		return;
+        if (mCollection == 0)
+                return;
 
-	bool modified = false;
+        bool modified = false;
 
-	if (mMovieId == 0)
-		modified = true;
-	else
-	{
-		for (int i = 0; !modified && i < mPages.size(); ++i)
-			modified = mPages.at(i)->isModified();
-	}
-	
-	if (modified)
-		if (!storeMovie())
-			return;
+        if (mMovieId == 0)
+                modified = true;
+        else
+        {
+                for (int i = 0; !modified && i < mPages.size(); ++i)
+                        modified = mPages.at(i)->isModified();
+        }
 
-	accept();
+        if (modified)
+                if (!storeMovie())
+                        return;
+
+        accept();
 }
 
 //! \internal Simply stores the changes made to the movie or adds a new movie to the collection.
 bool MvdMovieEditor::storeMovie()
 {
-	MvdMovie movie;
+        MvdMovie movie;
 
-	for (int i = 0; i < mPages.size(); ++i)
-	{
-		MvdMovieEditorPage* p = mPages.at(i);
-		if (!p->store(movie))
-		{
-			//! \todo either show the alert box AFTER changing page or replace it with a status message bar in the widget.
-			showPage(p);
-			return false;
-		}
-		else p->setModified(false);
-	}
+        for (int i = 0; i < mPages.size(); ++i)
+        {
+                MvdMovieEditorPage* p = mPages.at(i);
+                if (!p->store(movie))
+                {
+                        //! \todo either show the alert box AFTER changing page or replace it with a status message bar in the widget.
+                        showPage(p);
+                        return false;
+                }
+                else p->setModified(false);
+        }
 
-	if (mMovieId == MvdNull)
-		mMovieId = mCollection->addMovie(movie);
-	else mCollection->updateMovie(mMovieId, movie);
+        if (mMovieId == MvdNull)
+                mMovieId = mCollection->addMovie(movie);
+        else mCollection->updateMovie(mMovieId, movie);
 
-	return true;
+        return true;
 }
 
 //! \internal Returns true if the movie needs to be stored.
 bool MvdMovieEditor::isModified() const
 {
-	bool modified = false;
+        bool modified = false;
 
-	for (int i = 0; !modified && i < mPages.size(); ++i)
-		modified = mPages.at(i)->isModified();
+        for (int i = 0; !modified && i < mPages.size(); ++i)
+                modified = mPages.at(i)->isModified();
 
-	return modified;
+        return modified;
 }
 
 //! \internal Returns true if some page is not valid.
 bool MvdMovieEditor::isValid() const
 {
-	bool valid = true;
-	for (int i = 0; valid && i < mPages.size(); ++i)
-	{
-		const MvdMovieEditorPage* p = mPages.at(i);
-		if (!p->isValid())
-			valid = false;
-	}
-	return valid;
+        bool valid = true;
+        for (int i = 0; valid && i < mPages.size(); ++i)
+        {
+                const MvdMovieEditorPage* p = mPages.at(i);
+                if (!p->isValid())
+                        valid = false;
+        }
+        return valid;
 }
 
 //! Enables or disables the "previous movie" button.
 void MvdMovieEditor::setPreviousEnabled(bool enabled)
 {
-	mPreviousButton->setEnabled(enabled);
+        mPreviousButton->setEnabled(enabled);
 }
 
 //! Enables or disables the "next movie" button.
 void MvdMovieEditor::setNextEnabled(bool enabled)
 {
-	mNextButton->setEnabled(enabled);
+        mNextButton->setEnabled(enabled);
 }
 
 //! Enables or disables the Ok button.
 void MvdMovieEditor::validationStateChanged(MvdMPDialogPage* page)
 {
-	Q_ASSERT(page);
-	Q_UNUSED(page);
+        Q_ASSERT(page);
+        Q_UNUSED(page);
 
-	bool valid = isValid();
-	mOkButton->setEnabled(valid);
+        bool valid = isValid();
+        mOkButton->setEnabled(valid);
 }
 
 //! Enables or disables the some UI elements.
 void MvdMovieEditor::modifiedStateChanged(MvdMPDialogPage* page)
 {
-	Q_ASSERT(page);
-	Q_UNUSED(page);
+        Q_ASSERT(page);
+        Q_UNUSED(page);
 
-	bool modified = isModified();
-	setAdvancedControlEnabled(mResetPageId, currentPage()->isModified());
-	setAdvancedControlEnabled(mResetAllId, modified);
-	setAdvancedControlEnabled(mStoreChangesId, modified);
+        bool modified = isModified();
+//        setAdvancedControlEnabled(mResetPageId, currentPage()->isModified());
+//        setAdvancedControlEnabled(mResetAllId, modified);
+//        setAdvancedControlEnabled(mStoreChangesId, modified);
 }
 
 //!
+#if 0
 void MvdMovieEditor::advancedControlHandler(int control)
 {
-	if (control == mResetPageId)
-	{
-		int res = QMessageBox::question(this, MVD_CAPTION, tr("Are you sure you want to reset this page to the last stored version?"),
-			QMessageBox::Yes, QMessageBox::No);
-		if (res != QMessageBox::Yes)
-			return;
+        if (control == mResetPageId)
+        {
+                int res = MvdMessageBox::question(this, tr("Movie Editor"),
+                        tr("Reset changes to the current page?"),
+                        MvdMessageBox::Yes | MvdMessageBox::No);
+                if (res != MvdMessageBox::Yes)
+                        return;
 
-		MvdMovieEditorPage* p = qobject_cast<MvdMovieEditorPage*>(currentPage());
-		if (p)
-		{
-			p->setMovie(mCollection->movie(mMovieId));
-			p->setModified(false);
-		}
-	}
-	else if (control == mResetAllId)
-	{
-		Q_ASSERT(mCollection);
+                MvdMovieEditorPage* p = qobject_cast<MvdMovieEditorPage*>(currentPage());
+                if (p)
+                {
+                        p->setMovie(mCollection->movie(mMovieId));
+                        p->setModified(false);
+                }
+        }
+        else if (control == mResetAllId)
+        {
+                Q_ASSERT(mCollection);
 
-		int res = QMessageBox::question(this, MVD_CAPTION, tr("Are you sure you want to reset this movie to the last stored version?"),
-			QMessageBox::Yes, QMessageBox::No);
-		if (res != QMessageBox::Yes)
-			return;
+                int res = MvdMessageBox::question(this, tr("Movie Editor"),
+                        tr("Reset changes to this movie?"),
+                        MvdMessageBox::Yes | MvdMessageBox::No);
+                if (res != MvdMessageBox::Yes)
+                        return;
 
-		for (int i = 0; i < mPages.size(); ++i)
-		{
-			MvdMovieEditorPage* p = mPages.at(i);
-			p->setMovie(mCollection->movie(mMovieId));
-			p->setModified(false);
-		}
-	}
-	else if (control == mStoreChangesId)
-	{
-		if (storeMovie())
-		{
-			Q_ASSERT(mMovieId != MvdNull);
-			setMovie(mMovieId, false);
-		}
-	}
+                for (int i = 0; i < mPages.size(); ++i)
+                {
+                        MvdMovieEditorPage* p = mPages.at(i);
+                        p->setMovie(mCollection->movie(mMovieId));
+                        p->setModified(false);
+                }
+        }
+        else if (control == mStoreChangesId)
+        {
+                if (storeMovie())
+                {
+                        Q_ASSERT(mMovieId != MvdNull);
+                        setMovie(mMovieId, false);
+                }
+        }
 }
+#endif
 
 //!
 void MvdMovieEditor::currentPageChanged(MvdMPDialogPage* page)
 {
-	Q_ASSERT(page);
-	setAdvancedControlEnabled(mResetPageId, page->isModified());
+        Q_ASSERT(page);
+        //setAdvancedControlEnabled(mResetPageId, page->isModified());
 }

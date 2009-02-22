@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MvdMainInfoPage</class>
- <widget class="QWidget" name="MvdMainInfoPage" >
-  <property name="geometry" >
+ <widget class="QWidget" name="MvdMainInfoPage">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,71 +10,71 @@
     <height>395</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4" >
-   <property name="margin" >
+  <layout class="QGridLayout" name="gridLayout_4">
+   <property name="margin">
     <number>0</number>
    </property>
-   <item row="0" column="0" colspan="2" >
-    <widget class="QLabel" name="mainCaption" >
-     <property name="text" >
-      <string>&lt;b>Main Information&lt;/b></string>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="mainCaption">
+     <property name="text">
+      <string>&lt;b&gt;Main Information&lt;/b&gt;</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2" >
-    <widget class="Line" name="line" >
-     <property name="orientation" >
+   <item row="1" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2" >
-    <layout class="QGridLayout" name="gridLayout_3" >
-     <item row="0" column="0" >
-      <layout class="QGridLayout" name="gridLayout" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="labTitle" >
-         <property name="text" >
+   <item row="2" column="0" colspan="2">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0">
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labTitle">
+         <property name="text">
           <string>Title:</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" colspan="2" >
-        <widget class="MvdClearEdit" name="title" />
+       <item row="0" column="1" colspan="2">
+        <widget class="MvdClearEdit" name="title"/>
        </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="labOriginalTitle" >
-         <property name="text" >
+       <item row="1" column="0">
+        <widget class="QLabel" name="labOriginalTitle">
+         <property name="text">
           <string>Original title:</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1" colspan="2" >
-        <widget class="MvdClearEdit" name="originalTitle" />
+       <item row="1" column="1" colspan="2">
+        <widget class="MvdClearEdit" name="originalTitle"/>
        </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="labLength" >
-         <property name="text" >
+       <item row="2" column="0">
+        <widget class="QLabel" name="labLength">
+         <property name="text">
           <string>Running time:</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1" >
-        <widget class="MvdClearSpin" name="lengthMinutes" >
-         <property name="maximum" >
+       <item row="2" column="1">
+        <widget class="MvdClearSpin" name="lengthMinutes">
+         <property name="maximum">
           <number>999</number>
          </property>
         </widget>
        </item>
-       <item row="2" column="2" >
-        <spacer name="horizontalSpacer_2" >
-         <property name="orientation" >
+       <item row="2" column="2">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>128</width>
            <height>17</height>
@@ -81,35 +82,35 @@
          </property>
         </spacer>
        </item>
-       <item row="3" column="0" >
-        <widget class="QLabel" name="labYear" >
-         <property name="text" >
+       <item row="3" column="0">
+        <widget class="QLabel" name="labYear">
+         <property name="text">
           <string>Release year:</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1" >
-        <widget class="MvdClearSpin" name="year" >
-         <property name="minimum" >
+       <item row="3" column="1">
+        <widget class="MvdClearSpin" name="year">
+         <property name="minimum">
           <number>0</number>
          </property>
-         <property name="maximum" >
+         <property name="maximum">
           <number>9999</number>
          </property>
-         <property name="value" >
+         <property name="value">
           <number>0</number>
          </property>
         </widget>
        </item>
-       <item row="4" column="1" colspan="2" >
-        <spacer name="verticalSpacer_3" >
-         <property name="orientation" >
+       <item row="4" column="1" colspan="2">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Fixed</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>239</width>
            <height>13</height>
@@ -117,27 +118,27 @@
          </property>
         </spacer>
        </item>
-       <item row="5" column="0" >
-        <widget class="QLabel" name="labStorageID" >
-         <property name="text" >
+       <item row="5" column="0">
+        <widget class="QLabel" name="labStorageID">
+         <property name="text">
           <string>Storage ID:</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="1" colspan="2" >
-        <widget class="MvdClearEdit" name="storageID" />
+       <item row="5" column="1" colspan="2">
+        <widget class="MvdClearEdit" name="storageID"/>
        </item>
       </layout>
      </item>
-     <item row="0" column="1" >
-      <spacer name="horizontalSpacer_5" >
-       <property name="orientation" >
+     <item row="0" column="1">
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeType" >
+       <property name="sizeType">
         <enum>QSizePolicy::Fixed</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>13</width>
          <height>188</height>
@@ -145,19 +146,19 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="2" >
-      <layout class="QVBoxLayout" name="verticalLayout" >
+     <item row="0" column="2">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3" >
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <spacer name="horizontalSpacer_6" >
-           <property name="orientation" >
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeType" >
+           <property name="sizeType">
             <enum>QSizePolicy::Preferred</enum>
            </property>
-           <property name="sizeHint" stdset="0" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>15</width>
              <height>17</height>
@@ -166,32 +167,32 @@
           </spacer>
          </item>
          <item>
-          <widget class="MvdPosterLabel" name="poster" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+          <widget class="MvdPosterLabel" name="poster">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="minimumSize" >
+           <property name="minimumSize">
             <size>
              <width>46</width>
              <height>60</height>
             </size>
            </property>
-           <property name="focusPolicy" >
+           <property name="focusPolicy">
             <enum>Qt::TabFocus</enum>
            </property>
-           <property name="frameShape" >
+           <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
            </property>
-           <property name="frameShadow" >
+           <property name="frameShadow">
             <enum>QFrame::Plain</enum>
            </property>
-           <property name="text" >
+           <property name="text">
             <string/>
            </property>
-           <property name="textInteractionFlags" >
+           <property name="textInteractionFlags">
             <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
            </property>
           </widget>
@@ -199,16 +200,16 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout" >
+        <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <spacer name="horizontalSpacer_4" >
-           <property name="orientation" >
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeType" >
+           <property name="sizeType">
             <enum>QSizePolicy::Preferred</enum>
            </property>
-           <property name="sizeHint" stdset="0" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>18</width>
              <height>20</height>
@@ -217,15 +218,15 @@
           </spacer>
          </item>
          <item>
-          <widget class="QToolButton" name="setPosterButton" >
-           <property name="text" >
+          <widget class="QToolButton" name="setPosterButton">
+           <property name="text">
             <string>...</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="removePosterButton" >
-           <property name="text" >
+          <widget class="QToolButton" name="removePosterButton">
+           <property name="text">
             <string>...</string>
            </property>
           </widget>
@@ -233,11 +234,11 @@
         </layout>
        </item>
        <item>
-        <spacer name="verticalSpacer_4" >
-         <property name="orientation" >
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>18</height>
@@ -249,15 +250,15 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="1" >
-    <spacer name="verticalSpacer" >
-     <property name="orientation" >
+   <item row="3" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeType" >
+     <property name="sizeType">
       <enum>QSizePolicy::Fixed</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
        <height>12</height>
@@ -265,49 +266,49 @@
      </property>
     </spacer>
    </item>
-   <item row="4" column="0" colspan="2" >
-    <widget class="QLabel" name="specialTagsCaption" >
-     <property name="text" >
-      <string>&lt;b>Special Tags&lt;/b></string>
+   <item row="4" column="0" colspan="2">
+    <widget class="QLabel" name="specialTagsCaption">
+     <property name="text">
+      <string>&lt;b&gt;Special Tags&lt;/b&gt;</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2" >
-    <widget class="Line" name="line_2" >
-     <property name="orientation" >
+   <item row="5" column="0" colspan="2">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="2" >
-    <layout class="QHBoxLayout" name="horizontalLayout_2" >
+   <item row="6" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QCheckBox" name="markAsSeen" >
-       <property name="text" >
+      <widget class="QCheckBox" name="markAsSeen">
+       <property name="text">
         <string>Mark as seen</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="markAsSpecial" >
-       <property name="text" >
+      <widget class="QCheckBox" name="markAsSpecial">
+       <property name="text">
         <string>Mark as special</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="markAsLoaned" >
-       <property name="text" >
+      <widget class="QCheckBox" name="markAsLoaned">
+       <property name="text">
         <string>Mark as loaned</string>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer" >
-       <property name="orientation" >
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -317,15 +318,15 @@
      </item>
     </layout>
    </item>
-   <item row="7" column="1" >
-    <spacer name="verticalSpacer_2" >
-     <property name="orientation" >
+   <item row="7" column="1">
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeType" >
+     <property name="sizeType">
       <enum>QSizePolicy::Fixed</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
        <height>12</height>
@@ -333,60 +334,60 @@
      </property>
     </spacer>
    </item>
-   <item row="8" column="0" colspan="2" >
-    <widget class="QLabel" name="ratingCaption" >
-     <property name="text" >
-      <string>&lt;b>Rating&lt;/b></string>
+   <item row="8" column="0" colspan="2">
+    <widget class="QLabel" name="ratingCaption">
+     <property name="text">
+      <string>&lt;b&gt;Rating&lt;/b&gt;</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="2" >
-    <widget class="Line" name="line_3" >
-     <property name="orientation" >
+   <item row="9" column="0" colspan="2">
+    <widget class="Line" name="line_3">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="10" column="0" colspan="2" >
-    <layout class="QGridLayout" name="gridLayout_2" >
-     <item row="0" column="0" >
-      <widget class="MvdRatingWidget" name="ratingLabel" >
-       <property name="minimumSize" >
+   <item row="10" column="0" colspan="2">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <widget class="MvdRatingWidget" name="ratingLabel">
+       <property name="minimumSize">
         <size>
          <width>100</width>
          <height>20</height>
         </size>
        </property>
-       <property name="focusPolicy" >
+       <property name="focusPolicy">
         <enum>Qt::TabFocus</enum>
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="2" >
-      <widget class="QLabel" name="ratingStatus" >
-       <property name="focusPolicy" >
+     <item row="1" column="0" colspan="2">
+      <widget class="QLabel" name="ratingStatus">
+       <property name="focusPolicy">
         <enum>Qt::TabFocus</enum>
        </property>
-       <property name="contextMenuPolicy" >
+       <property name="contextMenuPolicy">
         <enum>Qt::NoContextMenu</enum>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>Rating</string>
        </property>
-       <property name="textInteractionFlags" >
+       <property name="textInteractionFlags">
         <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
        </property>
       </widget>
      </item>
-     <item row="0" column="1" >
-      <spacer name="spacer" >
-       <property name="orientation" >
+     <item row="0" column="1">
+      <spacer name="spacer">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeType" >
+       <property name="sizeType">
         <enum>QSizePolicy::Maximum</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>318</width>
          <height>20</height>
@@ -396,12 +397,12 @@
      </item>
     </layout>
    </item>
-   <item row="11" column="0" >
-    <spacer name="verticalSpacer_5" >
-     <property name="orientation" >
+   <item row="11" column="0">
+    <spacer name="verticalSpacer_5">
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
        <height>15</height>

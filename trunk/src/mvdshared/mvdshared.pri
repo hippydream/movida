@@ -19,6 +19,7 @@ HEADERS += \
 	importresultspage.h \
 	importstartpage.h \
 	importsummarypage.h \
+	messagebox.h \
 	queryvalidator.h \
 	richtexteditor.h \
 	richtexteditor_p.h \
@@ -41,6 +42,7 @@ SOURCES += \
 	importresultspage.cpp \
 	importstartpage.cpp \
 	importsummarypage.cpp \
+	messagebox.cpp \
 	richtexteditor.cpp
 
 RESOURCES += \

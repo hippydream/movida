@@ -33,56 +33,56 @@ class QPushButton;
 
 class MvdMovieEditor : public MvdMultiPageDialog
 {
-	Q_OBJECT
-		
+        Q_OBJECT
+
 public:
-	MvdMovieEditor(MvdMovieCollection* c, QWidget* parent = 0);
-	
-	bool setMovie(mvdid id, bool confirmIfModified = false);
-	mvdid movieId() const;
+        MvdMovieEditor(MvdMovieCollection* c, QWidget* parent = 0);
 
-	bool isModified() const;
-	bool isValid() const;
+        bool setMovie(mvdid id, bool confirmIfModified = false);
+        mvdid movieId() const;
 
-	virtual QSize sizeHint() const;
+        bool isModified() const;
+        bool isValid() const;
+
+        virtual QSize sizeHint() const;
 
 public slots:
-	void setPreviousEnabled(bool enabled);
-	void setNextEnabled(bool enabled);
-	bool storeMovie();
+        void setPreviousEnabled(bool enabled);
+        void setNextEnabled(bool enabled);
+        bool storeMovie();
 
 signals:
-	void previousRequested();
-	void nextRequested();
+        void previousRequested();
+        void nextRequested();
 
 protected:
-	virtual void closeEvent(QCloseEvent* e);
+        virtual void closeEvent(QCloseEvent* e);
 
 protected slots:
-	virtual void validationStateChanged(MvdMPDialogPage* page);
-	virtual void modifiedStateChanged(MvdMPDialogPage* page);
-	virtual void advancedControlHandler(int control);
+        virtual void validationStateChanged(MvdMPDialogPage* page);
+        virtual void modifiedStateChanged(MvdMPDialogPage* page);
 
 private slots:
-	void cancelTriggered();
-	void storeTriggered();
-	void currentPageChanged(MvdMPDialogPage* page);
+        void cancelTriggered();
+        void storeTriggered();
+        void currentPageChanged(MvdMPDialogPage* page);
 
 private:
-	inline bool confirmDiscardMovie();
+        inline bool confirmDiscardMovie();
 
-	QList<MvdMovieEditorPage*> mPages;
-	MvdMovieCollection* mCollection;
-	mvdid mMovieId;
+        QList<MvdMovieEditorPage*> mPages;
+        MvdMovieCollection* mCollection;
+        mvdid mMovieId;
 
-	QPushButton* mPreviousButton;
-	QPushButton* mNextButton;
-	QPushButton* mOkButton;
-	QPushButton* mHelpButton;
+        QPushButton* mPreviousButton;
+        QPushButton* mNextButton;
+        QPushButton* mOkButton;
+        QPushButton* mCancelButton;
+        QPushButton* mHelpButton;
 
-	int mResetPageId;
-	int mResetAllId;
-	int mStoreChangesId;
+        int mResetPageId;
+        int mResetAllId;
+        int mStoreChangesId;
 };
 
 #endif // MVD_MOVIEEDITOR_H

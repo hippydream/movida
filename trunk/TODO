@@ -29,6 +29,6 @@ LONG-TERM:
 
 DO-NOT-IMPLEMENT (stuff that was rejected):
 
-<ariya>		Add a CoverFlow view [reason: movie covers are usually too small or low res]
-<cyril>		Browse local movies and extract info in realtime [reason: this is not what movida is about]
-<blue_death>	5 star rating doesnt look fine. maybe 10 stars? [reason: keep things simple and clean - most software sucks because they fail at this point - IMHO]
+Add a CoverFlow view [reason: movie covers are usually too small or low res]
+Browse local movies and extract info in realtime [reason: this is not what movida is about]
+5 star rating doesnt look fine. maybe 10 stars? [reason: keep things simple and clean - most software sucks because they fail at this point - IMHO]
