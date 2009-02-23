@@ -87,9 +87,13 @@ void MvdExportFinalPage::setBusyStatus(bool busy)
 	ui.restartWizard->setEnabled(!busy);
 
 	if (busy) {
-		
+        showMessage(tr("Export in progress..."), MovidaShared::InfoMessage);
 	} else {
-		
+        if (exportDialog()->result() != MvdExportDialog::Success) {
+            showMessage(tr("Export failed."), MovidaShared::ErrorMessage);
+        } else {
+            showMessage(tr("Export finished."), MovidaShared::InfoMessage);
+        }
 	}
 }
 

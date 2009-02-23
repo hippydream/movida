@@ -10,13 +10,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "movida", "movida\Movida.vcp
 		Integration = True
 	EndGlobalSection
 	ProjectSection(ProjectDependencies) = postProject
-		{119CD80F-DBC3-38B5-8203-75A4FC029A83} = {119CD80F-DBC3-38B5-8203-75A4FC029A83}
-		{7EDBF775-58DA-3D97-A79B-BE8F52F99EF9} = {7EDBF775-58DA-3D97-A79B-BE8F52F99EF9}
+		{BFAA48C1-A494-38EB-9024-BD4329D84080} = {BFAA48C1-A494-38EB-9024-BD4329D84080}
 		{D04772C7-5687-3BCC-85C0-64BC7B60F7AA} = {D04772C7-5687-3BCC-85C0-64BC7B60F7AA}
-		{237C256A-64FA-3EFA-8B34-E9B7BA3644A0} = {237C256A-64FA-3EFA-8B34-E9B7BA3644A0}
+		{7EDBF775-58DA-3D97-A79B-BE8F52F99EF9} = {7EDBF775-58DA-3D97-A79B-BE8F52F99EF9}
+		{119CD80F-DBC3-38B5-8203-75A4FC029A83} = {119CD80F-DBC3-38B5-8203-75A4FC029A83}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mvdshared", "mvdshared\mvdshared.vcproj", "{237C256A-64FA-3EFA-8B34-E9B7BA3644A0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mvdshared", "mvdshared\mvdshared.vcproj", "{BFAA48C1-A494-38EB-9024-BD4329D84080}"
 	GlobalSection(Qt) = preSolution
 		Integration = True
 	EndGlobalSection
@@ -29,7 +29,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mpiblue", "mpiblue\mpiblue.
 		Integration = True
 	EndGlobalSection
 	ProjectSection(ProjectDependencies) = postProject
-		{237C256A-64FA-3EFA-8B34-E9B7BA3644A0} = {237C256A-64FA-3EFA-8B34-E9B7BA3644A0}
 		{119CD80F-DBC3-38B5-8203-75A4FC029A83} = {119CD80F-DBC3-38B5-8203-75A4FC029A83}
 	EndProjectSection
 EndProject
@@ -47,14 +46,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mvdsvgz", "mvdsvgz\mvdsvgz.
 	EndGlobalSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{52161C40-9219-4AC9-AA1E-7D3B4B1857BF}"
-	GlobalSection(Qt) = preSolution
-		Integration = True
-	EndGlobalSection
 EndProject
 Global
-	GlobalSection(Qt) = preSolution
-		Integration = True
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
@@ -68,10 +61,10 @@ Global
 		{63D2DA99-D373-3BD3-A855-B75B017C0D2D}.Debug|Win32.Build.0 = Debug|Win32
 		{63D2DA99-D373-3BD3-A855-B75B017C0D2D}.Release|Win32.ActiveCfg = Release|Win32
 		{63D2DA99-D373-3BD3-A855-B75B017C0D2D}.Release|Win32.Build.0 = Release|Win32
-		{237C256A-64FA-3EFA-8B34-E9B7BA3644A0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{237C256A-64FA-3EFA-8B34-E9B7BA3644A0}.Debug|Win32.Build.0 = Debug|Win32
-		{237C256A-64FA-3EFA-8B34-E9B7BA3644A0}.Release|Win32.ActiveCfg = Release|Win32
-		{237C256A-64FA-3EFA-8B34-E9B7BA3644A0}.Release|Win32.Build.0 = Release|Win32
+		{BFAA48C1-A494-38EB-9024-BD4329D84080}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BFAA48C1-A494-38EB-9024-BD4329D84080}.Debug|Win32.Build.0 = Debug|Win32
+		{BFAA48C1-A494-38EB-9024-BD4329D84080}.Release|Win32.ActiveCfg = Release|Win32
+		{BFAA48C1-A494-38EB-9024-BD4329D84080}.Release|Win32.Build.0 = Release|Win32
 		{7EDBF775-58DA-3D97-A79B-BE8F52F99EF9}.Debug|Win32.ActiveCfg = Debug|Win32
 		{7EDBF775-58DA-3D97-A79B-BE8F52F99EF9}.Debug|Win32.Build.0 = Debug|Win32
 		{7EDBF775-58DA-3D97-A79B-BE8F52F99EF9}.Release|Win32.ActiveCfg = Release|Win32

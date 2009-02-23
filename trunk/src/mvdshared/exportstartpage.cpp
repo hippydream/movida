@@ -183,6 +183,20 @@ MvdExportEngine::EngineOptions MvdExportStartPage::currentEngineOptions() const
 	return e.options;
 }
 
+//! Returns the selected export type.
+MvdExportDialog::ExportType MvdExportStartPage::exportType() const
+{
+    return mExportAllButton->isChecked() ? 
+        MvdExportDialog::ExportCollection : MvdExportDialog::ExportSelectedMovies;
+}
+
+//! Returns the URL of the target file to be used for the export.
+QUrl MvdExportStartPage::exportUrl() const
+{
+    //! \todo Change if we want to support remote locations.
+    return QUrl::fromLocalFile(mUrl->text());
+}
+
 /*!
 	Returns true if the currently selected engine supports to customize
 	exported attributes and the user has asked to do so.
@@ -228,7 +242,8 @@ void MvdExportStartPage::browseForUrl()
 	mLastDir = info.absolutePath();
 
 	QString filter = e.urlFilter;
-	QString filename = QFileDialog::getSaveFileName(this, MVD_CAPTION, mLastDir, filter);
+	QString filename = QFileDialog::getSaveFileName(this, MVD_CAPTION, 
+        mLastDir, filter, 0, QFileDialog::DontUseNativeDialog);
 	if (filename.isEmpty())
 		return;
 

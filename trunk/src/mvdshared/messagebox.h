@@ -21,9 +21,10 @@
 #ifndef MVD_MESSAGEBOX_H
 #define MVD_MESSAGEBOX_H
 
+#include "sharedglobal.h"
 #include <QMessageBox>
 
-class MvdMessageBox : public QMessageBox
+class MVD_EXPORT_SHARED MvdMessageBox : public QMessageBox
 {
     Q_OBJECT
 
