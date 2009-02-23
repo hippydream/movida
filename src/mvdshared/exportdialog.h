@@ -57,8 +57,9 @@ public:
 		ExportCollection
 	};
 
-	struct ExportOptions {
+	struct ExportRequest {
 		ExportType type;
+        QUrl url;
 	};
 
 	MvdExportDialog(QWidget* parent = 0);
@@ -91,7 +92,7 @@ protected:
 
 signals:
 	void engineConfigurationRequest(int engine);
-	void exportRequest(int engine, const MvdExportDialog::ExportOptions& options);
+	void exportRequest(int engine, const MvdExportDialog::ExportRequest& request);
 	void resetRequest();
 
 private slots:

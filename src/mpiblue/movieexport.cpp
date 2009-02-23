@@ -52,8 +52,8 @@ void MpiMovieExport::run()
 {
 	mExportDialog = new MvdExportDialog(qobject_cast<QWidget*>(parent()));
 	
-	connect( mExportDialog, SIGNAL(exportRequest(int,MvdExportDialog::ExportOptions)),
-		this, SLOT(exportRequest(int,MvdExportDialog::ExportOptions)) );
+	connect( mExportDialog, SIGNAL(exportRequest(int,MvdExportDialog::ExportRequest)),
+		this, SLOT(exportRequest(int,MvdExportDialog::ExportRequest)) );
 	connect( mExportDialog, SIGNAL(engineConfigurationRequest(int)),
 		this, SLOT(engineConfigurationRequest(int)) );
 	/*connect( mExportDialog, SIGNAL(resetRequest()),
@@ -73,9 +73,23 @@ void MpiMovieExport::run()
 	mExportDialog->exec();
 }
 
-void MpiMovieExport::exportRequest(int engine, const MvdExportDialog::ExportOptions& opt)
+void MpiMovieExport::exportRequest(int engineId, const MvdExportDialog::ExportRequest& req)
 {
-	qDebug("Export %d", engine);
+    enum ExportEngine { CsvEngine, MovidaXmlEngine } engine;
+    if (engineId == mCsvEngineId)
+        engine = CsvEngine;
+    else if (engineId == mMovidaXmlEngineId)
+        engine = MovidaXmlEngine;
+    else Q_ASSERT_X(0, "MpiMovieExport::exportRequest()", "Internal Error.");
+
+	QString filename = req.url.toLocalFile();
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        mExportDialog->done(MvdExportDialog::CriticalError);
+        return;
+    }
+
+    mExportDialog->done(MvdExportDialog::Success);
 }
 
 void MpiMovieExport::engineConfigurationRequest(int engine)

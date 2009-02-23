@@ -51,6 +51,9 @@ public:
 	MvdExportEngine currentEngine() const;
 	MvdExportEngine::EngineOptions currentEngineOptions() const;
 
+    MvdExportDialog::ExportType exportType() const;
+    QUrl exportUrl() const;
+
 	bool configStepRequired() const;
 
 	virtual bool isComplete() const;

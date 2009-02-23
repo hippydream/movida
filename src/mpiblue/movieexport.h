@@ -35,7 +35,7 @@ public:
 	void run();
 
 private slots:
-	void exportRequest(int engine, const MvdExportDialog::ExportOptions& opt);
+	void exportRequest(int engine, const MvdExportDialog::ExportRequest& req);
 	void engineConfigurationRequest(int engine);
 	void customCsvSeparatorTriggered();
 

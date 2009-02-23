@@ -24,6 +24,7 @@
 #include "mvdcore/core.h"
 #include "mvdcore/plugininterface.h"
 #include "mvdcore/settings.h"
+#include <QFileInfo>
 #include <QPushButton>
 #include <QKeyEvent>
 #include <QMessageBox>
@@ -114,8 +115,7 @@ int MvdExportDialog::nextId() const
 	This should be called only after the handler has finished handling a request.
 	
 	The use of multiple handlers and thus multiple calls to the done() method
-	for the same request (i.e. after the searchRequest() signal and before the
-	importRequest() signal) leads to undefined behavior!
+	for the same request leads to undefined behavior!
 */
 void MvdExportDialog::done(Result res)
 {
@@ -186,7 +186,17 @@ void MvdExportDialog::pageChanged(int id)
 	break;
 	case Private::FinalPage:
 	{
-		
+		ExportRequest req;
+        req.type = d->startPage->exportType();
+        req.url = d->startPage->exportUrl();
+
+        QString filename = d->startPage->exportUrl().toLocalFile();
+        QFileInfo info(filename);
+        if (info.exists()) {
+            //MvdMessageBox::warning(tr("%1 already exists.\nDo you want to replace it?")
+        }
+        d->finalPage->setBusyStatus(true);
+        emit exportRequest(d->startPage->currentEngineId(), req);
 	}
 	break;
 	default: ;
@@ -265,12 +275,12 @@ bool MvdExportDialog::confirmCloseWizard()
 			return true;
 		msg = tr("Are you sure you want to close the wizard?");
 	} else {
-		/*switch (currentId()) {
-		case Private::ResultsPage: msg = tr("Movida is still searching for your query. Are you sure you want to close the wizard?"); break;
-		case Private::SummaryPage: msg = tr("Movida is still downloading the movie details. Are you sure you want to close the wizard?"); break;
-		case Private::FinalPage: msg = tr("Movida is still importing your new movies. Are you sure you want to close the wizard?"); break;
+		switch (currentId()) {
+		//case Private::ResultsPage: msg = tr("Movida is still searching for your query. Are you sure you want to close the wizard?"); break;
+		//case Private::SummaryPage: msg = tr("Movida is still downloading the movie details. Are you sure you want to close the wizard?"); break;
+		case Private::FinalPage: msg = tr("Movida is still exporting your movies. Are you sure you want to close the wizard?"); break;
 		default: msg = tr("An operation is still in progress. Are you sure you want to close the wizard?");
-		}*/
+		}
 	}
 
 	return QMessageBox::question(this, MVD_CAPTION, msg, QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
