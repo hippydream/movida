@@ -70,7 +70,7 @@ bool MpiBlue::init()
 {
 	settings().setDefaultValue("plugins/blue/disableBundledEngines", false);
 	loadEngines();
-	return true;
+	return !mEngines.isEmpty();
 }
 
 void MpiBlue::unload()
@@ -328,7 +328,20 @@ void MpiBlue::loadEnginesFromFile(const QString& path)
 //!
 bool MpiBlue::isValidEngine(const Engine& engine) const
 {
-	if (MvdCore::locateApplication(engine.interpreter).isEmpty())
+    typedef QHash<QString, QString> PathCache;
+    static PathCache interpreterPaths;
+
+    QString interpreterPath;
+    PathCache::Iterator it = interpreterPaths.find(engine.interpreter);
+    if (it == interpreterPaths.end()) {
+        interpreterPath = MvdCore::locateApplication(engine.interpreter);
+        interpreterPaths.insert(engine.interpreter, interpreterPath);
+        if (interpreterPath.isEmpty())
+            wLog() << QString("MpiBlue: Failed to locate '%1' interpreter.")
+                .arg(engine.interpreter);
+    } else interpreterPath = it.value();
+
+    if (interpreterPath.isEmpty())
 		return false;
 	if (engine.searchUrl.isEmpty())
 		return false;

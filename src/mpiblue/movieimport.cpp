@@ -261,11 +261,13 @@ void MpiMovieImport::search(const QString& query, int engineId)
 			// copy the file to the user's script directory
 			path.append(engine->resultsScript);
 			QFile::remove(path);
-			if (!mTempFile->rename(path)) {
-				wLog() << "MpiMovieImport: Failed to save results script file:" << path;
+            QString tempFilePath = mTempFile->fileName();
+            deleteTemporaryFile(&mTempFile, false);
+            if (!QFile::rename(tempFilePath, path)) {
+				wLog() << "MpiMovieImport: Failed to save results script file: " << path;
 				engine->scriptsFetched = true;
 				MpiBlue::setScriptPaths(engine);
-				deleteTemporaryFile(&mTempFile, true);
+                QFile::remove(tempFilePath);
 				performSearch(query, engine, engineId);
 				return;
 			} else {
@@ -276,7 +278,8 @@ void MpiMovieImport::search(const QString& query, int engineId)
 			}
 		} else iLog() << "MpiMovieImport: No updated results script found.";
 
-		deleteTemporaryFile(&mTempFile, true);
+		if (mTempFile)
+            deleteTemporaryFile(&mTempFile, true);
 
 		mTempFile = createTemporaryFile(); // Logs errors and calls mImportDialog->setImportResult()
 		if (!mTempFile)
@@ -332,11 +335,13 @@ void MpiMovieImport::search(const QString& query, int engineId)
 			// copy the file to the user's script directory
 			path.append(engine->importScript);
 			QFile::remove(path);
-			if (!mTempFile->rename(path)) {
-				wLog() << "MpiMovieImport: Failed to save import script file:" << path;
+            QString tempFilePath = mTempFile->fileName();
+            deleteTemporaryFile(&mTempFile, false);
+			if (!QFile::rename(tempFilePath, path)) {
+				wLog() << "MpiMovieImport: Failed to save import script file: " << path;
 				engine->scriptsFetched = true;
 				MpiBlue::setScriptPaths(engine);
-				deleteTemporaryFile(&mTempFile, true);
+				QFile::remove(tempFilePath);
 				performSearch(query, engine, engineId);
 				return;
 			} else {
@@ -347,7 +352,8 @@ void MpiMovieImport::search(const QString& query, int engineId)
 			}
 		} else iLog() << "MpiMovieImport: No updated import script found.";
 
-		deleteTemporaryFile(&mTempFile, true);
+        if (mTempFile)
+		    deleteTemporaryFile(&mTempFile, true);
 
 		mCurrentState = FetchingResultsState;
 
@@ -362,6 +368,15 @@ void MpiMovieImport::search(const QString& query, int engineId)
 void MpiMovieImport::performSearch(const QString& query, MpiBlue::Engine* engine, int engineId)
 {
 	Q_ASSERT(engine && !mTempFile);
+
+    if (engine->importScript.isEmpty() ||
+        engine->resultsScript.isEmpty() ||
+        engine->resultsScript.isEmpty()) {
+        eLog() << "MpiMovieImport: Scripts not found.";
+        mImportDialog->setErrorType(MvdImportDialog::InvalidEngineError);
+        mImportDialog->done(MvdImportDialog::CriticalError);
+        return;
+    }
 
 	mImportDialog->setNextSearchStep(); // Step 1
 	mImportDialog->showMessage(tr("All scripts updated. Sending query."));
