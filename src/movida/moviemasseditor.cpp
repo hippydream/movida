@@ -28,168 +28,168 @@
 #include <QMessageBox>
 
 /*!
-	\class MvdMovieMassEditor moviemasseditor.h
-	\ingroup Movida
+        \class MvdMovieMassEditor moviemasseditor.h
+        \ingroup Movida
 
-	\brief Convenience widget for editing multiple movies at once.
+        \brief Convenience widget for editing multiple movies at once.
 */
 
 
 /*!
-	Creates a new dialog.
+        Creates a new dialog.
 */
 MvdMovieMassEditor::MvdMovieMassEditor(MvdMovieCollection* c, QWidget* parent)
 : QDialog(parent), mCollection(c)
 {
-	setupUi(this);
+        setupUi(this);
 
-	//! \todo set a better title (and update on setMovie() or title editing)
-	setWindowTitle(tr("movida movie mass editor"));
+        //! \todo set a better title (and update on setMovie() or title editing)
+        setWindowTitle(tr("movida movie mass editor"));
 
-	Ui::MvdMovieMassEditor::ratingLabel->setIcon( QIcon(":/images/rating.svgz") );
-	Ui::MvdMovieMassEditor::markAsSeen->setIcon(QIcon(":/images/seen.svgz"));
-	Ui::MvdMovieMassEditor::markAsSpecial->setIcon(QIcon(":/images/special.svgz"));
-	Ui::MvdMovieMassEditor::markAsLoaned->setIcon(QIcon(":/images/loaned.svgz"));
+        Ui::MvdMovieMassEditor::ratingLabel->setIcon( QIcon(":/images/rating.svgz") );
+        Ui::MvdMovieMassEditor::markAsSeen->setIcon(QIcon(":/images/seen.svgz"));
+        Ui::MvdMovieMassEditor::markAsSpecial->setIcon(QIcon(":/images/special.svgz"));
+        Ui::MvdMovieMassEditor::markAsLoaned->setIcon(QIcon(":/images/loaned.svgz"));
 
-	quint8 maxRating = MvdCore::parameter("mvdcore/max-rating").toUInt();
-	Ui::MvdMovieMassEditor::ratingLabel->setMaximum(maxRating);
+        quint8 maxRating = MvdCore::parameter("mvdcore/max-rating").toUInt();
+        Ui::MvdMovieMassEditor::ratingLabel->setMaximum(maxRating);
 
-	ratingHovered(-1);
+        ratingHovered(-1);
 
-	connect (Ui::MvdMovieMassEditor::ratingStatus, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
-	connect (Ui::MvdMovieMassEditor::ratingLabel, SIGNAL(hovered(int)), this, SLOT(ratingHovered(int)) );
+        connect (Ui::MvdMovieMassEditor::ratingStatus, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
+        connect (Ui::MvdMovieMassEditor::ratingLabel, SIGNAL(hovered(int)), this, SLOT(ratingHovered(int)) );
 
-	connect( Ui::MvdMovieMassEditor::buttonBox, SIGNAL(rejected()), this, SLOT(cancelTriggered()) );
-	connect( Ui::MvdMovieMassEditor::buttonBox, SIGNAL(accepted()), this, SLOT(storeTriggered()) );
+        connect( Ui::MvdMovieMassEditor::buttonBox, SIGNAL(rejected()), this, SLOT(cancelTriggered()) );
+        connect( Ui::MvdMovieMassEditor::buttonBox, SIGNAL(accepted()), this, SLOT(storeTriggered()) );
 
-	connect( Ui::MvdMovieMassEditor::cbStorageID, SIGNAL(toggled(bool)), this, SLOT(updateUi()) );
+        connect( Ui::MvdMovieMassEditor::cbStorageID, SIGNAL(toggled(bool)), this, SLOT(updateUi()) );
 }
 
 /*!
-	Sets the movies to be edited.
-	Only few movie attributes allow for mass editing, e.g. the storage ID or the
-	"mark as" flags. This method will attempt to populate the GUI with significant
-	default values for every attribute.
+        Sets the movies to be edited.
+        Only few movie attributes allow for mass editing, e.g. the storage ID or the
+        "mark as" flags. This method will attempt to populate the GUI with significant
+        default values for every attribute.
 */
 bool MvdMovieMassEditor::setMovies(const QList<mvdid>& ids)
 {
-	if (mCollection == 0)
-		return false;
+        if (mCollection == 0)
+                return false;
 
-	Ui::MvdMovieMassEditor::markAsLoaned->setCheckState(Qt::PartiallyChecked);
-	Ui::MvdMovieMassEditor::markAsSeen->setCheckState(Qt::PartiallyChecked);
-	Ui::MvdMovieMassEditor::markAsSpecial->setCheckState(Qt::PartiallyChecked);
+        Ui::MvdMovieMassEditor::markAsLoaned->setCheckState(Qt::PartiallyChecked);
+        Ui::MvdMovieMassEditor::markAsSeen->setCheckState(Qt::PartiallyChecked);
+        Ui::MvdMovieMassEditor::markAsSpecial->setCheckState(Qt::PartiallyChecked);
 
-	foreach (mvdid id, ids) {
-		MvdMovie movie = mCollection->movie(id);
-		QString sid = movie.storageId();
-		if (!sid.isEmpty() && Ui::MvdMovieMassEditor::storageID->text().isEmpty())
-			Ui::MvdMovieMassEditor::storageID->setText(sid);
-		quint8 rat = movie.rating();
-		if (rat && !Ui::MvdMovieMassEditor::ratingLabel->value())
-			Ui::MvdMovieMassEditor::ratingLabel->setValue(rat);
-	}
+        foreach (mvdid id, ids) {
+                MvdMovie movie = mCollection->movie(id);
+                QString sid = movie.storageId();
+                if (!sid.isEmpty() && Ui::MvdMovieMassEditor::storageID->text().isEmpty())
+                        Ui::MvdMovieMassEditor::storageID->setText(sid);
+                quint8 rat = movie.rating();
+                if (rat && !Ui::MvdMovieMassEditor::ratingLabel->value())
+                        Ui::MvdMovieMassEditor::ratingLabel->setValue(rat);
+        }
 
-	mMovieIds= ids;
-	return true;
+        mMovieIds= ids;
+        return true;
 }
 
 void MvdMovieMassEditor::cancelTriggered()
 {
-	reject();
+        reject();
 }
 
 //! \internal \todo Handle ESC key
 void MvdMovieMassEditor::closeEvent(QCloseEvent* e)
 {
-	reject();
-	e->accept();
+        reject();
+        e->accept();
 }
 
 void MvdMovieMassEditor::storeTriggered()
 {
-	if (mCollection == 0)
-		return;
+        if (mCollection == 0)
+                return;
 
-	if (!storeMovies())
-		return;
+        if (!storeMovies())
+                return;
 
-	accept();
+        accept();
 }
 
 //! \internal Simply stores the changes made to the movies.
 bool MvdMovieMassEditor::storeMovies()
 {
-	foreach (mvdid id, mMovieIds) {
-		MvdMovie movie = mCollection->movie(id);
-		if (!movie.isValid())
-			continue;
-		
-		bool m = false;
+        foreach (mvdid id, mMovieIds) {
+                MvdMovie movie = mCollection->movie(id);
+                if (!movie.isValid())
+                        continue;
 
-		if (Ui::MvdMovieMassEditor::cbStorageID->isChecked()) {
-			movie.setStorageId(Ui::MvdMovieMassEditor::storageID->text());
-			m = true;
-		}
-		if (Ui::MvdMovieMassEditor::ratingBox->isChecked()) {
-			movie.setRating(Ui::MvdMovieMassEditor::ratingLabel->value());
-			m = true;
-		}
-		if (Ui::MvdMovieMassEditor::markAsLoaned->checkState() != Qt::PartiallyChecked) {
-			movie.setSpecialTagEnabled(MvdMovie::LoanedTag, Ui::MvdMovieMassEditor::markAsLoaned->isChecked());
-			m = true;
-		}
-		if (Ui::MvdMovieMassEditor::markAsSeen->checkState() != Qt::PartiallyChecked) {
-			movie.setSpecialTagEnabled(MvdMovie::SeenTag, Ui::MvdMovieMassEditor::markAsSeen->isChecked());
-			m = true;
-		}
-		if (Ui::MvdMovieMassEditor::markAsSpecial->checkState() != Qt::PartiallyChecked) {
-			movie.setSpecialTagEnabled(MvdMovie::SpecialTag, Ui::MvdMovieMassEditor::markAsSpecial->isChecked());
-			m = true;
-		}
+                bool m = false;
 
-		if (m)
-			mCollection->updateMovie(id, movie);
-	}
-	
-	return true;
+                if (Ui::MvdMovieMassEditor::cbStorageID->isChecked()) {
+                        movie.setStorageId(Ui::MvdMovieMassEditor::storageID->text());
+                        m = true;
+                }
+                if (Ui::MvdMovieMassEditor::ratingBox->isChecked()) {
+                        movie.setRating(Ui::MvdMovieMassEditor::ratingLabel->value());
+                        m = true;
+                }
+                if (Ui::MvdMovieMassEditor::markAsLoaned->checkState() != Qt::PartiallyChecked) {
+                        movie.setSpecialTagEnabled(Movida::LoanedTag, Ui::MvdMovieMassEditor::markAsLoaned->isChecked());
+                        m = true;
+                }
+                if (Ui::MvdMovieMassEditor::markAsSeen->checkState() != Qt::PartiallyChecked) {
+                        movie.setSpecialTagEnabled(Movida::SeenTag, Ui::MvdMovieMassEditor::markAsSeen->isChecked());
+                        m = true;
+                }
+                if (Ui::MvdMovieMassEditor::markAsSpecial->checkState() != Qt::PartiallyChecked) {
+                        movie.setSpecialTagEnabled(Movida::SpecialTag, Ui::MvdMovieMassEditor::markAsSpecial->isChecked());
+                        m = true;
+                }
+
+                if (m)
+                        mCollection->updateMovie(id, movie);
+        }
+
+        return true;
 }
 
 //! \internal
 void MvdMovieMassEditor::linkActivated(const QString& url)
 {
-	MvdActionUrl a = MvdCore::parseActionUrl(url);
-	if (!a.isValid())
-		return;
+        MvdActionUrl a = MvdCore::parseActionUrl(url);
+        if (!a.isValid())
+                return;
 
-	if (a.action == "clear")
-	{
-		if (a.parameter == "rating")
-		{
-			ratingLabel->setValue(0);
-			// Update status text
-			ratingHovered(-1);
-		}
-	}
+        if (a.action == "clear")
+        {
+                if (a.parameter == "rating")
+                {
+                        ratingLabel->setValue(0);
+                        // Update status text
+                        ratingHovered(-1);
+                }
+        }
 }
 
 void MvdMovieMassEditor::ratingHovered(int rating)
 {
-	switch (rating)
-	{
-	case 1: ratingStatus->setText(QString("1 - %1.").arg(MvdMovie::ratingTip(rating))); break;
-	case 2: ratingStatus->setText(QString("2 - %1.").arg(MvdMovie::ratingTip(rating))); break;
-	case 3: ratingStatus->setText(QString("3 - %1.").arg(MvdMovie::ratingTip(rating))); break;
-	case 4: ratingStatus->setText(QString("4 - %1.").arg(MvdMovie::ratingTip(rating))); break;
-	case 5: ratingStatus->setText(QString("5 - %1.").arg(MvdMovie::ratingTip(rating))); break;
-	default: 
-		ratingLabel->value() ? 
-			ratingStatus->setText(tr("Click to set the desired rating or <a href='movida://clear/rating'>click here</a> to clear it.")) :
-			ratingStatus->setText(tr("Click to set the desired rating."));
-	}
+        switch (rating)
+        {
+        case 1: ratingStatus->setText(QString("1 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+        case 2: ratingStatus->setText(QString("2 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+        case 3: ratingStatus->setText(QString("3 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+        case 4: ratingStatus->setText(QString("4 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+        case 5: ratingStatus->setText(QString("5 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+        default:
+                ratingLabel->value() ?
+                        ratingStatus->setText(tr("Click to set the desired rating or <a href='movida://clear/rating'>click here</a> to clear it.")) :
+                        ratingStatus->setText(tr("Click to set the desired rating."));
+        }
 }
 
 void MvdMovieMassEditor::updateUi()
 {
-	Ui::MvdMovieMassEditor::storageID->setEnabled(Ui::MvdMovieMassEditor::cbStorageID->isChecked());
+        Ui::MvdMovieMassEditor::storageID->setEnabled(Ui::MvdMovieMassEditor::cbStorageID->isChecked());
 }

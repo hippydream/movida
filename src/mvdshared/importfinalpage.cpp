@@ -131,10 +131,10 @@ void MvdImportFinalPage::initializePageInternal()
 			msg = tr("Sorry but no movie can be imported because of a system error.\n\nRebooting the computer could solve it. If it fails, please contact the developers using the 'Report error' tool in the 'Help' menu.");
 			break;
 		case MvdImportDialog::EngineError:
-			msg = tr("Sorry but no movie can be imported because of a problem with the selected search engine.\n\nReinstalling the plugin or the engine could solve the problem.");
+			msg = tr("Sorry but no movie can be imported because of a problem with the selected search engine.\n\nUpdating and reinstalling the plugin or the engine could solve the problem.");
 			break;
 		case MvdImportDialog::InvalidEngineError:
-			msg = tr("Sorry but no movie can be imported because the selected search engine is not valid.\n\nReinstalling the plugin or the engine could solve the problem.");
+			msg = tr("Sorry but no movie can be imported because the selected search engine is not valid.\n\nUpdating and reinstalling the plugin or the engine could solve the problem.");
 			break;
 		default:
 			msg = tr("Sorry but no movie can be imported because of an internal error.\n\nIf you think it might be an application error, please contact the developers using the 'Report error' tool in the 'Help' menu.");

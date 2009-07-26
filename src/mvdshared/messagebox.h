@@ -29,6 +29,12 @@ class MVD_EXPORT_SHARED MvdMessageBox : public QMessageBox
     Q_OBJECT
 
 public:
+    explicit MvdMessageBox(QWidget *parent = 0);
+    MvdMessageBox(Icon icon, const QString &title, const QString &text,
+        StandardButtons buttons = NoButton, QWidget *parent = 0,
+        Qt::WindowFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+    ~MvdMessageBox();
+
     static StandardButton critical(QWidget* parent, const QString& title,
         const QString& text, StandardButtons buttons = Ok,
         StandardButton defaultButton = NoButton);

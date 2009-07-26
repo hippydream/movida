@@ -32,438 +32,438 @@
 #include <QTimer>
 
 /*!
-	\class MvdMainInfoPage maininfopage.h
-	\ingroup Movida
+        \class MvdMainInfoPage maininfopage.h
+        \ingroup Movida
 
-	\brief Main movie info widget for movie editing dialog.
+        \brief Main movie info widget for movie editing dialog.
 */
 
 /*!
-	Creates a new page.
+        Creates a new page.
 */
 MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent)
 : MvdMovieEditorPage(c, parent), mDefaultRunningTime(0), mDefaultRating(0),
 mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
 {
-	setupUi(this);
+        setupUi(this);
 
-	int w = MvdCore::parameter("movida/poster-default-width").toInt();
-	qreal ar = MvdCore::parameter("movida/poster-aspect-ratio").toDouble();
-	int h = int(w / ar);
-	Ui::MvdMainInfoPage::poster->setFixedSize(w, h);
+        int w = MvdCore::parameter("movida/poster-default-width").toInt();
+        qreal ar = MvdCore::parameter("movida/poster-aspect-ratio").toDouble();
+        int h = int(w / ar);
+        Ui::MvdMainInfoPage::poster->setFixedSize(w, h);
 
-	Ui::MvdMainInfoPage::ratingLabel->setIcon( QIcon(":/images/rating.svgz") );
-	
-	quint8 maxRating = MvdCore::parameter("mvdcore/max-rating").toUInt();
-	quint16 maxRuntime = MvdCore::parameter("mvdcore/max-running-time").toUInt();
+        Ui::MvdMainInfoPage::ratingLabel->setIcon( QIcon(":/images/rating.svgz") );
 
-	Ui::MvdMainInfoPage::ratingLabel->setMaximum(maxRating);
+        quint8 maxRating = MvdCore::parameter("mvdcore/max-rating").toUInt();
+        quint16 maxRuntime = MvdCore::parameter("mvdcore/max-running-time").toUInt();
 
-	Ui::MvdMainInfoPage::lengthMinutes->setMaximum(maxRuntime);
-	Ui::MvdMainInfoPage::lengthMinutes->setMinimum(0);
-	Ui::MvdMainInfoPage::lengthMinutes->setSpecialValueText("-");
-	Ui::MvdMainInfoPage::lengthMinutes->setSuffix(tr("min", "Running time minutes suffix"));
+        Ui::MvdMainInfoPage::ratingLabel->setMaximum(maxRating);
 
-	QDate date = QDate::currentDate();
+        Ui::MvdMainInfoPage::lengthMinutes->setMaximum(maxRuntime);
+        Ui::MvdMainInfoPage::lengthMinutes->setMinimum(0);
+        Ui::MvdMainInfoPage::lengthMinutes->setSpecialValueText("-");
+        Ui::MvdMainInfoPage::lengthMinutes->setSuffix(tr("min", "Running time minutes suffix"));
 
-	int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
+        QDate date = QDate::currentDate();
 
-	mDefaultYear = minYear;
+        int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
 
-	Ui::MvdMainInfoPage::year->setMinimum(minYear);
-	Ui::MvdMainInfoPage::year->setMaximum(date.year());
-	Ui::MvdMainInfoPage::year->setSpecialValueText("-");
+        mDefaultYear = minYear;
 
-	ratingHovered(-1);
-	setMoviePoster();
+        Ui::MvdMainInfoPage::year->setMinimum(minYear);
+        Ui::MvdMainInfoPage::year->setMaximum(date.year());
+        Ui::MvdMainInfoPage::year->setSpecialValueText("-");
 
-	//! \todo Use better icons for poster buttons
-	QIcon setPosterIcon(":/images/edit-add.svgz");
-	QIcon remPosterIcon(":/images/edit-delete.svgz");
+        ratingHovered(-1);
+        setMoviePoster();
 
-	setPosterButton->setToolTip(tr("Set movie poster."));
-	setPosterButton->setIcon(setPosterIcon);
-	setPosterButton->setIconSize(QSize(16, 16));
-	setPosterButton->setCursor(Qt::PointingHandCursor);
-	setPosterButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
+        //! \todo Use better icons for poster buttons
+        QIcon setPosterIcon(":/images/edit-add.svgz");
+        QIcon remPosterIcon(":/images/edit-delete.svgz");
 
-	removePosterButton->setToolTip(tr("Remove movie poster."));
-	removePosterButton->setIcon(remPosterIcon);
-	removePosterButton->setIconSize(QSize(16, 16));
-	removePosterButton->setCursor(Qt::PointingHandCursor);
-	removePosterButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
-	removePosterButton->setEnabled(false);
+        setPosterButton->setToolTip(tr("Set movie poster."));
+        setPosterButton->setIcon(setPosterIcon);
+        setPosterButton->setIconSize(QSize(16, 16));
+        setPosterButton->setCursor(Qt::PointingHandCursor);
+        setPosterButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
+
+        removePosterButton->setToolTip(tr("Remove movie poster."));
+        removePosterButton->setIcon(remPosterIcon);
+        removePosterButton->setIconSize(QSize(16, 16));
+        removePosterButton->setCursor(Qt::PointingHandCursor);
+        removePosterButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
+        removePosterButton->setEnabled(false);
 
 
-	markAsSeen->setIcon(QIcon(":/images/seen.svgz"));
-	markAsSpecial->setIcon(QIcon(":/images/special.svgz"));
-	markAsLoaned->setIcon(QIcon(":/images/loaned.svgz"));
+        markAsSeen->setIcon(QIcon(":/images/seen.svgz"));
+        markAsSpecial->setIcon(QIcon(":/images/special.svgz"));
+        markAsLoaned->setIcon(QIcon(":/images/loaned.svgz"));
 
-	// Set max length for line edits
-	int maxInputLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
-	Ui::MvdMainInfoPage::title->setMaxLength(maxInputLength);
-	Ui::MvdMainInfoPage::originalTitle->setMaxLength(maxInputLength);
-	Ui::MvdMainInfoPage::storageID->setMaxLength(maxInputLength);
+        // Set max length for line edits
+        int maxInputLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
+        Ui::MvdMainInfoPage::title->setMaxLength(maxInputLength);
+        Ui::MvdMainInfoPage::originalTitle->setMaxLength(maxInputLength);
+        Ui::MvdMainInfoPage::storageID->setMaxLength(maxInputLength);
 
-	connect (Ui::MvdMainInfoPage::ratingStatus, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
-	connect (Ui::MvdMainInfoPage::ratingLabel, SIGNAL(hovered(int)), this, SLOT(ratingHovered(int)) );
-	connect (Ui::MvdMainInfoPage::poster, SIGNAL(clicked()), this, SLOT(selectMoviePoster()) );
-	connect (Ui::MvdMainInfoPage::setPosterButton, SIGNAL(clicked()), this, SLOT(selectMoviePoster()) );
-	connect (Ui::MvdMainInfoPage::removePosterButton, SIGNAL(clicked()), this, SLOT(setMoviePoster()) );
+        connect (Ui::MvdMainInfoPage::ratingStatus, SIGNAL(linkActivated(const QString&)), this, SLOT(linkActivated(const QString&)) );
+        connect (Ui::MvdMainInfoPage::ratingLabel, SIGNAL(hovered(int)), this, SLOT(ratingHovered(int)) );
+        connect (Ui::MvdMainInfoPage::poster, SIGNAL(clicked()), this, SLOT(selectMoviePoster()) );
+        connect (Ui::MvdMainInfoPage::setPosterButton, SIGNAL(clicked()), this, SLOT(selectMoviePoster()) );
+        connect (Ui::MvdMainInfoPage::removePosterButton, SIGNAL(clicked()), this, SLOT(setMoviePoster()) );
 
-	connect (Ui::MvdMainInfoPage::title, SIGNAL(textEdited(const QString&)), this, SLOT(validate()) );
-	connect (Ui::MvdMainInfoPage::originalTitle, SIGNAL(textEdited(const QString&)), this, SLOT(validate()) );
+        connect (Ui::MvdMainInfoPage::title, SIGNAL(textEdited(const QString&)), this, SLOT(validate()) );
+        connect (Ui::MvdMainInfoPage::originalTitle, SIGNAL(textEdited(const QString&)), this, SLOT(validate()) );
 
-	connect (Ui::MvdMainInfoPage::title, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::originalTitle, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::storageID, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::year, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::lengthMinutes, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::ratingLabel, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::markAsSeen, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::markAsSpecial, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
-	connect (Ui::MvdMainInfoPage::markAsLoaned, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
+        connect (Ui::MvdMainInfoPage::title, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
+        connect (Ui::MvdMainInfoPage::originalTitle, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
+        connect (Ui::MvdMainInfoPage::storageID, SIGNAL(textEdited(QString)), this, SLOT(updateModifiedStatus()) );
+        connect (Ui::MvdMainInfoPage::year, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
+        connect (Ui::MvdMainInfoPage::lengthMinutes, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
+        connect (Ui::MvdMainInfoPage::ratingLabel, SIGNAL(valueChanged(int)), this, SLOT(updateModifiedStatus()) );
+        connect (Ui::MvdMainInfoPage::markAsSeen, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
+        connect (Ui::MvdMainInfoPage::markAsSpecial, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
+        connect (Ui::MvdMainInfoPage::markAsLoaned, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
 
-	Ui::MvdMainInfoPage::poster->setDragAndDropHandler(this, "posterDragEntered", "posterDropped", "resetPosterStatus");
+        Ui::MvdMainInfoPage::poster->setDragAndDropHandler(this, "posterDragEntered", "posterDropped", "resetPosterStatus");
 
-	mStatusTimer->setSingleShot(true);
-	connect(mStatusTimer, SIGNAL(timeout()), this, SLOT(statusTimeout()));
+        mStatusTimer->setSingleShot(true);
+        connect(mStatusTimer, SIGNAL(timeout()), this, SLOT(statusTimeout()));
 
-	setValid(true);
-	validate();
+        setValid(true);
+        validate();
 }
 
 /*!
-	Returns the title to be used for this page.
+        Returns the title to be used for this page.
 */
 QString MvdMainInfoPage::label()
 {
-	return tr("Main info");
+        return tr("Main info");
 }
 
 /*!
-	Returns the icon to be used for this page.
+        Returns the icon to be used for this page.
 */
 QIcon MvdMainInfoPage::icon()
 {
-	return QIcon();
+        return QIcon();
 }
 
 /*!
-	Sets data from a single movie.
+        Sets data from a single movie.
 */
 void MvdMainInfoPage::setMovieImpl(const MvdMovie& movie)
-{	
-	//! \todo handle change line edit bgcolor if o_title is set from loc_title
+{
+        //! \todo handle change line edit bgcolor if o_title is set from loc_title
 
-	mDefaultTitle = movie.title();
-	title->setText(mDefaultTitle);
-	mDefaultOriginalTitle = movie.originalTitle();
-	originalTitle->setText(mDefaultOriginalTitle);
-	mDefaultStorageId = movie.storageId();
-	storageID->setText(mDefaultStorageId);
+        mDefaultTitle = movie.title();
+        title->setText(mDefaultTitle);
+        mDefaultOriginalTitle = movie.originalTitle();
+        originalTitle->setText(mDefaultOriginalTitle);
+        mDefaultStorageId = movie.storageId();
+        storageID->setText(mDefaultStorageId);
 
-	markAsSeen->setChecked(movie.hasSpecialTagEnabled(MvdMovie::SeenTag));
-	markAsSpecial->setChecked(movie.hasSpecialTagEnabled(MvdMovie::SpecialTag));
-	markAsLoaned->setChecked(movie.hasSpecialTagEnabled(MvdMovie::LoanedTag));
-	mDefaultSpecialTags = movie.specialTags();
-	
-	int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
+        markAsSeen->setChecked(movie.hasSpecialTagEnabled(Movida::SeenTag));
+        markAsSpecial->setChecked(movie.hasSpecialTagEnabled(Movida::SpecialTag));
+        markAsLoaned->setChecked(movie.hasSpecialTagEnabled(Movida::LoanedTag));
+        mDefaultSpecialTags = movie.specialTags();
 
-	QString s = movie.year();
-	mDefaultYear = s.isEmpty() ? minYear : s.toUShort();
-	year->setValue(mDefaultYear);
+        int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
 
-	mDefaultRunningTime = movie.runningTime();
-	lengthMinutes->setValue(mDefaultRunningTime);
+        QString s = movie.year();
+        mDefaultYear = s.isEmpty() ? minYear : s.toUShort();
+        year->setValue(mDefaultYear);
 
-	mDefaultRating = movie.rating();
-	ratingLabel->setValue(mDefaultRating);
+        mDefaultRunningTime = movie.runningTime();
+        lengthMinutes->setValue(mDefaultRunningTime);
 
-	// Set the appropriate status text.
-	ratingHovered(-1);
+        mDefaultRating = movie.rating();
+        ratingLabel->setValue(mDefaultRating);
 
-	mDefaultPoster = movie.poster();
+        // Set the appropriate status text.
+        ratingHovered(-1);
 
-	if (mDefaultPoster.isEmpty())
-		setMoviePoster();
-	else setMoviePoster(mCollection->metaData(MvdMovieCollection::DataPathInfo).append("/images/").append(mDefaultPoster));
+        mDefaultPoster = movie.poster();
 
-	validate();
-	setModified(false);
+        if (mDefaultPoster.isEmpty())
+                setMoviePoster();
+        else setMoviePoster(mCollection->metaData(MvdMovieCollection::DataPathInfo).append("/images/").append(mDefaultPoster));
+
+        validate();
+        setModified(false);
 }
 
 bool MvdMainInfoPage::store(MvdMovie& movie)
 {
-	if (title->text().isEmpty() && originalTitle->text().isEmpty())
-	{
-		QMessageBox::warning(this, MVD_CAPTION, tr("Please specify a title for this movie."));
-		if (title->text().isEmpty())
-			title->setFocus(Qt::OtherFocusReason);
-		else originalTitle->setFocus(Qt::OtherFocusReason);
-		return false;
-	}
+        if (title->text().isEmpty() && originalTitle->text().isEmpty())
+        {
+                QMessageBox::warning(this, MVD_CAPTION, tr("Please specify a title for this movie."));
+                if (title->text().isEmpty())
+                        title->setFocus(Qt::OtherFocusReason);
+                else originalTitle->setFocus(Qt::OtherFocusReason);
+                return false;
+        }
 
-	movie.setTitle(title->text());
-	movie.setOriginalTitle(originalTitle->text());
-	movie.setStorageId(storageID->text());
-	movie.setYear(QString::number(year->value()));
-	movie.setRunningTime(lengthMinutes->value());
-	movie.setRating(ratingLabel->value());
-	movie.setSpecialTagEnabled(MvdMovie::SeenTag, markAsSeen->isChecked());
-	movie.setSpecialTagEnabled(MvdMovie::SpecialTag, markAsSpecial->isChecked());
-	movie.setSpecialTagEnabled(MvdMovie::LoanedTag, markAsLoaned->isChecked());
+        movie.setTitle(title->text());
+        movie.setOriginalTitle(originalTitle->text());
+        movie.setStorageId(storageID->text());
+        movie.setYear(QString::number(year->value()));
+        movie.setRunningTime(lengthMinutes->value());
+        movie.setRating(ratingLabel->value());
+        movie.setSpecialTagEnabled(Movida::SeenTag, markAsSeen->isChecked());
+        movie.setSpecialTagEnabled(Movida::SpecialTag, markAsSpecial->isChecked());
+        movie.setSpecialTagEnabled(Movida::LoanedTag, markAsLoaned->isChecked());
 
-	if (!mPosterPath.isEmpty())
-	{
-		QString posterName = mCollection->addImage(mPosterPath, 
-			MvdMovieCollection::MoviePosterImage);
-	
-		if (posterName.isEmpty())
-		{
-			if (QMessageBox::question(this, MVD_CAPTION, tr("Sorry, the movie poster could not be imported. Continue?"), 
-				QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
-				return false;
-		}
+        if (!mPosterPath.isEmpty())
+        {
+                QString posterName = mCollection->addImage(mPosterPath,
+                        MvdMovieCollection::MoviePosterImage);
 
-		movie.setPoster(posterName);
-	}
-	else movie.setPoster(QString());
+                if (posterName.isEmpty())
+                {
+                        if (QMessageBox::question(this, MVD_CAPTION, tr("Sorry, the movie poster could not be imported. Continue?"),
+                                QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+                                return false;
+                }
 
-	return true;
+                movie.setPoster(posterName);
+        }
+        else movie.setPoster(QString());
+
+        return true;
 }
 
 //! \internal
 void MvdMainInfoPage::linkActivated(const QString& url)
 {
-	MvdActionUrl a = MvdCore::parseActionUrl(url);
-	if (!a.isValid())
-		return;
+        MvdActionUrl a = MvdCore::parseActionUrl(url);
+        if (!a.isValid())
+                return;
 
-	if (a.action == "clear")
-	{
-		if (a.parameter == "rating")
-		{
-			ratingLabel->setValue(0);
-			// Update status text
-			ratingHovered(-1);
-		}
-	}
+        if (a.action == "clear")
+        {
+                if (a.parameter == "rating")
+                {
+                        ratingLabel->setValue(0);
+                        // Update status text
+                        ratingHovered(-1);
+                }
+        }
 }
 
 void MvdMainInfoPage::ratingHovered(int rating)
 {
-	switch (rating)
-	{
-	case 1: ratingStatus->setText(QString("1 - %1.").arg(MvdMovie::ratingTip(rating))); break;
-	case 2: ratingStatus->setText(QString("2 - %1.").arg(MvdMovie::ratingTip(rating))); break;
-	case 3: ratingStatus->setText(QString("3 - %1.").arg(MvdMovie::ratingTip(rating))); break;
-	case 4: ratingStatus->setText(QString("4 - %1.").arg(MvdMovie::ratingTip(rating))); break;
-	case 5: ratingStatus->setText(QString("5 - %1.").arg(MvdMovie::ratingTip(rating))); break;
-	default: 
-		ratingLabel->value() ? 
-			ratingStatus->setText(tr("Click to set the desired rating or <a href='movida://clear/rating'>click here</a> to clear it.")) :
-			ratingStatus->setText(tr("Click to set the desired rating."));
-	}
+        switch (rating)
+        {
+        case 1: ratingStatus->setText(QString("1 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+        case 2: ratingStatus->setText(QString("2 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+        case 3: ratingStatus->setText(QString("3 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+        case 4: ratingStatus->setText(QString("4 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+        case 5: ratingStatus->setText(QString("5 - %1.").arg(MvdMovie::ratingTip(rating))); break;
+        default:
+                ratingLabel->value() ?
+                        ratingStatus->setText(tr("Click to set the desired rating or <a href='movida://clear/rating'>click here</a> to clear it.")) :
+                        ratingStatus->setText(tr("Click to set the desired rating."));
+        }
 }
 
 void MvdMainInfoPage::selectMoviePoster()
 {
-	//! \todo Remember last used dir
-	QString filter = tr("Supported image files (%1)").arg("*.bmp *.jpg *.jpeg *.png");
-	QString path = QFileDialog::getOpenFileName(this, tr("Select a movie poster"), QString(), filter);
-	if (path.isEmpty())
-		return;
+        //! \todo Remember last used dir
+        QString filter = tr("Supported image files (%1)").arg("*.bmp *.jpg *.jpeg *.png");
+        QString path = QFileDialog::getOpenFileName(this, tr("Select a movie poster"), QString(), filter);
+        if (path.isEmpty())
+                return;
 
-	setMoviePoster(path);
-	updateModifiedStatus();
+        setMoviePoster(path);
+        updateModifiedStatus();
 }
 
 void MvdMainInfoPage::setMoviePoster(const QString& path)
 {
-	bool posterOk = false;
-	mPosterPath.clear();
+        bool posterOk = false;
+        mPosterPath.clear();
 
-	if (!path.isEmpty() && QFile::exists(path))
-	{
-		if (poster->setPoster(path))
-		{
-			mPosterPath = path;
-			posterOk = true;
-		}
-	}
+        if (!path.isEmpty() && QFile::exists(path))
+        {
+                if (poster->setPoster(path))
+                {
+                        mPosterPath = path;
+                        posterOk = true;
+                }
+        }
 
-	if (!posterOk)
-	{
-		poster->setPoster(":/images/default-poster.png");
+        if (!posterOk)
+        {
+                poster->setPoster(":/images/default-poster.png");
 
-		if (!path.isEmpty())
-		{
-			//posterStatus->setText(tr("Failed"));
-			mStatusTimer->start(MvdCore::parameter("movida/message-timeout-ms").toUInt());
-			return;
-		}
-	}
+                if (!path.isEmpty())
+                {
+                        //posterStatus->setText(tr("Failed"));
+                        mStatusTimer->start(MvdCore::parameter("movida/message-timeout-ms").toUInt());
+                        return;
+                }
+        }
 
-	resetPosterStatus();
-	updateModifiedStatus();
+        resetPosterStatus();
+        updateModifiedStatus();
 }
 
 //! Returns true if the drag contains image data that can be used as a poster.
 bool MvdMainInfoPage::posterDragEntered(const QMimeData& mimeData) const
 {
-	bool accept = false;
+        bool accept = false;
 
-	if (mimeData.hasUrls())
-	{
-		QList<QUrl> list = mimeData.urls();
-		for (int i = 0; i < list.size(); ++i)
-		{
-			QString path = list.at(i).toLocalFile();
-			if (!path.isEmpty())
-			{
-				QFileInfo file(path);
-				if (!file.exists())
-					continue;
-				QString ext = file.suffix().toLower();
-				if (ext == "bmp" || ext == "jpg" || ext == "jpeg" || ext == "png")
-				{
-					accept = true;
-					break;
-				}
-			}
-		}
-	}
-	else if (mimeData.hasText()) {
-		QFileInfo file(mimeData.text());
-		if (file.exists())
-		{
-			QString ext = file.suffix().toLower();
-			if (ext == "bmp" || ext == "jpg" || ext == "jpeg" || ext == "png")
-				accept = true;
-		}
-	}
+        if (mimeData.hasUrls())
+        {
+                QList<QUrl> list = mimeData.urls();
+                for (int i = 0; i < list.size(); ++i)
+                {
+                        QString path = list.at(i).toLocalFile();
+                        if (!path.isEmpty())
+                        {
+                                QFileInfo file(path);
+                                if (!file.exists())
+                                        continue;
+                                QString ext = file.suffix().toLower();
+                                if (ext == "bmp" || ext == "jpg" || ext == "jpeg" || ext == "png")
+                                {
+                                        accept = true;
+                                        break;
+                                }
+                        }
+                }
+        }
+        else if (mimeData.hasText()) {
+                QFileInfo file(mimeData.text());
+                if (file.exists())
+                {
+                        QString ext = file.suffix().toLower();
+                        if (ext == "bmp" || ext == "jpg" || ext == "jpeg" || ext == "png")
+                                accept = true;
+                }
+        }
 
-	/*if (accept)
-		posterStatus->setText(tr("Drop here"));*/
-	return accept;
+        /*if (accept)
+                posterStatus->setText(tr("Drop here"));*/
+        return accept;
 }
 
 //! Returns true if the drag contains image data that can be used as a poster.
 bool MvdMainInfoPage::posterDropped(const QMimeData& mimeData)
 {
-	QString posterPath;
+        QString posterPath;
 
-	if (mimeData.hasUrls())
-	{
-		QList<QUrl> list = mimeData.urls();
-		for (int i = 0; i < list.size(); ++i)
-		{
-			QString path = list.at(i).toLocalFile();
-			if (!path.isEmpty())
-			{
-				QFileInfo file(path);
-				if (!file.exists())
-					continue;
-				QString ext = file.suffix().toLower();
-				if (ext == "bmp" || ext == "jpg" || ext == "jpeg" || ext == "png")
-				{
-					posterPath = file.absoluteFilePath();
-					break;
-				}
-			}
-		}
-	}
-	else if (mimeData.hasText()) {
-		QFileInfo file(mimeData.text());
-		if (file.exists())
-		{
-			QString ext = file.suffix().toLower();
-			if (ext == "bmp" || ext == "jpg" || ext == "jpeg" || ext == "png")
-				posterPath = file.absoluteFilePath();
-		}
-	}
+        if (mimeData.hasUrls())
+        {
+                QList<QUrl> list = mimeData.urls();
+                for (int i = 0; i < list.size(); ++i)
+                {
+                        QString path = list.at(i).toLocalFile();
+                        if (!path.isEmpty())
+                        {
+                                QFileInfo file(path);
+                                if (!file.exists())
+                                        continue;
+                                QString ext = file.suffix().toLower();
+                                if (ext == "bmp" || ext == "jpg" || ext == "jpeg" || ext == "png")
+                                {
+                                        posterPath = file.absoluteFilePath();
+                                        break;
+                                }
+                        }
+                }
+        }
+        else if (mimeData.hasText()) {
+                QFileInfo file(mimeData.text());
+                if (file.exists())
+                {
+                        QString ext = file.suffix().toLower();
+                        if (ext == "bmp" || ext == "jpg" || ext == "jpeg" || ext == "png")
+                                posterPath = file.absoluteFilePath();
+                }
+        }
 
-	if (!posterPath.isEmpty())
-		setMoviePoster(posterPath);
+        if (!posterPath.isEmpty())
+                setMoviePoster(posterPath);
 
-	return !posterPath.isEmpty();
+        return !posterPath.isEmpty();
 }
 
 void MvdMainInfoPage::resetPosterStatus()
 {
-	removePosterButton->setEnabled(!mPosterPath.isEmpty());
+        removePosterButton->setEnabled(!mPosterPath.isEmpty());
 }
 
 void MvdMainInfoPage::statusTimeout()
 {
-	resetPosterStatus();
+        resetPosterStatus();
 }
 
 void MvdMainInfoPage::validate()
 {
-	QString titleString = title->text().trimmed();
-	QString otitleString = originalTitle->text().trimmed();
+        QString titleString = title->text().trimmed();
+        QString otitleString = originalTitle->text().trimmed();
 
-	bool valid = !(titleString.isEmpty() && otitleString.isEmpty());
-	bool wasValid = isValid();
+        bool valid = !(titleString.isEmpty() && otitleString.isEmpty());
+        bool wasValid = isValid();
 
-	QPalette p = palette();
-	if (!valid)
-		p.setColor(QPalette::Normal, QPalette::Base, QColor("#ede055"));
-	title->setPalette(p);
-	originalTitle->setPalette(p);
+        QPalette p = palette();
+        if (!valid)
+                p.setColor(QPalette::Normal, QPalette::Base, QColor("#ede055"));
+        title->setPalette(p);
+        originalTitle->setPalette(p);
 
-	setValid(valid);
+        setValid(valid);
 
-	if (MvdMultiPageDialog* mpd = dialog())
-		mpd->setSubtitle(!valid ? tr("Invalid movie") : titleString.isEmpty() ? otitleString : titleString);
+        if (MvdMultiPageDialog* mpd = dialog())
+                mpd->setSubtitle(!valid ? tr("Invalid movie") : titleString.isEmpty() ? otitleString : titleString);
 
-	if (mMainCaption.isEmpty())
-		mMainCaption = mainCaption->text();
+        if (mMainCaption.isEmpty())
+                mMainCaption = mainCaption->text();
 
-	if (!valid && wasValid) {
-		mainCaption->setText(mMainCaption + QLatin1String("<b>: </b>") + tr("please enter a valid title."));
-	} else if (valid && !wasValid) {
-		mainCaption->setText(mMainCaption);
-	}
+        if (!valid && wasValid) {
+                mainCaption->setText(mMainCaption + QLatin1String("<b>: </b>") + tr("please enter a valid title."));
+        } else if (valid && !wasValid) {
+                mainCaption->setText(mMainCaption);
+        }
 }
 
 //!
 void MvdMainInfoPage::updateModifiedStatus()
 {
-	bool posterChanged = false;
-	if (!mPosterPath.isEmpty())
-	{
-		QFileInfo fi(mPosterPath);
-		posterChanged = fi.fileName() != mDefaultPoster;
-	}
-	else
-		posterChanged = mPosterPath != mDefaultPoster;
+        bool posterChanged = false;
+        if (!mPosterPath.isEmpty())
+        {
+                QFileInfo fi(mPosterPath);
+                posterChanged = fi.fileName() != mDefaultPoster;
+        }
+        else
+                posterChanged = mPosterPath != mDefaultPoster;
 
-	int currentSpecialTags = MvdMovie::NoTag;
-	if (markAsSeen->isChecked()) currentSpecialTags |= MvdMovie::SeenTag;
-	if (markAsSpecial->isChecked()) currentSpecialTags |= MvdMovie::SpecialTag;
-	if (markAsLoaned->isChecked()) currentSpecialTags |= MvdMovie::LoanedTag;
+        int currentSpecialTags = Movida::NoTag;
+        if (markAsSeen->isChecked()) currentSpecialTags |= Movida::SeenTag;
+        if (markAsSpecial->isChecked()) currentSpecialTags |= Movida::SpecialTag;
+        if (markAsLoaned->isChecked()) currentSpecialTags |= Movida::LoanedTag;
 
-	if (title->text().trimmed() != mDefaultTitle
-		|| originalTitle->text().trimmed() != mDefaultOriginalTitle
-		|| storageID->text().trimmed() != mDefaultStorageId
-		|| year->value() != mDefaultYear
-		|| lengthMinutes->value() != mDefaultRunningTime
-		|| ratingLabel->value() != mDefaultRating
-		|| posterChanged 
-		|| currentSpecialTags != mDefaultSpecialTags)
-	{
-		setModified(true);
-		return;
-	}
+        if (title->text().trimmed() != mDefaultTitle
+                || originalTitle->text().trimmed() != mDefaultOriginalTitle
+                || storageID->text().trimmed() != mDefaultStorageId
+                || year->value() != mDefaultYear
+                || lengthMinutes->value() != mDefaultRunningTime
+                || ratingLabel->value() != mDefaultRating
+                || posterChanged
+                || currentSpecialTags != mDefaultSpecialTags)
+        {
+                setModified(true);
+                return;
+        }
 
-	setModified(false);
+        setModified(false);
 }
 
 //!
 void MvdMainInfoPage::setMainWidgetFocus()
 {
-	title->setFocus(Qt::ActiveWindowFocusReason);
+        title->setFocus(Qt::ActiveWindowFocusReason);
 }

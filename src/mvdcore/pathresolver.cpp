@@ -307,7 +307,7 @@ MvdPathResolver::Private::Private()
 	//// 3. log file
 
 	QString log = this->resourcesDirUser;
-	log.append(app).append(".log");
+	log.append("MovidaLog.html");
 	qDebug() << "MvdPathResolver: writing log to" << log << ".";
 	this->logFile = log;
 

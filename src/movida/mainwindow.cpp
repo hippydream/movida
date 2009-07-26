@@ -1190,12 +1190,7 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 			continue;
 		}
 
-		iLog() << QString("'%1' plugin loaded.").arg(info.uniqueId);
-
-		QList<MvdPluginInterface::PluginAction> actions = iface->actions();
-
-		if (actions.isEmpty())
-			continue;
+		iLog() << QString("Loading '%1' plugin.").arg(info.uniqueId);
 
 		QString dataStorePath = paths().resourcesDir(Movida::UserScope).append("Plugins/").append(fi.completeBaseName());
 		if (!QFile::exists(dataStorePath))
@@ -1236,12 +1231,21 @@ void MvdMainWindow::loadPluginsFromDir(const QString& path)
 			}
 		}
 
+
+        QList<MvdPluginInterface::PluginAction> actions;
+
 		// Initialize plugin
-		iface->init();
-		iLog() << QString("'%1' plugin initialized.").arg(info.name);
+		bool pluginOk = iface->init();
+        if (pluginOk) {
+		    iLog() << QString("'%1' plugin initialized.").arg(info.name);
+            actions = iface->actions();
+        } else wLog() << QString("Failed to initialize '%1' plugin.").arg(info.name);
 
 		//! \todo sort plugin names?
 		QMenu* pluginMenu = mMN_Plugins->addMenu(info.name);
+        if (actions.isEmpty()) {
+            pluginMenu->setEnabled(false);
+        }
 
 		for (int j = 0; j < actions.size(); ++j) {
 			const MvdPluginInterface::PluginAction& a = actions.at(j);

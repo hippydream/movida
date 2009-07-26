@@ -111,32 +111,46 @@ namespace {
             return QMessageBox::Cancel;
         return msgBox.standardButton(msgBox.clickedButton());
     }
+} // anonymous namespace
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+MvdMessageBox::MvdMessageBox(QWidget* parent) : QMessageBox(parent)
+{
+}
+
+MvdMessageBox::MvdMessageBox(Icon icon, const QString &title, const QString &text,
+    StandardButtons buttons, QWidget *parent, Qt::WindowFlags f) :
+    QMessageBox(icon, title, text, buttons, parent, f)
+{
+}
+
+MvdMessageBox::~MvdMessageBox()
+{
 }
 
 QMessageBox::StandardButton MvdMessageBox::critical(QWidget* parent, const QString& title,
-    const QString& text, QMessageBox::StandardButtons buttons,
-    QMessageBox::StandardButton defaultButton)
+    const QString& text, StandardButtons buttons, StandardButton defaultButton)
 {
     return messageBox(QMessageBox::Critical, title, text, buttons, defaultButton, parent);
 }
 
 QMessageBox::StandardButton MvdMessageBox::information(QWidget* parent, const QString& title,
-    const QString& text, QMessageBox::StandardButtons buttons,
-    QMessageBox::StandardButton defaultButton)
+    const QString& text, StandardButtons buttons, StandardButton defaultButton)
 {
     return messageBox(QMessageBox::Information, title, text, buttons, defaultButton, parent);
 }
 
 QMessageBox::StandardButton MvdMessageBox::question(QWidget* parent, const QString& title,
-    const QString& text, QMessageBox::StandardButtons buttons,
-    QMessageBox::StandardButton defaultButton)
+    const QString& text, StandardButtons buttons, StandardButton defaultButton)
 {
     return messageBox(QMessageBox::Question, title, text, buttons, defaultButton, parent);
 }
 
 QMessageBox::StandardButton MvdMessageBox::warning(QWidget* parent, const QString& title,
-    const QString& text, QMessageBox::StandardButtons buttons,
-    QMessageBox::StandardButton defaultButton)
+    const QString& text, StandardButtons buttons, StandardButton defaultButton)
 {
     return messageBox(QMessageBox::Warning, title, text, buttons, defaultButton, parent);
 }

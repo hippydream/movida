@@ -23,7 +23,20 @@ linux-g++ {
   QMAKE_LFLAGS += -Wl,-rpath,\'$${DOLLAR}$${DOLLAR}ORIGIN/../lib\'
 }
 
-TEMP = $${ROOT}/tmp/$${TARGET}/
+message($$QMAKESPEC)
+
+unix { PLATFORM = unix }
+win32 { PLATFORM = win32 }
+macx { PLATFORM = macx }
+
+CONFIG(debug, debug|release) {
+    TEMP = $${ROOT}/tmp/$${PLATFORM}/debug/$${TARGET}/
+} else {
+    TEMP = $${ROOT}/tmp/$${PLATFORM}/release/$${TARGET}/
+}
+
+message(Using temporary directory $${TEMP})
+
 MOC_DIR = $${TEMP}/moc
 UI_DIR = $${TEMP}/ui
 OBJECTS_DIR = $${TEMP}/obj

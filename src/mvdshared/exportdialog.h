@@ -32,75 +32,75 @@
 
 class MVD_EXPORT_SHARED MvdExportDialog : public QWizard
 {
-	Q_OBJECT
+        Q_OBJECT
 
 public:
-	//! What happened?
-	enum Result {
-		/*! No error occurred. */
-		Success = 0,
-		/* Export failed for some movie */
-		Failed,
-		/* No export could be performed or some other critical error occurred. */
-		CriticalError
-	};
+        //! What happened?
+        enum Result {
+                /*! No error occurred. */
+                Success = 0,
+                /* Export failed for some movie */
+                Failed,
+                /* No export could be performed or some other critical error occurred. */
+                CriticalError
+        };
 
-	//! Why did it happen?
-	enum ErrorType {
-		UnknownError = 0,
-		NetworkError,
-		FileError
-	};
+        //! Why did it happen?
+        enum ErrorType {
+                UnknownError = 0,
+                NetworkError,
+                FileError
+        };
 
-	enum ExportType {
-		ExportSelectedMovies = 0,
-		ExportCollection
-	};
+        enum ExportType {
+                ExportSelectedMovies = 0,
+                ExportCollection
+        };
 
-	struct ExportRequest {
-		ExportType type;
-        QUrl url;
-	};
+        struct ExportRequest {
+            ExportType type;
+            QUrl url;
+        };
 
-	MvdExportDialog(QWidget* parent = 0);
+        MvdExportDialog(QWidget* parent = 0);
 
-	int registerEngine(const MvdExportEngine& engine);
+        int registerEngine(const MvdExportEngine& engine);
 
-	virtual int nextId() const;
+        virtual int nextId() const;
 
-	void showMessage(const QString& msg, MovidaShared::MessageType type = MovidaShared::InfoMessage);
+        void showMessage(const QString& msg, MovidaShared::MessageType type = MovidaShared::InfoMessage);
 
-	void setErrorType(ErrorType type);
-	ErrorType errorType() const;
+        void setErrorType(ErrorType type);
+        ErrorType errorType() const;
 
-	void done(Result res = Success);
-	Result result() const;
+        void done(Result res = Success);
+        Result result() const;
 
-	void accept();
+        void accept();
 
-	bool preventCloseWhenBusy() const;
-	bool isBusy() const;
+        bool preventCloseWhenBusy() const;
+        bool isBusy() const;
 
-	bool confirmCloseWizard();
-	
+        bool confirmCloseWizard();
+
 public slots:
-	virtual void reject();
+        virtual void reject();
 
 protected:
-	void closeEvent(QCloseEvent* e);
-	void keyPressEvent(QKeyEvent* e);
+        void closeEvent(QCloseEvent* e);
+        void keyPressEvent(QKeyEvent* e);
 
 signals:
-	void engineConfigurationRequest(int engine);
-	void exportRequest(int engine, const MvdExportDialog::ExportRequest& request);
-	void resetRequest();
+        void engineConfigurationRequest(int engine);
+        void exportRequest(int engine, const MvdExportDialog::ExportRequest& request);
+        void resetRequest();
 
 private slots:
-	void pageChanged(int newPage);
+        void pageChanged(int newPage);
 
 private:
-	class Private;
-	Private* d;
+        class Private;
+        Private* d;
 };
 
 #endif // MVD_EXPORTDIALOG_H

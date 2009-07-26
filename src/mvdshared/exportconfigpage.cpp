@@ -24,40 +24,40 @@
 #include <QHeaderView>
 
 /*!
-	\class MvdExportConfigPage exportconfigpage.h
-	\ingroup MovidaShared
+        \class MvdExportConfigPage exportconfigpage.h
+        \ingroup MovidaShared
 
-	\brief This page allows the user to customize the export process if
-	the selected engine allows it.
+        \brief This page allows the user to customize the export process if
+        the selected engine allows it.
 */
 
 
 /*!
-	This Export Wizard page allows the user to customize the export process if
-	the selected engine allows it.
+        This Export Wizard page allows the user to customize the export process if
+        the selected engine allows it.
 */
 MvdExportConfigPage::MvdExportConfigPage(QWidget* parent)
 : MvdImportExportPage(parent)
 {
-	setTitle(tr("Export configuration"));
-	setSubTitle(tr("Please select the attributes you want to be exported and eventually their order."));
+    setTitle(tr("Export configuration"));
+    setSubTitle(tr("Please select the attributes you want to be exported and eventually their order."));
 
-	ui.setupUi(this);
-	
-	ui.results->setHeaderLabels(QStringList() << tr("Attribute"));
-	ui.results->header()->setResizeMode(0, QHeaderView::Stretch);
-	ui.results->header()->setStretchLastSection(false);
+    ui.setupUi(this);
 
-	//connect( ui.results, SIGNAL(itemSelectionChanged()), 
-	//	this, SLOT(resultsSelectionChanged()) );
-	//connect( ui.results, SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
-	//	this, SLOT(resultsCheckStateChanged()) );
+    ui.results->setHeaderLabels(QStringList() << tr("Attribute"));
+    ui.results->header()->setResizeMode(0, QHeaderView::Stretch);
+    ui.results->header()->setStretchLastSection(false);
+
+    //connect( ui.results, SIGNAL(itemSelectionChanged()),
+    //	this, SLOT(resultsSelectionChanged()) );
+    //connect( ui.results, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+    //	this, SLOT(resultsCheckStateChanged()) );
 }
 
 //! Initialize page each time it is shown.
 void MvdExportConfigPage::initializePage()
 {
-	wizard()->setButtonText(QWizard::NextButton, tr("&Export"));
+        wizard()->setButtonText(QWizard::NextButton, tr("&Export"));
 }
 
 //! This method is called when the user hits the "back" button.
