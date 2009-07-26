@@ -365,12 +365,19 @@ QString MvdCore::decodeXmlEntities(QString s)
         if (s.isEmpty())
                 return s;
 
-        QRegExp rx("&#(\\d+);");
+        QRegExp rx("&#(x)?([0-9a-f]+);");
+        rx.setCaseSensitivity(Qt::CaseInsensitive);
         int pos = rx.indexIn(s);
         while(pos >= 0)
         {
-                s.replace(pos, rx.matchedLength(), QChar((rx.cap(1).toInt())));
-                pos = rx.indexIn(s, pos + 1);
+            QString num;
+            bool isHex = false;
+            if (rx.numCaptures() == 2) {
+                num = rx.cap(2);
+                isHex = true;
+            } else num = rx.cap(1);
+            s.replace(pos, rx.matchedLength(), QChar((num.toInt(0, isHex ? 16 : 10))));
+            pos = rx.indexIn(s, pos + 1);
         }
 
         s.replace("&nbsp;", QChar(' '));
