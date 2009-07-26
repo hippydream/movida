@@ -2,7 +2,7 @@
 <mpi-blue-engines version="1.0" update="2006-05-07T12:47:22">
   <engine name="org.42cows.movida.imdb.us">
     <display-name>IMDb (main database)</display-name>
-    <update-url>http://movida.sourceforge.net/scripts/engines/imdb</update-url>
+    <update-url>http://movida.42cows.org/scripts/engines/imdb</update-url>
     <interpreter>perl</interpreter>
     <results-script update-name="results">imdb_results.pl</results-script>
     <import-script update-name="import">imdb_import.pl</import-script>
@@ -11,7 +11,7 @@
   </engine>
   <engine name="org.42cows.movida.imdb.akas">
     <display-name>IMDb (extended database)</display-name>
-    <update-url>http://movida.sourceforge.net/scripts/engines/imdb</update-url>
+    <update-url>http://movida.42cows.org/scripts/engines/imdb</update-url>
     <interpreter>perl</interpreter>
     <results-script update-name="results">imdb_results.pl</results-script>
     <import-script update-name="import">imdb_import.pl</import-script>

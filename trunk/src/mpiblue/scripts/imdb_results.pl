@@ -72,33 +72,39 @@ print F_OUT "<movida-movie-results version=\"1\">\n";
 # currently seven digits
 $rxImdbId = '\d{7}';
 
-# the next line compares in the header of pages:
+# the next line tries to detect "no results" pages:
 # NO RESULTS: <link rel="stylesheet" type="text/css" href="none_files/consumersite.css">
 # MULTIPLE RESULTS: <link rel="stylesheet" type="text/css" href="multi_files/consumersite.css">
 # MULTIPLE RESULTS (alternative): <link rel="stylesheet" type="text/css" href="http://i.imdb.com/images/css2/consumersite.css">
-$rxResultsPageType = '.*<link.*href="([^<>]*)/consumersite\.css.*';
-$rxResultsPageTypeNoResults = 'none_files';
+$rxContents = '^//-->\s*$';
+$rxResultsPageType = '^<p(.+)\s*$';
+$rxResultsPageTypeNoResults = '^>$';
 
 # the next line is used to detect REDIRECTS after a single match
-# <meta name="title" content="IMDb Title  Search">
-# <meta name="title" content="The Matrix (1999)"><meta ....
-$rxPageType = '<meta name="title" content="([^"]*)">';
+# <title>IMDb Title Search</title>
+# <title>C&#x27;era una volta il West (1968)</title>
+$rxPageType = '^<title>(.*)</title>\s*$';
 $rxPageTypeNoRedirect = '\s*IMDb\s*Title\s*Search\s*';
 
 # this is a good pattern to speed up parsing. there is no useful data before this point.
-$rxDataStart = '^\s*</script>\s*$';
+$rxDataStart = '^\s*</table>';
 
 # results are grouped. possible groups:
 # <p><b>Popular Titles</b> (Displaying 4 Results)<table> ..... </table>
 # <p><b>Titles (Exact Matches)</b> (Displaying 1 Result)<table> ..... </table>
 # <p><b>Titles (Partial Matches)</b> (Displaying 22 Results)<table> ..... </table>
 # <p><b>Titles (Approx Matches)</b> (Displaying 17 Results)<table> ..... </table>
-#
+# 
 # $1 = group name, $s = group size, $3 = group contents
 $rxGroup = '<p><b>(?:Titles \()?(.*?)\)?</b>\s*\(Displaying (\d*) Results?\)<table>(.*?)</table>';
 
 # $1 = id, $2 = title, $3 = year, $4 = optional aka
-$rxMatch = '<tr>.*?<a href="[^"]*/title/tt('.$rxImdbId.')/">\s*([^<>]*?)\s*</a>\s*\((\d{4})(:?.*?)?\)(.*?)?</td>\s*</tr>';
+$rxMatch  = '<tr>.*?\?link=/title/tt('.$rxImdbId.')[^>]*>'; # IMDb ID
+$rxMatch .= '([^<]*)</a>'; # Title
+$rxMatch .= '\s*\((\d{4})\)\s*'; # Year
+$rxMatch .= '(.*?)\s*</td>\s*</tr>';
+
+# '<tr>.*?<a href="[^"]*/title/tt('.$rxImdbId.')/"[^>]*>.*?</a>  >\s*(.*?)\s*</a>\s*\((\d{4})\).*?\s*</td>\s*</tr>';
 
 # The Matrix (1999)
 $rxTitle = '\s*(.*?)\s*\((\d{4})(:?.*?)?\)';
@@ -129,6 +135,13 @@ while (<F_IN>) {
 			$hasPageType = 1;
 		}
 		next;
+	}
+	
+	# jump to the contents section
+	if (!$isMoviePage and !$hasContents) {
+		if (/$rxContents/i) {
+			$hasContents = 1;
+		}
 	}
 	
 	# now look for the results page type
@@ -162,6 +175,7 @@ while (<F_IN>) {
 		if ($hasMovieData) {
 			
 			while (m/$rxGroup/ig) {
+			print "$1\n";
 				$name = XmlEscape($1);
 				print F_OUT "\t<group name=\"$name\">\n";
 				$group = $3;
@@ -185,7 +199,9 @@ while (<F_IN>) {
 								$aka .= "Alternative titles:";
 								$firstAka = 0;
 							}
-							$aka .= "<br>".$1;
+							$myAka = $1;
+							$myAka =~ s/\<[^\<]+\>//g; # Strip HTML tags from AKA
+							$aka .= "<br>".$myAka;
 						}
 						
 						$aka = XmlEscape($aka);

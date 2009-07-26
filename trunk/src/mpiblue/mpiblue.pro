@@ -16,6 +16,7 @@ unix {
 	DESTDIR = $$(HOME)/.42cows.org/Movida/Resources/Plugins/
 	message(Building plugin in \"$$DESTDIR\")
 }
+
 LIBS += -lmvdcore -lmvdshared
 win32 {
 	LIBS += -llibxml2
