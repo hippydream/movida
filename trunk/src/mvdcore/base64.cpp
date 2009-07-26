@@ -231,11 +231,11 @@ QString MvdBase64::encode(const QByteArray& decoded, EncodingOptions options)
 		out.data()[idxOut++] =
 			MvdBase64_P::encodingTable[(data[idxIn] >> 2) & 077];
 		out.data()[idxOut++] =
-			MvdBase64_P::encodingTable[(data[idxIn+1] >> 4) & 017 |
-			(data[idxIn] << 4) & 077];
+			MvdBase64_P::encodingTable[((data[idxIn+1] >> 4) & 017) |
+			((data[idxIn] << 4) & 077)];
 		out.data()[idxOut++] =
-			MvdBase64_P::encodingTable[(data[idxIn+2] >> 6) & 003 |
-			(data[idxIn+1] << 2) & 077];
+			MvdBase64_P::encodingTable[((data[idxIn+2] >> 6) & 003) |
+			((data[idxIn+1] << 2) & 077)];
 		out.data()[idxOut++] =
 			MvdBase64_P::encodingTable[data[idxIn+2] & 077];
 		idxIn += 3;
@@ -279,8 +279,8 @@ QString MvdBase64::encode(const QByteArray& decoded, EncodingOptions options)
 			MvdBase64_P::encodingTable[(data[idxIn] >> 2) & 077];
 		// Encode next 6 bits
 		out.data()[idxOut++] =
-			MvdBase64_P::encodingTable[(data[idxIn+1] >> 4) & 017 |
-			(data[idxIn] << 4) & 077];
+			MvdBase64_P::encodingTable[((data[idxIn+1] >> 4) & 017) |
+			((data[idxIn] << 4) & 077)];
 		// Last 6 bits (4 significant + 2 0-bits)
 		out.data()[idxOut++] =
 			MvdBase64_P::encodingTable[(data[idxIn+1] << 2) & 077];

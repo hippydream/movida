@@ -22,91 +22,97 @@
 #define MVD_MOVIEDATA_H
 
 #include "global.h"
-#include "movie.h"
-#include <QList>
+#include <QStringList>
+
+class QIODevice;
 
 /*!
-	\class MvdMovieData moviedata.h
-	\ingroup MvdCore
+        \class MvdMovieData moviedata.h
+        \ingroup MvdCore
 
-	\brief Temporary storage class for movie data. This can be used when direct access to the data
-	is required, with no SD identifiers (i.e. when importing a movie).
+        \brief Temporary storage class for movie data. This can be used when direct access to the data
+        is required, with no SD identifiers (i.e. when importing a movie).
 */
 
 class MVD_EXPORT MvdMovieData
 {
 public:
-	struct UrlData
-	{
-		UrlData() : isDefault(false) {}
+        struct UrlData
+        {
+                UrlData(const QString& u = QString()) : url(u), isDefault(false) {}
 
-		QString url;
-		QString description;
-		bool isDefault;
-	};
+                QString url;
+                QString description;
+                bool isDefault;
+        };
 
-	struct PersonData
-	{
-		QString name;
-		QString imdbId;
-		QStringList roles;
-		QList<UrlData> urls;
+        struct PersonData
+        {
+            PersonData(const QString& n = QString()) : name(n) {}
 
-		inline bool operator==(const PersonData& pd) const;
-		inline bool operator<(const PersonData& pd) const;
-		inline void merge(const PersonData& pd);
-		inline void mergeRoles(const QStringList& roles);
-	};
+            QString name;
+            QString imdbId;
+            QStringList roles;
+            QList<UrlData> urls;
 
-	enum PropertyName
-	{
-		InvalidProperty = 0,
-		Title, OriginalTitle, Year, ImdbId,
-		Plot, Notes, StorageId, RunningTime, Rating, ColorMode, Languages,
-		Countries, Tags, Genres, Directors, Producers, CrewMembers, Actors,
-		Urls, SpecialContents, PosterPath, SeenTag, SpecialTag, LoanedTag
-	};
+            inline bool operator==(const PersonData& pd) const;
+            inline bool operator<(const PersonData& pd) const;
+            inline void merge(const PersonData& pd);
+            inline void mergeRoles(const QStringList& roles);
+        };
 
-	enum Option
-	{
-		NoOption = 0,
-		StopAtFirstMovie = 0x01
-	};
-	Q_DECLARE_FLAGS(Options, Option);
+        enum PropertyName
+        {
+                InvalidProperty = 0,
+                Title, OriginalTitle, Year, ImdbId,
+                Plot, Notes, StorageId, RunningTime, Rating, ColorMode, Languages,
+                Countries, Tags, Genres, Directors, Producers, CrewMembers, Actors,
+                Urls, SpecialContents, PosterPath, SeenTag, SpecialTag, LoanedTag
+        };
 
-	MvdMovieData()
-	: runningTime(0), rating(0), colorMode(MvdMovie::UnknownColorMode)
-	{}
+        enum Option
+        {
+                NoOption = 0,
+                StopAtFirstMovie = 0x01,
+                NoXmlEncoding = 0x02,
+                EmbedMoviePoster = 0x04
+        };
+        Q_DECLARE_FLAGS(Options, Option);
 
-	bool isValid() const;
-	bool loadFromXml(const QString& path, Options options = NoOption);
-	bool writeToXmlFile(const QString& path, Options options = NoOption) const;
-	void writeToXmlString(QString* string, Options options = NoOption) const;
+        MvdMovieData()
+        : runningTime(0), rating(0), colorMode(Movida::UnknownColorMode)
+        {}
 
-	QString title;
-	QString originalTitle;
-	QString year;
-	QString imdbId;
-	QString plot;
-	QString notes;
-	QString storageId;
-	quint16 runningTime;
-	quint8 rating;
-	MvdMovie::ColorMode colorMode;
-	QStringList languages;
-	QStringList countries;
-	QStringList tags;
-	QStringList genres;
-	QList<PersonData> directors;
-	QList<PersonData> producers;
-	QList<PersonData> crewMembers;
-	QList<PersonData> actors;
-	QList<UrlData> urls;
-	QStringList specialContents;
-	QString posterPath;
-	MvdMovie::Tags specialTags;
+        bool isValid() const;
+        bool loadFromXml(const QString& path, Options options = NoOption);
+        bool writeToXmlFile(const QString& path, Options options = NoOption) const;
+        bool writeToXmlDevice(QIODevice* dev, Options options = NoOption) const;
+        void writeToXmlString(QString* string, Options options = NoOption) const;
+
+        QString title;
+        QString originalTitle;
+        QString year;
+        QString imdbId;
+        QString plot;
+        QString notes;
+        QString storageId;
+        quint16 runningTime;
+        quint8 rating;
+        Movida::ColorMode colorMode;
+        QStringList languages;
+        QStringList countries;
+        QStringList tags;
+        QStringList genres;
+        QList<PersonData> directors;
+        QList<PersonData> producers;
+        QList<PersonData> crewMembers;
+        QList<PersonData> actors;
+        QList<UrlData> urls;
+        QStringList specialContents;
+        QString posterPath;
+        Movida::Tags specialTags;
 };
-Q_DECLARE_OPERATORS_FOR_FLAGS(MvdMovieData::Options);
+Q_DECLARE_OPERATORS_FOR_FLAGS(MvdMovieData::Options)
 
 typedef QList<MvdMovieData> MvdMovieDataList;
 

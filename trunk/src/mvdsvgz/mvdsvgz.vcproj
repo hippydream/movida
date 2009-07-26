@@ -232,5 +232,9 @@
 		</Filter>
 	</Files>
 	<Globals>
+		<Global
+			Name="QtVersion"
+			Value="4.5.1"
+		/>
 	</Globals>
 </VisualStudioProject>

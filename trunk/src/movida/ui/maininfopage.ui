@@ -6,18 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>535</width>
-    <height>395</height>
+    <width>452</width>
+    <height>371</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
-   <property name="margin">
-    <number>0</number>
-   </property>
-   <item row="0" column="0" colspan="2">
+   <item row="0" column="0">
     <widget class="QLabel" name="mainCaption">
      <property name="text">
       <string>&lt;b&gt;Main Information&lt;/b&gt;</string>
@@ -42,7 +39,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1" colspan="2">
+       <item row="0" column="1" colspan="6">
         <widget class="MvdClearEdit" name="title"/>
        </item>
        <item row="1" column="0">
@@ -52,7 +49,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1" colspan="2">
+       <item row="1" column="1" colspan="6">
         <widget class="MvdClearEdit" name="originalTitle"/>
        </item>
        <item row="2" column="0">
@@ -69,40 +66,14 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="2">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>128</width>
-           <height>17</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="0">
+       <item row="2" column="3">
         <widget class="QLabel" name="labYear">
          <property name="text">
           <string>Release year:</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="MvdClearSpin" name="year">
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>9999</number>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1" colspan="2">
+       <item row="3" column="1" colspan="6">
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -118,15 +89,44 @@
          </property>
         </spacer>
        </item>
-       <item row="5" column="0">
+       <item row="4" column="0">
         <widget class="QLabel" name="labStorageID">
          <property name="text">
           <string>Storage ID:</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="1" colspan="2">
+       <item row="4" column="1" colspan="6">
         <widget class="MvdClearEdit" name="storageID"/>
+       </item>
+       <item row="2" column="5">
+        <spacer name="horizontalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::MinimumExpanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>5</width>
+           <height>18</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="4">
+        <widget class="MvdClearSpin" name="year">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>9999</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -140,14 +140,17 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>13</width>
-         <height>188</height>
+         <width>10</width>
+         <height>128</height>
         </size>
        </property>
       </spacer>
      </item>
      <item row="0" column="2">
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinimumSize</enum>
+       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
@@ -266,7 +269,7 @@
      </property>
     </spacer>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="4" column="0">
     <widget class="QLabel" name="specialTagsCaption">
      <property name="text">
       <string>&lt;b&gt;Special Tags&lt;/b&gt;</string>
@@ -290,11 +293,43 @@
       </widget>
      </item>
      <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>17</width>
+         <height>18</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QCheckBox" name="markAsSpecial">
        <property name="text">
         <string>Mark as special</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_9">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>17</width>
+         <height>18</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="QCheckBox" name="markAsLoaned">
@@ -334,7 +369,7 @@
      </property>
     </spacer>
    </item>
-   <item row="8" column="0" colspan="2">
+   <item row="8" column="0">
     <widget class="QLabel" name="ratingCaption">
      <property name="text">
       <string>&lt;b&gt;Rating&lt;/b&gt;</string>

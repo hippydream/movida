@@ -67,44 +67,54 @@ static const mvdid MvdNull = 0;
 // Movida namespace
 namespace Movida
 {
-	enum DataRole
-	{
-		NoRole = 0x000,
+        enum DataRole
+        {
+                NoRole = 0x000,
 
-		ActorRole = 0x001,
-		DirectorRole = 0x002,
-		ProducerRole = 0x004,
-		CrewMemberRole = 0x008,
-		PersonRole = ActorRole | DirectorRole | ProducerRole | CrewMemberRole,
+                ActorRole = 0x001,
+                DirectorRole = 0x002,
+                ProducerRole = 0x004,
+                CrewMemberRole = 0x008,
+                PersonRole = ActorRole | DirectorRole | ProducerRole | CrewMemberRole,
 
-		GenreRole = 0x010,
-		CountryRole = 0x020,
-		LanguageRole = 0x040,
-		TagRole = 0x080,
-	};
+                GenreRole = 0x010,
+                CountryRole = 0x020,
+                LanguageRole = 0x040,
+                TagRole = 0x080,
+        };
 
-	enum Scope
-	{
-		UserScope,
-		SystemScope
-	};
-};
+        enum Scope
+        {
+                UserScope,
+                SystemScope
+        };
+
+        enum ColorMode { Color, BlackWhite, UnknownColorMode };
+        enum Tag { NoTag = 0, SeenTag = 2, LoanedTag = 4, SpecialTag = 8 };
+        Q_DECLARE_FLAGS(Tags, Tag);
+
+        // In movie.cpp
+        extern QString colorModeToString(ColorMode m);
+        extern ColorMode colorModeFromString(QString s);
+}
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Movida::Tags)
 
 // This is to be added to each class
 #define MVD_DECLARE_PRIVATE(Class) \
 private: \
-	Class##Private * d_ptr; \
-	inline Class##Private* d_func() { return reinterpret_cast<Class##Private *>(d_ptr); } \
-	inline const Class##Private* d_func() const { return reinterpret_cast<const Class##Private *>(d_ptr); } \
-	friend class Class##Private;
+        Class##Private * d_ptr; \
+        inline Class##Private* d_func() { return reinterpret_cast<Class##Private *>(d_ptr); } \
+        inline const Class##Private* d_func() const { return reinterpret_cast<const Class##Private *>(d_ptr); } \
+        friend class Class##Private;
 
 // This is to be added to each XXXPrivate class
 #define MVD_DECLARE_PUBLIC(Class) \
 private: \
-	Class * q_ptr; \
-	inline Class* q_func() { return static_cast<Class *>(q_ptr); } \
-	inline const Class* q_func() const { return static_cast<const Class *>(q_ptr); } \
-	friend class Class;
+        Class * q_ptr; \
+        inline Class* q_func() { return static_cast<Class *>(q_ptr); } \
+        inline const Class* q_func() const { return static_cast<const Class *>(q_ptr); } \
+        friend class Class;
 
 #define MVD_D(Class) Class##Private * const d = d_func()
 #define MVD_Q(Class) Class * const q = q_func()

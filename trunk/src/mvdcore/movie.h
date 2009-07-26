@@ -22,143 +22,141 @@
 #define MVD_MOVIE_H
 
 #include "global.h"
+#include "moviedata.h"
 #include "sditem.h"
 #include <QList>
 #include <QHash>
 #include <QStringList>
 #include <QTime>
 
+class MvdMovieCollection;
 class MvdMovie_P;
 typedef QPair<mvdid, QStringList> MvdRoleItem;
 
 class MVD_EXPORT MvdMovie
 {
 public:
-	MvdMovie();
-	MvdMovie(const MvdMovie& m);
-	virtual ~MvdMovie();
-	MvdMovie& operator=(const MvdMovie& m);
+        MvdMovie();
+        MvdMovie(const MvdMovie& m);
+        virtual ~MvdMovie();
+        MvdMovie& operator=(const MvdMovie& m);
 
-	bool isValid() const;
-	
-	enum ColorMode { Color, BlackWhite, UnknownColorMode };
-	enum Tag { NoTag = 0, SeenTag = 2, LoanedTag = 4, SpecialTag = 8 };
-	Q_DECLARE_FLAGS(Tags, Tag);
+        MvdMovieData toMovieData(MvdMovieCollection* c) const;
 
-	QString title() const;
-	void setTitle(const QString& s);
+        bool isValid() const;
 
-	QString originalTitle() const;
-	void setOriginalTitle(const QString& s);
+        QString title() const;
+        void setTitle(const QString& s);
 
-	QString validTitle() const;
+        QString originalTitle() const;
+        void setOriginalTitle(const QString& s);
 
-	QString year() const;
-	bool setYear(const QString& s);
+        QString validTitle() const;
 
-	QString imdbId() const;
-	void setImdbId(const QString& s);
+        QString year() const;
+        bool setYear(const QString& s);
 
-	QString plot() const;
-	void setPlot(const QString& s);
+        QString imdbId() const;
+        void setImdbId(const QString& s);
 
-	QString notes() const;
-	void setNotes(const QString& s);
+        QString plot() const;
+        void setPlot(const QString& s);
 
-	QString storageId() const;
-	void setStorageId(const QString& s);
-	
-	quint16 runningTime() const;
-	QTime runningTimeQt() const;
-	QString runningTimeString(QString format = QString()) const;
-	void setRunningTime(quint16 minutes);
+        QString notes() const;
+        void setNotes(const QString& s);
 
-	quint8 rating() const;
-	bool setRating(quint8 rating);
-	
-	ColorMode colorMode() const;
-	QString colorModeString() const;
-	void setColorMode(ColorMode mode);
+        QString storageId() const;
+        void setStorageId(const QString& s);
 
-	QList<mvdid> languages() const;
-	void addLanguage(mvdid languageID);
-	void setLanguages(const QList<mvdid>& languageIDs);
-	void clearLanguages();
+        quint16 runningTime() const;
+        QTime runningTimeQt() const;
+        QString runningTimeString(QString format = QString()) const;
+        void setRunningTime(quint16 minutes);
 
-	QList<mvdid> countries() const;
-	void addCountry(mvdid id);
-	void setCountries(const QList<mvdid>& countryIDs);
-	void clearCountries();
+        quint8 rating() const;
+        bool setRating(quint8 rating);
 
-	QList<mvdid> tags() const;
-	void addTag(mvdid tag);
-	void setTags(const QList<mvdid>& tagIDs);
-	void clearTags();
+        Movida::ColorMode colorMode() const;
+        QString colorModeString() const;
+        void setColorMode(Movida::ColorMode mode);
 
-	QList<mvdid> genres() const;
-	void addGenre(mvdid genre);
-	void setGenres(const QList<mvdid>& genreIDs);
-	void clearGenres();
+        QList<mvdid> languages() const;
+        void addLanguage(mvdid languageID);
+        void setLanguages(const QList<mvdid>& languageIDs);
+        void clearLanguages();
 
-	QList<mvdid> directors() const;
-	void addDirector(mvdid id);
-	void setDirectors(const QList<mvdid>& ids);
-	void clearDirectors();
-	
-	QList<mvdid> producers() const;
-	void addProducer(mvdid id);
-	void setProducers(const QList<mvdid>& ids);
-	void clearProducers();
-	
-	QList<MvdRoleItem> crewMembers() const;
-	QStringList crewMemberRoles(mvdid memberID) const;
-	QList<mvdid> crewMemberIDs() const;
-	QList<mvdid> crewMemberIDs(const QString& role) const;
-	void addCrewMember(mvdid id, const QStringList& roles = QStringList());
-	void setCrewMembers(const QList<MvdRoleItem>& members);
-	void clearCrewMembers();
+        QList<mvdid> countries() const;
+        void addCountry(mvdid id);
+        void setCountries(const QList<mvdid>& countryIDs);
+        void clearCountries();
 
-	QList<MvdRoleItem> actors() const;
-	QStringList actorRoles(mvdid actorID) const;
-	QList<mvdid> actorIDs() const;
-	void addActor(mvdid actorID, const QStringList& roles = QStringList());
-	void setActors(const QList<MvdRoleItem>& actors);
-	void clearActors();
-	
-	QList<MvdUrl> urls() const;
-	void addUrl(const MvdUrl& url);
-	void setUrls(const QList<MvdUrl>& urls);
-	void clearUrls();
-	
-	QStringList specialContents() const;
-	void setSpecialContents(const QStringList& list);
-	void clearSpecialContents();
+        QList<mvdid> tags() const;
+        void addTag(mvdid tag);
+        void setTags(const QList<mvdid>& tagIDs);
+        void clearTags();
 
-	QString poster() const;
-	void setPoster(const QString& path);
+        QList<mvdid> genres() const;
+        void addGenre(mvdid genre);
+        void setGenres(const QList<mvdid>& genreIDs);
+        void clearGenres();
 
-	void setSpecialTagEnabled(Tag tag, bool enabled);
-	bool hasSpecialTagEnabled(Tag tag) const;
+        QList<mvdid> directors() const;
+        void addDirector(mvdid id);
+        void setDirectors(const QList<mvdid>& ids);
+        void clearDirectors();
 
-	void setSpecialTags(Tags tags);
-	Tags specialTags() const;
+        QList<mvdid> producers() const;
+        void addProducer(mvdid id);
+        void setProducers(const QList<mvdid>& ids);
+        void clearProducers();
 
-	QList<mvdid> sharedItemIds() const;
+        QList<MvdRoleItem> crewMembers() const;
+        QStringList crewMemberRoles(mvdid memberID) const;
+        QList<mvdid> crewMemberIDs() const;
+        QList<mvdid> crewMemberIDs(const QString& role) const;
+        void addCrewMember(mvdid id, const QStringList& roles = QStringList());
+        void setCrewMembers(const QList<MvdRoleItem>& members);
+        void clearCrewMembers();
 
-	static QString colorModeToString(ColorMode m);
-	static ColorMode colorModeFromString(QString s);
+        QList<MvdRoleItem> actors() const;
+        QStringList actorRoles(mvdid actorID) const;
+        QList<mvdid> actorIDs() const;
+        void addActor(mvdid actorID, const QStringList& roles = QStringList());
+        void setActors(const QList<MvdRoleItem>& actors);
+        void clearActors();
 
-	static QString ratingTip(quint8 rating);
+        QList<MvdUrl> urls() const;
+        void addUrl(const MvdUrl& url);
+        void setUrls(const QList<MvdUrl>& urls);
+        void clearUrls();
+
+        QStringList specialContents() const;
+        void setSpecialContents(const QStringList& list);
+        void clearSpecialContents();
+
+        QString poster() const;
+        void setPoster(const QString& path);
+
+        QString posterPath(MvdMovieCollection* c) const;
+
+        void setSpecialTagEnabled(Movida::Tag tag, bool enabled);
+        bool hasSpecialTagEnabled(Movida::Tag tag) const;
+
+        void setSpecialTags(Movida::Tags tags);
+        Movida::Tags specialTags() const;
+
+        QList<mvdid> sharedItemIds() const;
+
+        static QString ratingTip(quint8 rating);
 
 private:
-	MvdMovie_P* d;
+        MvdMovie_P* d;
 public:
-	typedef MvdMovie_P* DataPtr;
-	inline DataPtr& data_ptr() { return d; }
-	void detach();
-	bool isDetached() const;
+        typedef MvdMovie_P* DataPtr;
+        inline DataPtr& data_ptr() { return d; }
+        void detach();
+        bool isDetached() const;
 };
 Q_DECLARE_SHARED(MvdMovie)
-Q_DECLARE_OPERATORS_FOR_FLAGS(MvdMovie::Tags)
 
 #endif // MVD_MOVIE_H
