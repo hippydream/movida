@@ -173,9 +173,7 @@ while (<F_IN>) {
 		}
 		
 		if ($hasMovieData) {
-			
 			while (m/$rxGroup/ig) {
-			print "$1\n";
 				$name = XmlEscape($1);
 				print F_OUT "\t<group name=\"$name\">\n";
 				$group = $3;
