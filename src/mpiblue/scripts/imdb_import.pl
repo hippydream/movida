@@ -85,6 +85,8 @@ $rxTitle = '<title>([^<>]*) \((\d{4})\)</title>';
 $rxPoster = '<div class="photo">.*';
 # <a name="poster" href="photogallery" title="The Matrix"><img border="0" alt="The Matrix" title="The Matrix" src="http://ia.imdb.com/media/imdb/01/I/38/48/31m.jpg" height="140" width="99"></a>
 $rxPosterEx = '<a name="poster".*?src="(.*?)".*>';
+$rxPosterSizeFind = '_S[XY]\d+_S[XY]\d+_'; # X and Y can be inverted
+$rxPosterSizeReplace = '_SX600_SY600_';
 # <a href="/rg/title-lhs/mymovies/mymovies/list?pending&amp;add=0133093">
 $rxId = '<a href=".*?/mymovies.*?('.$rxImdbId.').*>';
 # <b>User Rating:</b>
@@ -96,7 +98,8 @@ $rxDataStart = '<h3>Overview</h3>';
 # <h5>Directors:</h5>
 $rxDirectors = '<h5>Directors?:</h5>';
 # <a href="/name/nm0905152/">Andy Wachowski</a><br/><a href="/name/nm0905154/">Larry Wachowski</a><br/>
-$rxDirectorsEx = '<a href="/name/nm('.$rxImdbId.')/">(.*?)</a>';
+# <a href="/name/nm0001466/" onclick="(new Image()).src='/rg/directorlist/position-1/images/b.gif?link=name/nm0001466/';">Sergio Leone</a><br/>
+$rxDirectorsEx = '<a href="/name/nm('.$rxImdbId.')/"[^>]*>(.*?)</a>';
 # <h5>Writers <a href="/wga">(WGA)</a>:</h5>
 $rxWriters = '<h5>Writers?.*</h5>';
 # same as for directors
@@ -104,13 +107,13 @@ $rxWritersEx = $rxDirectorsEx;
 # <h5>Genre:</h5>
 $rxGenres = '<h5>Genre:</h5>';
 # <a href="/Sections/Genres/Action/">Action</a> / <a href="/Sections/Genres/Thriller/">Thriller</a> ...
-$rxGenresEx = '<a href="/Sections/Genres/.*?/">(.*?)</a>';
+$rxGenresEx = '<a href="/Sections/Genres/.*?/"[^>]*>(.*?)</a>';
 # <h5>Plot Outline:</h5> 
-$rxPlot = '<h5>Plot Outline:</h5>';
+$rxPlot = '<h5>Plot[^<]*:</h5>';
 # PLOT PLOT PLOT <a href=...>
 $rxPlotEx = '\s*(.*?)\s*<.*';
 # 
-$rxCast = '^<div class="headerinline"><h3>Cast</h3>';
+$rxCast = '^\s*<div class="headerinline"><h3>Cast</h3>';
 # a single cast member has the following table snipped (but all on the same line!):
 # <td class="hs">
 # 	<a href="/rg/title-tease/tinyhead/name/nm0000206/">
@@ -127,24 +130,36 @@ $rxCast = '^<div class="headerinline"><h3>Cast</h3>';
 # 	(as Some Other Name) [this is optional!]
 # </td>
 #
-# $1 = id, $2 = name, $3 = role
-$rxCastEx = '<tr class="(?:odd|even)">.*?<td class="nm"><a href="/name/nm('.$rxImdbId.')/">(.*?)</a></td>.*?<td class="char">(?:<a[^<>]*>)?(.*?)(?:</a>)?(?:\s*\(as (.*?)\)\s*)?</td>.*?</tr>';
+# $1 = image, $2 = id, $3 = name, $4 = role
+# <tr class="odd">***
+# <td class="nm"><a href="/name/nm0000020/"***>Henry Fonda</a></td><td class="ddd"> ... </td>
+# <td class="char"><a href="/character/ch0006031/">Frank</a></td></tr>
+$rxCastEx  = '<tr[^>]*>.*?';
+$rxCastEx .= '<img src="([^"]*)".*?';
+$rxCastEx .= '<td class="nm"[^>]*>.*?/name/nm('.$rxImdbId.')/[^>]*>([^<]*)</a></td>.*?'; # id + name
+$rxCastEx .= '<td class="char"[^>]*>(.*?)</td>'; # role
+$rxCastEx .= '</tr>';
+$rxCastInvalidImage = 'addtiny.gif$';
 # <h5>Runtime:</h5>
 $rxRunningTime = '<h5>Runtime:</h5>';
 # 136 min
 $rxRunningTimeEx = '(\d*) min';
 # <h5>Country:</h5>
 $rxCountries = '<h5>Country:</h5>';
-# <a href="/Sections/Countries/Australia/">Australia</a> / <a href="/Sections/Countries/USA/">USA</a>
-$rxCountriesEx = '<a href="/Sections/Countries/.*?/">(.*?)</a>';
+$rxCountriesStop = '</div>';
+# <a href="/Sections/Countries/Italy/">\nItaly</a>\n | \n<a href="/Sections/Countries/USA/">\nUSA</a>
+$rxCountriesEx = '<a href="/Sections/Countries/[^>]*>\s*(.*?)\s*</a>';
 # <h5>Language:</h5>
 $rxLanguages = '<h5>Language:</h5>';
+$rxLanguagesStop = $rxCountriesStop;
 # <a href="/Sections/Languages/English/">English</a> / <a href="/Sections/Languages/Italian/">Italian</a>
-$rxLanguagesEx = '<a href="/Sections/Languages/.*?/">(.*?)</a>';
+$rxLanguagesEx = '<a href="/Sections/Languages/[^>]*>\s*(.*?)\s*</a>';
 # <h5>Color:</h5>
 $rxColor = '<h5>Color:</h5>';
+$rxColorStop = $rxCountriesStop;
 # <a href="/List?color-info=Color&&heading=13;Color">Color</a> <i>(Technicolor)</i>
-$rxColorEx = '.*?<a href=[^<>]*>(.*?)</a>.*?';
+# <a href="/List?color-info=Color&&heading=13;Color">Color</a> <i>(Technicolor)</i>
+$rxColorEx = '<a href=[^>]*>\s*([^>]*)\s*</a>';
 
 # this is a good pattern to stop parsing. there is no useful info beyond this point.
 $rxStop = '<div class="comment">';
@@ -163,7 +178,9 @@ while (<F_IN>) {
 	} elsif (!$hasPosters and /$rxPoster/i) {
 		$_ = <F_IN>;
 		if (/$rxPosterEx/i) {
-			print F_OUT "\t\t<poster>$1</poster>\n";
+			$myPoster = $1;
+			$myPoster =~ s/$rxPosterSizeFind/$rxPosterSizeReplace/; # Larger poster URL
+			print F_OUT "\t\t<poster>$myPoster</poster>\n";
 		}
 		$hasPosters = 1;
 		
@@ -188,6 +205,7 @@ while (<F_IN>) {
 	
 	if (!$hasDirectors and /$rxDirectors/i) {
 		$_ = <F_IN>;
+		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
 		print F_OUT "\t\t<directors>\n";
 		while (m/$rxDirectorsEx/ig) {
 			$id = $1;
@@ -199,6 +217,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasWriters and /$rxWriters/i) {
 		$_ = <F_IN>;
+		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
 		print F_OUT "\t\t<crew>\n";
 		while (m/$rxWritersEx/ig) {
 			$id = $1;
@@ -210,6 +229,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasGenres and /$rxGenres/i) {
 		$_ = <F_IN>;
+		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
 		print F_OUT "\t\t<genres>\n";
 		while (m/$rxGenresEx/ig) {
 			$name = XmlEscape($1);
@@ -220,6 +240,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasPlot and /$rxPlot/i) {
 		$_ = <F_IN>;
+		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
 		if (/$rxPlotEx/i) {
 			($plot = $1) =~ s/<.*?>//g;
 			print F_OUT "\t\t<plot><![CDATA[$plot]]></plot>\n";
@@ -229,20 +250,27 @@ while (<F_IN>) {
 	} elsif (!$hasCast and /$rxCast/i) {
 		print F_OUT "\t\t<cast>\n";
 		while (m/$rxCastEx/ig) {
-			$id = $1;
-			$name = XmlEscape($2);
+			$img = $1;
+			$id = $2;
+			$name = XmlEscape($3);
 			# TODO split roles using "/" as delimiter and avoid writing roles if there is none!
-			$role = XmlEscape($3);
-			if ($4) {
-				$aka = ' aka="'.$4.'"';
+			$role = $4;
+			$role =~ s/\<[^\<]+\>//g; # Strip HTML tags from role
+			$role = XmlEscape($role);
+			if ($5) {
+				$aka = ' aka="'.$5.'"';
 			}
-			print F_OUT "\t\t\t<person>\n\t\t\t\t<name>$name</name>\n\t\t\t\t<imdb-id>$id</imdb-id>\n\t\t\t\t<roles><role$aka>$role</role></roles>\n\t\t\t</person>\n";
+			# Do not output placeholder image
+			if ($img =~ /$rxCastInvalidImage/) { $img = ''; }
+			else { $img =~ s/$rxPosterSizeFind/$rxPosterSizeReplace/;  } # Larger image URL
+			print F_OUT "\t\t\t<person>\n\t\t\t\t<name>$name</name>\n\t\t\t\t<imdb-id>$id</imdb-id>\n\t\t\t\t<image>$img</image>\n\t\t\t\t<roles><role$aka>$role</role></roles>\n\t\t\t</person>\n";
 		}
 		print F_OUT "\t\t</cast>\n";
 		$hasCast = 1;
 		
 	} elsif (!$hasRunningTime and /$rxRunningTime/i) {
 		$_ = <F_IN>;
+		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
 		if (/$rxRunningTimeEx/i) {
 			print F_OUT "\t\t<running-time>$1</running-time>\n";
 		}
@@ -250,8 +278,11 @@ while (<F_IN>) {
 		
 	}  elsif (!$hasCountries and /$rxCountries/i) {
 		$_ = <F_IN>;
+		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
 		print F_OUT "\t\t<countries>\n";
-		while (m/$rxCountriesEx/ig) {
+		$line = $_;
+		while (!(m/$rxCountriesStop/i)) { $_ = <F_IN>; $line .= $_; } # Join lines
+		while ($line =~ m/$rxCountriesEx/ig) {
 			$name = XmlEscape($1);
 			print F_OUT "\t\t\t<country>$name</country>\n";
 		}
@@ -260,8 +291,11 @@ while (<F_IN>) {
 		
 	} elsif (!$hasLanguages and /$rxLanguages/i) {
 		$_ = <F_IN>;
+		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
 		print F_OUT "\t\t<languages>\n";
-		while (m/$rxLanguagesEx/ig) {
+		$line = $_;
+		while (!(m/$rxLanguagesStop/i)) { $_ = <F_IN>; $line .= $_; } # Join lines
+		while ($line =~ m/$rxLanguagesEx/ig) {
 			$name = XmlEscape($1);
 			print F_OUT "\t\t\t<language>$name</language>\n";
 		}
@@ -270,7 +304,10 @@ while (<F_IN>) {
 		
 	} elsif (!$hasColor and /$rxColor/i) {
 		$_ = <F_IN>;
-		if (/$rxColorEx/i) {
+		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
+		$line = $_;
+		while (!(m/$rxColorStop/i)) { $_ = <F_IN>; $line .= $_; } # Join lines
+		if ($line =~ /$rxColorEx/i) {
 			if ($1 =~ /color/i) {
 				$color = "color";
 			} elsif ($1 =~ /black and white/i) {
