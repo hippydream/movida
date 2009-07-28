@@ -17,7 +17,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="."
-			IntermediateDirectory="..\..\tmp\mvdsvgz\obj\"
+			IntermediateDirectory="..\..\tmp\win32\debug\mvdsvgz\obj\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -44,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 -w34100 -w34189 -Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="4"
-				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtSvg&quot;,&quot;$(QTDIR)\include\QtSvg&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\mvdsvgz\moc&quot;,&quot;..\..\tmp\mvdsvgz\\ui&quot;,$(QTDIR)\mkspecs\win32-msvc2005"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtSvg&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\win32\debug\mvdsvgz\moc&quot;,&quot;d:\blue\src\movida\trunk\src\mvdsvgz\..\..\tmp\win32\debug\mvdsvgz\\ui&quot;,$(QTDIR)\mkspecs\default"
 				PreprocessorDefinitions="UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_STATICPLUGIN,QT_PLUGIN,QT_SVG_LIB,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
@@ -52,8 +52,8 @@
 				BufferSecurityCheck="false"
 				TreatWChar_tAsBuiltInType="false"
 				RuntimeTypeInfo="true"
-				AssemblerListingLocation="..\..\tmp\mvdsvgz\obj\"
-				ObjectFile="..\..\tmp\mvdsvgz\obj\"
+				AssemblerListingLocation="..\..\tmp\win32\debug\mvdsvgz\obj\"
+				ObjectFile="..\..\tmp\win32\debug\mvdsvgz\obj\"
 				ProgramDataBaseFileName=".\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -65,6 +65,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_STATICPLUGIN,QT_PLUGIN,QT_SVG_LIB,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT,_DEBUG"
+				ResourceOutputFileName="..\..\lib\/$(InputName).res"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -93,7 +94,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="."
-			IntermediateDirectory="..\..\tmp\mvdsvgz\obj\"
+			IntermediateDirectory="..\..\tmp\win32\release\mvdsvgz\obj\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -120,7 +121,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 -w34100 -w34189 -Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="2"
-				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtSvg&quot;,&quot;$(QTDIR)\include\QtSvg&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\mvdsvgz\moc&quot;,&quot;..\..\tmp\mvdsvgz\\ui&quot;,$(QTDIR)\mkspecs\win32-msvc2005"
+				WholeProgramOptimization="true"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtSvg&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\win32\release\mvdsvgz\moc&quot;,&quot;d:\blue\src\movida\trunk\src\mvdsvgz\..\..\tmp\win32\debug\mvdsvgz\\ui&quot;,$(QTDIR)\mkspecs\default"
 				PreprocessorDefinitions="QT_NO_DEBUG,NDEBUG,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_NO_DEBUG,QT_STATICPLUGIN,QT_PLUGIN,QT_SVG_LIB,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT,NDEBUG"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
@@ -128,8 +130,8 @@
 				BufferSecurityCheck="false"
 				TreatWChar_tAsBuiltInType="false"
 				RuntimeTypeInfo="true"
-				AssemblerListingLocation="..\..\tmp\mvdsvgz\obj\"
-				ObjectFile="..\..\tmp\mvdsvgz\obj\"
+				AssemblerListingLocation="..\..\tmp\win32\release\mvdsvgz\obj\"
+				ObjectFile="..\..\tmp\win32\release\mvdsvgz\obj\"
 				ProgramDataBaseFileName=".\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -141,6 +143,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="QT_NO_DEBUG,NDEBUG,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_NO_DEBUG,QT_STATICPLUGIN,QT_PLUGIN,QT_SVG_LIB,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT"
+				ResourceOutputFileName="..\..\lib\/$(InputName).res"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -202,9 +205,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC iconplugin.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_STATICPLUGIN -DQT_PLUGIN -DQT_SVG_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdsvgz\moc&quot; -I&quot;.\..\..\tmp\mvdsvgz\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;iconplugin.h&quot; -o &quot;..\..\tmp\mvdsvgz\moc\moc_iconplugin.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_STATICPLUGIN -DQT_PLUGIN -DQT_SVG_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\mvdsvgz\moc&quot; -I&quot;d:\blue\src\movida\trunk\src\mvdsvgz\..\..\tmp\win32\debug\mvdsvgz\\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 iconplugin.h -o ..\..\tmp\win32\debug\mvdsvgz\moc\moc_iconplugin.cpp&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;iconplugin.h"
-						Outputs="..\..\tmp\mvdsvgz\moc\moc_iconplugin.cpp"
+						Outputs="..\..\tmp\win32\debug\mvdsvgz\moc\moc_iconplugin.cpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -213,9 +216,9 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC iconplugin.h"
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DQT_STATICPLUGIN -DQT_PLUGIN -DQT_SVG_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;.\..\..\src&quot; -I&quot;.\..\..\src\3rdparty&quot; -I&quot;.\..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;.\..\..\tmp\mvdsvgz\moc&quot; -I&quot;.\..\..\tmp\mvdsvgz\ui&quot; -I&quot;$(QTDIR)\mkspecs\win32-msvc2005&quot; &quot;iconplugin.h&quot; -o &quot;..\..\tmp\mvdsvgz\moc\moc_iconplugin.cpp&quot;&#x0D;&#x0A;"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DQT_STATICPLUGIN -DQT_PLUGIN -DQT_SVG_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\mvdsvgz\moc&quot; -I&quot;d:\blue\src\movida\trunk\src\mvdsvgz\..\..\tmp\win32\debug\mvdsvgz\\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 iconplugin.h -o ..\..\tmp\win32\release\mvdsvgz\moc\moc_iconplugin.cpp&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;iconplugin.h"
-						Outputs="..\..\tmp\mvdsvgz\moc\moc_iconplugin.cpp"
+						Outputs="..\..\tmp\win32\release\mvdsvgz\moc\moc_iconplugin.cpp"
 					/>
 				</FileConfiguration>
 			</File>
@@ -226,8 +229,28 @@
 			UniqueIdentifier="{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}"
 			>
 			<File
-				RelativePath="..\..\tmp\mvdsvgz\moc\moc_iconplugin.cpp"
+				RelativePath="..\..\tmp\win32\release\mvdsvgz\moc\moc_iconplugin.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\debug\mvdsvgz\moc\moc_iconplugin.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 	</Files>

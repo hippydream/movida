@@ -17,7 +17,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="."
-			IntermediateDirectory="..\..\tmp\mvdcrash\obj\"
+			IntermediateDirectory="..\..\tmp\win32\debug\mvdcrash\obj\"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -44,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 -w34100 -w34189 -Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="4"
-				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\mvdcrash\moc&quot;,&quot;..\..\tmp\mvdcrash\\ui&quot;,$(QTDIR)\mkspecs\win32-msvc2005"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\win32\debug\mvdcrash\moc&quot;,&quot;d:\blue\src\movida\trunk\src\mvdcrash\..\..\tmp\win32\debug\mvdcrash\\ui&quot;,$(QTDIR)\mkspecs\default"
 				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_DLL,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
@@ -52,8 +52,8 @@
 				BufferSecurityCheck="false"
 				TreatWChar_tAsBuiltInType="false"
 				RuntimeTypeInfo="true"
-				AssemblerListingLocation="..\..\tmp\mvdcrash\obj\"
-				ObjectFile="..\..\tmp\mvdcrash\obj\"
+				AssemblerListingLocation="..\..\tmp\win32\debug\mvdcrash\obj\"
+				ObjectFile="..\..\tmp\win32\debug\mvdcrash\obj\"
 				ProgramDataBaseFileName=".\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -72,6 +72,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalOptions="&quot;/MANIFESTDEPENDENCY:type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos; processorArchitecture=&apos;*&apos;&quot; &quot;/MANIFESTDEPENDENCY:type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos; processorArchitecture=&apos;*&apos;&quot;"
 				AdditionalDependencies="$(QTDIR)\lib\qtmaind.lib mvdsvgz.lib $(QTDIR)\lib\QtGuid4.lib $(QTDIR)\lib\QtCored4.lib"
 				OutputFile="..\..\bin\mvdcrash.exe"
 				SuppressStartupBanner="true"
@@ -79,6 +80,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=""
 				SubSystem="2"
+				LinkTimeCodeGeneration="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -108,7 +110,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="."
-			IntermediateDirectory="..\..\tmp\mvdcrash\obj\"
+			IntermediateDirectory="..\..\tmp\win32\release\mvdcrash\obj\"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -135,7 +137,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 -w34100 -w34189 -Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="2"
-				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\mvdcrash\moc&quot;,&quot;..\..\tmp\mvdcrash\\ui&quot;,$(QTDIR)\mkspecs\win32-msvc2005"
+				WholeProgramOptimization="true"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\win32\release\mvdcrash\moc&quot;,&quot;d:\blue\src\movida\trunk\src\mvdcrash\..\..\tmp\win32\debug\mvdcrash\\ui&quot;,$(QTDIR)\mkspecs\default"
 				PreprocessorDefinitions="QT_NO_DEBUG,NDEBUG,_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_DLL,QT_NO_DEBUG,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT,NDEBUG"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
@@ -143,8 +146,8 @@
 				BufferSecurityCheck="false"
 				TreatWChar_tAsBuiltInType="false"
 				RuntimeTypeInfo="true"
-				AssemblerListingLocation="..\..\tmp\mvdcrash\obj\"
-				ObjectFile="..\..\tmp\mvdcrash\obj\"
+				AssemblerListingLocation="..\..\tmp\win32\release\mvdcrash\obj\"
+				ObjectFile="..\..\tmp\win32\release\mvdcrash\obj\"
 				ProgramDataBaseFileName=".\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -163,6 +166,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalOptions="&quot;/MANIFESTDEPENDENCY:type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos; processorArchitecture=&apos;*&apos;&quot; &quot;/MANIFESTDEPENDENCY:type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos; processorArchitecture=&apos;*&apos;&quot;"
 				AdditionalDependencies="$(QTDIR)\lib\qtmain.lib mvdsvgz.lib $(QTDIR)\lib\QtGui4.lib $(QTDIR)\lib\QtCore4.lib"
 				OutputFile="..\..\bin\mvdcrash.exe"
 				LinkIncremental="1"
@@ -171,6 +175,7 @@
 				GenerateDebugInformation="false"
 				ProgramDatabaseFile=""
 				SubSystem="2"
+				LinkTimeCodeGeneration="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
