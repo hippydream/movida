@@ -21,7 +21,10 @@
 # 2007-11-07: Titles with special chars would not be parsed (i.e. ".45" by Gary Lennon)
 # 2007-11-07: Entries with one single director/writer were not being recognized
 # 2008-03-20: Fixed parsing of cast members, movie poster and IMDB id
-# 2000-03-26: Fixed regular expressions
+# 2008-03-26: Fixed regular expressions
+# 2009-07-27: Fixed most regular expressions
+# 2009-07-28: Fixed most regular expressions to work with different result pages
+# 2009-07-28: Fixed parsing of rating
 
 # TODO trivia, notes, keywords?
 # TODO localized title
@@ -50,7 +53,7 @@ $inputFile = $ARGV[0];
 ($outputDir) = ($inputFile =~ m/^(.+[\\|\/]).+?$/);
 $outputFile = $outputDir ? $outputDir."mvdmdata.xml" : "mvdmdata.xml";
 
--r  $inputFile or die "Input file does not exist or cannot be accessed.";
+-r  $inputFile or die "Input file $inputFile does not exist or cannot be accessed.";
 
 print "Parsing movie file: ", $inputFile, "\r\n";
 print "Writing matches to: ", $outputFile, "\r\n";
@@ -87,10 +90,11 @@ $rxPoster = '<div class="photo">.*';
 $rxPosterEx = '<a name="poster".*?src="(.*?)".*>';
 $rxPosterSizeFind = '_S[XY]\d+_S[XY]\d+_'; # X and Y can be inverted
 $rxPosterSizeReplace = '_SX600_SY600_';
-# <a href="/rg/title-lhs/mymovies/mymovies/list?pending&amp;add=0133093">
-$rxId = '<a href=".*?/mymovies.*?('.$rxImdbId.').*>';
+# <link rel="canonical" href="http://www.imdb.com/title/tt0120303/" />
+$rxId = '^\s*<link rel="canonical" href="http://www.imdb.com/title/tt('.$rxImdbId.')/" />';
 # <b>User Rating:</b>
-$rxRating = '<b>User Rating:</b>';
+$rxRating = '<h5>User Rating:</h5>';
+$rxRatingStop = 'votes</a>\s*$';
 # <b>8.6/10</b>
 $rxRatingEx = '<b>([0-9.]{1,3})/10</b>';
 # <h3>Overview</h3>
@@ -113,23 +117,7 @@ $rxPlot = '<h5>Plot[^<]*:</h5>';
 # PLOT PLOT PLOT <a href=...>
 $rxPlotEx = '\s*(.*?)\s*<.*';
 # 
-$rxCast = '^\s*<div class="headerinline"><h3>Cast</h3>';
-# a single cast member has the following table snipped (but all on the same line!):
-# <td class="hs">
-# 	<a href="/rg/title-tease/tinyhead/name/nm0000206/">
-# 		<img src="http://ia.imdb.com/media/imdb/01/I/65/85/38t.jpg" width="23" height="32" border="0">
-# 	</a> [THIS ONE IS MISSING SOMETIMES!]
-# 	<br>
-# </td>
-# <td class="nm">
-# 	<a href="/name/nm0000206/">Keanu Reeves</a>
-# </td>
-# <td class="ddd"> ... </td>
-# <td class="char">
-# 	<a href="/character/ch0000741/">Neo</a> [OR simply "Neo"!!!]
-# 	(as Some Other Name) [this is optional!]
-# </td>
-#
+$rxCast = '^.*?<div class="headerinline"><h3>Cast</h3>';
 # $1 = image, $2 = id, $3 = name, $4 = role
 # <tr class="odd">***
 # <td class="nm"><a href="/name/nm0000020/"***>Henry Fonda</a></td><td class="ddd"> ... </td>
@@ -191,7 +179,9 @@ while (<F_IN>) {
 		
 	} elsif (!$hasRating and /$rxRating/i) {
 		$_ = <F_IN>;
-		if (/$rxRatingEx/i) {
+		$line = $_;
+		while (!(m/$rxRatingStop/i)) { $_ = <F_IN>; $line .= $_; } # Join lines
+		if ($line =~ /$rxRatingEx/i) {
 			print F_OUT "\t\t<rating maximum=\"$imdbMaxRating\">$1</rating>\n";
 		}
 		$hasRating = 1;
