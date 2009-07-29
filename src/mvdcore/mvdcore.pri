@@ -17,6 +17,7 @@ HEADERS += \
 	templatecache.h \
 	templatemanager.h \
 	unzip.h \
+	utils.h \
 	xmlwriter.h \
 	xsltproc.h \
 	zip.h \
@@ -39,6 +40,7 @@ SOURCES += \
 	templatecache.cpp \
 	templatemanager.cpp \
 	unzip.cpp \
+	utils.cpp \
 	xmlwriter.cpp \
 	xsltproc.cpp \
 	zip.cpp

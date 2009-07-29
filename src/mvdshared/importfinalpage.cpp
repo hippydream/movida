@@ -211,7 +211,11 @@ void MvdImportFinalPage::importMovies(const MvdMovieDataList& movies)
 		MvdMovieCollection* collection = MvdCore::pluginContext()->collection;
 		Q_ASSERT(collection);
 
-		mvdid movieId = collection->addMovie(m);
+        const QString _importDate = MvdCore::parameter("mvdcore/extra-attributes/import-date").toString();
+
+        QHash<QString, QVariant> extra;
+        extra.insert(_importDate, QDateTime::currentDateTime());
+		mvdid movieId = collection->addMovie(m, extra);
 		mImportedMovies << movieId;
 
 		QCoreApplication::processEvents();

@@ -27,6 +27,7 @@
 #include <QList>
 #include <QString>
 #include <QStringList>
+#include <QVariant>
 
 class MvdLogger;
 class MvdMovie;
@@ -71,7 +72,8 @@ public:
 	void updateMovie(mvdid id, const MvdMovie& movie);
 	void removeMovie(mvdid id);
 
-	mvdid addMovie(const MvdMovieData& movie);
+    mvdid addMovie(const MvdMovieData& movie,
+        const QHash<QString, QVariant>& extra = (QHash<QString, QVariant>()) );
 	
 	bool contains(const QString& title, int year) const;
 	

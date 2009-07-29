@@ -75,6 +75,7 @@ namespace Movida
 		SeenAttribute,
 		SpecialAttribute,
 		LoanedAttribute,
+        DateImportedAttribute,
 
 		InvalidMovieAttribute // Reserved
 	};

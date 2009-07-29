@@ -21,6 +21,7 @@
 #include "moviedata.h"
 #include "logger.h"
 #include "core.h"
+#include "utils.h"
 #include "xmlwriter.h"
 #include <QFile>
 #include <libxml/xmlmemory.h>
@@ -41,6 +42,7 @@ namespace MvdMovieData_P {
         static QList<MvdMovieData::PersonData> extractPersonData(xmlNodePtr parent, xmlDocPtr doc);
         static QList<MvdMovieData::UrlData> extractUrlData(xmlNodePtr parent, xmlDocPtr doc);
         static QStringList extractStringList(xmlNodePtr parent, xmlDocPtr doc, const char* tag);
+        static QHash<QString, QVariant> extractKeyValueList(xmlNodePtr parent, xmlDocPtr doc, const char* tag);
         static void writeToXml(MvdXmlWriter* writer, const MvdMovieData& movie, MvdMovieData::Options o);
 };
 
@@ -185,6 +187,47 @@ QStringList MvdMovieData_P::extractStringList(xmlNodePtr parent, xmlDocPtr doc, 
                 xmlFree(c);
                 if (!list.contains(s, Qt::CaseInsensitive))
                         list.append(s);
+
+                node = node->next;
+        }
+
+        return list;
+}
+
+/*!	Extracts a list of simple key=value tags.
+    Movida::stringToVariant() is used to decode the values.
+
+        \verbatim
+        <$tag name="key">some value</$tag>
+        \endverbatim
+*/
+QHash<QString, QVariant> MvdMovieData_P::extractKeyValueList(xmlNodePtr parent, xmlDocPtr doc, const char* tag)
+{
+        Q_ASSERT(tag);
+        QHash<QString, QVariant> list;
+
+        xmlNodePtr node = parent->xmlChildrenNode;
+        while (node) {
+                if (node->type != XML_ELEMENT_NODE || xmlStrcmp(node->name, (const xmlChar*) tag)) {
+                        node = node->next;
+                        continue;
+                }
+
+                xmlChar* attr = xmlGetProp(node, (const xmlChar*) "name");
+                if (!attr) {
+                    node = node->next;
+                    continue;
+                }
+
+                QString key = MvdCore::decodeXmlEntities((const char*)attr);
+                xmlFree(attr);
+
+                xmlChar* c = xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+                QString s = MvdCore::decodeXmlEntities((const char*)c).trimmed();
+                xmlFree(c);
+
+                QVariant val = Movida::stringToVariant(s);
+                list.insert(key, val);
 
                 node = node->next;
         }
@@ -359,6 +402,23 @@ void MvdMovieData_P::writeToXml(MvdXmlWriter* writer, const MvdMovieData& movie,
             writer->writeTaggedString("poster", movie.posterPath);
         }
 
+        if (!movie.extendedAttributes.isEmpty()) {
+            writer->writeOpenTag("extended-attributes");
+            QHash<QString, QVariant>::ConstIterator begin = movie.extendedAttributes.constBegin();
+            QHash<QString, QVariant>::ConstIterator end = movie.extendedAttributes.constEnd();
+            while (begin != end) {
+                QString k = begin.key().trimmed();
+                const QVariant& v = begin.value();
+                if (!k.isEmpty()) {
+                    QString s = Movida::variantToString(v);
+                    writer->writeTaggedString("attribute", s, 
+                        MvdXmlWriter::Attribute("name", k));
+                }
+                ++begin;
+            }
+            writer->writeCloseTag("extended-attributes");
+        }
+
         writer->writeCloseTag("movie");
 }
 
@@ -452,6 +512,9 @@ bool MvdMovieData::loadFromXml(const QString& path, Options options)
                         } else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "directors")) {
                                 QList<PersonData> pd = MvdMovieData_P::extractPersonData(resultNode, doc);
                                 directors = pd;
+                        } else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "extended-attributes")) {
+                                QHash<QString, QVariant> kvl = MvdMovieData_P::extractKeyValueList(resultNode, doc, "attribute");
+                                extendedAttributes = kvl;
                         } else if (!xmlStrcmp(resultNode->name, (const xmlChar*) "genres")) {
                                 QStringList sl = MvdMovieData_P::extractStringList(resultNode, doc, "genre");
                                 genres = sl;

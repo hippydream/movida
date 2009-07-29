@@ -483,6 +483,7 @@ void MvdMainWindow::updateCaption()
 #endif
 
 	setWindowTitle(windowTitle);
+    setWindowModified(mCollection && mCollection->isModified());
 }
 
 /*!
@@ -773,10 +774,28 @@ void MvdMainWindow::editPreviousMovie()
 void MvdMainWindow::editSelectedMovies()
 {
 	QModelIndexList list = mTreeView->selectedRows();
-	if (list.isEmpty())
-		return;
-	if (list.size() == 1)
+    if (list.isEmpty()) {
+        return;
+    } else if (list.size() == 1) {
 		editMovie(list.at(0));
+    } else {
+        // TEMPORARY
+        QInputDialog input(this);
+        input.setInputMode(QInputDialog::TextInput);
+        input.setLabelText(tr("Storage ID"));
+        int exitCode = input.exec();
+        if (exitCode == QDialog::Accepted) {
+            QString value = input.textValue();
+            for (int i = 0; i < list.size(); ++i) {
+                mvdid id = movieIndexToId(list.at(i));
+                if (id != MvdNull) {
+                    MvdMovie m = mCollection->movie(id);
+                    m.setStorageId(value);
+                    mCollection->updateMovie(id, m);
+                }
+            }
+        }
+    }
 }
 
 QList<mvdid> MvdMainWindow::selectedMovies() const
@@ -983,6 +1002,8 @@ void MvdMainWindow::movieChanged(mvdid id)
 
 void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 {
+    //! \todo Refactor menu in order to use application wide actions
+
 	QWidget* senderWidget = qobject_cast<QWidget*>(sender());
 	if (!senderWidget)
 		return;
@@ -990,6 +1011,7 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	QMenu menu;
 	QAction* addNew = 0;
 	QAction* editCurrent = 0;
+    QAction* editSelected = 0;
 	QAction* deleteCurrent = 0;
 	QAction* deleteSelected = 0;
 
@@ -1027,6 +1049,7 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 	if (selected.size() > 1) {
 		if (!menu.isEmpty())
 			menu.addSeparator();
+        editSelected = menu.addAction(tr("Edit selected movies"));
 		deleteSelected = menu.addAction(tr("Delete selected movies"));
 	} else if (!selected.isEmpty() && !movieMenuAdded) {
 		QModelIndex selectedIndex = selected.first();
@@ -1068,7 +1091,9 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 		removeMovie(currentIsSelected ? selected.first() : index);
 	} else if (res == deleteSelected) {
 		removeMovies(selected);
-	}
+    } else if (res == editSelected) {
+        editSelectedMovies();
+    }
 }
 
 //! \internal

@@ -22,11 +22,13 @@
 #include "core.h"
 #include "moviecollection.h"
 #include "shareddata.h"
-#include <QFileInfo>
-#include <QDateTime>
-#include <QStringList>
 #include <QCoreApplication>
+#include <QDateTime>
+#include <QFileInfo>
+#include <QHash>
 #include <QRegExp>
+#include <QStringList>
+#include <QVariant>
 
 /*!
         \class MvdMovie movie.h
@@ -82,6 +84,8 @@ public:
         QStringList specialContents;
 
         Movida::Tags specialTags;
+
+        QHash<QString, QVariant> extra;
 };
 
 //! \internal
@@ -129,6 +133,8 @@ MvdMovie_P::MvdMovie_P(const MvdMovie_P& other)
         specialContents = other.specialContents;
 
         specialTags = other.specialTags;
+
+        extra = other.extra;
 }
 
 /*!
@@ -1163,6 +1169,50 @@ QList<mvdid> MvdMovie::sharedItemIds() const
         return ids;
 }
 
+QHash<QString, QVariant> MvdMovie::extendedAttributes() const
+{
+    return d->extra;
+}
+
+QVariant MvdMovie::extendedAttribute(const QString& key) const
+{
+    return d->extra.value(key);
+}
+
+bool MvdMovie::hasExtendedAttribute(const QString& key) const
+{
+    return d->extra.contains(key);
+}
+
+void MvdMovie::setExtendedAttribute(const QString& key, const QVariant& value)
+{
+    QString k = key.trimmed();
+    if (k.isEmpty())
+        return;
+    detach();
+    d->extra.insert(k, value);
+}
+
+void MvdMovie::setExtendedAttributes(const QHash<QString, QVariant>& values)
+{
+    d->extra = values;
+}
+
+void MvdMovie::addExtendedAttributes(const QHash<QString, QVariant>& values)
+{
+    QHash<QString, QVariant>::ConstIterator begin = values.constBegin();
+    QHash<QString, QVariant>::ConstIterator end = values.constEnd();
+    while (begin != end) {
+        d->extra.insert(begin.key(), begin.value());
+        ++begin;
+    }
+}
+
+void MvdMovie::clearExtendedAttributes()
+{
+    d->extra.clear();
+}
+
 MvdMovieData MvdMovie::toMovieData(MvdMovieCollection* c) const
 {
     MvdMovieData data;
@@ -1234,6 +1284,8 @@ MvdMovieData MvdMovie::toMovieData(MvdMovieCollection* c) const
 
     data.specialContents = specialContents();
     data.posterPath = posterPath(c);
+
+    data.extendedAttributes = d->extra;
 
     return data;
 }

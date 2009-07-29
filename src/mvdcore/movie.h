@@ -145,6 +145,14 @@ public:
         void setSpecialTags(Movida::Tags tags);
         Movida::Tags specialTags() const;
 
+        QHash<QString, QVariant> extendedAttributes() const;
+        QVariant extendedAttribute(const QString& key) const;
+        bool hasExtendedAttribute(const QString& key) const;
+        void setExtendedAttribute(const QString& key, const QVariant& value);
+        void setExtendedAttributes(const QHash<QString, QVariant>& values);
+        void addExtendedAttributes(const QHash<QString, QVariant>& values);
+        void clearExtendedAttributes();
+
         QList<mvdid> sharedItemIds() const;
 
         static QString ratingTip(quint8 rating);

@@ -22,7 +22,9 @@
 #define MVD_MOVIEDATA_H
 
 #include "global.h"
+#include <QHash>
 #include <QStringList>
+#include <QVariant>
 
 class QIODevice;
 
@@ -111,6 +113,7 @@ public:
         QStringList specialContents;
         QString posterPath;
         Movida::Tags specialTags;
+        QHash<QString, QVariant> extendedAttributes;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(MvdMovieData::Options)
 
