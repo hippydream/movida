@@ -48,6 +48,7 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
                 list << SeenAttribute;
                 list << SpecialAttribute;
                 list << LoanedAttribute;
+                list << DateImportedAttribute;
                 break;
         case MainAttributeFilter:
                 list << TitleAttribute;
@@ -56,6 +57,7 @@ QList<MovieAttribute> Movida::movieAttributes(AttributeFilter filter)
                 list << RunningTimeAttribute;
                 list << StorageIdAttribute;
                 list << RatingAttribute;
+                list << DateImportedAttribute;
                 break;
         case SmartViewAttributeFilter:
                 list << TitleAttribute;
@@ -160,6 +162,8 @@ QString Movida::movieAttributeString(MovieAttribute attribute, AttributeContext 
         case SeenAttribute: return QCoreApplication::translate("MovieAttribute", "Seen", "No special context");
         case SpecialAttribute: return QCoreApplication::translate("MovieAttribute", "Special", "No special context");
         case LoanedAttribute: return QCoreApplication::translate("MovieAttribute", "Loaned", "No special context");
+
+        case DateImportedAttribute: return QCoreApplication::translate("MovieAttribute", "Date added", "Date Imported");
 
         default: ;
         }

@@ -395,7 +395,8 @@ mvdid MvdMovieCollection::addMovie(const MvdMovie& movie)
         MvdNull is returned if the movie could not be added.
         A movieAdded() signal is emitted if the movie has been added.
  */
-mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
+mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie,
+    const QHash<QString, QVariant>& extra)
 {
         if (!movie.isValid())
                 return MvdNull;
@@ -411,6 +412,8 @@ mvdid MvdMovieCollection::addMovie(const MvdMovieData& movie)
         m.setRunningTime(movie.runningTime);
         m.setRating(movie.rating);
         m.setColorMode(movie.colorMode);
+        m.setExtendedAttributes(movie.extendedAttributes);
+        m.addExtendedAttributes(extra);
 
         for (int i = 0; i < movie.languages.size(); ++i) {
                 const QString& s = movie.languages.at(i);

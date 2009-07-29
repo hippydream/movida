@@ -465,6 +465,10 @@ QVariant MvdCollectionModel::data(const QModelIndex& index, int role) const
         case Movida::SeenAttribute: return movie.hasSpecialTagEnabled(Movida::SeenTag);
         case Movida::SpecialAttribute: return movie.hasSpecialTagEnabled(Movida::SpecialTag);
         case Movida::LoanedAttribute: return movie.hasSpecialTagEnabled(Movida::LoanedTag);
+        case Movida::DateImportedAttribute: {
+            QString s = MvdCore::parameter("mvdcore/extra-attributes/import-date").toString();
+            return movie.extendedAttribute(s).toDateTime().toString(Qt::DefaultLocaleShortDate);
+        }
         default: ;
         }
 
