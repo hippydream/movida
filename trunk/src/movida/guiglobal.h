@@ -42,6 +42,7 @@ namespace Movida
 		ValidationRole,
 		MovieAttributeRole,
 		SmartViewDisplayRole,
+        MoviePosterRole,
 		RawDataRole,
 		UniqueDisplayRole
 	};

@@ -419,10 +419,10 @@ QVariant MvdCollectionModel::data(const QModelIndex& index, int role) const
                 return movie.validTitle();
         }
 
-        if (role == Qt::DecorationRole && col == 0)
+        if (role == Movida::MoviePosterRole && col == 0)
         {
                 mvdid id = d->movies.at(row);
-                if (id == 0)
+                if (id == MvdNull)
                         return QVariant();
                 MvdMovie movie = d->collection->movie(id);
                 return movie.posterPath(d->collection);
