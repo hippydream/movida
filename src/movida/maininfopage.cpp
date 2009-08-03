@@ -124,7 +124,9 @@ mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
         connect (Ui::MvdMainInfoPage::markAsSpecial, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
         connect (Ui::MvdMainInfoPage::markAsLoaned, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
 
-        Ui::MvdMainInfoPage::poster->setDragAndDropHandler(this, "posterDragEntered", "posterDropped", "resetPosterStatus");
+        Ui::MvdMainInfoPage::poster->setDragAndDropHandler(this, 
+            "posterDragEntered", "posterDropped", "posterDragLeave", 
+            "posterDragMoved");
 
         mStatusTimer->setSingleShot(true);
         connect(mStatusTimer, SIGNAL(timeout()), this, SLOT(statusTimeout()));
@@ -314,27 +316,28 @@ bool MvdMainInfoPage::posterDragEntered(const QMimeData& mimeData) const
 {
         bool accept = false;
 
-        if (mimeData.hasUrls())
+        QList<QUrl> list = mimeData.urls();
+        if (!list.isEmpty())
         {
-                QList<QUrl> list = mimeData.urls();
-                for (int i = 0; i < list.size(); ++i)
-                {
-                        QString path = list.at(i).toLocalFile();
-                        if (!path.isEmpty())
-                        {
-                                QFileInfo file(path);
-                                if (!file.exists())
-                                        continue;
-                                QString ext = file.suffix().toLower();
-                                if (ext == "bmp" || ext == "jpg" || ext == "jpeg" || ext == "png")
-                                {
-                                        accept = true;
-                                        break;
-                                }
-                        }
-                }
+            for (int i = 0; i < list.size(); ++i)
+            {
+                    QString path = list.at(i).toLocalFile();
+                    if (!path.isEmpty())
+                    {
+                            QFileInfo file(path);
+                            if (!file.exists())
+                                    continue;
+                            QString ext = file.suffix().toLower();
+                            if (ext == "bmp" || ext == "jpg" || ext == "jpeg" || ext == "png")
+                            {
+                                    accept = true;
+                                    break;
+                            }
+                    }
+            }
         }
-        else if (mimeData.hasText()) {
+
+        if (!accept && mimeData.hasText()) {
                 QFileInfo file(mimeData.text());
                 if (file.exists())
                 {
@@ -344,9 +347,16 @@ bool MvdMainInfoPage::posterDragEntered(const QMimeData& mimeData) const
                 }
         }
 
-        /*if (accept)
-                posterStatus->setText(tr("Drop here"));*/
+        if (accept)
+                poster->setPoster(":/images/drag-poster-accept.png");
+        
         return accept;
+}
+
+//! Returns true if the drag contains image data that can be used as a poster.
+bool MvdMainInfoPage::posterDragMoved(const QMimeData& mimeData) const
+{
+    return posterDragEntered(mimeData);
 }
 
 //! Returns true if the drag contains image data that can be used as a poster.
@@ -393,6 +403,12 @@ bool MvdMainInfoPage::posterDropped(const QMimeData& mimeData)
 void MvdMainInfoPage::resetPosterStatus()
 {
         removePosterButton->setEnabled(!mPosterPath.isEmpty());
+}
+
+void MvdMainInfoPage::posterDragLeave()
+{
+    resetPosterStatus();
+    setMoviePoster(mPosterPath);
 }
 
 void MvdMainInfoPage::statusTimeout()

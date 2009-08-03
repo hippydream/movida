@@ -31,48 +31,50 @@ class QTimer;
 
 class MvdMainInfoPage : public MvdMovieEditorPage, private Ui::MvdMainInfoPage
 {
-	Q_OBJECT
+        Q_OBJECT
 
 public:
-	MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent = 0);
-	
-	QString label();
-	QIcon icon();
+        MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent = 0);
 
-	virtual void setMainWidgetFocus();
+        QString label();
+        QIcon icon();
+
+        virtual void setMainWidgetFocus();
 
 protected:
-	void setMovieImpl(const MvdMovie& movie);
+        void setMovieImpl(const MvdMovie& movie);
 
-	bool store(MvdMovie& movie);
+        bool store(MvdMovie& movie);
 
 private slots:
-	void linkActivated(const QString& url);
-	void ratingHovered(int);
-	void selectMoviePoster();
-	void setMoviePoster(const QString& path = QString());
-	bool posterDragEntered(const QMimeData& mimeData) const;
-	bool posterDropped(const QMimeData& mimeData);
-	void resetPosterStatus();
-	void statusTimeout();
-	void validate();
-	void updateModifiedStatus();
+        void linkActivated(const QString& url);
+        void ratingHovered(int);
+        void selectMoviePoster();
+        void setMoviePoster(const QString& path = QString());
+        bool posterDragEntered(const QMimeData& mimeData) const;
+        bool posterDragMoved(const QMimeData& mimeData) const;
+        void posterDragLeave();
+        bool posterDropped(const QMimeData& mimeData);
+        void resetPosterStatus();
+        void statusTimeout();
+        void validate();
+        void updateModifiedStatus();
 
 private:
-	QString mDefaultTitle;
-	QString mDefaultOriginalTitle;
-	QString mDefaultStorageId;
-	quint16 mDefaultYear;
-	quint16 mDefaultRunningTime;
-	quint8 mDefaultRating;
-	bool mDefaultIsFavorite;
-	QString mDefaultPoster;
-	QString mPosterPath;
-	int mDefaultSpecialTags;
+        QString mDefaultTitle;
+        QString mDefaultOriginalTitle;
+        QString mDefaultStorageId;
+        quint16 mDefaultYear;
+        quint16 mDefaultRunningTime;
+        quint8 mDefaultRating;
+        bool mDefaultIsFavorite;
+        QString mDefaultPoster;
+        QString mPosterPath;
+        int mDefaultSpecialTags;
 
-	QTimer* mStatusTimer;
+        QTimer* mStatusTimer;
 
-	QString mMainCaption;
+        QString mMainCaption;
 };
 
 #endif // MVD_MAININFOPAGE_H

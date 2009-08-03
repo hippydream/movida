@@ -26,26 +26,26 @@
 
 class MVD_EXPORT_SHARED MvdClearEdit : public QLineEdit
 {
-	Q_OBJECT
+        Q_OBJECT
 
 public:
-	MvdClearEdit(QWidget* parent = 0);
+        MvdClearEdit(QWidget* parent = 0);
 
-	void setPlaceHolder(const QString& s);
-	QString placeHolder() const;
+        void setPlaceHolder(const QString& s);
+        QString placeHolder() const;
 
-	QSize sizeHint() const;
+        virtual QSize sizeHint() const;
 
 protected:
-	virtual void resizeEvent(QResizeEvent* );
-	virtual void paintEvent(QPaintEvent* );
+        virtual void resizeEvent(QResizeEvent* );
+        virtual void paintEvent(QPaintEvent* );
 
 private slots:
-	void updateClearButton(const QString& text);
+        void updateClearButton(const QString& text);
 
 private:
-	class Private;
-	Private* d;
+        class Private;
+        Private* d;
 };
 
 #endif // MVD_CLEAREDIT_H

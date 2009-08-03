@@ -57,7 +57,7 @@ void MvdMovieTreeView::startDrag(Qt::DropActions supportedActions)
 			if (title.isEmpty())
 				title = index.data(Movida::UniqueDisplayRole).toString();
 
-			QString s = index.data(Qt::DecorationRole).toString();
+            QString s = index.data(Movida::MoviePosterRole).toString();
 			if (!s.isEmpty() && !posters.contains(s))
 				posters.append(s);
 		}

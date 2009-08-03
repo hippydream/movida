@@ -241,7 +241,7 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
         //////////////////////////////////////////////////////////////////////////
 
 #if 0
-        if (isHovered) {
+        if (option.state & QStyle::State_MouseOver) {
                 painter->fillRect(rIconArea, QBrush(Qt::yellow));
                 painter->fillRect(rControls, QBrush(Qt::yellow));
                 painter->fillRect(rText, QBrush(Qt::yellow));
@@ -259,7 +259,7 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
         QRect rIcon(rIconArea.adjusted(iconDecoWidth, iconDecoWidth, -iconDecoWidth, -iconDecoWidth));
 
         QPixmap pixmap;
-        QString customPixmapPath = index.data(Qt::DecorationRole).toString();
+        QString customPixmapPath = index.data(Movida::MoviePosterRole).toString();
 
         if (!customPixmapPath.isEmpty()) {
                 QString pixmapKey = QString("%1x%2/%3")
@@ -325,7 +325,14 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
         painter->setRenderHint(QPainter::Antialiasing, true);
 
         // And now draw the pixmap! :)
+        // Disable smooth pixmap transform to avoid a rendering bug in Qt 4.5.1
+        // that would sometimes cause two calls to drawPixmap for the same pixmap to 
+        // render slightly different images.
+        painter->setRenderHint(QPainter::Antialiasing, false);
+        painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
         painter->drawPixmap(rIcon, pixmap.isNull() ? mDefaultPoster : pixmap);
+        painter->setRenderHint(QPainter::Antialiasing, true);
+        painter->setRenderHint(QPainter::SmoothPixmapTransform, false);
 
         if (isLoaned) {
                 painter->save();

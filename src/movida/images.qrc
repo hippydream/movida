@@ -25,7 +25,7 @@
         <file alias="document-revert.svgz" >images/actions/document-revert.svgz</file>
         <file alias="document-save-as.svgz" >images/actions/document-save-as.svgz</file>
         <file alias="document-save.svgz" >images/actions/document-save.svgz</file>
-        <file alias="edit-add.svgz" >images/actions/edit-add.svgz</file>
+        <file alias="drag-poster-accept.png" >images/misc/drag-poster-accept.png</file>        <file alias="edit-add.svgz" >images/actions/edit-add.svgz</file>
         <file alias="edit-copy.svgz" >images/actions/edit-copy.svgz</file>
         <file alias="edit-delete.svgz" >images/actions/edit-delete.svgz</file>
         <file alias="edit.svgz" >images/actions/edit.svgz</file>
