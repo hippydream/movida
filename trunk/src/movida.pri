@@ -16,14 +16,13 @@ DEPENDPATH += $${ROOT}/src $${ROOT}/src/3rdparty
 win32 { LIBS += -L$${ROOT}/lib/win32/ }
 LIBS += -L$${ROOT}/lib/
 
-linux-g++ {
+linux-g++|linux-g++-64 {
   # Thanks to Paul John Floyd for suggesting this trick:
   # http://paulf.free.fr/undocumented_qmake.html
   DOLLAR = $
   QMAKE_LFLAGS += -Wl,-rpath,\'$${DOLLAR}$${DOLLAR}ORIGIN/../lib\'
+  message(linux-g++ detected. Using QMAKE_LFLAGS.)
 }
-
-message($$QMAKESPEC)
 
 unix { PLATFORM = unix }
 win32 { PLATFORM = win32 }
