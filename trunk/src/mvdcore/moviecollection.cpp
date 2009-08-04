@@ -858,7 +858,7 @@ QString MvdMovieCollection::addImage(const QString& path,
 #ifdef Q_OS_WIN
                 if (!QString::compare(thisFilePath, storagePath, Qt::CaseInsensitive))
 #else
-                if (QString::compare(thisFilePath, storagePath, Qt::CaseSensitive))
+                if (!QString::compare(thisFilePath, storagePath, Qt::CaseSensitive))
 #endif
                         return info.fileName();
         }
