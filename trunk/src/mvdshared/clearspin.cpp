@@ -30,8 +30,7 @@ namespace {
     //! Check out style issues with Oxygen
     static int spacing() {
         QStyle* s = QApplication::style();
-        QString n = s->objectName();
-        if (n == QLatin1String("oxygen"))
+        if (s->inherits("OxygenStyle"))
             return 3;
         return 2;
     }
