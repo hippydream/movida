@@ -325,7 +325,7 @@ void MvdSmartViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
         painter->setRenderHint(QPainter::Antialiasing, true);
 
         // And now draw the pixmap! :)
-        // Disable smooth pixmap transform to avoid a rendering bug in Qt 4.5.1
+        // Enable smooth pixmap transform to avoid a rendering bug in Qt 4.5.1
         // that would sometimes cause two calls to drawPixmap for the same pixmap to 
         // render slightly different images.
         painter->setRenderHint(QPainter::Antialiasing, false);

@@ -17,6 +17,7 @@ HEADERS += \
 	maininfopage.h \
 	mainsettingspage.h \
 	mainwindow.h \
+	mainwindow_p.h \
 	movieeditor.h \
 	movieeditorpage.h \
 	moviemasseditor.h \
@@ -59,7 +60,7 @@ SOURCES += \
 	maininfopage.cpp \
 	mainsettingspage.cpp \
 	mainwindow.cpp \
-	mainwindow_gui.cpp \
+	mainwindow_p.cpp \
 	movieeditor.cpp \
 	moviemasseditor.cpp \
 	movietreeview.cpp \

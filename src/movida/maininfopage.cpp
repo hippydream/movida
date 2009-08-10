@@ -124,8 +124,8 @@ mDefaultSpecialTags(0), mStatusTimer(new QTimer(this))
         connect (Ui::MvdMainInfoPage::markAsSpecial, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
         connect (Ui::MvdMainInfoPage::markAsLoaned, SIGNAL(toggled(bool)), this, SLOT(updateModifiedStatus()) );
 
-        Ui::MvdMainInfoPage::poster->setDragAndDropHandler(this, 
-            "posterDragEntered", "posterDropped", "posterDragLeave", 
+        Ui::MvdMainInfoPage::poster->setDragAndDropHandler(this,
+            "posterDragEntered", "posterDropped", "posterDragLeave",
             "posterDragMoved");
 
         mStatusTimer->setSingleShot(true);
@@ -223,9 +223,10 @@ bool MvdMainInfoPage::store(MvdMovie& movie)
 
                 if (posterName.isEmpty())
                 {
-                        if (QMessageBox::question(this, MVD_CAPTION, tr("Sorry, the movie poster could not be imported. Continue?"),
-                                QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
-                                return false;
+//! \todo Show some non-invasive message on the main window or somewhere else
+//                        if (QMessageBox::question(this, MVD_CAPTION, tr("Sorry, the movie poster could not be imported. Continue?"),
+//                                QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+//                                return false;
                 }
 
                 movie.setPoster(posterName);
@@ -349,7 +350,7 @@ bool MvdMainInfoPage::posterDragEntered(const QMimeData& mimeData) const
 
         if (accept)
                 poster->setPoster(":/images/drag-poster-accept.png");
-        
+
         return accept;
 }
 

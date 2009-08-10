@@ -276,7 +276,7 @@
 				>
 			</File>
 			<File
-				RelativePath="mainwindow_gui.cpp"
+				RelativePath="mainwindow_p.cpp"
 				>
 			</File>
 			<File
@@ -780,6 +780,10 @@
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_mainwindow.cpp"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="mainwindow_p.h"
+				>
 			</File>
 			<File
 				RelativePath="movieeditor.h"
@@ -2908,6 +2912,10 @@
 				>
 			</File>
 			<File
+				RelativePath="images\misc\drag-poster-accept.png"
+				>
+			</File>
+			<File
 				RelativePath="images\actions\edit-add.svgz"
 				>
 			</File>
@@ -2961,7 +2969,7 @@
 						Name="VCCustomBuildTool"
 						Description="RCC images.qrc"
 						CommandLine="$(QTDIR)\bin\rcc.exe -name images images.qrc -o ..\..\tmp\win32\debug\movida\rcc\qrc_images.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images.qrc;images\actions\application-exit.svgz;images\actions\arrow-down-double.svgz;images\actions\arrow-down.svgz;images\actions\arrow-left-double.svgz;images\actions\arrow-left.svgz;images\actions\arrow-right-double.svgz;images\actions\arrow-right.svgz;images\actions\arrow-up-double.svgz;images\actions\arrow-up.svgz;images\actions\clear-left.svgz;images\actions\configure-shortcuts.svgz;images\actions\configure-toolbars.svgz;images\actions\configure.svgz;images\actions\dialog-information.svgz;images\actions\dialog-warning.svgz;images\actions\document-new.svgz;images\actions\document-open-recent.svgz;images\actions\document-open.svgz;images\actions\document-properties.svgz;images\actions\document-reopen.svgz;images\actions\document-revert.svgz;images\actions\document-save-as.svgz;images\actions\document-save.svgz;images\actions\edit-add.svgz;images\actions\edit-copy.svgz;images\actions\edit-delete.svgz;images\actions\edit.svgz;images\actions\fileview-detailed.svgz;images\actions\fileview-split.svgz;images\actions\fileview-text.svgz;images\actions\help-contents.svgz;images\actions\identity.svgz;images\actions\list.svgz;images\actions\lock-toolbars.svgz;images\actions\mass-edit.svgz;images\actions\reload.svgz;images\actions\view-choose.svgz;images\actions\zoom-in.svgz;images\actions\zoom-original.svgz;images\actions\zoom-out.svgz;images\misc\default-poster.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\loaned-overlay.svgz;images\misc\loaned.svgz;images\misc\logo.png;images\misc\logo.svgz;images\misc\rating.svgz;images\misc\seen.svgz;images\misc\special.svgz"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images.qrc;images\actions\application-exit.svgz;images\actions\arrow-down-double.svgz;images\actions\arrow-down.svgz;images\actions\arrow-left-double.svgz;images\actions\arrow-left.svgz;images\actions\arrow-right-double.svgz;images\actions\arrow-right.svgz;images\actions\arrow-up-double.svgz;images\actions\arrow-up.svgz;images\actions\clear-left.svgz;images\actions\configure-shortcuts.svgz;images\actions\configure-toolbars.svgz;images\actions\configure.svgz;images\actions\dialog-information.svgz;images\actions\dialog-warning.svgz;images\actions\document-new.svgz;images\actions\document-open-recent.svgz;images\actions\document-open.svgz;images\actions\document-properties.svgz;images\actions\document-reopen.svgz;images\actions\document-revert.svgz;images\actions\document-save-as.svgz;images\actions\document-save.svgz;images\actions\edit-add.svgz;images\actions\edit-copy.svgz;images\actions\edit-delete.svgz;images\actions\edit.svgz;images\actions\fileview-detailed.svgz;images\actions\fileview-split.svgz;images\actions\fileview-text.svgz;images\actions\help-contents.svgz;images\actions\identity.svgz;images\actions\list.svgz;images\actions\lock-toolbars.svgz;images\actions\mass-edit.svgz;images\actions\reload.svgz;images\actions\view-choose.svgz;images\actions\zoom-in.svgz;images\actions\zoom-original.svgz;images\actions\zoom-out.svgz;images\misc\default-poster.png;images\misc\drag-poster-accept.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\loaned-overlay.svgz;images\misc\loaned.svgz;images\misc\logo.png;images\misc\logo.svgz;images\misc\rating.svgz;images\misc\seen.svgz;images\misc\special.svgz"
 						Outputs="..\..\tmp\win32\debug\movida\rcc\qrc_images.cpp"
 					/>
 				</FileConfiguration>
@@ -2972,7 +2980,7 @@
 						Name="VCCustomBuildTool"
 						Description="RCC images.qrc"
 						CommandLine="$(QTDIR)\bin\rcc.exe -name images images.qrc -o ..\..\tmp\win32\release\movida\rcc\qrc_images.cpp&#x0D;&#x0A;"
-						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images.qrc;images\actions\application-exit.svgz;images\actions\arrow-down-double.svgz;images\actions\arrow-down.svgz;images\actions\arrow-left-double.svgz;images\actions\arrow-left.svgz;images\actions\arrow-right-double.svgz;images\actions\arrow-right.svgz;images\actions\arrow-up-double.svgz;images\actions\arrow-up.svgz;images\actions\clear-left.svgz;images\actions\configure-shortcuts.svgz;images\actions\configure-toolbars.svgz;images\actions\configure.svgz;images\actions\dialog-information.svgz;images\actions\dialog-warning.svgz;images\actions\document-new.svgz;images\actions\document-open-recent.svgz;images\actions\document-open.svgz;images\actions\document-properties.svgz;images\actions\document-reopen.svgz;images\actions\document-revert.svgz;images\actions\document-save-as.svgz;images\actions\document-save.svgz;images\actions\edit-add.svgz;images\actions\edit-copy.svgz;images\actions\edit-delete.svgz;images\actions\edit.svgz;images\actions\fileview-detailed.svgz;images\actions\fileview-split.svgz;images\actions\fileview-text.svgz;images\actions\help-contents.svgz;images\actions\identity.svgz;images\actions\list.svgz;images\actions\lock-toolbars.svgz;images\actions\mass-edit.svgz;images\actions\reload.svgz;images\actions\view-choose.svgz;images\actions\zoom-in.svgz;images\actions\zoom-original.svgz;images\actions\zoom-out.svgz;images\misc\default-poster.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\loaned-overlay.svgz;images\misc\loaned.svgz;images\misc\logo.png;images\misc\logo.svgz;images\misc\rating.svgz;images\misc\seen.svgz;images\misc\special.svgz"
+						AdditionalDependencies="$(QTDIR)\bin\rcc.exe;images.qrc;images\actions\application-exit.svgz;images\actions\arrow-down-double.svgz;images\actions\arrow-down.svgz;images\actions\arrow-left-double.svgz;images\actions\arrow-left.svgz;images\actions\arrow-right-double.svgz;images\actions\arrow-right.svgz;images\actions\arrow-up-double.svgz;images\actions\arrow-up.svgz;images\actions\clear-left.svgz;images\actions\configure-shortcuts.svgz;images\actions\configure-toolbars.svgz;images\actions\configure.svgz;images\actions\dialog-information.svgz;images\actions\dialog-warning.svgz;images\actions\document-new.svgz;images\actions\document-open-recent.svgz;images\actions\document-open.svgz;images\actions\document-properties.svgz;images\actions\document-reopen.svgz;images\actions\document-revert.svgz;images\actions\document-save-as.svgz;images\actions\document-save.svgz;images\actions\edit-add.svgz;images\actions\edit-copy.svgz;images\actions\edit-delete.svgz;images\actions\edit.svgz;images\actions\fileview-detailed.svgz;images\actions\fileview-split.svgz;images\actions\fileview-text.svgz;images\actions\help-contents.svgz;images\actions\identity.svgz;images\actions\list.svgz;images\actions\lock-toolbars.svgz;images\actions\mass-edit.svgz;images\actions\reload.svgz;images\actions\view-choose.svgz;images\actions\zoom-in.svgz;images\actions\zoom-original.svgz;images\actions\zoom-out.svgz;images\misc\default-poster.png;images\misc\drag-poster-accept.png;images\misc\filter-close.png;images\misc\filter-warning.png;images\misc\loaned-overlay.svgz;images\misc\loaned.svgz;images\misc\logo.png;images\misc\logo.svgz;images\misc\rating.svgz;images\misc\seen.svgz;images\misc\special.svgz"
 						Outputs="..\..\tmp\win32\release\movida\rcc\qrc_images.cpp"
 					/>
 				</FileConfiguration>

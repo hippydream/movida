@@ -22,15 +22,17 @@
 #define MVD_MAINWINDOW_H
 
 #include "movieeditor.h"
+
 #include "mvdcore/core.h"
 #include "mvdcore/global.h"
 #include "mvdcore/moviecollection.h"
-#include <QMainWindow>
-#include <QStringList>
-#include <QAbstractItemView>
-#include <QPointer>
-#include <QUrl>
-#include <QtGlobal>
+
+#include <QtCore/QPointer>
+#include <QtCore/QStringList>
+#include <QtCore/QUrl>
+#include <QtCore/QtGlobal>
+#include <QtGui/QAbstractItemView>
+#include <QtGui/QMainWindow>
 
 class MvdCollectionModel;
 class MvdBrowserView;
@@ -45,6 +47,7 @@ class MvdSharedDataEditor;
 class MvdSharedDataModel;
 class MvdSmartView;
 class MvdMovieTreeView;
+class MvdPluginInterface;
 class QAction;
 class QActionGroup;
 class QEvent;
@@ -59,225 +62,87 @@ class QTimer;
 class QToolBar;
 class QUrl;
 
+namespace Movida {
+    extern void mainWindowMessageHandler(Movida::MessageType t, const QString& m);
+}
+
+
 class MvdMainWindow : public QMainWindow
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdMainWindow(QWidget* parent = 0);
-	virtual ~MvdMainWindow();
+    MvdMainWindow(QWidget* parent = 0);
+    virtual ~MvdMainWindow();
+    void cleanUp();
 
-	MvdMovieCollection* currentCollection();
-	void cleanUp();
+    mvdid movieIndexToId(const QModelIndex& index) const;
+    QModelIndex movieIdToIndex(mvdid id) const;
 
-	bool isQuickFilterVisible() const;
-	MvdFilterWidget* filterWidget() const;
+    virtual bool eventFilter(QObject* o, QEvent* e);
 
-	virtual QMenu* createPopupMenu();
-	virtual void dispatchMessage(Movida::MessageType t, const QString& m);
+    MvdMovieCollection* currentCollection() const;
+    QList<mvdid> selectedMovies() const;
 
-	MvdPluginInterface* locatePlugin(const QString& id) const;
+    MvdPluginInterface* locatePlugin(const QString& id) const;
 
-	QList<mvdid> selectedMovies() const;
+    MvdFilterWidget* filterWidget() const;
+    bool isQuickFilterVisible() const;
+
+    void setMoviePoster(quint32 movieId, const QUrl& url);
 
 public slots:
-	bool loadCollection(const QString& file);
-	void filter(QString s);
-	void filter();
-	void resetFilter();
+    void newCollection();
+    bool loadCollection(const QString& file);
+    void loadLastCollection();
+    bool saveCollection();
+
+    void zoomIn();
+    void zoomOut();
+
+    void resetFilter();
+    void filter(QString s);
+
+    void lockToolBars(bool lock);
+
+    void clearRecentFiles();
+
+    void handleLinkClicked(const QUrl& url);
+
+    void showLog();
+    void showPreferences();
+
+    void addMovie();
+    void duplicateCurrentMovie();
+    void editMovie(const QModelIndex& index);
+    void editNextMovie();
+    void editPreviousMovie();
+    void editSelectedMovies();
+    void massEditSelectedMovies();
+    void removeMovie(const QModelIndex& index);
+    void removeMovies(const QModelIndexList& list);
+    void removeSelectedMovies();
+
+    void showMovieContextMenu(const QModelIndex& index);
+
+    void showCollectionMeta();
+    void showFilterWidget();
+    void showSharedDataEditor();
 
 protected:
-	void keyPressEvent(QKeyEvent* e);
-	bool eventFilter(QObject* o, QEvent* e);
+    virtual void closeEvent(QCloseEvent* e);
+    virtual void keyPressEvent(QKeyEvent* e);
+    virtual QMenu* createPopupMenu();
 
-protected slots:
-	void closeEvent(QCloseEvent* e);
-	
 private:
-	QGridLayout* mMainLayout;
+    friend void Movida::mainWindowMessageHandler(Movida::MessageType t, const QString& m);
 
-	// Actions
-	QAction* mA_FileExit;
-	QAction* mA_FileNew;
-	QAction* mA_FileOpen;
-	QAction* mA_FileOpenLast;
-	QAction* mA_FileImport;
-	QAction* mA_FileExport;
-	QAction* mA_FileRecent;
-	QAction* mA_FileSave;
-	QAction* mA_FileSaveAs;
-
-	QAction* mA_ViewModeTree;
-	QAction* mA_ViewModeSmart;
-	QAction* mA_ViewModeZoom;
-	QAction* mA_ViewModeZoomIn;
-	QAction* mA_ViewModeZoomOut;
-	QActionGroup* mAG_ViewMode;
-	QAction* mA_ViewDetails;
-	QAction* mA_ViewSort;
-	QActionGroup* mAG_ViewSort;
-	QAction* mA_ViewSortDescending;
-
-	QAction* mA_CollAddMovie;
-	QAction* mA_CollRemMovie;
-	QAction* mA_CollEdtMovie;
-	QAction* mA_CollMedMovie;
-	QAction* mA_CollDupMovie;
-	QAction* mA_CollMeta;
-
-	QAction* mA_ToolSdEditor;
-	QAction* mA_ToolPref;
-	QAction* mA_ToolLog;
-
-	QAction* mA_HelpAbout;
-	QAction* mA_HelpContents;
-	QAction* mA_HelpIndex;
-
-	QAction* mA_LockToolBars;
-
-	// Top level menus
-	QMenu* mMN_File;
-	QMenu* mMN_View;
-	QMenu* mMN_Collection;
-	QMenu* mMN_Plugins;
-	QMenu* mMN_Tools;
-	QMenu* mMN_Help;
-
-	// Sub menus
-	QMenu* mMN_FileMRU;
-	QMenu* mMN_FileImport;
-	QMenu* mMN_FileExport;
-	QMenu* mMN_ViewSort;
-
-	// Tool bars
-	QToolBar* mTB_MainToolBar;
-
-	// Info panel
-	MvdInfoPanel* mInfoPanel;
-	bool mInfoPanelClosedByUser;
-	
-	// Views
-	QStackedWidget* mMainViewStack;
-	MvdSmartView* mSmartView;
-	MvdMovieTreeView* mTreeView;
-	MvdBrowserView* mDetailsView;
-	MvdSharedDataEditor* mSharedDataEditor;
-
-	// Dock windows
-	MvdDockWidget* mDetailsDock;
-	MvdDockWidget* mSharedDataDock;
-	
-	MvdFilterWidget* mFilterWidget;
-	QTimer* mHideFilterTimer;
-	MvdFilterProxyModel* mFilterModel;
-	
-	// The current movie collection
-	MvdMovieCollection* mCollection;
-	MvdCollectionModel* mMovieModel;
-	MvdRowSelectionModel* mSelectionModel;
-
-	// SD model
-	MvdSharedDataModel* mSharedDataModel;
-
-	QPointer<MvdMovieEditor> mMovieEditor;
-
-	QList<MvdPluginInterface*> mPlugins;
-
-	QHttp* mHttp;
-
-	struct RemoteRequest {
-		enum { Invalid = 0, MoviePoster };
-
-		RemoteRequest() : requestType(Invalid), requestId(-1), target(MvdNull), tempFile(0) {}
-
-		QUrl url;
-		quint16 requestType;
-		int requestId;
-		QVariant data;
-		mvdid target;
-		QTemporaryFile* tempFile;
-	};
-	QList<RemoteRequest> mPendingRemoteRequests;
-
-	// D&D
-	bool mDraggingSharedData;
-	int mSavedFilterMessage;
-
-	void createActions();
-	QAction* createAction();
-	void initAction(QAction* action, const QString& text, const QString& shortInfo, const QString& longInfo, const QString& shortcut = QString());
-	void createMenus();
-	void createToolBars();
-	void setupUi();
-	void retranslateUi();
-	void setupConnections();
-#ifdef MVD_DEBUG_TOOLS
-	void setupDebugTools();
-#endif
-	void createNewCollection();
-	inline mvdid movieIndexToId(const QModelIndex& index) const;
-	inline QModelIndex movieIdToIndex(mvdid id) const;
-	bool shouldShowQuickFilter() const;
-	void registerMessageHandler();
-
-private slots:
-	bool closeCollection();
-	bool collectionLoaderCallback(int state, const QVariant& data);
-	bool loadCollectionDlg();
-	bool saveCollection();
-	bool saveCollectionDlg();
-	void addMovie();
-	void addRecentFile(const QString& file);
-	void collectionModified();
-	void collectionMetaDataChanged(int t);
-	void currentViewChanged();
-	void duplicateCurrentMovie();
-	void editMovie(const QModelIndex& index);
-	void editNextMovie();
-	void editPreviousMovie();
-	void editSelectedMovies();
-	void externalActionTriggered(const QString& id, const QVariant& data);
-	void httpRequestFinished(int id, bool error);
-	void infoPanelClosedByUser();
-	void linkClicked(const QUrl& url);
-	void loadLastCollection();
-	void loadPlugins();
-	void loadPluginsFromDir(const QString& path);
-	void lockToolBars(bool lock);
-	void massEditSelectedMovies();
-	void movieChanged(mvdid);
-	void movieViewSelectionChanged();
-	void movieViewToggled(QAction*);
-	void newCollection();
-	void openRecentFile(QAction* a);
-	void pluginActionTriggered();
-	void removeMovie(const QModelIndex& index);
-	void removeMovies(const QModelIndexList& list);
-	void removeSelectedMovies();
-	void sdeDragStarted();
-	void sdeDragEnded();
-	void setMoviePoster(quint32 movieId, const QUrl& url);
-	void showFilterWidget();
-	void showLog();
-	void showCollectionMeta();
-	void showMovieContextMenu(const QModelIndex& index);
-	void showPreferences();
-	void showSharedDataEditor();
-	void sortActionTriggered(QAction* a = 0);
-	void treeViewSorted(int logicalIndex);
-	void unloadPlugins();
-	void updateCaption();
-	void updateBrowserView();
-	void updateFileMenu();
-	void updatePluginsMenu();
-	void updateViewSortMenu();
-	void zoomIn();
-	void zoomOut();
+    class Private;
+    Private *d;
 };
 
 namespace Movida {
-	extern MvdMainWindow* MainWindow;
-	extern void mainWindowMessageHandler(Movida::MessageType t, const QString& m);
+    extern MvdMainWindow* MainWindow;
 }
 
 #endif // MVD_MAINWINDOW_H
