@@ -16,12 +16,21 @@ DEPENDPATH += $${ROOT}/src $${ROOT}/src/3rdparty
 win32 { LIBS += -L$${ROOT}/lib/win32/ }
 LIBS += -L$${ROOT}/lib/
 
-linux-g++|linux-g++-64 {
-  # Thanks to Paul John Floyd for suggesting this trick:
-  # http://paulf.free.fr/undocumented_qmake.html
-  DOLLAR = $
-  QMAKE_LFLAGS += -Wl,-rpath,\'$${DOLLAR}$${DOLLAR}ORIGIN/../lib\'
-  message(linux-g++ detected. Using QMAKE_LFLAGS.)
+macx {
+    QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../lib/
+    message(macx detected. Using QMAKE_LFLAGS_SONAME.)
+} else:linux-* {
+    # Thanks to Paul John Floyd for suggesting this trick:
+    # http://paulf.free.fr/undocumented_qmake.html
+    DOLLAR = $
+    QMAKE_LFLAGS += -Wl,-rpath,\'$${DOLLAR}$${DOLLAR}ORIGIN/../lib\'
+    message(linux-* detected. Using QMAKE_LFLAGS.)
+}
+
+linux-g++-* {
+    # Bail out on non-selfcontained libraries. Just a security measure
+    # to prevent checking in code that does not compile on other platforms.
+    QMAKE_LFLAGS += -Wl,--allow-shlib-undefined -Wl,--no-undefined
 }
 
 unix { PLATFORM = unix }
