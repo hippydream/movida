@@ -34,12 +34,20 @@ namespace {
     //! Check out style issues with Oxygen
     static int spacing() {
         QStyle* s = QApplication::style();
-        QString n = s->objectName();
-        if (n == QLatin1String("oxygen"))
+        if (s->inherits("OxygenStyle"))
             return 3;
         return 2;
     }
-};
+
+    static QSize& adjustSizeHint(QSize& sz) {
+        QStyle* s = QApplication::style();
+        // oxygen style will cause a wrong vertical size hint
+        // if the line edit has a stylesheet
+        if (s->inherits("OxygenStyle"))
+            sz.rheight() = 27;
+        return sz;
+    }
+}
 
 class MvdClearEdit::Private
 {
@@ -69,7 +77,14 @@ MvdClearEdit::MvdClearEdit(QWidget* parent)
 
         connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateClearButton(const QString&)));
 
-        setStyleSheet(QString("QLineEdit { padding-right: %1; }").arg(d->pixmapSize.width() + 2 * ::spacing()));
+        QString styleSheet = QLatin1String("QLineEdit {");
+        styleSheet += QString(" padding-right: %1;").arg(d->pixmapSize.width() + 2 * ::spacing());
+
+        if (style()->inherits("OxygenStyle")) // Focus effect is too close to the text! Add more spacing.
+            styleSheet += QString(" padding-left: %1;").arg(::spacing());
+
+        styleSheet += QLatin1String("}");
+        setStyleSheet(styleSheet);
 }
 
 void MvdClearEdit::resizeEvent(QResizeEvent* e)
@@ -108,9 +123,7 @@ void MvdClearEdit::resizeEvent(QResizeEvent* e)
 QSize MvdClearEdit::sizeHint() const
 {
         QSize sz = QLineEdit::sizeHint();
-//        sz.rwidth() += d->pixmapSize.width() + 2 * ::spacing();
-//        sz.setHeight(qMax(sz.height(), d->pixmapSize.height()));
-        return sz;
+        return adjustSizeHint(sz);
 }
 
 void MvdClearEdit::updateClearButton(const QString& text)
