@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: clearedit.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,30 +22,31 @@
 #define MVD_CLEAREDIT_H
 
 #include "sharedglobal.h"
-#include <QLineEdit>
+
+#include <QtGui/QLineEdit>
 
 class MVD_EXPORT_SHARED MvdClearEdit : public QLineEdit
 {
-        Q_OBJECT
+    Q_OBJECT
 
 public:
-        MvdClearEdit(QWidget* parent = 0);
+    MvdClearEdit(QWidget * parent = 0);
 
-        void setPlaceHolder(const QString& s);
-        QString placeHolder() const;
+    void setPlaceHolder(const QString &s);
+    QString placeHolder() const;
 
-        virtual QSize sizeHint() const;
+    virtual QSize sizeHint() const;
 
 protected:
-        virtual void resizeEvent(QResizeEvent* );
-        virtual void paintEvent(QPaintEvent* );
+    virtual void resizeEvent(QResizeEvent *);
+    virtual void paintEvent(QPaintEvent *);
 
 private slots:
-        void updateClearButton(const QString& text);
+    void updateClearButton(const QString &text);
 
 private:
-        class Private;
-        Private* d;
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_CLEAREDIT_H

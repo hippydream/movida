@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: importfinalpage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,9 +21,11 @@
 #ifndef MVD_IMPORTFINAL_H
 #define MVD_IMPORTFINAL_H
 
-#include "sharedglobal.h"
-#include "importexportpage.h"
 #include "ui_importfinalpage.h"
+
+#include "importexportpage.h"
+#include "sharedglobal.h"
+
 #include "mvdcore/moviedata.h"
 
 class QLabel;
@@ -31,37 +33,38 @@ class QRadioButton;
 
 class MvdImportFinalPage : public MvdImportExportPage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdImportFinalPage(QWidget* parent = 0);
+    MvdImportFinalPage(QWidget *parent = 0);
 
-	void showMessage(const QString& msg, MovidaShared::MessageType t);
+    void showMessage(const QString &msg, MovidaShared::MessageType t);
 
-	void initializePage();
-	void cleanupPage();
-	void setBusyStatus(bool busy);
-	void reset();
+    void initializePage();
+    void cleanupPage();
+    void setBusyStatus(bool busy);
+    void reset();
 
-	virtual bool validatePage();
-	virtual void updateButtons();
+    virtual bool validatePage();
+    virtual void updateButtons();
 
-	QList<mvdid> importedMovies() const { return mImportedMovies; }
-	bool filterImportedMovies() const { return ui.filterMovies->isChecked(); }
+    QList<mvdid> importedMovies() const { return mImportedMovies; }
+
+    bool filterImportedMovies() const { return ui.filterMovies->isChecked(); }
 
 public slots:
-	virtual void importMovies(const MvdMovieDataList& movies);
+    virtual void importMovies(const MvdMovieDataList &movies);
 
 private slots:
-	void restartWizardToggled();
-	void initializePageInternal();
+    void restartWizardToggled();
+    void initializePageInternal();
 
 private:
-	Ui::MvdImportFinalPage ui;
+    Ui::MvdImportFinalPage ui;
 
-	bool mPendingButtonUpdates;
-	QString mFinishButtonText;
-	QList<mvdid> mImportedMovies;
+    bool mPendingButtonUpdates;
+    QString mFinishButtonText;
+    QList<mvdid> mImportedMovies;
 };
 
 #endif // MVD_IMPORTFINAL_H

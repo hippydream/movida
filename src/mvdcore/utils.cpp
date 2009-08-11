@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Filename: utils.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,10 +19,12 @@
 **********************************************************************/
 
 #include "utils.h"
+
 #include "base64.h"
-#include <QPoint>
-#include <QRect>
-#include <QStringList>
+
+#include <QtCore/QPoint>
+#include <QtCore/QRect>
+#include <QtCore/QStringList>
 
 namespace Movida {
 
@@ -30,6 +32,7 @@ namespace Movida {
 QStringList splitArgs(const QString &s, int idx)
 {
     int l = s.length();
+
     Q_ASSERT(l > 0);
     Q_ASSERT(s.at(idx) == QLatin1Char('('));
     Q_ASSERT(s.at(l - 1) == QLatin1Char(')'));
@@ -56,7 +59,7 @@ QStringList splitArgs(const QString &s, int idx)
 /*! \internal The code is a slightly modified version of QSettingsPrivate::stringToVariant(),
     with base 64 encoding of binary data.
 */
-QVariant stringToVariant(const QString& s)
+QVariant stringToVariant(const QString &s)
 {
     if (s.startsWith(QLatin1Char('@'))) {
         if (s.endsWith(QLatin1Char(')'))) {
@@ -101,86 +104,86 @@ QString variantToString(const QVariant &v)
     QString result;
 
     switch (v.type()) {
-    case QVariant::Invalid:
-        result = QLatin1String("@Invalid()");
-        break;
+        case QVariant::Invalid:
+            result = QLatin1String("@Invalid()");
+            break;
 
-    case QVariant::ByteArray:
-    {
-        QByteArray a = v.toByteArray();
-        result = QLatin1String("@ByteArray(");
-        result += MvdBase64::encode(a);
-        // result += QString::fromLatin1(a.constData(), a.size());
-        result += QLatin1Char(')');
-        break;
-    }
-
-    case QVariant::String:
-    case QVariant::LongLong:
-    case QVariant::ULongLong:
-    case QVariant::Int:
-    case QVariant::UInt:
-    case QVariant::Bool:
-    case QVariant::Double:
-    case QVariant::KeySequence:
-    {
-        result = v.toString();
-        if (result.startsWith(QLatin1Char('@')))
-            result.prepend(QLatin1Char('@'));
-        break;
-    }
-
-    case QVariant::Rect:
-    {
-        QRect r = qvariant_cast<QRect>(v);
-        result += QLatin1String("@Rect(");
-        result += QString::number(r.x());
-        result += QLatin1Char(' ');
-        result += QString::number(r.y());
-        result += QLatin1Char(' ');
-        result += QString::number(r.width());
-        result += QLatin1Char(' ');
-        result += QString::number(r.height());
-        result += QLatin1Char(')');
-        break;
-    }
-
-    case QVariant::Size: 
-    {
-        QSize s = qvariant_cast<QSize>(v);
-        result += QLatin1String("@Size(");
-        result += QString::number(s.width());
-        result += QLatin1Char(' ');
-        result += QString::number(s.height());
-        result += QLatin1Char(')');
-        break;
-    }
-
-    case QVariant::Point:
-    {
-        QPoint p = qvariant_cast<QPoint>(v);
-        result += QLatin1String("@Point(");
-        result += QString::number(p.x());
-        result += QLatin1Char(' ');
-        result += QString::number(p.y());
-        result += QLatin1Char(')');
-        break;
-    }
-
-    default:
-    {
-        QByteArray a;
+        case QVariant::ByteArray:
         {
-            QDataStream s(&a, QIODevice::WriteOnly);
-            s.setVersion(QDataStream::Qt_4_0);
-            s << v;
+            QByteArray a = v.toByteArray();
+            result = QLatin1String("@ByteArray(");
+            result += MvdBase64::encode(a);
+            // result += QString::fromLatin1(a.constData(), a.size());
+            result += QLatin1Char(')');
+            break;
         }
-        result = QLatin1String("@Variant(");
-        // result += QString::fromLatin1(a.constData(), a.size());
-        result += MvdBase64::encode(a);
-        result += QLatin1Char(')');
-        break;
-    }
+
+        case QVariant::String:
+        case QVariant::LongLong:
+        case QVariant::ULongLong:
+        case QVariant::Int:
+        case QVariant::UInt:
+        case QVariant::Bool:
+        case QVariant::Double:
+        case QVariant::KeySequence:
+        {
+            result = v.toString();
+            if (result.startsWith(QLatin1Char('@')))
+                result.prepend(QLatin1Char('@'));
+            break;
+        }
+
+        case QVariant::Rect:
+        {
+            QRect r = qvariant_cast<QRect>(v);
+            result += QLatin1String("@Rect(");
+            result += QString::number(r.x());
+            result += QLatin1Char(' ');
+            result += QString::number(r.y());
+            result += QLatin1Char(' ');
+            result += QString::number(r.width());
+            result += QLatin1Char(' ');
+            result += QString::number(r.height());
+            result += QLatin1Char(')');
+            break;
+        }
+
+        case QVariant::Size:
+        {
+            QSize s = qvariant_cast<QSize>(v);
+            result += QLatin1String("@Size(");
+            result += QString::number(s.width());
+            result += QLatin1Char(' ');
+            result += QString::number(s.height());
+            result += QLatin1Char(')');
+            break;
+        }
+
+        case QVariant::Point:
+        {
+            QPoint p = qvariant_cast<QPoint>(v);
+            result += QLatin1String("@Point(");
+            result += QString::number(p.x());
+            result += QLatin1Char(' ');
+            result += QString::number(p.y());
+            result += QLatin1Char(')');
+            break;
+        }
+
+        default:
+        {
+            QByteArray a;
+            {
+                QDataStream s(&a, QIODevice::WriteOnly);
+                s.setVersion(QDataStream::Qt_4_0);
+                s << v;
+            }
+            result = QLatin1String("@Variant(");
+            // result += QString::fromLatin1(a.constData(), a.size());
+            result += MvdBase64::encode(a);
+            result += QLatin1Char(')');
+            break;
+        }
     }
 
     return result;

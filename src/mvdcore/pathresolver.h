@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: pathresolver.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,43 +22,43 @@
 #define MVD_PATHRESOLVER_H
 
 #include "global.h"
-#include <QtGlobal>
-#include <QString>
+
+#include <QtCore/QString>
+#include <QtCore/QtGlobal>
 
 class MVD_EXPORT MvdPathResolver
 {
 public:
-	static MvdPathResolver& instance();
+    static MvdPathResolver &instance();
 
-	bool isInitialized() const;
+    bool isInitialized() const;
 
-	QString settingsDir() const;
-	QString settingsFile() const;
-	QString logFile() const;
-	QString tempDir() const;
-	QString resourcesDir(Movida::Scope scope = Movida::UserScope) const;
-	QString generateTempDir() const;
+    QString settingsDir() const;
+    QString settingsFile() const;
+    QString logFile() const;
+    QString tempDir() const;
+    QString resourcesDir(Movida::Scope scope = Movida::UserScope) const;
+    QString generateTempDir() const;
 
-	static QString applicationDirPath();
-	static bool removeDirectoryTree(const QString& dir, const QString& excludeDir = QString());
+    static QString applicationDirPath();
+    static bool removeDirectoryTree(const QString &dir, const QString &excludeDir = QString());
 
 private:
-	MvdPathResolver();
-	MvdPathResolver(const MvdPathResolver&);
-	MvdPathResolver& operator=(const MvdPathResolver&);
-	virtual ~MvdPathResolver();
+    MvdPathResolver();
+    MvdPathResolver(const MvdPathResolver &);
+    MvdPathResolver &operator=(const MvdPathResolver &);
+    virtual ~MvdPathResolver();
 
-	static void create();
-	static volatile MvdPathResolver* mInstance;
-	static bool mDestroyed;
+    static void create();
+    static volatile MvdPathResolver *mInstance;
+    static bool mDestroyed;
 
-	class Private;
-	Private* d;
+    class Private;
+    Private *d;
 };
 
-namespace Movida
-{
-	MVD_EXPORT extern MvdPathResolver& paths();
+namespace Movida {
+MVD_EXPORT extern MvdPathResolver &paths();
 }
 
 #endif // MVD_PATHRESOLVER_H

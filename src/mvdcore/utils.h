@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: utils.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,14 +22,14 @@
 #define MVD_UTILS_H
 
 #include "global.h"
-#include <QString>
-#include <QVariant>
 
-namespace Movida
-{
-    MVD_EXPORT QStringList splitArgs(const QString& s, int idx);
-    MVD_EXPORT QVariant stringToVariant(const QString& s);
-    MVD_EXPORT QString variantToString(const QVariant& v);
+#include <QtCore/QString>
+#include <QtCore/QVariant>
+
+namespace Movida {
+MVD_EXPORT QStringList splitArgs(const QString &s, int idx);
+MVD_EXPORT QVariant stringToVariant(const QString &s);
+MVD_EXPORT QString variantToString(const QVariant &v);
 }
 
 #endif // MVD_UTILS_H

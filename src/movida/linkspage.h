@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: linkspage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,6 +22,7 @@
 #define MVD_LINKSPAGE_H
 
 #include "ui_linkspage.h"
+
 #include "movieeditorpage.h"
 
 class QIcon;
@@ -29,34 +30,34 @@ class QTreeWidgetItem;
 
 class MvdLinksPage : public MvdMovieEditorPage, private Ui::MvdLinksPage
 {
-	Q_OBJECT
-		
+    Q_OBJECT
+
 public:
-	MvdLinksPage(MvdMovieCollection* c, MvdMovieEditor* parent = 0);
-	
-	QString label();
-	QIcon icon();
+    MvdLinksPage(MvdMovieCollection *c, MvdMovieEditor *parent = 0);
 
-	void setMovieImpl(const MvdMovie& movie);
+    QString label();
+    QIcon icon();
 
-	bool store(MvdMovie& movie);
+    void setMovieImpl(const MvdMovie &movie);
+
+    bool store(MvdMovie &movie);
 
 private slots:
-	void imdbIdChanged(const QString& text);
-	void openImdbPage();
-	void contextMenuRequested(QTreeWidgetItem* item, int column);
-	void itemChanged(QTreeWidgetItem* item, int column);
-	void updateModifiedStatus();
-	void deleteSelectedUrls();
-	void openSelectedUrls();
+    void imdbIdChanged(const QString &text);
+    void openImdbPage();
+    void contextMenuRequested(QTreeWidgetItem *item, int column);
+    void itemChanged(QTreeWidgetItem *item, int column);
+    void updateModifiedStatus();
+    void deleteSelectedUrls();
+    void openSelectedUrls();
 
 private:
-	inline void appendPlaceHolder();
-	inline QList<MvdUrl> urls() const;
-	
-	QList<MvdUrl> mDefaultUrls;
-	QString mDefaultImdbId;
-	bool mLocked;
+    inline void appendPlaceHolder();
+    inline QList<MvdUrl> urls() const;
+
+    QList<MvdUrl> mDefaultUrls;
+    QString mDefaultImdbId;
+    bool mLocked;
 };
 
 #endif // MVD_LINKSPAGE_H

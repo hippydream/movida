@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: mainsettingspage.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,68 +19,69 @@
 **************************************************************************/
 
 #include "mainsettingspage.h"
+
 #include "mvdcore/core.h"
 #include "mvdcore/settings.h"
-#include <QIcon>
+
+#include <QtGui/QIcon>
 
 /*!
-	\class MvdMainSettingsPage mainsettingspage.h
+    \class MvdMainSettingsPage mainsettingspage.h
 
-	\brief General settings widget for preferences dialog.
+    \brief General settings widget for preferences dialog.
 */
 
 
 /*!
-	Creates a new page.
+    Creates a new page.
 */
-MvdMainSettingsPage::MvdMainSettingsPage(MvdSettingsDialog* parent)
-: MvdSettingsPage(parent)
+MvdMainSettingsPage::MvdMainSettingsPage(MvdSettingsDialog *parent) :
+    MvdSettingsPage(parent)
 {
-	setupUi(this);
-	connect(Ui::MvdMainSettingsPage::clearMRU, SIGNAL(clicked()), this, SLOT(clearMruTriggered()));
+    setupUi(this);
+    connect(Ui::MvdMainSettingsPage::clearMRU, SIGNAL(clicked()), this, SLOT(clearMruTriggered()));
 
-	QStringList recentFiles = Movida::settings().value("movida/recent-files").toStringList();
-	Ui::MvdMainSettingsPage::clearMRU->setDisabled(recentFiles.isEmpty());
+    QStringList recentFiles = Movida::settings().value("movida/recent-files").toStringList();
+    Ui::MvdMainSettingsPage::clearMRU->setDisabled(recentFiles.isEmpty());
 
-	int max = MvdCore::parameter("movida/maximum-recent-files").toInt();
-	int current = Movida::settings().value("movida/maximum-recent-files").toInt();
-	maximumMRU->setMaximum(max);
-	maximumMRU->setValue(current);
+    int max = MvdCore::parameter("movida/maximum-recent-files").toInt();
+    int current = Movida::settings().value("movida/maximum-recent-files").toInt();
+    maximumMRU->setMaximum(max);
+    maximumMRU->setValue(current);
 }
 
 /*!
-	Apply and store changes.
+    Apply and store changes.
 */
 void MvdMainSettingsPage::store()
-{
-}
+{ }
 
 /*!
-	Reset to default values.
+    Reset to default values.
 */
 void MvdMainSettingsPage::reset()
-{
-}
+{ }
 
 /*!
-	Returns the title to be used for this page.
+    Returns the title to be used for this page.
 */
 QString MvdMainSettingsPage::label()
 {
-	return tr("General");
+    return tr("General");
 }
 
 /*!
-	Returns the icon to be used for this page.
+    Returns the icon to be used for this page.
 */
 QIcon MvdMainSettingsPage::icon()
 {
-	return QIcon();
+    return QIcon();
 }
 
 //! \internal
 void MvdMainSettingsPage::clearMruTriggered()
 {
-	emit externalActionTriggered("clear-mru");
-	clearMRU->setEnabled(false);
+    emit externalActionTriggered("clear-mru");
+
+    clearMRU->setEnabled(false);
 }

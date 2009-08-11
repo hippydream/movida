@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: searchengine.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,38 +22,41 @@
 #define MVD_SEARCHENGINE_H
 
 #include "sharedglobal.h"
-#include <QString>
-#include <QUrl>
+
+#include <QtCore/QString>
+#include <QtCore/QUrl>
 
 /*!
-	\class MvdSearchEngine searchengine.h
-	\ingroup MovidaShared
+    \class MvdSearchEngine searchengine.h
+    \ingroup MovidaShared
 
-	\brief Describes a local/network search engine.
+    \brief Describes a local/network search engine.
 */
 
 class MvdSearchEngine
 {
 public:
-	enum EngineCapability {
-		NoEngineCapability = 0,
-		MultipleSearchCapability = 1
-	};
-	Q_DECLARE_FLAGS(EngineCapabilities, EngineCapability);
+    enum EngineCapability {
+        NoEngineCapability = 0,
+        MultipleSearchCapability = 1
+    };
+    Q_DECLARE_FLAGS(EngineCapabilities, EngineCapability);
 
-	//! Creates a new search engine.
-	MvdSearchEngine() : canConfigure(false) {}
+    //! Creates a new search engine.
+    MvdSearchEngine() :
+        canConfigure(false) { }
 
-	//! Creates a new search engine with given name.
-	MvdSearchEngine(const QString& displayName)
-	: name(displayName), canConfigure(false)
-	{ }
+    //! Creates a new search engine with given name.
+    MvdSearchEngine(const QString &displayName) :
+        name(displayName),
+        canConfigure(false)
+    { }
 
-	QString name;
-	QString validator;
-	EngineCapabilities capabilities;
+    QString name;
+    QString validator;
+    EngineCapabilities capabilities;
 
-	bool canConfigure;
+    bool canConfigure;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(MvdSearchEngine::EngineCapabilities)
 

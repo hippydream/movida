@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: importdialog_p.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -23,7 +23,7 @@
 //  -------------
 //
 // This file is not part of the MvdShared API.  It exists for the convenience
-// of Movida.  This header file may change from version to version without notice, 
+// of Movida.  This header file may change from version to version without notice,
 // or even be removed.
 //
 // We mean it.
@@ -33,31 +33,33 @@
 #define MVD_IMPORTDIALOG_P_H
 
 #include "importdialog.h"
-#include "importstartpage.h"
-#include "importresultspage.h"
-#include "importsummarypage.h"
+
 #include "importfinalpage.h"
-#include <QStringList>
+#include "importresultspage.h"
+#include "importstartpage.h"
+#include "importsummarypage.h"
+
+#include <QtCore/QStringList>
 
 //! \internal
-class MvdImportDialog_P
+class MvdImportDialog::Private
 {
 public:
-	enum { StartPage, ResultsPage, SummaryPage, FinalPage };
+    enum { StartPage, ResultsPage, SummaryPage, FinalPage };
 
-	MvdImportStartPage* startPage;
-	MvdImportResultsPage* resultsPage;
-	MvdImportSummaryPage* summaryPage;
-	MvdImportFinalPage* finalPage;
+    MvdImportStartPage *startPage;
+    MvdImportResultsPage *resultsPage;
+    MvdImportSummaryPage *summaryPage;
+    MvdImportFinalPage *finalPage;
 
-	bool closing;
-	quint8 importSteps;
-	quint32 importCount;
-	quint8 searchSteps;
-	MvdImportDialog::Result importResult;
-	MvdImportDialog::ErrorType errorType;
+    bool closing;
+    quint8 importSteps;
+    quint32 importCount;
+    quint8 searchSteps;
+    MvdImportDialog::Result importResult;
+    MvdImportDialog::ErrorType errorType;
 
-	QStringList buildQueryList(QString s) const;
+    QStringList buildQueryList(QString s) const;
 };
 
 #endif // MVD_IMPORTDIALOG_P_H

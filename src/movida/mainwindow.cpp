@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: mainwindow.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -74,7 +74,7 @@
 #include <QtNetwork/QHttp>
 
 using namespace Movida;
-MvdMainWindow* Movida::MainWindow = 0;
+MvdMainWindow *Movida::MainWindow = 0;
 
 Q_DECLARE_METATYPE(MvdCollectionLoader::Info);
 
@@ -82,138 +82,138 @@ Q_DECLARE_METATYPE(MvdCollectionLoader::Info);
 //////////////////////////////////////////////////////////////////////////
 
 /*!
-        \class MvdMainWindow mainwindow.h
-        \ingroup Movida
+    \class MvdMainWindow mainwindow.h
+    \ingroup Movida
 
-        \brief The Movida main window.
+    \brief The Movida main window.
 */
 
 //! \todo Option to always exclude loaned movies from searches
 
 /*!
-        Creates a new main window and initializes the application.
+    Creates a new main window and initializes the application.
 */
-MvdMainWindow::MvdMainWindow(QWidget* parent) :
+MvdMainWindow::MvdMainWindow(QWidget *parent) :
     QMainWindow(parent),
     d(new Private(this))
 {
-        Q_ASSERT_X(!Movida::MainWindow, "MvdMainWindow", "Internal Error. Only a single instance of MvdMainWindow can be created.");
-        Movida::MainWindow = this;
+    Q_ASSERT_X(!Movida::MainWindow, "MvdMainWindow",
+        "Internal Error. Only a single instance of MvdMainWindow can be created.");
+    Movida::MainWindow = this;
 
-        MVD_WINDOW_ICON
+    MVD_WINDOW_ICON
 
-        d->mMovieModel = new MvdCollectionModel(this);
-        d->mSharedDataModel = new MvdSharedDataModel(Movida::PersonRole, this);
+    d->mMovieModel = new MvdCollectionModel(this);
+    d->mSharedDataModel = new MvdSharedDataModel(Movida::PersonRole, this);
 
-        d->setupUi();
-        d->setupConnections();
+    d->setupUi();
+    d->setupConnections();
 
 
-        // Set some GUI related constants
-        QHash<QString,QVariant> parameters;
-        parameters.insert("movida/maximum-recent-files", 10);
-        parameters.insert("movida/default-recent-files", 5);
-        parameters.insert("movida/max-menu-items", 10);
-        parameters.insert("movida/message-timeout-ms", 5 * 1000);
-        parameters.insert("movida/poster-default-width", 70);
-        parameters.insert("movida/poster-aspect-ratio", qreal(0.7));
-        parameters.insert("movida/imdb-movie-url", "http://akas.imdb.com/title/tt%1");
-        parameters.insert("movida/mime/movie", "application/movida-movie");
-        parameters.insert("movida/mime/movie-attributes", "application/movida-movie-attributes");
-        parameters.insert("movida/mime/movie-filter", "application/movida-movie-filter");
-        parameters.insert("movida/d&d/max-pixmaps", 5);
-        parameters.insert("movida/d&d/max-values", 8);
-        MvdCore::registerParameters(parameters);
+    // Set some GUI related constants
+    QHash<QString, QVariant> parameters;
+    parameters.insert("movida/maximum-recent-files", 10);
+    parameters.insert("movida/default-recent-files", 5);
+    parameters.insert("movida/max-menu-items", 10);
+    parameters.insert("movida/message-timeout-ms", 5 * 1000);
+    parameters.insert("movida/poster-default-width", 70);
+    parameters.insert("movida/poster-aspect-ratio", qreal(0.7));
+    parameters.insert("movida/imdb-movie-url", "http://akas.imdb.com/title/tt%1");
+    parameters.insert("movida/mime/movie", "application/movida-movie");
+    parameters.insert("movida/mime/movie-attributes", "application/movida-movie-attributes");
+    parameters.insert("movida/mime/movie-filter", "application/movida-movie-filter");
+    parameters.insert("movida/d&d/max-pixmaps", 5);
+    parameters.insert("movida/d&d/max-values", 8);
+    MvdCore::registerParameters(parameters);
 
-        MvdCore::loadStatus();
-        MvdSettings& p = Movida::settings();
+    MvdCore::loadStatus();
+    MvdSettings &p = Movida::settings();
 
-        // Set default settings
-        p.setDefaultValue("movida/maximum-recent-files", 5);
-        p.setDefaultValue("movida/confirm-delete-movie", true);
-        p.setDefaultValue("movida/directories/remember", true);
-        p.setDefaultValue("movida/movie-list/initials", false); //! \todo: rename to movie-view
-        p.setDefaultValue("movida/use-history", true);
-        p.setDefaultValue("movida/max-history-items", 20);
-        p.setDefaultValue("movida/quick-filter/case-sensitive", false);
-        p.setDefaultValue("movida/quick-filter/attributes", d->mFilterModel->quickFilterAttributes());
-        p.setDefaultValue("movida/view-mode", "smart");
-        p.setDefaultValue("movida/smart-view/item-size", "medium");
-        p.setDefaultValue("movida/movie-view/wheel-up-magnifies", true);
+    // Set default settings
+    p.setDefaultValue("movida/maximum-recent-files", 5);
+    p.setDefaultValue("movida/confirm-delete-movie", true);
+    p.setDefaultValue("movida/directories/remember", true);
+    p.setDefaultValue("movida/movie-list/initials", false);    //! \todo: rename to movie-view
+    p.setDefaultValue("movida/use-history", true);
+    p.setDefaultValue("movida/max-history-items", 20);
+    p.setDefaultValue("movida/quick-filter/case-sensitive", false);
+    p.setDefaultValue("movida/quick-filter/attributes", d->mFilterModel->quickFilterAttributes());
+    p.setDefaultValue("movida/view-mode", "smart");
+    p.setDefaultValue("movida/smart-view/item-size", "medium");
+    p.setDefaultValue("movida/movie-view/wheel-up-magnifies", true);
 
-        // Initialize core library && load user settings
-        QStringList recentFiles = p.value("movida/recent-files").toStringList();
-        int max = p.value("movida/maximum-recent-files").toInt();
-        int recentFilesCount = recentFiles.size();
-        while (recentFiles.size() > max)
-                recentFiles.removeLast();
-        if (recentFilesCount != recentFiles.size())
-                p.setValue("movida/recent-files", recentFiles);
+    // Initialize core library && load user settings
+    QStringList recentFiles = p.value("movida/recent-files").toStringList();
+    int max = p.value("movida/maximum-recent-files").toInt();
+    int recentFilesCount = recentFiles.size();
+    while (recentFiles.size() > max)
+        recentFiles.removeLast();
+    if (recentFilesCount != recentFiles.size())
+        p.setValue("movida/recent-files", recentFiles);
 
-        d->mA_FileOpenLast->setDisabled(recentFiles.isEmpty());
+    d->mA_FileOpenLast->setDisabled(recentFiles.isEmpty());
 
-        QString viewMode = p.value("movida/view-mode").toString();
-        if (viewMode == "smart")
-                d->mA_ViewModeSmart->activate(QAction::Trigger);
-        else
-                d->mA_ViewModeTree->activate(QAction::Trigger);
+    QString viewMode = p.value("movida/view-mode").toString();
+    if (viewMode == "smart")
+        d->mA_ViewModeSmart->activate(QAction::Trigger);
+    else
+        d->mA_ViewModeTree->activate(QAction::Trigger);
 
-        viewMode = p.value("movida/smart-view/item-size").toString();
-        if (viewMode == "small")
-                zoomOut();
-        else if (viewMode == "large")
-                zoomIn();
+    viewMode = p.value("movida/smart-view/item-size").toString();
+    if (viewMode == "small")
+        zoomOut();
+    else if (viewMode == "large")
+        zoomIn();
 
-        QByteArray ba = p.value("movida/appearance/main-window-state").toByteArray();
-        if (!ba.isEmpty())
-                restoreState(ba);
+    QByteArray ba = p.value("movida/appearance/main-window-state").toByteArray();
+    if (!ba.isEmpty())
+        restoreState(ba);
 
-        resize(p.value("movida/appearance/main-window-size", QSize(640, 480)).toSize());
-        move(p.value("movida/appearance/main-window-pos", QPoint(200, 100)).toPoint());
+    resize(p.value("movida/appearance/main-window-size", QSize(640, 480)).toSize());
+    move(p.value("movida/appearance/main-window-pos", QPoint(200, 100)).toPoint());
 
-        bool bl;
+    bool bl;
 
-        bl = p.value("movida/appearance/start-maximized").toBool();
-        if (bl)
-                setWindowState(Qt::WindowMaximized);
+    bl = p.value("movida/appearance/start-maximized").toBool();
+    if (bl)
+        setWindowState(Qt::WindowMaximized);
 
-        d->mFilterWidget->setCaseSensitivity(p.value("movida/quick-filter/case-sensitive").toBool()
+    d->mFilterWidget->setCaseSensitivity(p.value("movida/quick-filter/case-sensitive").toBool()
         ? Qt::CaseSensitive : Qt::CaseInsensitive);
-        d->mFilterModel->setQuickFilterAttributes(p.value("movida/quick-filter/attributes").toByteArray());
+    d->mFilterModel->setQuickFilterAttributes(p.value("movida/quick-filter/attributes").toByteArray());
 
-        // a new empty collection is always open at startup
-        d->mA_FileNew->setDisabled(true);
-        d->mA_FileSave->setDisabled(true);
-        d->mA_FileSaveAs->setDisabled(true);
+    // a new empty collection is always open at startup
+    d->mA_FileNew->setDisabled(true);
+    d->mA_FileSave->setDisabled(true);
+    d->mA_FileSaveAs->setDisabled(true);
 
-        d->movieViewSelectionChanged();
-        d->mTreeView->sortByColumn((int) Movida::TitleAttribute, Qt::AscendingOrder);
-        d->mSharedDataModel->sort(0, Qt::AscendingOrder);
-        d->currentViewChanged();
+    d->movieViewSelectionChanged();
+    d->mTreeView->sortByColumn((int)Movida::TitleAttribute, Qt::AscendingOrder);
+    d->mSharedDataModel->sort(0, Qt::AscendingOrder);
+    d->currentViewChanged();
 
-        setAcceptDrops(true);
+    setAcceptDrops(true);
 
-        d->createNewCollection();
-        d->loadPlugins();
-        d->registerMessageHandler();
+    d->createNewCollection();
+    d->loadPlugins();
+    d->registerMessageHandler();
 
     d->updateCaption();
 
-        statusBar()->showMessage(tr("Movida is ready!"));
-        iLog() << "Movida is ready!";
+    statusBar()->showMessage(tr("Movida is ready!"));
+    iLog() << "Movida is ready!";
 }
 
 /*!
-        \todo Review evtl. needed deletes
+    \todo Review evtl. needed deletes
 */
 MvdMainWindow::~MvdMainWindow()
-{
-}
+{ }
 
 /*!
     Stores preferences and application status.
 */
-void MvdMainWindow::closeEvent(QCloseEvent* e)
+void MvdMainWindow::closeEvent(QCloseEvent *e)
 {
     iLog() << "Movida is closing...";
 
@@ -233,38 +233,41 @@ void MvdMainWindow::cleanUp()
     d->cleanUp();
 }
 
-void MvdMainWindow::keyPressEvent(QKeyEvent* e)
+void MvdMainWindow::keyPressEvent(QKeyEvent *e)
 {
     int key = e->key();
     QString ttf = d->mFilterWidget->editor()->text();
     QString text = e->text();
 
     bool hasModifier = !(e->modifiers() == Qt::NoModifier || e->modifiers() == Qt::ALT
-        || e->modifiers().testFlag(Qt::ShiftModifier));
+                         || e->modifiers().testFlag(Qt::ShiftModifier));
 
-    if (hasModifier|| !d->shouldShowQuickFilter()) {
+    if (hasModifier || !d->shouldShowQuickFilter()) {
         QMainWindow::keyPressEvent(e);
         return;
     }
 
     if (d->mFilterWidget->isVisible()) {
         switch (key) {
-        case Qt::Key_Escape:
-            resetFilter();
-            return;
-        case Qt::Key_Backspace:
-            ttf.chop(1);
-            break;
-        case Qt::Key_Return:
-        case Qt::Key_Enter:
-            // Return/Enter key events are not accepted by QLineEdit
-            return;
-        default:
-            if (text.isEmpty()) {
-                QMainWindow::keyPressEvent(e);
+            case Qt::Key_Escape:
+                resetFilter();
                 return;
-            }
-            ttf += text;
+
+            case Qt::Key_Backspace:
+                ttf.chop(1);
+                break;
+
+            case Qt::Key_Return:
+            case Qt::Key_Enter:
+                // Return/Enter key events are not accepted by QLineEdit
+                return;
+
+            default:
+                if (text.isEmpty()) {
+                    QMainWindow::keyPressEvent(e);
+                    return;
+                }
+                ttf += text;
         }
     } else {
         if (text.isEmpty() || text[0].isSpace() || !text[0].isPrint()) {
@@ -282,7 +285,7 @@ void MvdMainWindow::keyPressEvent(QKeyEvent* e)
 }
 
 //! Converts a collection model index to a movie ID.
-mvdid MvdMainWindow::movieIndexToId(const QModelIndex& index) const
+mvdid MvdMainWindow::movieIndexToId(const QModelIndex &index) const
 {
     return d->movieIndexToId(index);
 }
@@ -303,10 +306,17 @@ void MvdMainWindow::zoomIn()
 
     MvdSmartView::ItemSize current = d->mSmartView->itemSize();
     switch (current) {
-    case MvdSmartView::LargeItemSize: canZoomIn = false; break;
-    case MvdSmartView::SmallItemSize: d->mSmartView->setItemSize(MvdSmartView::MediumItemSize); break;
-    case MvdSmartView::MediumItemSize: d->mSmartView->setItemSize(MvdSmartView::LargeItemSize); canZoomIn = false; break;
-    default: ;
+        case MvdSmartView::LargeItemSize:
+            canZoomIn = false; break;
+
+        case MvdSmartView::SmallItemSize:
+            d->mSmartView->setItemSize(MvdSmartView::MediumItemSize); break;
+
+        case MvdSmartView::MediumItemSize:
+            d->mSmartView->setItemSize(MvdSmartView::LargeItemSize); canZoomIn = false; break;
+
+        default:
+            ;
     }
 
     d->mA_ViewModeZoomIn->setEnabled(canZoomIn);
@@ -323,10 +333,17 @@ void MvdMainWindow::zoomOut()
 
     MvdSmartView::ItemSize current = d->mSmartView->itemSize();
     switch (current) {
-    case MvdSmartView::SmallItemSize: canZoomOut = false; break;
-    case MvdSmartView::LargeItemSize: d->mSmartView->setItemSize(MvdSmartView::MediumItemSize); break;
-    case MvdSmartView::MediumItemSize: d->mSmartView->setItemSize(MvdSmartView::SmallItemSize); canZoomOut = false; break;
-    default: ;
+        case MvdSmartView::SmallItemSize:
+            canZoomOut = false; break;
+
+        case MvdSmartView::LargeItemSize:
+            d->mSmartView->setItemSize(MvdSmartView::MediumItemSize); break;
+
+        case MvdSmartView::MediumItemSize:
+            d->mSmartView->setItemSize(MvdSmartView::SmallItemSize); canZoomOut = false; break;
+
+        default:
+            ;
     }
 
     d->mA_ViewModeZoomOut->setEnabled(canZoomOut);
@@ -341,16 +358,14 @@ void MvdMainWindow::resetFilter()
     d->mInfoPanel->hide();
 }
 
-bool MvdMainWindow::eventFilter(QObject* o, QEvent* e)
+bool MvdMainWindow::eventFilter(QObject *o, QEvent *e)
 {
     if (o == d->mFilterWidget->editor()) {
         if (e->type() == QEvent::FocusIn && d->mHideFilterTimer->isActive())
             d->mHideFilterTimer->stop();
-    }
-
-    else if (o == d->mSmartView->viewport() || o == d->mTreeView->viewport()) {
+    } else if (o == d->mSmartView->viewport() || o == d->mTreeView->viewport()) {
         if (e->type() == QEvent::DragEnter && !d->mDraggingSharedData) {
-            QDragEnterEvent* _e = static_cast<QDragEnterEvent*>(e);
+            QDragEnterEvent *_e = static_cast<QDragEnterEvent *>(e);
             if (_e->source() == d->mSharedDataEditor->view()) {
                 // Dirty dirty dirty trick to detect the end of a drag operation.
                 // Any attempt to use DragLeave or Drop failed.
@@ -359,13 +374,13 @@ bool MvdMainWindow::eventFilter(QObject* o, QEvent* e)
             }
         } else if (e->type() == QEvent::Wheel && o == d->mSmartView->viewport()) {
             if (qApp->keyboardModifiers() == Qt::ControlModifier) {
-                QWheelEvent* we = static_cast<QWheelEvent*>(e);
+                QWheelEvent *we = static_cast<QWheelEvent *>(e);
 
                 bool zoomInReq = we->delta() >= 0;
                 if (!Movida::settings().value("movida/movie-view/wheel-up-magnifies").toBool())
                     zoomInReq = !zoomInReq; // Invert direction
 
-                QAction* za = zoomInReq ? d->mA_ViewModeZoomIn : d->mA_ViewModeZoomOut;
+                QAction *za = zoomInReq ? d->mA_ViewModeZoomIn : d->mA_ViewModeZoomOut;
 
                 int numDegrees = qAbs(we->delta()) / 8;
                 int numSteps = numDegrees / 15;
@@ -389,21 +404,22 @@ void MvdMainWindow::lockToolBars(bool lock)
 }
 
 //! Returns the current collection. This method will create a new collection if none exists.
-MvdMovieCollection* MvdMainWindow::currentCollection() const
+MvdMovieCollection *MvdMainWindow::currentCollection() const
 {
     if (!d->mCollection)
-        const_cast<MvdMainWindow*>(this)->d->createNewCollection();
+        const_cast<MvdMainWindow *>(this)->d->createNewCollection();
     Q_ASSERT(d->mCollection);
     return d->mCollection;
 }
 
 QList<mvdid> MvdMainWindow::selectedMovies() const
 {
-        QModelIndexList list = d->mTreeView->selectedRows();
-        QList<mvdid> ids;
-        for (int i = 0; i < list.size(); ++i)
-                ids << movieIndexToId(list.at(i));
-        return ids;
+    QModelIndexList list = d->mTreeView->selectedRows();
+
+    QList<mvdid> ids;
+    for (int i = 0; i < list.size(); ++i)
+        ids << movieIndexToId(list.at(i));
+    return ids;
 }
 
 /*!
@@ -424,50 +440,50 @@ void MvdMainWindow::newCollection()
     Loads a new collection from a file.
     The user will be asked to save the current collection if necessary.
 */
-bool MvdMainWindow::loadCollection(const QString& file)
+bool MvdMainWindow::loadCollection(const QString &file)
 {
-        if (!d->closeCollection())
-                return true;
-
-        /*! \todo add thread to load coll. and (_IMPORTANT_) lock gui! */
-
-        if (!d->mCollection)
-                d->createNewCollection();
-
-        // Avoid the colelctionModified() signal emission.
-        d->mCollection->setModifiedStatus(true);
-
-        setEnabled(false);
-
-        MvdCollectionLoader loader;
-        loader.setProgressHandler(d, "collectionLoaderCallback");
-        MvdCollectionLoader::StatusCode res = loader.load(d->mCollection, file);
-        d->mCollection->setModifiedStatus(false);
-
-        if (res != MvdCollectionLoader::NoError) {
-                d->createNewCollection();
-                QMessageBox::warning(this, MVD_CAPTION, tr("Failed to load the collection."));
-        }
-
-        setEnabled(true);
-
-        if (res != MvdCollectionLoader::NoError)
-                return false;
-
-        // Update GUI controls
-        d->collectionModified();
-
-        Movida::MovieAttribute a = Movida::TitleAttribute;
-        QAction* ca = d->mAG_ViewSort->checkedAction();
-        if (ca)
-                a = (Movida::MovieAttribute)ca->data().toInt();
-
-        d->mTreeView->sortByColumn((int) a, d->mFilterModel->sortOrder());
-        d->mSharedDataModel->sort(0, d->mSharedDataModel->sortOrder());
-
-        d->mInfoPanel->showTemporaryMessage(tr("%1 movies loaded.").arg(d->mCollection->count()));
-
+    if (!d->closeCollection())
         return true;
+
+    /*! \todo add thread to load coll. and (_IMPORTANT_) lock gui!*/
+
+    if (!d->mCollection)
+        d->createNewCollection();
+
+    // Avoid the colelctionModified() signal emission.
+    d->mCollection->setModifiedStatus(true);
+
+    setEnabled(false);
+
+    MvdCollectionLoader loader;
+    loader.setProgressHandler(d, "collectionLoaderCallback");
+    MvdCollectionLoader::StatusCode res = loader.load(d->mCollection, file);
+    d->mCollection->setModifiedStatus(false);
+
+    if (res != MvdCollectionLoader::NoError) {
+        d->createNewCollection();
+        QMessageBox::warning(this, MVD_CAPTION, tr("Failed to load the collection."));
+    }
+
+    setEnabled(true);
+
+    if (res != MvdCollectionLoader::NoError)
+        return false;
+
+    // Update GUI controls
+    d->collectionModified();
+
+    Movida::MovieAttribute a = Movida::TitleAttribute;
+    QAction *ca = d->mAG_ViewSort->checkedAction();
+    if (ca)
+        a = (Movida::MovieAttribute)ca->data().toInt();
+
+    d->mTreeView->sortByColumn((int)a, d->mFilterModel->sortOrder());
+    d->mSharedDataModel->sort(0, d->mSharedDataModel->sortOrder());
+
+    d->mInfoPanel->showTemporaryMessage(tr("%1 movies loaded.").arg(d->mCollection->count()));
+
+    return true;
 }
 
 /*!
@@ -476,24 +492,25 @@ bool MvdMainWindow::loadCollection(const QString& file)
 */
 void MvdMainWindow::loadLastCollection()
 {
-        QStringList recentFiles =
-                Movida::settings().value("movida/recent-files").toStringList();
+    QStringList recentFiles =
+        Movida::settings().value("movida/recent-files").toStringList();
 
-        if (recentFiles.isEmpty())
-                return;
+    if (recentFiles.isEmpty())
+        return;
 
-        loadCollection(recentFiles.at(0));
+    loadCollection(recentFiles.at(0));
 }
 
 //! \todo Move plugin handling to mvdcore library and add a hook to register UI actions.
-MvdPluginInterface* MvdMainWindow::locatePlugin(const QString& id) const
+MvdPluginInterface *MvdMainWindow::locatePlugin(const QString &id) const
 {
-        foreach (MvdPluginInterface* iface, d->mPlugins) {
-                if (iface->id() == id) {
-                        return iface;
-                }
+    foreach(MvdPluginInterface * iface, d->mPlugins)
+    {
+        if (iface->id() == id) {
+            return iface;
         }
-        return 0;
+    }
+    return 0;
 }
 
 /*!
@@ -506,8 +523,7 @@ bool MvdMainWindow::saveCollection()
 
     MvdCollectionSaver saver(this);
     MvdCollectionSaver::StatusCode res = saver.save(d->mCollection);
-    if (res != MvdCollectionSaver::NoError)
-    {
+    if (res != MvdCollectionSaver::NoError) {
         QMessageBox::warning(this, MVD_CAPTION, tr("Failed to save the collection."));
         return false;
     }
@@ -522,7 +538,7 @@ bool MvdMainWindow::saveCollection()
 void MvdMainWindow::clearRecentFiles()
 {
     Movida::settings().setValue("movida/recent-files", QStringList());
-        d->mA_FileOpenLast->setEnabled(false);
+    d->mA_FileOpenLast->setEnabled(false);
 }
 
 void MvdMainWindow::filter(QString s)
@@ -530,79 +546,80 @@ void MvdMainWindow::filter(QString s)
     d->filter(s);
 }
 
-QMenu* MvdMainWindow::createPopupMenu()
+QMenu *MvdMainWindow::createPopupMenu()
 {
-        QMenu* menu = QMainWindow::createPopupMenu();
+    QMenu *menu = QMainWindow::createPopupMenu();
+
+    menu->addSeparator();
+    if (!menu->isEmpty() && !menu->actions().last()->isSeparator())
         menu->addSeparator();
-        if (!menu->isEmpty() && !menu->actions().last()->isSeparator())
-                menu->addSeparator();
-        menu->addAction(d->mA_LockToolBars);
-        return menu;
+    menu->addAction(d->mA_LockToolBars);
+    return menu;
 }
 
-MvdFilterWidget* MvdMainWindow::filterWidget() const
+MvdFilterWidget *MvdMainWindow::filterWidget() const
 {
-        return d->mFilterWidget;
+    return d->mFilterWidget;
 }
 
-void MvdMainWindow::handleLinkClicked(const QUrl& url)
+void MvdMainWindow::handleLinkClicked(const QUrl &url)
 {
-        if (url.scheme() == QLatin1String("http")) {
-                QDesktopServices::openUrl(url);
-                return;
-        }
+    if (url.scheme() == QLatin1String("http")) {
+        QDesktopServices::openUrl(url);
+        return;
+    }
 
-        MvdActionUrl aurl = MvdCore::parseActionUrl(url);
-        if (!aurl.isValid()) {
-                Movida::wLog() << "MainWindow: malformed action URL: " << aurl;
-                return;
-        }
+    MvdActionUrl aurl = MvdCore::parseActionUrl(url);
+    if (!aurl.isValid()) {
+        Movida::wLog() << "MainWindow: malformed action URL: " << aurl;
+        return;
+    }
 
-        if (aurl.action == QLatin1String("plugin")) {
-                QStringList sl = aurl.parameter.split(QChar('/'), QString::SkipEmptyParts);
-                if (sl.size() < 2) {
-                        Movida::wLog() << "MainWindow: invalid action URL: " << aurl;
-                        return;
-                }
-
-                QString pluginId = sl.at(0);
-                MvdPluginInterface* plugin = locatePlugin(pluginId);
-                if (!plugin) {
-                        Movida::wLog() << "MainWindow: failed to dispatch action URL " << aurl << " to plugin " << pluginId;
-                        return;
-                }
-
-                Movida::iLog() << "MainWindow: dispatching action URL " << aurl << " to plugin " << pluginId;
-                QString action = sl.at(1);
-                sl.removeAt(0); // Remove plugin id
-                sl.removeAt(0); // Remove action name
-                plugin->actionTriggered(action, sl);
-                return;
-        }
-
-        if (aurl.action != QLatin1String("movida")) {
-                Movida::wLog() << "MainWindow: unsupported action URL: " << aurl;
-                return;
-        }
-
+    if (aurl.action == QLatin1String("plugin")) {
         QStringList sl = aurl.parameter.split(QChar('/'), QString::SkipEmptyParts);
-        if (sl.isEmpty()) { // We require at least an action
-                Movida::wLog() << "MainWindow: invalid action URL: " << aurl;
-                return;
+        if (sl.size() < 2) {
+            Movida::wLog() << "MainWindow: invalid action URL: " << aurl;
+            return;
         }
 
-        bool handled = false;
-        QString action = sl.takeAt(0);
-        if (action == QLatin1String("collection") && !sl.isEmpty()) {
-                action = sl.takeAt(0);
-                if (action == QLatin1String("add")) {
-                        addMovie();
-                        handled = true;
-                } else if (action == QLatin1String("about")) {
-                        showCollectionMeta();
-                        handled = true;
-                }
+        QString pluginId = sl.at(0);
+        MvdPluginInterface *plugin = locatePlugin(pluginId);
+        if (!plugin) {
+            Movida::wLog() << "MainWindow: failed to dispatch action URL " << aurl << " to plugin " << pluginId;
+            return;
         }
+
+        Movida::iLog() << "MainWindow: dispatching action URL " << aurl << " to plugin " << pluginId;
+        QString action = sl.at(1);
+        sl.removeAt(0);     // Remove plugin id
+        sl.removeAt(0);     // Remove action name
+        plugin->actionTriggered(action, sl);
+        return;
+    }
+
+    if (aurl.action != QLatin1String("movida")) {
+        Movida::wLog() << "MainWindow: unsupported action URL: " << aurl;
+        return;
+    }
+
+    QStringList sl = aurl.parameter.split(QChar('/'), QString::SkipEmptyParts);
+    if (sl.isEmpty()) {     // We require at least an action
+        Movida::wLog() << "MainWindow: invalid action URL: " << aurl;
+        return;
+    }
+
+    bool handled = false;
+    QString action = sl.takeAt(0);
+    if (action == QLatin1String("collection") && !sl.isEmpty()) {
+        action = sl.takeAt(0);
+        if (action == QLatin1String("add")) {
+            addMovie();
+            handled = true;
+        } else if (action == QLatin1String("about")) {
+            showCollectionMeta();
+            handled = true;
+        }
+    }
 }
 
 /*!
@@ -611,6 +628,7 @@ void MvdMainWindow::handleLinkClicked(const QUrl& url)
 void MvdMainWindow::showPreferences()
 {
     MvdSettingsDialog sd(this);
+
     sd.exec();
 }
 
@@ -621,7 +639,8 @@ void MvdMainWindow::showPreferences()
 void MvdMainWindow::showLog()
 {
     QFileInfo fi(paths().logFile());
-    QTextBrowser* viewer = new QTextBrowser;
+    QTextBrowser *viewer = new QTextBrowser;
+
     viewer->setAcceptRichText(false);
     viewer->setAttribute(Qt::WA_DeleteOnClose, true);
     viewer->setWindowFlags(Qt::Tool);
@@ -639,128 +658,126 @@ void MvdMainWindow::addMovie()
 {
     //! \todo Ensure mCollection is never 0
     MvdMovieEditor pd(d->mCollection, this);
+
     pd.exec();
 
     QModelIndex index = movieIdToIndex(pd.movieId());
 
     // Select the new movie
     if (index.isValid()) {
-            QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::ClearAndSelect;
-            d->mSelectionModel->select(index, flags);
+        QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::ClearAndSelect;
+        d->mSelectionModel->select(index, flags);
     }
     d->collectionModified();
 }
 
 void MvdMainWindow::duplicateCurrentMovie()
 {
-        mvdid id = movieIndexToId(d->mTreeView->selectedIndex());
-        if (id == 0)
-                return;
+    mvdid id = movieIndexToId(d->mTreeView->selectedIndex());
 
-        MvdMovie movie = d->mCollection->movie(id);
-        if (!movie.isValid())
-                return;
+    if (id == 0)
+        return;
 
-        bool ok;
-        QString text = QInputDialog::getText(this, MVD_CAPTION,
-                tr("Please enter a (unique) title for the new movie:"), QLineEdit::Normal,
-                movie.title(), &ok);
+    MvdMovie movie = d->mCollection->movie(id);
+    if (!movie.isValid())
+        return;
 
-        if (!ok || text.isEmpty())
-                return;
+    bool ok;
+    QString text = QInputDialog::getText(this, MVD_CAPTION,
+        tr("Please enter a (unique) title for the new movie:"), QLineEdit::Normal,
+        movie.title(), &ok);
 
-        //! \todo Validate title for duplicated movie
-        if (text.toLower() == movie.title().toLower())
-        {
-                QMessageBox::warning(this, MVD_CAPTION, tr("Sorry, but the new title must be unique in this collection."));
-                return;
-        }
+    if (!ok || text.isEmpty())
+        return;
 
-        movie.setTitle(text);
-        if (d->mCollection->addMovie(movie) == 0)
-                QMessageBox::warning(this, MVD_CAPTION, tr("Sorry but the movie could not be duplicated."));
+    //! \todo Validate title for duplicated movie
+    if (text.toLower() == movie.title().toLower()) {
+        QMessageBox::warning(this, MVD_CAPTION, tr("Sorry, but the new title must be unique in this collection."));
+        return;
+    }
+
+    movie.setTitle(text);
+    if (d->mCollection->addMovie(movie) == 0)
+        QMessageBox::warning(this, MVD_CAPTION, tr("Sorry but the movie could not be duplicated."));
 }
 
-void MvdMainWindow::editMovie(const QModelIndex& index)
+void MvdMainWindow::editMovie(const QModelIndex &index)
 {
-        mvdid id = movieIndexToId(index);
-        bool resetRequired = false;
-        bool exec = d->mMovieEditor.isNull();
+    mvdid id = movieIndexToId(index);
+    bool resetRequired = false;
+    bool exec = d->mMovieEditor.isNull();
 
-        if (exec) {
-                d->mMovieEditor = new MvdMovieEditor(d->mCollection, this);
-                d->mMovieEditor->setAttribute(Qt::WA_DeleteOnClose, true);
+    if (exec) {
+        d->mMovieEditor = new MvdMovieEditor(d->mCollection, this);
+        d->mMovieEditor->setAttribute(Qt::WA_DeleteOnClose, true);
+    } else
+        resetRequired = true;
+
+    if (!d->mMovieEditor->setMovie(id, true))
+        return;
+
+    d->mTreeView->setCurrentIndex(index);
+
+    if (resetRequired) {
+        // Reset state
+        d->mMovieEditor->disconnect(this);
+        d->mMovieEditor->setPreviousEnabled(false);
+        d->mMovieEditor->setNextEnabled(false);
+    }
+
+    QModelIndex i;
+    bool prev = false;
+    bool next = false;
+
+    i = d->mTreeView->indexAbove(index);
+    if (i.isValid()) {
+        id = movieIndexToId(i);
+        if (id != 0) {
+            d->mMovieEditor->setPreviousEnabled(true);
+            prev = true;
         }
-        else
-                resetRequired = true;
+    }
 
-        if (!d->mMovieEditor->setMovie(id, true))
-                return;
-
-        d->mTreeView->setCurrentIndex(index);
-
-        if (resetRequired)
-        {
-                // Reset state
-                d->mMovieEditor->disconnect(this);
-                d->mMovieEditor->setPreviousEnabled(false);
-                d->mMovieEditor->setNextEnabled(false);
+    i = d->mTreeView->indexBelow(index);
+    if (i.isValid()) {
+        id = movieIndexToId(i);
+        if (id != 0) {
+            d->mMovieEditor->setNextEnabled(true);
+            next = true;
         }
+    }
 
-        QModelIndex i;
-        bool prev = false;
-        bool next = false;
+    if (next)
+        connect(d->mMovieEditor, SIGNAL(nextRequested()), this, SLOT(editNextMovie()));
+    if (prev)
+        connect(d->mMovieEditor, SIGNAL(previousRequested()), this, SLOT(editPreviousMovie()));
 
-        i = d->mTreeView->indexAbove(index);
-        if (i.isValid())
-        {
-                id = movieIndexToId(i);
-                if (id != 0)
-                {
-                        d->mMovieEditor->setPreviousEnabled(true);
-                        prev = true;
-                }
-        }
-
-        i = d->mTreeView->indexBelow(index);
-        if (i.isValid())
-        {
-                id = movieIndexToId(i);
-                if (id != 0)
-                {
-                        d->mMovieEditor->setNextEnabled(true);
-                        next = true;
-                }
-        }
-
-        if (next)
-                connect(d->mMovieEditor, SIGNAL(nextRequested()), this, SLOT(editNextMovie()));
-        if (prev)
-                connect(d->mMovieEditor, SIGNAL(previousRequested()), this, SLOT(editPreviousMovie()));
-
-        if (exec)
-                d->mMovieEditor->exec();
+    if (exec)
+        d->mMovieEditor->exec();
 }
 
 void MvdMainWindow::editNextMovie()
 {
-        QModelIndex next = d->mTreeView->indexBelow(d->mTreeView->selectedIndex());
-        editMovie(next);
+    QModelIndex next = d->mTreeView->indexBelow(d->mTreeView->selectedIndex());
+
+    editMovie(next);
 }
 
 void MvdMainWindow::editPreviousMovie()
 {
-        QModelIndex prev = d->mTreeView->indexAbove(d->mTreeView->selectedIndex());
-        editMovie(prev);
+    QModelIndex prev = d->mTreeView->indexAbove(d->mTreeView->selectedIndex());
+
+    editMovie(prev);
 }
 
 void MvdMainWindow::editSelectedMovies()
 {
     QModelIndexList list = d->mTreeView->selectedRows();
+
     if (list.isEmpty()) {
         return;
     } else if (list.size() == 1) {
-                editMovie(list.at(0));
+        editMovie(list.at(0));
     } else {
         // TEMPORARY
         QInputDialog input(this);
@@ -783,75 +800,76 @@ void MvdMainWindow::editSelectedMovies()
 
 void MvdMainWindow::massEditSelectedMovies()
 {
-        QList<mvdid> ids = selectedMovies();
-        if (ids.size() > 1) {
-                MvdMovieMassEditor med(d->mCollection, this);
-                med.setMovies(ids);
-                med.exec();
-        }
+    QList<mvdid> ids = selectedMovies();
+    if (ids.size() > 1) {
+        MvdMovieMassEditor med(d->mCollection, this);
+        med.setMovies(ids);
+        med.exec();
+    }
 }
 
-void MvdMainWindow::removeMovie(const QModelIndex& index)
+void MvdMainWindow::removeMovie(const QModelIndex &index)
 {
-        mvdid id = movieIndexToId(index);
-        if (id == 0)
-                return;
+    mvdid id = movieIndexToId(index);
 
-        bool confirmOk = Movida::settings().value("movida/confirm-delete-movie").toBool();
-        if (confirmOk)
-        {
-                QString msg = tr("Are you sure you want to delete this movie?");
+    if (id == 0)
+        return;
 
-                int res = QMessageBox::question(this, MVD_CAPTION, msg,
-                        QMessageBox::Yes, QMessageBox::No);
-                if (res != QMessageBox::Yes)
-                        return;
-        }
+    bool confirmOk = Movida::settings().value("movida/confirm-delete-movie").toBool();
+    if (confirmOk) {
+        QString msg = tr("Are you sure you want to delete this movie?");
 
-        d->mCollection->removeMovie(id);
+        int res = QMessageBox::question(this, MVD_CAPTION, msg,
+            QMessageBox::Yes, QMessageBox::No);
+        if (res != QMessageBox::Yes)
+            return;
+    }
 
-        d->movieViewSelectionChanged();
-        d->collectionModified();
+    d->mCollection->removeMovie(id);
+
+    d->movieViewSelectionChanged();
+    d->collectionModified();
 }
 
-void MvdMainWindow::removeMovies(const QModelIndexList& list)
+void MvdMainWindow::removeMovies(const QModelIndexList &list)
 {
-        bool confirmOk = Movida::settings().value("movida/confirm-delete-movie").toBool();
-        if (confirmOk)
-        {
-                QString msg = list.size() < 2 ? tr("Are you sure you want to delete this movie?")
-                        : tr("Are you sure you want to delete %1 movies?").arg(list.size());
+    bool confirmOk = Movida::settings().value("movida/confirm-delete-movie").toBool();
 
-                int res = QMessageBox::question(this, MVD_CAPTION, msg,
-                        QMessageBox::Yes, QMessageBox::No);
-                if (res != QMessageBox::Yes)
-                        return;
-        }
+    if (confirmOk) {
+        QString msg = list.size() < 2 ? tr("Are you sure you want to delete this movie?")
+                      : tr("Are you sure you want to delete %1 movies?").arg(list.size());
 
-        QList<mvdid> ids;
-        for (int i = 0; i < list.size(); ++i) {
-                mvdid id = movieIndexToId(list.at(i));
-                if (id != MvdNull) ids.append(id);
-        }
+        int res = QMessageBox::question(this, MVD_CAPTION, msg,
+            QMessageBox::Yes, QMessageBox::No);
+        if (res != QMessageBox::Yes)
+            return;
+    }
 
-        for (int i = 0; i < ids.size(); ++i) {
-                d->mCollection->removeMovie(ids.at(i));
-        }
+    QList<mvdid> ids;
+    for (int i = 0; i < list.size(); ++i) {
+        mvdid id = movieIndexToId(list.at(i));
+        if (id != MvdNull) ids.append(id);
+    }
 
-        d->movieViewSelectionChanged();
-        d->collectionModified();
+    for (int i = 0; i < ids.size(); ++i) {
+        d->mCollection->removeMovie(ids.at(i));
+    }
+
+    d->movieViewSelectionChanged();
+    d->collectionModified();
 }
 
 void MvdMainWindow::removeSelectedMovies()
 {
-        QModelIndexList list = d->mTreeView->selectedRows();
-        if (list.isEmpty())
-                return;
+    QModelIndexList list = d->mTreeView->selectedRows();
 
-        removeMovies(list);
+    if (list.isEmpty())
+        return;
+
+    removeMovies(list);
 }
 
-void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
+void MvdMainWindow::showMovieContextMenu(const QModelIndex &index)
 {
     d->showMovieContextMenu(index);
 }
@@ -859,30 +877,32 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex& index)
 //! Shows the collection metadata editor.
 void MvdMainWindow::showCollectionMeta()
 {
-        //! Handle read-only collections
-        MvdCollectionMetaEditor editor(this);
-        editor.setCollection(currentCollection());
-        editor.exec();
+    //! Handle read-only collections
+    MvdCollectionMetaEditor editor(this);
+
+    editor.setCollection(currentCollection());
+    editor.exec();
 }
 
 void MvdMainWindow::showFilterWidget()
 {
-        d->mFilterWidget->show();
-        d->mFilterWidget->setMessage(MvdFilterWidget::NoMessage);
-        d->mFilterWidget->editor()->setFocus(Qt::ShortcutFocusReason);
-        d->mFilterWidget->editor()->selectAll();
-        d->mHideFilterTimer->stop();
+    d->mFilterWidget->show();
+    d->mFilterWidget->setMessage(MvdFilterWidget::NoMessage);
+    d->mFilterWidget->editor()->setFocus(Qt::ShortcutFocusReason);
+    d->mFilterWidget->editor()->selectAll();
+    d->mHideFilterTimer->stop();
 }
 
 void MvdMainWindow::showSharedDataEditor()
 {
-        MvdSharedDataEditor editor(this);
-        editor.setModel(d->mSharedDataModel);
-        editor.setWindowModality(Qt::ApplicationModal);
-        editor.show();
+    MvdSharedDataEditor editor(this);
+
+    editor.setModel(d->mSharedDataModel);
+    editor.setWindowModality(Qt::ApplicationModal);
+    editor.show();
 }
 
-void MvdMainWindow::setMoviePoster(mvdid movieId, const QUrl& url)
+void MvdMainWindow::setMoviePoster(mvdid movieId, const QUrl &url)
 {
     d->setMoviePoster(movieId, url);
 

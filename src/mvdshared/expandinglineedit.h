@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: expandinglineedit.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,21 +22,22 @@
 #define MVD_EXPANDINGLINEEDIT_H
 
 #include "sharedglobal.h"
-#include <QLineEdit>
+
+#include <QtGui/QLineEdit>
 
 class MVD_EXPORT_SHARED MvdExpandingLineEdit : public QLineEdit
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdExpandingLineEdit(QWidget* parent = 0);
-	MvdExpandingLineEdit(const QString& contents, QWidget* parent = 0);
+    MvdExpandingLineEdit(QWidget * parent = 0);
+    MvdExpandingLineEdit(const QString &contents, QWidget * parent = 0);
 
 public slots:
-	void resizeToContents();
+    void resizeToContents();
 
 private:
-	int originalWidth;
+    int originalWidth;
 };
 
 #endif // MVD_EXPANDINGLINEEDIT_H

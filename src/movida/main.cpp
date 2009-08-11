@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: main.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -18,7 +18,7 @@
 **
 **************************************************************************/
 
-#include <QtGlobal>
+#include <QtCore/QtGlobal>
 
 #ifndef Q_OS_WIN
 #include "main_other.cpp"
@@ -30,16 +30,16 @@
 
 Q_IMPORT_PLUGIN(MvdSvgzIconEnginePlugin)
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-	int result = 0;
+    int result = 0;
 
 #ifdef Q_OS_WIN
-	MvdApplication a(argc, argv);
-	result = runApp(a);
+    MvdApplication a(argc, argv);
+    result = runApp(a);
 #else
-	result = runApp(argc, argv);
+    result = runApp(argc, argv);
 #endif
 
-	return result;
+    return result;
 }

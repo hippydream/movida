@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: base64.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,7 +22,8 @@
 #define MVD_BASE64_H
 
 #include "global.h"
-#include <QFlags>
+
+#include <QtCore/QFlags>
 
 class QString;
 class QBitArray;
@@ -31,15 +32,15 @@ class QByteArray;
 class MVD_EXPORT MvdBase64
 {
 public:
-	enum EncodingOption { NoOptions = 0x00, BreakLongLines = 0x01 };
-	Q_DECLARE_FLAGS(EncodingOptions, EncodingOption)
+    enum EncodingOption { NoOptions = 0x00, BreakLongLines = 0x01 };
+    Q_DECLARE_FLAGS(EncodingOptions, EncodingOption)
 
-	static QByteArray decode(const QString& encoded);
-	static QBitArray decode(const QString& encoded, quint32 size);
-	static QString encode(const QByteArray& decoded,
-		EncodingOptions options = NoOptions);
-	static QString encode(const QBitArray& decoded,
-		EncodingOptions options = NoOptions);
+    static QByteArray decode(const QString &encoded);
+    static QBitArray decode(const QString &encoded, quint32 size);
+    static QString encode(const QByteArray &decoded,
+    EncodingOptions options = NoOptions);
+    static QString encode(const QBitArray &decoded,
+    EncodingOptions options = NoOptions);
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(MvdBase64::EncodingOptions)
 

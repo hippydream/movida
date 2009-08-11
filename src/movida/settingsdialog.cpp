@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: settingsdialog.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,58 +19,60 @@
 **************************************************************************/
 
 #include "settingsdialog.h"
+
 #include "mainsettingspage.h"
+
 #include "mvdcore/settings.h"
-#include <QMessageBox>
-#include <QCloseEvent>
-#include <QPushButton>
+
+#include <QtGui/QCloseEvent>
+#include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
 
 /*!
-	\class MvdSettingsDialog settingsdialog.h
-	\ingroup Movida
+    \class MvdSettingsDialog settingsdialog.h
+    \ingroup Movida
 
-	\brief Settings editor dialog.
+    \brief Settings editor dialog.
 */
 
 
 /*!
-	Creates a new settings editor.
+    Creates a new settings editor.
 */
-MvdSettingsDialog::MvdSettingsDialog(QWidget* parent)
-: MvdMultiPageDialog(parent)
+MvdSettingsDialog::MvdSettingsDialog(QWidget *parent) :
+    MvdMultiPageDialog(parent)
 {
-	setWindowTitle(tr("movida settings"));
+    setWindowTitle(tr("movida settings"));
 
-	QDialogButtonBox* box = MvdMultiPageDialog::buttonBox();
-	box->addButton(QDialogButtonBox::Help);
-	box->addButton(QDialogButtonBox::Reset);
-	box->addButton(QDialogButtonBox::Apply);
-	box->addButton(QDialogButtonBox::Ok);
-	box->addButton(QDialogButtonBox::Cancel);
+    QDialogButtonBox *box = MvdMultiPageDialog::buttonBox();
+    box->addButton(QDialogButtonBox::Help);
+    box->addButton(QDialogButtonBox::Reset);
+    box->addButton(QDialogButtonBox::Apply);
+    box->addButton(QDialogButtonBox::Ok);
+    box->addButton(QDialogButtonBox::Cancel);
 
-	MvdMPDialogPage* page;
+    MvdMPDialogPage *page;
 
-	page = new MvdMainSettingsPage(this);
-	addPage(page);
+    page = new MvdMainSettingsPage(this);
+    addPage(page);
 
-	connect( box, SIGNAL(rejected()), this, SLOT(cancelSettings()) );
-	connect( box, SIGNAL(accepted()), this, SLOT(applySettings()) );
+    connect(box, SIGNAL(rejected()), this, SLOT(cancelSettings()));
+    connect(box, SIGNAL(accepted()), this, SLOT(applySettings()));
 }
 
-//! \internal 
+//! \internal
 void MvdSettingsDialog::cancelSettings()
 {
-	reject();
+    reject();
 }
 
 //! \internal \todo Handle ESC key
-void MvdSettingsDialog::closeEvent(QCloseEvent* e)
+void MvdSettingsDialog::closeEvent(QCloseEvent *e)
 {
-	cancelSettings();
-	e->ignore();
+    cancelSettings();
+    e->ignore();
 }
 
-//! \internal 
+//! \internal
 void MvdSettingsDialog::applySettings()
-{
-}
+{ }

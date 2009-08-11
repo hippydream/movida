@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: infopanel.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,39 +22,40 @@
 #define MVD_INFOPANEL_H
 
 #include "ui_infopanel.h"
-#include <QFrame>
+
+#include <QtGui/QFrame>
 
 class QFrame;
 
 class MvdInfoPanel : public QFrame, protected Ui::MvdInfoPanel
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdInfoPanel(QWidget* parent = 0);
-	virtual ~MvdInfoPanel();
+    MvdInfoPanel(QWidget *parent = 0);
+    virtual ~MvdInfoPanel();
 
-	void setText(const QString& s);
-	QString text() const;
+    void setText(const QString &s);
+    QString text() const;
 
-	void showTemporaryMessage(const QString& s, int milliseconds = 3000);
+    void showTemporaryMessage(const QString &s, int milliseconds = 3000);
 
-	void setVisible(bool v);
+    void setVisible(bool v);
 
 public slots:
-	void closeImmediately();
+    void closeImmediately();
 
 signals:
-	void closedByUser();
+    void closedByUser();
 
 private slots:
-	void do_closeImmediately();
-	void resetPermanentText();
+    void do_closeImmediately();
+    void resetPermanentText();
 
 private:
-	QPixmap mInfoIcon;
-	QString mPermanentText;
-	bool mHideOnTemporaryMessageTimeout;
+    QPixmap mInfoIcon;
+    QString mPermanentText;
+    bool mHideOnTemporaryMessageTimeout;
 };
 
 #endif // MVD_INFOPANEL_H

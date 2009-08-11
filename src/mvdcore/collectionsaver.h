@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: collectionsaver.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -23,33 +23,33 @@
 
 #include "global.h"
 #include "moviecollection.h"
-#include <QObject>
 
-class MVD_EXPORT MvdCollectionSaver : QObject
+#include <QtCore/QObject>
+
+class MVD_EXPORT MvdCollectionSaver : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	enum StatusCode
-	{
-		NoError = 0,
-		InvalidCollectionError,
-		InvalidFileError,
-		FileOpenError,
-		ZipError,
-		TemporaryDirectoryError,
-		UnknownError
-	};
+    enum StatusCode {
+        NoError = 0,
+        InvalidCollectionError,
+        InvalidFileError,
+        FileOpenError,
+        ZipError,
+        TemporaryDirectoryError,
+        UnknownError
+    };
 
-	MvdCollectionSaver(QObject* parent = 0);
-	virtual ~MvdCollectionSaver();
-	
-	void setProgressHandler(QObject* receiver, const char* member);
-	StatusCode save(MvdMovieCollection* collection, QString file = QString());
+    MvdCollectionSaver(QObject * parent = 0);
+    virtual ~MvdCollectionSaver();
+
+    void setProgressHandler(QObject *receiver, const char *member);
+    StatusCode save(MvdMovieCollection *collection, QString file = QString());
 
 private:
-	class Private;
-	Private* d;
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_COLLECTIONSAVER_H

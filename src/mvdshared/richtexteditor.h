@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: richtexteditor.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,29 +22,31 @@
 #define MVD_RICHTEXTEDITOR_H
 
 #include "sharedglobal.h"
-#include <QWidget>
 
-class MvdRichTextEditorPrivate;
+#include <QtGui/QWidget>
+
 class QTextEdit;
 
 class MVD_EXPORT_SHARED MvdRichTextEditor : public QWidget
 {
-	Q_OBJECT
-	MVD_DECLARE_PRIVATE(MvdRichTextEditor)
+    Q_OBJECT
 
 public:
-	enum ControlsPosition { Top, Bottom };
+    enum ControlsPosition { Top, Bottom };
 
-	MvdRichTextEditor(QWidget* parent = 0);
-	MvdRichTextEditor(ControlsPosition pos, QWidget* parent = 0);
-	virtual ~MvdRichTextEditor();
+    MvdRichTextEditor(QWidget *parent = 0);
+    MvdRichTextEditor(ControlsPosition pos, QWidget *parent = 0);
+    virtual ~MvdRichTextEditor();
 
-	QTextEdit* editor() const;
+    QTextEdit *editor() const;
 
-	ControlsPosition position() const;
+    ControlsPosition position() const;
 
 private:
-	void init();
+    void init();
+
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_RICHTEXTEDITOR_H

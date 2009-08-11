@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: shareddataview.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -25,15 +25,15 @@
 
 class MvdSharedDataView : public MvdTreeView
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdSharedDataView(QWidget* parent = 0);
-	virtual ~MvdSharedDataView();
+    MvdSharedDataView(QWidget *parent = 0);
+    virtual ~MvdSharedDataView();
 
 protected:
-	virtual void startDrag(Qt::DropActions supportedActions);
-	virtual void mouseDoubleClickEvent(QMouseEvent* e);
+    virtual void startDrag(Qt::DropActions supportedActions);
+    virtual void mouseDoubleClickEvent(QMouseEvent *e);
 };
 
 #endif // MVD_SHAREDDATAVIEW_H

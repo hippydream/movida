@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: actionlabel_p.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -23,7 +23,7 @@
 //  -------------
 //
 // This file is not part of the MvdShared API.  It exists for the convenience
-// of Movida.  This header file may change from version to version without notice, 
+// of Movida.  This header file may change from version to version without notice,
 // or even be removed.
 //
 // We mean it.
@@ -32,41 +32,44 @@
 #ifndef MVD_ACTIONLABEL_P_H
 #define MVD_ACTIONLABEL_P_H
 
-#include <QObject>
-#include <QList>
+#include "actionlabel.h"
 
-class MvdActionLabel;
+#include <QtCore/QObject>
+#include <QtCore/QList>
 
-class MvdActionLabel_P : public QObject
+class MvdActionLabel::Private : public QObject
 {
-	Q_OBJECT
-	
+    Q_OBJECT
+
 public:
-	struct AdvancedControl
-	{
-		AdvancedControl(int aid = -1) : id(aid) {}
-		AdvancedControl(int aid, const QString& alabel, bool aenabled = true)
-			: id(aid), label(alabel), enabled(aenabled) {}
+    struct AdvancedControl {
+        AdvancedControl(int aid = -1) :
+            id(aid) { }
 
-		bool operator==(const AdvancedControl& o) const { return id == o.id; };
+        AdvancedControl(int aid, const QString &alabel, bool aenabled = true) :
+            id(aid),
+            label(alabel),
+            enabled(aenabled) { }
 
-		int id;
-		QString label;
-		bool enabled;
-	};
-	
-	inline MvdActionLabel_P(MvdActionLabel* label);
-	inline void layoutAdvancedControls();
-	
+        bool operator==(const AdvancedControl &o) const { return id == o.id; }
+
+        int id;
+        QString label;
+        bool enabled;
+    };
+
+    inline Private(MvdActionLabel *label);
+    inline void layoutAdvancedControls();
+
 public slots:
-	void linkActivated(const QString& url);
+    void linkActivated(const QString &url);
 
 public:
-	QList<AdvancedControl> controls;
-	int ids;
-	
+    QList<AdvancedControl> controls;
+    int ids;
+
 private:
-	MvdActionLabel* q;
+    MvdActionLabel *q;
 };
 
 #endif // MVD_ACTIONLABEL_P_H

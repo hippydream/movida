@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: exportengine.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,42 +22,46 @@
 #define MVD_EXPORTENGINE_H
 
 #include "sharedglobal.h"
-#include <QString>
-#include <QUrl>
+
+#include <QtCore/QString>
+#include <QtCore/QUrl>
 
 /*!
-	\class MvdExportEngine exportengine.h
-	\ingroup MovidaShared
+    \class MvdExportEngine exportengine.h
+    \ingroup MovidaShared
 
-	\brief Describes a local/network export engine.
+    \brief Describes a local/network export engine.
 */
 
 class MvdExportEngine
 {
 public:
-	enum EngineOption {
-		NoEngineOption = 0,
-		CustomizableAttributesOption = 1
-	};
-	Q_DECLARE_FLAGS(EngineOptions, EngineOption);
+    enum EngineOption {
+        NoEngineOption = 0,
+        CustomizableAttributesOption = 1
+    };
+    Q_DECLARE_FLAGS(EngineOptions, EngineOption);
 
-	//! Creates a new search engine.
-	MvdExportEngine() : canConfigure(false) {}
+    //! Creates a new search engine.
+    MvdExportEngine() :
+        canConfigure(false) { }
 
-	//! Creates a new search engine with given name.
-	MvdExportEngine(const QString& displayName)
-	: name(displayName), canConfigure(false)
-	{ }
+    //! Creates a new search engine with given name.
+    MvdExportEngine(const QString &displayName) :
+        name(displayName),
+        canConfigure(false)
+    { }
 
-	bool operator ==(const MvdExportEngine& o) const {
-		return !QString::compare(name, o.name, Qt::CaseInsensitive);
-	}
+    bool operator==(const MvdExportEngine &o) const
+    {
+        return !QString::compare(name, o.name, Qt::CaseInsensitive);
+    }
 
-	QString name;
-	QString urlFilter;
-	EngineOptions options;
+    QString name;
+    QString urlFilter;
+    EngineOptions options;
 
-	bool canConfigure;
+    bool canConfigure;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(MvdExportEngine::EngineOptions)
 

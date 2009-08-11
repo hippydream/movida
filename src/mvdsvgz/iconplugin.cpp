@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: iconplugin.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,29 +19,28 @@
 **************************************************************************/
 
 #include "iconplugin.h"
+
 #include "iconengine.h"
 
-MvdSvgzIconEnginePlugin::MvdSvgzIconEnginePlugin(QObject* parent)
-: QIconEnginePluginV2(parent)
-{
-
-}
+MvdSvgzIconEnginePlugin::MvdSvgzIconEnginePlugin(QObject *parent) :
+    QIconEnginePluginV2(parent)
+{ }
 
 MvdSvgzIconEnginePlugin::~MvdSvgzIconEnginePlugin()
-{
-}
+{ }
 
-QIconEngineV2* MvdSvgzIconEnginePlugin::create(const QString& filename)
+QIconEngineV2 *MvdSvgzIconEnginePlugin::create(const QString &filename)
 {
-	MvdSvgzIconEngine* engine = new MvdSvgzIconEngine;
-	if (!filename.isNull())
-		engine->addFile(filename, QSize(), QIcon::Normal, QIcon::On);
-	return engine;
+    MvdSvgzIconEngine *engine = new MvdSvgzIconEngine;
+
+    if (!filename.isNull())
+        engine->addFile(filename, QSize(), QIcon::Normal, QIcon::On);
+    return engine;
 }
 
 QStringList MvdSvgzIconEnginePlugin::keys() const
 {
-	return QStringList() << QLatin1String("svgz");
+    return QStringList() << QLatin1String("svgz");
 }
 
 Q_EXPORT_PLUGIN2(MvdSvgzIconEnginePlugin, MvdSvgzIconEnginePlugin)

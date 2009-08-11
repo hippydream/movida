@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: posterlabel.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -27,29 +27,29 @@ class QPaintEvent;
 
 class MvdPosterLabel : public MvdLinkLabel
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdPosterLabel(QWidget* parent = 0);
-	virtual ~MvdPosterLabel();
+    MvdPosterLabel(QWidget *parent = 0);
+    virtual ~MvdPosterLabel();
 
-	bool setPoster(const QString& path);
-	QString poster() const;
+    bool setPoster(const QString &path);
+    QString poster() const;
 
 protected:
-	void paintEvent(QPaintEvent* event);
+    void paintEvent(QPaintEvent *event);
 
 private:
-	QPixmap mPoster;
-	QString mPosterPath;
-	bool mDirty;
+    QPixmap mPoster;
+    QString mPosterPath;
+    bool mDirty;
 
-	static const qreal IconAspectRatio;
-	static const QColor BorderColor;
-	static const QColor ShadowColor;
-	static const int InnerIconBorderWidth;
-	static const int BorderWidth;
-	static const int ShadowWidth;
+    static const qreal IconAspectRatio;
+    static const QColor BorderColor;
+    static const QColor ShadowColor;
+    static const int InnerIconBorderWidth;
+    static const int BorderWidth;
+    static const int ShadowWidth;
 };
 
 #endif // MVD_POSTERLABEL_H

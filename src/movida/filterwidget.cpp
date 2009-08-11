@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: filterwidget.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,138 +19,146 @@
 **************************************************************************/
 
 #include "filterwidget.h"
+
 #include "guiglobal.h"
+
 #include "mvdcore/core.h"
-#include <QPixmap>
-#include <QIcon>
-#include <QDataStream>
-#include <QHash>
-#include <QVariant>
-#include <QDragEnterEvent>
-#include <QDropEvent>
 
-MvdFilterWidget::MvdFilterWidget(QWidget* parent)
-: QFrame(parent), mMessage(NoMessage)
+#include <QtCore/QDataStream>
+#include <QtCore/QHash>
+#include <QtCore/QVariant>
+#include <QtGui/QDragEnterEvent>
+#include <QtGui/QDropEvent>
+#include <QtGui/QIcon>
+#include <QtGui/QPixmap>
+
+MvdFilterWidget::MvdFilterWidget(QWidget *parent) :
+    QFrame(parent),
+    mMessage(NoMessage)
 {
-	setupUi(this);
-	closeButton->setIcon(QIcon(":/images/filter-close.png"));
+    setupUi(this);
+    closeButton->setIcon(QIcon(":/images/filter-close.png"));
 
-	QIcon i(":/images/dialog-warning.svgz");
-	mWarning = i.pixmap(16, 16);
-	i = QIcon(":/images/dialog-information.svgz");
-	mInfo = i.pixmap(16, 16);
+    QIcon i(":/images/dialog-warning.svgz");
+    mWarning = i.pixmap(16, 16);
+    i = QIcon(":/images/dialog-information.svgz");
+    mInfo = i.pixmap(16, 16);
 
-	warningIconLabel->setVisible(false);
-	warningTextLabel->setVisible(false);
+    warningIconLabel->setVisible(false);
+    warningTextLabel->setVisible(false);
 
-	setFrameShape(QFrame::StyledPanel);
-	setFrameShadow(QFrame::Raised);
+    setFrameShape(QFrame::StyledPanel);
+    setFrameShadow(QFrame::Raised);
 
-	input->setPlaceHolder(tr("Enter a filter..."));
-	setAcceptDrops(true);
-	
-	connect( closeButton, SIGNAL(clicked()), this, SIGNAL(hideRequest()) );
-	connect( caseSensitive, SIGNAL(stateChanged(int)), this, SIGNAL(caseSensitivityChanged()) );
+    input->setPlaceHolder(tr("Enter a filter..."));
+    setAcceptDrops(true);
+
+    connect(closeButton, SIGNAL(clicked()), this, SIGNAL(hideRequest()));
+    connect(caseSensitive, SIGNAL(stateChanged(int)), this, SIGNAL(caseSensitivityChanged()));
 }
 
-QLineEdit* MvdFilterWidget::editor() const
+QLineEdit *MvdFilterWidget::editor() const
 {
-	return input;
+    return input;
 }
 
 //! Shows a label warning or informing the user about something. Use MvdFilterWidget::NoMessage to hide the label.
 void MvdFilterWidget::setMessage(Message m)
 {
-	if (mMessage == m)
-		return;
+    if (mMessage == m)
+        return;
 
-	switch (m) {
-	case NoResultsWarning:
-		warningTextLabel->setText(tr("No movies match the filter criteria."));
-		warningIconLabel->setPixmap(mWarning);
-		break;
-	case SyntaxErrorWarning:
-		warningTextLabel->setText(tr("Invalid filter function."));
-		warningIconLabel->setPixmap(mWarning);
-		break;
-	case DropInfo:
-		warningTextLabel->setText(tr("Drop on the filter bar to create a filter function."));
-		warningIconLabel->setPixmap(mInfo);
-		break;
-	default: ;
-	}
+    switch (m) {
+        case NoResultsWarning:
+            warningTextLabel->setText(tr("No movies match the filter criteria."));
+            warningIconLabel->setPixmap(mWarning);
+            break;
 
-	mMessage = m;
+        case SyntaxErrorWarning:
+            warningTextLabel->setText(tr("Invalid filter function."));
+            warningIconLabel->setPixmap(mWarning);
+            break;
 
-	warningIconLabel->setVisible(m != NoMessage);
-	warningTextLabel->setVisible(m != NoMessage);
+        case DropInfo:
+            warningTextLabel->setText(tr("Drop on the filter bar to create a filter function."));
+            warningIconLabel->setPixmap(mInfo);
+            break;
+
+        default:
+            ;
+    }
+
+    mMessage = m;
+
+    warningIconLabel->setVisible(m != NoMessage);
+    warningTextLabel->setVisible(m != NoMessage);
 }
 
 MvdFilterWidget::Message MvdFilterWidget::message() const
 {
-	return mMessage;
+    return mMessage;
 }
 
 /*!
-	Calling this method will not emit the caseSensitivityChanged() signal.
+    Calling this method will not emit the caseSensitivityChanged() signal.
 */
 void MvdFilterWidget::setCaseSensitivity(Qt::CaseSensitivity cs)
 {
-	caseSensitive->setChecked(cs == Qt::CaseSensitive);
+    caseSensitive->setChecked(cs == Qt::CaseSensitive);
 }
 
 Qt::CaseSensitivity MvdFilterWidget::caseSensitivity() const
 {
-	return caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    return caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive;
 }
 
-void MvdFilterWidget::dragEnterEvent(QDragEnterEvent* e)
+void MvdFilterWidget::dragEnterEvent(QDragEnterEvent *e)
 {
-	if (e->mimeData()->hasFormat(MvdCore::parameter("movida/mime/movie-attributes").toString())) {
-		e->acceptProposedAction();
-	} else e->ignore();
+    if (e->mimeData()->hasFormat(MvdCore::parameter("movida/mime/movie-attributes").toString())) {
+        e->acceptProposedAction();
+    } else e->ignore();
 }
 
-void MvdFilterWidget::dragMoveEvent(QDragMoveEvent* e)
+void MvdFilterWidget::dragMoveEvent(QDragMoveEvent *e)
 {
-	if (e->mimeData()->hasFormat(MvdCore::parameter("movida/mime/movie-attributes").toString())) {
-		e->acceptProposedAction();
-	} else e->ignore();
+    if (e->mimeData()->hasFormat(MvdCore::parameter("movida/mime/movie-attributes").toString())) {
+        e->acceptProposedAction();
+    } else e->ignore();
 }
 
-void MvdFilterWidget::dropEvent(QDropEvent* e)
+void MvdFilterWidget::dropEvent(QDropEvent *e)
 {
-	const QMimeData* md = e->mimeData();
-	QString idList = 
-		QString::fromLatin1(md->data(MvdCore::parameter("movida/mime/movie-attributes").toString()));
+    const QMimeData *md = e->mimeData();
+    QString idList =
+        QString::fromLatin1(md->data(MvdCore::parameter("movida/mime/movie-attributes").toString()));
 
-	Qt::DropAction dropAction = e->proposedAction();
-	bool replaceFilter = dropAction == Qt::MoveAction;
-	
-	applySharedDataFilter(idList, replaceFilter);
+    Qt::DropAction dropAction = e->proposedAction();
+    bool replaceFilter = dropAction == Qt::MoveAction;
 
-	e->acceptProposedAction();
+    applySharedDataFilter(idList, replaceFilter);
+
+    e->acceptProposedAction();
 }
 
-void MvdFilterWidget::applySharedDataFilter(const QString& itemIds, bool replaceFilter)
+void MvdFilterWidget::applySharedDataFilter(const QString &itemIds, bool replaceFilter)
 {
-	QString filter = QString("@%1(%2)")
-		.arg(Movida::filterFunctionName(Movida::SharedDataIdFilter))
-		.arg(itemIds);
+    QString filter = QString("@%1(%2)")
+                         .arg(Movida::filterFunctionName(Movida::SharedDataIdFilter))
+                         .arg(itemIds);
 
-	if (replaceFilter)
-		editor()->clear();
+    if (replaceFilter)
+        editor()->clear();
 
-	if (filter.isEmpty())
-		return;
+    if (filter.isEmpty())
+        return;
 
-	QString text;
-	if (!replaceFilter) {
-		text = editor()->text().trimmed();
-		if (!text.isEmpty())
-			text.append(QLatin1Char(' '));
-	}
+    QString text;
+    if (!replaceFilter) {
+        text = editor()->text().trimmed();
+        if (!text.isEmpty())
+            text.append(QLatin1Char(' '));
+    }
 
-	text.append(filter);
-	editor()->setText(text);
+    text.append(filter);
+    editor()->setText(text);
 }

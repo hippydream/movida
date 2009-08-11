@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: shareddataeditor.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,38 +22,39 @@
 #define MVD_SHAREDDATAEDITOR_H
 
 #include "ui_shareddataeditor.h"
-#include <QWidget>
+
+#include <QtGui/QWidget>
 
 class MvdTreeView;
-class QContextMenuEvent;
 class QAbstractItemModel;
+class QContextMenuEvent;
 class QModelIndex;
 
 class MvdSharedDataEditor : public QWidget, protected Ui::MvdSharedDataEditor
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdSharedDataEditor(QWidget* parent = 0);
-	MvdSharedDataEditor(QAbstractItemModel* model, QWidget* parent = 0);
-	virtual ~MvdSharedDataEditor();
-	
-	void setModel(QAbstractItemModel* model);
-	QAbstractItemModel* model() const;
+    MvdSharedDataEditor(QWidget *parent = 0);
+    MvdSharedDataEditor(QAbstractItemModel *model, QWidget *parent = 0);
+    virtual ~MvdSharedDataEditor();
 
-	QAbstractItemView* view() const;
+    void setModel(QAbstractItemModel *model);
+    QAbstractItemModel *model() const;
+
+    QAbstractItemView *view() const;
 
 signals:
-	void contextMenuRequested(const QModelIndex& index);
+    void contextMenuRequested(const QModelIndex &index);
 
 protected:
-	void contextMenuEvent(QContextMenuEvent* event);
+    void contextMenuEvent(QContextMenuEvent *event);
 
 private slots:
-	void updateDataRole();
+    void updateDataRole();
 
 private:
-	void init();
+    void init();
 };
 
 #endif // MVD_SHAREDDATAEDITOR_H

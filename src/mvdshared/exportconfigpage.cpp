@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: exportconfigpage.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,25 +19,28 @@
 **************************************************************************/
 
 #include "exportconfigpage.h"
+
 #include "importresultspage.h"
+
 #include "mvdcore/core.h"
-#include <QHeaderView>
+
+#include <QtGui/QHeaderView>
 
 /*!
-        \class MvdExportConfigPage exportconfigpage.h
-        \ingroup MovidaShared
+    \class MvdExportConfigPage exportconfigpage.h
+    \ingroup MovidaShared
 
-        \brief This page allows the user to customize the export process if
-        the selected engine allows it.
+    \brief This page allows the user to customize the export process if
+    the selected engine allows it.
 */
 
 
 /*!
-        This Export Wizard page allows the user to customize the export process if
-        the selected engine allows it.
+    This Export Wizard page allows the user to customize the export process if
+    the selected engine allows it.
 */
-MvdExportConfigPage::MvdExportConfigPage(QWidget* parent)
-: MvdImportExportPage(parent)
+MvdExportConfigPage::MvdExportConfigPage(QWidget *parent) :
+    MvdImportExportPage(parent)
 {
     setTitle(tr("Export configuration"));
     setSubTitle(tr("Please select the attributes you want to be exported and eventually their order."));
@@ -57,11 +60,9 @@ MvdExportConfigPage::MvdExportConfigPage(QWidget* parent)
 //! Initialize page each time it is shown.
 void MvdExportConfigPage::initializePage()
 {
-        wizard()->setButtonText(QWizard::NextButton, tr("&Export"));
+    wizard()->setButtonText(QWizard::NextButton, tr("&Export"));
 }
 
 //! This method is called when the user hits the "back" button.
 void MvdExportConfigPage::cleanupPage()
-{
-
-}
+{ }

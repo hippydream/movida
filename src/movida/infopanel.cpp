@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: infopanel.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,92 +19,93 @@
 **************************************************************************/
 
 #include "infopanel.h"
-#include <QTimer>
+
+#include <QtCore/QTimer>
 
 namespace {
-	const int DefaultTempMessageDelay = 3000;
+const int DefaultTempMessageDelay = 3000;
 }
 
-MvdInfoPanel::MvdInfoPanel(QWidget* parent)
-: QFrame(parent), mHideOnTemporaryMessageTimeout(true)
+MvdInfoPanel::MvdInfoPanel(QWidget *parent) :
+    QFrame(parent),
+    mHideOnTemporaryMessageTimeout(true)
 {
-	setupUi(this);
-	closeButton->setIcon(QIcon(":/images/filter-close.png"));
-	
-	setFrameShape(QFrame::StyledPanel);
-	setFrameShadow(QFrame::Raised);
+    setupUi(this);
+    closeButton->setIcon(QIcon(":/images/filter-close.png"));
 
-	QIcon i(":/images/dialog-information.svgz");
-	mInfoIcon = i.pixmap(16, 16);
-	iconLabel->setPixmap(mInfoIcon);
+    setFrameShape(QFrame::StyledPanel);
+    setFrameShadow(QFrame::Raised);
 
-	connect( closeButton, SIGNAL(clicked()), this, SLOT(do_closeImmediately()) );
+    QIcon i(":/images/dialog-information.svgz");
+    mInfoIcon = i.pixmap(16, 16);
+    iconLabel->setPixmap(mInfoIcon);
+
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(do_closeImmediately()));
 }
 
 MvdInfoPanel::~MvdInfoPanel()
-{
-}
+{ }
 
 /*!
-	Sets a new permanent text message. This method won't automatically show the panel 
-	if it is hidden (as opposed to showTemporaryMessage()).
+    Sets a new permanent text message. This method won't automatically show the panel
+    if it is hidden (as opposed to showTemporaryMessage()).
 */
-void MvdInfoPanel::setText(const QString& s)
+void MvdInfoPanel::setText(const QString &s)
 {
-	messageLabel->setText(s);
-	mPermanentText = s;
+    messageLabel->setText(s);
+    mPermanentText = s;
 }
 
 /*!
-	Returns the last permanent message set using setText().
+    Returns the last permanent message set using setText().
 */
 QString MvdInfoPanel::text() const
 {
-	return mPermanentText;
+    return mPermanentText;
 }
 
 void MvdInfoPanel::setVisible(bool v)
 {
-	mHideOnTemporaryMessageTimeout = !v;
-	QFrame::setVisible(v);
+    mHideOnTemporaryMessageTimeout = !v;
+    QFrame::setVisible(v);
 }
 
 void MvdInfoPanel::closeImmediately()
 {
-	QFrame::setVisible(false);
+    QFrame::setVisible(false);
 }
 
 void MvdInfoPanel::do_closeImmediately()
 {
-	closeImmediately();
-	emit closedByUser();
+    closeImmediately();
+    emit closedByUser();
 }
 
 /*!
-	Sets and shows a temporary message.
-	This method will automatically show the panel if necessary and close it after the
-	given timeout unless setVisible() has been called to show the panel explicitly.
+    Sets and shows a temporary message.
+    This method will automatically show the panel if necessary and close it after the
+    given timeout unless setVisible() has been called to show the panel explicitly.
 
-	The permanent text set using setText() is always restored after the timeout.
+    The permanent text set using setText() is always restored after the timeout.
 */
-void MvdInfoPanel::showTemporaryMessage(const QString& s, int milliseconds /* = 3000 */)
+void MvdInfoPanel::showTemporaryMessage(const QString &s, int milliseconds /* = 3000*/)
 {
-	QFrame::setVisible(true);
+    QFrame::setVisible(true);
 
-	mPermanentText = messageLabel->text();
-	messageLabel->setText(s);
+    mPermanentText = messageLabel->text();
+    messageLabel->setText(s);
 
-	if (milliseconds < 200)
-		milliseconds = ::DefaultTempMessageDelay;
+    if (milliseconds < 200)
+        milliseconds = ::DefaultTempMessageDelay;
 
-	QTimer::singleShot(milliseconds, this, SLOT(resetPermanentText()));
+    QTimer::singleShot(milliseconds, this, SLOT(resetPermanentText()));
 }
 
 void MvdInfoPanel::resetPermanentText()
 {
-	if (mHideOnTemporaryMessageTimeout) {
-		closeImmediately();
-	}
+    if (mHideOnTemporaryMessageTimeout) {
+        closeImmediately();
+    }
 
-	messageLabel->setText(mPermanentText);
+    messageLabel->setText(mPermanentText);
 }

@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: multipagedialog.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,178 +19,182 @@
 **************************************************************************/
 
 #include "multipagedialog.h"
-#include "mpdialogpage.h"
+
 #include "guiglobal.h"
+#include "mpdialogpage.h"
+
 #include "mvdcore/core.h"
-#include <QVariant>
-#include <QPalette>
+
+#include <QtCore/QVariant>
+#include <QtGui/QPalette>
 
 /*!
-        \class MvdMultiPageDialog complexdlg.h
-        \ingroup Movida
+    \class MvdMultiPageDialog complexdlg.h
+    \ingroup Movida
 
-        \brief Base class for a multi page dialog.
+    \brief Base class for a multi page dialog.
 */
 
 
 /*!
-        Creates a new empty dialog.
+    Creates a new empty dialog.
 */
-MvdMultiPageDialog::MvdMultiPageDialog(QWidget* parent)
-: QDialog(parent), mDiscardChanges(false)
+MvdMultiPageDialog::MvdMultiPageDialog(QWidget *parent) :
+    QDialog(parent),
+    mDiscardChanges(false)
 {
-        setupUi(this);
-        MVD_WINDOW_ICON
+    setupUi(this);
+    MVD_WINDOW_ICON
 
-        setAdvancedControlsVisible(false);
-        connect(contents, SIGNAL(currentChanged(int)), this, SLOT(emit_currentPageChanged()));
+    setAdvancedControlsVisible(false);
+    connect(contents, SIGNAL(currentChanged(int)), this, SLOT(emit_currentPageChanged()));
 }
 
 /*!
-        Adds a new page to the dialog and returns an internally assigned id (or a
-        negative value if the page could not be added).
+    Adds a new page to the dialog and returns an internally assigned id (or a
+    negative value if the page could not be added).
 */
-int MvdMultiPageDialog::addPage(MvdMPDialogPage* p)
+int MvdMultiPageDialog::addPage(MvdMPDialogPage *p)
 {
-        if (p == 0)
-                return -1;
+    if (p == 0)
+        return -1;
 
-        p->setContentsMargins(10, 10, 10, 10);
-        int id = contents->addTab(p, p->label());
+    p->setContentsMargins(10, 10, 10, 10);
+    int id = contents->addTab(p, p->label());
 
-        connect( p, SIGNAL(externalActionTriggered(const QString&, const QVariant&)),
-                this, SIGNAL(externalActionTriggered(const QString&, const QVariant&)) );
+    connect(p, SIGNAL(externalActionTriggered(const QString &, const QVariant &)),
+        this, SIGNAL(externalActionTriggered(const QString &, const QVariant &)));
 
-        connect( p, SIGNAL(validationStateChanged()),
-                this, SLOT(do_validationStateChanged()) );
+    connect(p, SIGNAL(validationStateChanged()),
+        this, SLOT(do_validationStateChanged()));
 
-        connect( p, SIGNAL(modifiedStateChanged()),
-                this, SLOT(do_modifiedStateChanged()) );
+    connect(p, SIGNAL(modifiedStateChanged()),
+        this, SLOT(do_modifiedStateChanged()));
 
-        if (!p->isValid())
-                do_validationStateChanged(p);
-        if (p->isModified())
-                do_modifiedStateChanged(p);
+    if (!p->isValid())
+        do_validationStateChanged(p);
+    if (p->isModified())
+        do_modifiedStateChanged(p);
 
-        return id;
+    return id;
 }
 
 //! Shows a specific page.
-void MvdMultiPageDialog::showPage(MvdMPDialogPage* p)
+void MvdMultiPageDialog::showPage(MvdMPDialogPage *p)
 {
-        contents->setCurrentWidget(p);
+    contents->setCurrentWidget(p);
 }
 
 //! Returns a pointer to the button container.
-QDialogButtonBox* MvdMultiPageDialog::buttonBox() const
+QDialogButtonBox *MvdMultiPageDialog::buttonBox() const
 {
-        return Ui::MvdMultiPageDialog::buttonBox;
+    return Ui::MvdMultiPageDialog::buttonBox;
 }
 
 //! Returns a pointer to the advanced control's button container.
-QDialogButtonBox* MvdMultiPageDialog::advancedButtonBox() const
+QDialogButtonBox *MvdMultiPageDialog::advancedButtonBox() const
 {
-        return Ui::MvdMultiPageDialog::advButtonBox;
+    return Ui::MvdMultiPageDialog::advButtonBox;
 }
 
 //! \internal
-void MvdMultiPageDialog::do_validationStateChanged(MvdMPDialogPage* p)
+void MvdMultiPageDialog::do_validationStateChanged(MvdMPDialogPage *p)
 {
-        MvdMPDialogPage* page = p ? p : qobject_cast<MvdMPDialogPage*>(sender());
-        if (page)
-        {
-                if (page->isValid())
-                        contents->setTabText(contents->indexOf(page), page->label());
-                else contents->setTabText(contents->indexOf(page), page->label().append(" (!)"));
+    MvdMPDialogPage *page = p ? p : qobject_cast<MvdMPDialogPage *>(sender());
 
-                validationStateChanged(page);
-        }
+    if (page) {
+        if (page->isValid())
+            contents->setTabText(contents->indexOf(page), page->label());
+        else contents->setTabText(contents->indexOf(page), page->label().append(" (!)"));
+
+        validationStateChanged(page);
+    }
 }
 
 /*!
-        This slot is called whenever a dialog page changes its validation state.
-        Subclasses may override it to enable or disable UI elements.
+    This slot is called whenever a dialog page changes its validation state.
+    Subclasses may override it to enable or disable UI elements.
 */
-void MvdMultiPageDialog::validationStateChanged(MvdMPDialogPage* page)
+void MvdMultiPageDialog::validationStateChanged(MvdMPDialogPage *page)
 {
-        Q_UNUSED(page);
+    Q_UNUSED(page);
 }
 
 //! \internal
-void MvdMultiPageDialog::do_modifiedStateChanged(MvdMPDialogPage* p)
+void MvdMultiPageDialog::do_modifiedStateChanged(MvdMPDialogPage *p)
 {
-        MvdMPDialogPage* page = p ? p : qobject_cast<MvdMPDialogPage*>(sender());
-        if (page)
-        {
-                modifiedStateChanged(page);
-        }
+    MvdMPDialogPage *page = p ? p : qobject_cast<MvdMPDialogPage *>(sender());
+
+    if (page) {
+        modifiedStateChanged(page);
+    }
 }
 
 /*!
-        This slot is called whenever a dialog page changes its modified state.
-        Subclasses may override it to enable or disable UI elements.
+    This slot is called whenever a dialog page changes its modified state.
+    Subclasses may override it to enable or disable UI elements.
 */
-void MvdMultiPageDialog::modifiedStateChanged(MvdMPDialogPage* page)
+void MvdMultiPageDialog::modifiedStateChanged(MvdMPDialogPage *page)
 {
-        Q_UNUSED(page);
+    Q_UNUSED(page);
 }
 
 //! Sets a subtitle for this dialog. A subtitle is usually displayed next to the window title.
-void MvdMultiPageDialog::setSubtitle(const QString& s)
+void MvdMultiPageDialog::setSubtitle(const QString &s)
 {
-        QString title = windowTitle();
+    QString title = windowTitle();
 
-        if (!mSubtitle.isEmpty())
-                title.truncate( title.length() - mSubtitle.length() - 3 );
+    if (!mSubtitle.isEmpty())
+        title.truncate(title.length() - mSubtitle.length() - 3);
 
-        mSubtitle = s;
+    mSubtitle = s;
 
-        if (!mSubtitle.isEmpty())
-                title.append(" - ").append(mSubtitle);
+    if (!mSubtitle.isEmpty())
+        title.append(" - ").append(mSubtitle);
 
-        setWindowTitle(title);
+    setWindowTitle(title);
 }
 
 //! Returns the subtitle for this dialog. A subtitle is usually displayed between square brackets next to the window title.
 QString MvdMultiPageDialog::subtitle() const
 {
-        return mSubtitle;
+    return mSubtitle;
 }
 
 //!
 void MvdMultiPageDialog::setAdvancedControlsVisible(bool visible)
 {
-        advancedControls->setVisible(visible);
+    advancedControls->setVisible(visible);
 }
 
 //!
 bool MvdMultiPageDialog::advancedControlsVisible() const
 {
-        return advancedControls->isVisible();
+    return advancedControls->isVisible();
 }
 
 //!
-MvdMPDialogPage* MvdMultiPageDialog::currentPage() const
+MvdMPDialogPage *MvdMultiPageDialog::currentPage() const
 {
-        return qobject_cast<MvdMPDialogPage*>(contents->currentWidget());
+    return qobject_cast<MvdMPDialogPage *>(contents->currentWidget());
 }
 
 //!
 int MvdMultiPageDialog::currentIndex() const
 {
-        return contents->currentIndex();
+    return contents->currentIndex();
 }
 
 //! \internal
 void MvdMultiPageDialog::emit_currentPageChanged()
 {
-        emit currentPageChanged(currentPage());
+    emit currentPageChanged(currentPage());
 }
 
 //! \internal
-void MvdMultiPageDialog::showEvent(QShowEvent* event)
+void MvdMultiPageDialog::showEvent(QShowEvent *event)
 {
-        Q_UNUSED(event);
-        if (MvdMPDialogPage* page = qobject_cast<MvdMPDialogPage*>(contents->widget(0)))
-                page->setMainWidgetFocus();
+    Q_UNUSED(event);
+    if (MvdMPDialogPage * page = qobject_cast<MvdMPDialogPage *>(contents->widget(0)))
+        page->setMainWidgetFocus();
 }

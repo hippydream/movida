@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: notespage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,31 +22,32 @@
 #define MVD_NOTESPAGE_H
 
 #include "ui_notespage.h"
+
 #include "movieeditorpage.h"
 
 class QIcon;
 
 class MvdNotesPage : public MvdMovieEditorPage, private Ui::MvdNotesPage
 {
-	Q_OBJECT
-		
-public:
-	MvdNotesPage(MvdMovieCollection* c, MvdMovieEditor* parent = 0);
-	
-	QString label();
-	QIcon icon();
-	
-	void setMovieImpl(const MvdMovie& movie);
+    Q_OBJECT
 
-	bool store(MvdMovie& movie);
+public:
+    MvdNotesPage(MvdMovieCollection *c, MvdMovieEditor *parent = 0);
+
+    QString label();
+    QIcon icon();
+
+    void setMovieImpl(const MvdMovie &movie);
+
+    bool store(MvdMovie &movie);
 
 private slots:
-	void linkActivated(const QString& url);
-	void updateModifiedStatus();
+    void linkActivated(const QString &url);
+    void updateModifiedStatus();
 
 private:
-	QString mDefaultPlot;
-	QString mDefaultNotes;
+    QString mDefaultPlot;
+    QString mDefaultNotes;
 };
 
 #endif // MVD_NOTESPAGE_H

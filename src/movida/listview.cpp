@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: listview.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,110 +19,112 @@
 **************************************************************************/
 
 #include "listview.h"
-#include "smartviewdelegate.h"
-#include "mainwindow.h"
-#include <QMouseEvent>
-#include <QApplication>
-#include <QScrollBar>
 
-class MvdListView::MvdListView_P
+#include "mainwindow.h"
+#include "smartviewdelegate.h"
+
+#include <QtGui/QApplication>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QScrollBar>
+
+class MvdListView::Private
 {
 public:
-	QPersistentModelIndex lastDirtyIndex;
+    QPersistentModelIndex lastDirtyIndex;
 };
 
-MvdListView::MvdListView(QWidget* parent)
-: QListView(parent), d(new MvdListView_P)
+MvdListView::MvdListView(QWidget *parent) :
+    QListView(parent),
+    d(new Private)
 {
-	setSpacing(10);
+    setSpacing(10);
 }
 
 MvdListView::~MvdListView()
 {
-
+    delete d;
 }
 
-void MvdListView::mouseMoveEvent(QMouseEvent* e)
+void MvdListView::mouseMoveEvent(QMouseEvent *e)
 {
-	if (hasMouseTracking() && !QApplication::mouseButtons()) {
-		QModelIndex index = indexAt(e->pos());
-		if (index.isValid()) {
-			if (d->lastDirtyIndex.isValid())
-				setDirtyRegion(visualRect(d->lastDirtyIndex));
-			setDirtyRegion(visualRect(index));
-			repaint(visualRect(index));
-			d->lastDirtyIndex = index;
+    if (hasMouseTracking() && !QApplication::mouseButtons()) {
+        QModelIndex index = indexAt(e->pos());
+        if (index.isValid()) {
+            if (d->lastDirtyIndex.isValid())
+                setDirtyRegion(visualRect(d->lastDirtyIndex));
+            setDirtyRegion(visualRect(index));
+            repaint(visualRect(index));
+            d->lastDirtyIndex = index;
 
-			// Show some hint
-			MvdSmartViewDelegate* d = qobject_cast<MvdSmartViewDelegate*>(itemDelegate(index));
-			if (d) d->showHoveredControlHint();
-		}
-		else if (d->lastDirtyIndex.isValid()) {
-			setDirtyRegion(visualRect(d->lastDirtyIndex));
-			repaint(visualRect(index));
-			d->lastDirtyIndex = QPersistentModelIndex();
-		}
-	}
-	QListView::mouseMoveEvent(e);
+            // Show some hint
+            MvdSmartViewDelegate *d = qobject_cast<MvdSmartViewDelegate *>(itemDelegate(index));
+            if (d) d->showHoveredControlHint();
+        } else if (d->lastDirtyIndex.isValid()) {
+            setDirtyRegion(visualRect(d->lastDirtyIndex));
+            repaint(visualRect(index));
+            d->lastDirtyIndex = QPersistentModelIndex();
+        }
+    }
+    QListView::mouseMoveEvent(e);
 }
 
-void MvdListView::mouseReleaseEvent(QMouseEvent* e)
+void MvdListView::mouseReleaseEvent(QMouseEvent *e)
 {
-	if (e->button() == Qt::LeftButton && QApplication::keyboardModifiers() == Qt::NoModifier) {
-		QModelIndex index = indexAt(e->pos());
-		if (index.isValid()) {
-			MvdSmartViewDelegate* d = qobject_cast<MvdSmartViewDelegate*>(itemDelegate(index));
-			if (d) d->mousePressed(visualRect(index), index);
-		
-		}
-	}
-	QListView::mouseReleaseEvent(e);
+    if (e->button() == Qt::LeftButton && QApplication::keyboardModifiers() == Qt::NoModifier) {
+        QModelIndex index = indexAt(e->pos());
+        if (index.isValid()) {
+            MvdSmartViewDelegate *d = qobject_cast<MvdSmartViewDelegate *>(itemDelegate(index));
+            if (d) d->mousePressed(visualRect(index), index);
+
+        }
+    }
+    QListView::mouseReleaseEvent(e);
 }
 
-void MvdListView::setSelection(const QRect& rect, QItemSelectionModel::SelectionFlags command)
+void MvdListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-	if (!selectionModel())
-		return;
+    if (!selectionModel())
+        return;
 
-	// FIX: QListView won't clear the selection after a click outside of the contents area when 
-	// wrapping is enabled.
-	if (command == QItemSelectionModel::Clear && isWrapping() && !QRect(QPoint(0, 0), contentsSize()).intersects(rect)) {
-		selectionModel()->clear();
-		return;
-	}
-	
-	QListView::setSelection(rect, command);
+    // FIX: QListView won't clear the selection after a click outside of the contents area when
+    // wrapping is enabled.
+    if (command == QItemSelectionModel::Clear && isWrapping() && !QRect(QPoint(0, 0), contentsSize()).intersects(rect)) {
+        selectionModel()->clear();
+        return;
+    }
+
+    QListView::setSelection(rect, command);
 }
 
-void MvdListView::dragEnterEvent(QDragEnterEvent* e)
+void MvdListView::dragEnterEvent(QDragEnterEvent *e)
 {
-	// By-pass QListView's d&d handling
-	QAbstractItemView::dragEnterEvent(e);
+    // By-pass QListView's d&d handling
+    QAbstractItemView::dragEnterEvent(e);
 }
 
-void MvdListView::dragLeaveEvent(QDragLeaveEvent* e)
+void MvdListView::dragLeaveEvent(QDragLeaveEvent *e)
 {
-	// By-pass QTreeView's d&d handling
-	QAbstractItemView::dragLeaveEvent(e);
+    // By-pass QTreeView's d&d handling
+    QAbstractItemView::dragLeaveEvent(e);
 }
 
-void MvdListView::dragMoveEvent(QDragMoveEvent* e)
+void MvdListView::dragMoveEvent(QDragMoveEvent *e)
 {
-	// By-pass QListView's d&d handling
-	QAbstractItemView::dragMoveEvent(e);
+    // By-pass QListView's d&d handling
+    QAbstractItemView::dragMoveEvent(e);
 }
 
-void MvdListView::dropEvent(QDropEvent* event)
+void MvdListView::dropEvent(QDropEvent *event)
 {
-	// Discard internal drops
-	if (event->source() != this) {
-		// By-pass QListView's d&d handling
-		QAbstractItemView::dropEvent(event);
-		return;
-	}
+    // Discard internal drops
+    if (event->source() != this) {
+        // By-pass QListView's d&d handling
+        QAbstractItemView::dropEvent(event);
+        return;
+    }
 }
 
 QModelIndexList MvdListView::selectedRows() const
 {
-	return selectionModel() ? selectionModel()->selectedRows() : QModelIndexList();
+    return selectionModel() ? selectionModel()->selectedRows() : QModelIndexList();
 }

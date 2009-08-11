@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: importstartpage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,50 +21,51 @@
 #ifndef MVD_IMPORTSTARTPAGE_H
 #define MVD_IMPORTSTARTPAGE_H
 
-#include "sharedglobal.h"
 #include "importexportpage.h"
 #include "searchengine.h"
+#include "sharedglobal.h"
 
 class MvdActionLabel;
 class MvdClearEdit;
-class QLabel;
+
 class QComboBox;
+class QLabel;
 class QPushButton;
 
 class MvdImportStartPage : public MvdImportExportPage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdImportStartPage(QWidget* parent = 0);
+    MvdImportStartPage(QWidget *parent = 0);
 
-	virtual void initializePage();
-	void reset();
+    virtual void initializePage();
+    void reset();
 
-	int registerEngine(const MvdSearchEngine& engine);
+    int registerEngine(const MvdSearchEngine &engine);
 
-	int engine() const;
-	const MvdSearchEngine* engineDescriptor(int id) const;
-	QString query() const;
+    int engine() const;
+    const MvdSearchEngine *engineDescriptor(int id) const;
+    QString query() const;
 
-	void updateCompleter(const QStringList& history);
+    void updateCompleter(const QStringList &history);
 
 signals:
-	void engineConfigurationRequest(int engine);
+    void engineConfigurationRequest(int engine);
 
 private slots:
-	void engineChanged();
-	void controlTriggered(int);
+    void engineChanged();
+    void controlTriggered(int);
 
 private:
-	QList<MvdSearchEngine> engines;
+    QList<MvdSearchEngine> engines;
 
-	QLabel* infoLabel;
-	QComboBox* engineCombo;
-	MvdClearEdit* queryInput;
-	MvdActionLabel* controls;
-	int configureEngineId;
-	int configurePluginId;
+    QLabel *infoLabel;
+    QComboBox *engineCombo;
+    MvdClearEdit *queryInput;
+    MvdActionLabel *controls;
+    int configureEngineId;
+    int configurePluginId;
 };
 
 #endif // MVD_IMPORTSTARTPAGE_H

@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: templatecache.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -28,41 +28,40 @@ class MvdMovieCollection;
 
 class MVD_EXPORT MvdTemplateCache : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	static MvdTemplateCache& instance();
+    static MvdTemplateCache &instance();
 
-	QString blank(MvdMovieCollection* collection);
-	QString movie(MvdMovieCollection* collection, mvdid id);
-	int cacheMovieData(const MvdMovieData& md);
-	QString movieData(int id);
-	void clearCachedMovieData(int id);
-	
+    QString blank(MvdMovieCollection *collection);
+    QString movie(MvdMovieCollection *collection, mvdid id);
+    int cacheMovieData(const MvdMovieData &md);
+    QString movieData(int id);
+    void clearCachedMovieData(int id);
+
 private slots:
-	void invalidateMovie(mvdid id);
-	void invalidateCollection();
-	void deregisterCollection(QObject* o);
+    void invalidateMovie(mvdid id);
+    void invalidateCollection();
+    void deregisterCollection(QObject *o);
 
 private:
-	MvdTemplateCache();
-	MvdTemplateCache(const MvdTemplateCache&);
-	MvdTemplateCache& operator=(const MvdTemplateCache&);
-	virtual ~MvdTemplateCache();
+    MvdTemplateCache();
+    MvdTemplateCache(const MvdTemplateCache &);
+    MvdTemplateCache &operator=(const MvdTemplateCache &);
+    virtual ~MvdTemplateCache();
 
-	void registerCollection(MvdMovieCollection* collection);
+    void registerCollection(MvdMovieCollection *collection);
 
-	static void create();
-	static volatile MvdTemplateCache* mInstance;
-	static bool mDestroyed;
+    static void create();
+    static volatile MvdTemplateCache *mInstance;
+    static bool mDestroyed;
 
-	class Private;
-	Private* d;
+    class Private;
+    Private *d;
 };
 
-namespace Movida
-{
-	MVD_EXPORT extern MvdTemplateCache& tcache();
+namespace Movida {
+MVD_EXPORT extern MvdTemplateCache &tcache();
 }
 
 #endif // MVD_TEMPLATECACHE_H

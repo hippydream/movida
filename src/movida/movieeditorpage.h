@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: movieeditorpage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,48 +21,53 @@
 #ifndef MVD_MOVIEEDITORPAGE_H
 #define MVD_MOVIEEDITORPAGE_H
 
-#include "mpdialogpage.h"
 #include "movieeditor.h"
-#include "mvdcore/moviecollection.h"
+#include "mpdialogpage.h"
+
 #include "mvdcore/movie.h"
+#include "mvdcore/moviecollection.h"
 
 class QIcon;
 
 class MvdMovieEditorPage : public MvdMPDialogPage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdMovieEditorPage(MvdMovieCollection* c, MvdMovieEditor* parent = 0) : 
-		MvdMPDialogPage(parent), mCollection(c) {};
+    MvdMovieEditorPage(MvdMovieCollection *c, MvdMovieEditor *parent = 0) :
+        MvdMPDialogPage(parent),
+        mCollection(c)
+    { }
 
-	void setMovie(const MvdMovie& movie)
-	{
-		if (mCollection == 0)
-			return;
+    void setMovie(const MvdMovie &movie)
+    {
+        if (mCollection == 0)
+            return;
 
-		mMovie = movie;
-		setMovieImpl(mMovie);
-	}
+        mMovie = movie;
+        setMovieImpl(mMovie);
+    }
 
-	/*!
-		Stores the current values in a movie object.
-		The default implementation always returns true.
-		Subclasses should return true only if the form has been successfully validated.
-		The modified status should not be checked: you should always store the data,
-		except when validation of the form fails.
-	*/
-	virtual bool store(MvdMovie& movie) { Q_UNUSED(movie); return true; }
+    /*!
+        Stores the current values in a movie object.
+        The default implementation always returns true.
+        Subclasses should return true only if the form has been successfully validated.
+        The modified status should not be checked: you should always store the data,
+        except when validation of the form fails.
+     */
+    virtual bool store(MvdMovie &movie)
+    { Q_UNUSED(movie); return true; }
 
-	//! This implementation does nothing and subclasses do not need to reimplement it.
-	virtual void reset() {};
+    //! This implementation does nothing and subclasses do not need to reimplement it.
+    virtual void reset()
+    { }
 
 protected:
-	//! Subclasses have to implement this method to populate the form with data.
-	virtual void setMovieImpl(const MvdMovie& movie) = 0;
+    //! Subclasses have to implement this method to populate the form with data.
+    virtual void setMovieImpl(const MvdMovie &movie) = 0;
 
-	MvdMovieCollection* mCollection;
-	MvdMovie mMovie;
+    MvdMovieCollection *mCollection;
+    MvdMovie mMovie;
 };
 
 #endif // MVD_MOVIEEDITORPAGE_H

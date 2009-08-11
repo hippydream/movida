@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: movieexport.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,37 +22,38 @@
 #define MPI_MOVIEEXPORT_H
 
 #include "blue.h"
+
 #include "mvdshared/exportdialog.h"
 
 class QIODevice;
 
-class MpiMovieExport : QObject
+class MpiMovieExport : public QObject
 {
-        Q_OBJECT
+    Q_OBJECT
 
 public:
-        MpiMovieExport(QObject* parent = 0);
-        virtual ~MpiMovieExport();
+    MpiMovieExport(QObject *parent = 0);
+    virtual ~MpiMovieExport();
 
-        void run();
+    void run();
 
 protected:
-        virtual void exportToCsv(QIODevice* out, const MvdExportDialog::ExportRequest& req) const;
-        virtual void exportToMovidaXml(QIODevice* out, const MvdExportDialog::ExportRequest& req) const;
+    virtual void exportToCsv(QIODevice *out, const MvdExportDialog::ExportRequest &req) const;
+    virtual void exportToMovidaXml(QIODevice *out, const MvdExportDialog::ExportRequest &req) const;
 
 private slots:
-        void exportRequest(int engine, const MvdExportDialog::ExportRequest& req);
-        void engineConfigurationRequest(int engine);
-        void customCsvSeparatorTriggered();
+    void exportRequest(int engine, const MvdExportDialog::ExportRequest &req);
+    void engineConfigurationRequest(int engine);
+    void customCsvSeparatorTriggered();
 
 private:
-        void showCsvConfigurationDlg();
+    void showCsvConfigurationDlg();
 
-        MvdExportDialog* mExportDialog;
-        int mCsvEngineId;
-        int mMovidaXmlEngineId;
-        QChar mCsvSeparator;
-        bool mWriteHeader;
+    MvdExportDialog *mExportDialog;
+    int mCsvEngineId;
+    int mMovidaXmlEngineId;
+    QChar mCsvSeparator;
+    bool mWriteHeader;
 };
 
 #endif // MPI_MOVIEEXPORT_H

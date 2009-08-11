@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: actionlabel.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,30 +22,30 @@
 #define MVD_ACTIONLABEL_H
 
 #include "sharedglobal.h"
-#include <QLabel>
 
-class MvdActionLabel_P;
+#include <QtGui/QLabel>
 
 class MVD_EXPORT_SHARED MvdActionLabel : public QLabel
 {
-	Q_OBJECT
-	
+Q_OBJECT
+
 public:
-	MvdActionLabel(QWidget* parent = 0);
-	virtual ~MvdActionLabel();
-	
-	int addControl(const QString& text, bool enabled);
-	void setControlEnabled(int control, bool enabled);
-	bool controlEnabled(int control);
+    MvdActionLabel(QWidget * parent = 0);
+    virtual ~MvdActionLabel();
+
+    int addControl(const QString &text, bool enabled);
+    void setControlEnabled(int control, bool enabled);
+    bool controlEnabled(int control);
 
 signals:
-	void controlTriggered(int);
-	
+    void controlTriggered(int);
+
 private:
-	void emit_controlTriggered(int id) { emit controlTriggered(id); }
-	friend class MvdActionLabel_P;
-	
-	MvdActionLabel_P* d;
+    void emit_controlTriggered(int id) { emit controlTriggered(id); }
+
+    class Private;
+    friend class Private;
+    Private *d;
 };
 
 #endif // MVD_ACTIONLABEL_H

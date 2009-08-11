@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: guiglobal.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,109 +22,104 @@
 #define MVD_GUIGLOBAL_H
 
 #include "mvdcore/global.h"
-#include <QCoreApplication>
-#include <QIcon>
-#include <QString>
-#include <QtGlobal>
+
+#include <QtCore/QCoreApplication>
+#include <QtCore/QString>
+#include <QtCore/QtGlobal>
+#include <QtGui/QIcon>
 
 #define MVD_WINDOW_ICON setWindowIcon(QIcon(":/images/logo.svgz"));
 
-namespace Movida
-{
-	//! Additional item view roles
-	enum ViewRole
-	{
-		IdRole = Qt::UserRole + 1,
-		NewItemRole,
-		PlaceholderRole,
-		TextColorBackupRole,
-		FontBackupRole,
-		ValidationRole,
-		MovieAttributeRole,
-		SmartViewDisplayRole,
-        MoviePosterRole,
-		RawDataRole,
-		UniqueDisplayRole
-	};
+namespace Movida {
+//! Additional item view roles
+enum ViewRole {
+    IdRole = Qt::UserRole + 1,
+    NewItemRole,
+    PlaceholderRole,
+    TextColorBackupRole,
+    FontBackupRole,
+    ValidationRole,
+    MovieAttributeRole,
+    SmartViewDisplayRole,
+    MoviePosterRole,
+    RawDataRole,
+    UniqueDisplayRole
+};
 
-	enum ItemValidator
-	{
-		NoValidator = 0,
-		UndoEmptyValitator,
-		RegExpValidator
-	};
+enum ItemValidator {
+    NoValidator = 0,
+    UndoEmptyValitator,
+    RegExpValidator
+};
 
-	//! Item view movie attributes (i.e. used as column identifiers)
-	enum MovieAttribute
-	{
-		TitleAttribute,
-		OriginalTitleAttribute,
-		YearAttribute,
-		ProducersAttribute,
-		DirectorsAttribute,
-		CastAttribute,
-		CrewAttribute,
-		RunningTimeAttribute,
-		StorageIdAttribute,
-		GenresAttribute,
-		CountriesAttribute,
-		LanguagesAttribute,
-		TagsAttribute,
-		ColorModeAttribute,
-		ImdbIdAttribute,
-		RatingAttribute,
-		SeenAttribute,
-		SpecialAttribute,
-		LoanedAttribute,
-        DateImportedAttribute,
+//! Item view movie attributes (i.e. used as column identifiers)
+enum MovieAttribute {
+    TitleAttribute,
+    OriginalTitleAttribute,
+    YearAttribute,
+    ProducersAttribute,
+    DirectorsAttribute,
+    CastAttribute,
+    CrewAttribute,
+    RunningTimeAttribute,
+    StorageIdAttribute,
+    GenresAttribute,
+    CountriesAttribute,
+    LanguagesAttribute,
+    TagsAttribute,
+    ColorModeAttribute,
+    ImdbIdAttribute,
+    RatingAttribute,
+    SeenAttribute,
+    SpecialAttribute,
+    LoanedAttribute,
+    DateImportedAttribute,
 
-		InvalidMovieAttribute // Reserved
-	};
-	typedef QList<MovieAttribute> MovieAttributeList;
+    InvalidMovieAttribute     // Reserved
+};
+typedef QList<MovieAttribute> MovieAttributeList;
 
-	//! Item view shared data attributes (i.e. used as column identifiers)
-	enum SharedDataAttribute
-	{
-		NameSDA, RolesSDA, GenreSDA, CountrySDA, LanguageSDA, TagSDA, ImdbIdSDA,
-		InvalidSDA // Reserved
-	};
-	typedef QList<SharedDataAttribute> SharedDataAttributeList;
+//! Item view shared data attributes (i.e. used as column identifiers)
+enum SharedDataAttribute {
+    NameSDA, RolesSDA, GenreSDA, CountrySDA, LanguageSDA, TagSDA, ImdbIdSDA,
+    InvalidSDA     // Reserved
+};
+typedef QList<SharedDataAttribute> SharedDataAttributeList;
 
-	enum AttributeFilter
-	{
-		NoAttributeFilter,
-		MainAttributeFilter,
-		SmartViewAttributeFilter,
-		SDEditorAttributeFilter
-	};
+enum AttributeFilter {
+    NoAttributeFilter,
+    MainAttributeFilter,
+    SmartViewAttributeFilter,
+    SDEditorAttributeFilter
+};
 
-	enum AttributeContext
-	{
-		NoAttributeContext,
-		SmartViewContext,
-		SharedDataEditorContext
-	};
+enum AttributeContext {
+    NoAttributeContext,
+    SmartViewContext,
+    SharedDataEditorContext
+};
 
-	QList<MovieAttribute> movieAttributes(AttributeFilter filter = NoAttributeFilter);
-	QString movieAttributeString(MovieAttribute attribute, AttributeContext context = NoAttributeContext);
+QList<MovieAttribute> movieAttributes(AttributeFilter filter = NoAttributeFilter);
+QString movieAttributeString(MovieAttribute attribute, AttributeContext context = NoAttributeContext);
 
-	QList<SharedDataAttribute> sharedDataAttributes(Movida::DataRole role, AttributeFilter filter = NoAttributeFilter);
-	QString sharedDataAttributeString(SharedDataAttribute attribute);
+QList<SharedDataAttribute> sharedDataAttributes(Movida::DataRole role, AttributeFilter filter = NoAttributeFilter);
+QString sharedDataAttributeString(SharedDataAttribute attribute);
 
-	enum FilterFunction{
-		InvalidFilterFunction = 0,
+enum FilterFunction {
+    InvalidFilterFunction = 0,
 
-		// For internal use (IDs are not accessible to users):
-		MovieIdFilter, SharedDataIdFilter,
+    // For internal use (IDs are not accessible to users):
+    MovieIdFilter, SharedDataIdFilter,
 
-		// Also suited for users:
-		MarkAsSeenFilter, MarkAsLoanedFilter, MarkAsSpecialFilter,
-		RatingFilter, RunningTimeFilter
-	};
+    // Also suited for users:
+    MarkAsSeenFilter, MarkAsLoanedFilter, MarkAsSpecialFilter,
+    RatingFilter, RunningTimeFilter
+};
 
-	QString filterFunctionName(FilterFunction ff);
-	QRegExp filterFunctionRegExp(FilterFunction ff);
-	FilterFunction filterFunction(const QString& name);
-}
+QString filterFunctionName(FilterFunction ff);
+QRegExp filterFunctionRegExp(FilterFunction ff);
+FilterFunction filterFunction(const QString &name);
+
+} // Movida namespace
 
 #endif // MVD_GUIGLOBAL_H

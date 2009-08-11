@@ -2,7 +2,7 @@
 ** Filename: movietreeview.h
 ** Revision: 1
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.sourceforge.net/).
 **
@@ -20,71 +20,76 @@
 **************************************************************************/
 
 #include "movietreeview.h"
+
 #include "guiglobal.h"
+
 #include "mvdcore/core.h"
+
 #include "mvdshared/grafx.h"
 
-MvdMovieTreeView::MvdMovieTreeView(QWidget* parent)
-: MvdTreeView(parent)
+MvdMovieTreeView::MvdMovieTreeView(QWidget *parent) :
+    MvdTreeView(parent)
 {
-	setDragEnabled(true);
-	setAcceptDrops(true);
+    setDragEnabled(true);
+    setAcceptDrops(true);
 }
 
 void MvdMovieTreeView::startDrag(Qt::DropActions supportedActions)
 {
-	const int MaxPosters = MvdCore::parameter("movida/d&d/max-pixmaps").toInt();
+    const int MaxPosters = MvdCore::parameter("movida/d&d/max-pixmaps").toInt();
 
-	QModelIndexList indexes = selectedRows();
-	if (indexes.count() > 0) {
-		QMimeData* data = model()->mimeData(indexes);
-		if (!data)
-			return;
+    QModelIndexList indexes = selectedRows();
 
-		int validIndexes = 0;
-		QStringList posters;
-		QString title;
+    if (indexes.count() > 0) {
+        QMimeData *data = model()->mimeData(indexes);
+        if (!data)
+            return;
 
-		foreach (QModelIndex index, indexes) {
-			if (!index.isValid())
-				continue;
+        int validIndexes = 0;
+        QStringList posters;
+        QString title;
 
-			++validIndexes;
+        foreach(QModelIndex index, indexes)
+        {
+            if (!index.isValid())
+                continue;
 
-			if (posters.size() >= MaxPosters)
-				continue;
+            ++validIndexes;
 
-			if (title.isEmpty())
-				title = index.data(Movida::UniqueDisplayRole).toString();
+            if (posters.size() >= MaxPosters)
+                continue;
+
+            if (title.isEmpty())
+                title = index.data(Movida::UniqueDisplayRole).toString();
 
             QString s = index.data(Movida::MoviePosterRole).toString();
-			if (!s.isEmpty() && !posters.contains(s))
-				posters.append(s);
-		}
+            if (!s.isEmpty() && !posters.contains(s))
+                posters.append(s);
+        }
 
-		QRect rect;
-		rect.adjust(horizontalOffset(), verticalOffset(), 0, 0);
-		
-		QDrag* drag = new QDrag(this);
-		drag->setMimeData(data);
+        QRect rect;
+        rect.adjust(horizontalOffset(), verticalOffset(), 0, 0);
 
-		QString msg = validIndexes == 1 && !title.isEmpty() ? title : 
-			tr("%1 movies", "Drag&drop pixmap overlay message", validIndexes).arg(validIndexes);
-		QPixmap pm = MvdGrafx::moviesDragPixmap(posters, msg, this->font());
-		drag->setPixmap(pm);
+        QDrag *drag = new QDrag(this);
+        drag->setMimeData(data);
 
-		// drag->setHotSpot(d->pressedPosition - rect.topLeft());
-		Qt::DropAction action = drag->start(supportedActions);
-		Q_UNUSED(action);
-	}
+        QString msg = validIndexes == 1 && !title.isEmpty() ? title :
+                      tr("%1 movies", "Drag&drop pixmap overlay message", validIndexes).arg(validIndexes);
+        QPixmap pm = MvdGrafx::moviesDragPixmap(posters, msg, this->font());
+        drag->setPixmap(pm);
+
+        // drag->setHotSpot(d->pressedPosition - rect.topLeft());
+        Qt::DropAction action = drag->start(supportedActions);
+        Q_UNUSED(action);
+    }
 }
 
-void MvdMovieTreeView::dragEnterEvent(QDragEnterEvent* e)
+void MvdMovieTreeView::dragEnterEvent(QDragEnterEvent *e)
 {
-	if (e->source() == this) {
-		e->ignore();
-		return;
-	}
+    if (e->source() == this) {
+        e->ignore();
+        return;
+    }
 
-	MvdTreeView::dragEnterEvent(e);
+    MvdTreeView::dragEnterEvent(e);
 }

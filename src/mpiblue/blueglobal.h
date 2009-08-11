@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: blueglobal.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,11 +22,12 @@
 #define MPI_BLUEGLOBAL_H
 
 #include "mvdcore/global.h"
-#include <QtGlobal>
+
+#include <QtCore/QtGlobal>
 
 #ifndef MPI_EXPORT_BLUE
 # ifdef Q_OS_WIN
-#  if defined(MPI_BUILD_BLUE_DLL)
+#  if defined (MPI_BUILD_BLUE_DLL)
 #   define MPI_EXPORT_BLUE __declspec(dllexport)
 #  else
 #   define MPI_EXPORT_BLUE __declspec(dllimport)

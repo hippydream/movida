@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: movieviewlistener.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,21 +21,21 @@
 #ifndef MVD_MOVIEVIEWLISTENER_H
 #define MVD_MOVIEVIEWLISTENER_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 class QAbstractItemView;
 
 class MvdMovieViewListener : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdMovieViewListener(QObject* parent = 0);
+    MvdMovieViewListener(QObject *parent = 0);
 
-	void registerView(QAbstractItemView* view);
+    void registerView(QAbstractItemView *view);
 
 protected:
-	bool eventFilter(QObject *, QEvent *);
+    bool eventFilter(QObject *, QEvent *);
 };
 
 #endif // MVD_MOVIEVIEWLISTENER_H

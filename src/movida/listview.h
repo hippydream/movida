@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: listview.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,7 +21,7 @@
 #ifndef MVD_LISTVIEW_H
 #define MVD_LISTVIEW_H
 
-#include <QListView>
+#include <QtGui/QListView>
 
 class QMouseEvent;
 template <typename T> class QList;
@@ -29,24 +29,24 @@ template <typename T> class QList;
 class MvdListView : public QListView
 {
 public:
-	MvdListView(QWidget* parent = 0);
-	virtual ~MvdListView();
+    MvdListView(QWidget *parent = 0);
+    virtual ~MvdListView();
 
-	QModelIndexList selectedRows() const;
+    QModelIndexList selectedRows() const;
 
 protected:
-	void mouseMoveEvent(QMouseEvent* e);
-	void mouseReleaseEvent(QMouseEvent* e);
-	void dragEnterEvent(QDragEnterEvent* e);
-	void dragLeaveEvent(QDragLeaveEvent* e);
-	void dragMoveEvent(QDragMoveEvent* e);
-	void dropEvent(QDropEvent* e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dragLeaveEvent(QDragLeaveEvent *e);
+    void dragMoveEvent(QDragMoveEvent *e);
+    void dropEvent(QDropEvent *e);
 
-	void setSelection(const QRect& rect, QItemSelectionModel::SelectionFlags command);
+    void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
 
 private:
-	class MvdListView_P;
-	MvdListView_P* d;
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_LISTVIEW_H

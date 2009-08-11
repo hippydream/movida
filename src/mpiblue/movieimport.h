@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: movieimport.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,134 +22,136 @@
 #define MPI_MOVIEIMPORT_H
 
 #include "blue.h"
+
 #include "mvdcore/moviedata.h"
+
 #include "mvdshared/importdialog.h"
-#include <QHttp>
-#include <QHash>
-#include <QList>
-#include <QProcess>
+
+#include <QtCore/QHash>
+#include <QtCore/QList>
+#include <QtCore/QProcess>
+#include <QtNetwork/QHttp>
+
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 
-class MvdMovieData;
 class MvdImportDialog;
+class MvdMovieData;
+
 class QTemporaryFile;
 class QTextStream;
 
 class MpiMovieImport : QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MpiMovieImport(QObject* parent = 0);
-	virtual ~MpiMovieImport();
+    MpiMovieImport(QObject *parent = 0);
+    virtual ~MpiMovieImport();
 
-	void run(const QList<MpiBlue::Engine*>& engines);
+    void run(const QList<MpiBlue::Engine *> &engines);
 
 private slots:
-	void reset();
+    void reset();
 
-	void configureEngine(int engine);
-	void search(const QString& query, int engineId);
-	void performSearch(const QString& query, MpiBlue::Engine* engine, int engineId);
-	void import(const QList<int>& list);
+    void configureEngine(int engine);
+    void search(const QString &query, int engineId);
+    void performSearch(const QString &query, MpiBlue::Engine *engine, int engineId);
+    void import(const QList<int> &list);
 
-	void httpRequestFinished(int id, bool error);
-	void httpResponseHeader(const QHttpResponseHeader& responseHeader);
-	void httpStateChanged(int state);
+    void httpRequestFinished(int id, bool error);
+    void httpResponseHeader(const QHttpResponseHeader &responseHeader);
+    void httpStateChanged(int state);
 
-	void interpreterFinished(int exitCode, QProcess::ExitStatus exitStatus);
-	void interpreterStateChanged(QProcess::ProcessState state);
+    void interpreterFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void interpreterStateChanged(QProcess::ProcessState state);
 
-	void processNextImport();
-	void processResponseFile();
-	void processMoviePoster();
+    void processNextImport();
+    void processResponseFile();
+    void processMoviePoster();
 
-	void done();
+    void done();
 
 private:
-	enum HttpStatusClass
-	{
-		NoStatusClass = 0, 
-		InformationalClass = 1, 
-		SuccessClass = 2, 
-		RedirectionClass = 3, 
-		ClientErrorClass = 4, 
-		ServerErrorClass = 5
-	};
-	
-	struct SearchEngine
-	{
-		SearchEngine() : port(-1) {}
+    enum HttpStatusClass {
+        NoStatusClass = 0,
+        InformationalClass = 1,
+        SuccessClass = 2,
+        RedirectionClass = 3,
+        ClientErrorClass = 4,
+        ServerErrorClass = 5
+    };
 
-		QString name;
-		QString host;
-		QString query;
-		int port;
-	};
+    struct SearchEngine {
+        SearchEngine() :
+            port(-1) { }
 
-	enum DataSourceType
-	{
-		CachedSource,
-		RemoteSource
-	};
+        QString name;
+        QString host;
+        QString query;
+        int port;
+    };
 
-	struct SearchResult
-	{
-		SearchResult() : sourceType(CachedSource) {}
+    enum DataSourceType {
+        CachedSource,
+        RemoteSource
+    };
 
-		QString dataSource;
-		DataSourceType sourceType;
-		MvdMovieData data;
-	};
+    struct SearchResult {
+        SearchResult() :
+            sourceType(CachedSource) { }
 
-	enum State
-	{
-		NoState = 0,
-		FetchingResultsScriptState,
-		FetchingImportScriptState,
-		FetchingResultsState,
-		FetchingMovieDataState,
-		FetchingMoviePosterState
-	};
+        QString dataSource;
+        DataSourceType sourceType;
+        MvdMovieData data;
+    };
 
-	enum {
-		HttpNotModified = 304
-	};
+    enum State {
+        NoState = 0,
+        FetchingResultsScriptState,
+        FetchingImportScriptState,
+        FetchingResultsState,
+        FetchingMovieDataState,
+        FetchingMoviePosterState
+    };
 
-	MvdImportDialog* mImportDialog;
-	QHttp* mHttpHandler;
-	int mRequestId;
-	QTemporaryFile* mTempFile;
-	QString mCurrentLocation;
-	int mCurrentEngine;
-	bool mHttpNotModified;
-	QString mCurrentQuery;
-	QStringList mQueryQueue;
-	QProcess* mInterpreter;
-	QString mInterpreterName;
-	State mCurrentState;
-	QString mNextUrl;
-	int mCurrentImportJob;
-	MvdImportDialog::Result mImportResult;
-	
-	QHash<int,MpiBlue::Engine*> mRegisteredEngines;
-	QHash<int,SearchResult> mSearchResults;
-	QList<int> mImportsQueue;
+    enum {
+        HttpNotModified = 304
+    };
 
-	// Files to be removed before we finish
-	QStringList mTemporaryData;
+    MvdImportDialog *mImportDialog;
+    QHttp *mHttpHandler;
+    int mRequestId;
+    QTemporaryFile *mTempFile;
+    QString mCurrentLocation;
+    int mCurrentEngine;
+    bool mHttpNotModified;
+    QString mCurrentQuery;
+    QStringList mQueryQueue;
+    QProcess *mInterpreter;
+    QString mInterpreterName;
+    State mCurrentState;
+    QString mNextUrl;
+    int mCurrentImportJob;
+    MvdImportDialog::Result mImportResult;
 
-	void completeJob();
-	void parseCachedMoviePage(SearchResult& job);
-	void deleteTemporaryFile(QTemporaryFile** file, bool removeFile = true);
-	QTemporaryFile* createTemporaryFile();
-	void initHttpHandler();
-	QString scriptDate(const QString& name) const;
-	void processResultsFile(const QString& path);
-	void processMovieDataFile(const QString& path);
-	bool isValidResult(SearchResult& result, const QString& path);
-	bool parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QString& path, const QString& group = QString());
+    QHash<int, MpiBlue::Engine *> mRegisteredEngines;
+    QHash<int, SearchResult> mSearchResults;
+    QList<int> mImportsQueue;
+
+    // Files to be removed before we finish
+    QStringList mTemporaryData;
+
+    void completeJob();
+    void parseCachedMoviePage(SearchResult &job);
+    void deleteTemporaryFile(QTemporaryFile **file, bool removeFile = true);
+    QTemporaryFile *createTemporaryFile();
+    void initHttpHandler();
+    QString scriptDate(const QString &name) const;
+    void processResultsFile(const QString &path);
+    void processMovieDataFile(const QString &path);
+    bool isValidResult(SearchResult &result, const QString &path);
+    bool parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QString &path, const QString &group = QString());
 };
 
 #endif // MPI_MOVIEIMPORT_H

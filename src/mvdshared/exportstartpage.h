@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: exportstartpage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,12 +21,13 @@
 #ifndef MVD_EXPORTSTARTPAGE_H
 #define MVD_EXPORTSTARTPAGE_H
 
-#include "sharedglobal.h"
-#include "importexportpage.h"
 #include "exportengine.h"
+#include "importexportpage.h"
+#include "sharedglobal.h"
 
 class MvdActionLabel;
 class MvdClearEdit;
+
 class QCheckBox;
 class QComboBox;
 class QLabel;
@@ -36,50 +37,50 @@ class QToolButton;
 
 class MvdExportStartPage : public MvdImportExportPage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdExportStartPage(QWidget* parent = 0);
-	virtual ~MvdExportStartPage();
+    MvdExportStartPage(QWidget *parent = 0);
+    virtual ~MvdExportStartPage();
 
-	virtual void initializePage();
-	virtual void cleanupPage();
-	void reset();
+    virtual void initializePage();
+    virtual void cleanupPage();
+    void reset();
 
-	int registerEngine(const MvdExportEngine& engine);
-	int currentEngineId() const;
-	MvdExportEngine currentEngine() const;
-	MvdExportEngine::EngineOptions currentEngineOptions() const;
+    int registerEngine(const MvdExportEngine &engine);
+    int currentEngineId() const;
+    MvdExportEngine currentEngine() const;
+    MvdExportEngine::EngineOptions currentEngineOptions() const;
 
     MvdExportDialog::ExportType exportType() const;
     QUrl exportUrl() const;
 
-	bool configStepRequired() const;
+    bool configStepRequired() const;
 
-	virtual bool isComplete() const;
+    virtual bool isComplete() const;
 
 signals:
-	void engineConfigurationRequest(int engine);
+    void engineConfigurationRequest(int engine);
 
 private slots:
-	void engineChanged();
-	void controlTriggered(int);
-	void browseForUrl();
+    void engineChanged();
+    void controlTriggered(int);
+    void browseForUrl();
 
 private:
-	QLabel* mInfoLabel;
-	QComboBox* mEngineCombo;
-	MvdClearEdit* mUrl;
-	QToolButton* mUrlBrowse;
-	QRadioButton* mExportSelectedButton;
-	QRadioButton* mExportAllButton;
-	QCheckBox* mCustomizeAttributes;
-	MvdActionLabel* mControls;
-	int mConfigureEngineId;
-	int mConfigurePluginId;
-	QList<MvdExportEngine> mEngines;
-	QString mNextButtonText;
-	QString mLastDir;
+    QLabel *mInfoLabel;
+    QComboBox *mEngineCombo;
+    MvdClearEdit *mUrl;
+    QToolButton *mUrlBrowse;
+    QRadioButton *mExportSelectedButton;
+    QRadioButton *mExportAllButton;
+    QCheckBox *mCustomizeAttributes;
+    MvdActionLabel *mControls;
+    int mConfigureEngineId;
+    int mConfigurePluginId;
+    QList<MvdExportEngine> mEngines;
+    QString mNextButtonText;
+    QString mLastDir;
 };
 
 #endif // MVD_EXPORTSTARTPAGE_H

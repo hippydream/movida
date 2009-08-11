@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: application.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,43 +21,43 @@
 #ifndef MVD_APPLICATION_H
 #define MVD_APPLICATION_H
 
-#include <QApplication>
+#include <QtGui/QApplication>
 
 class MvdMainWindow;
 
 class MvdApplication : public QApplication
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdApplication(int& argc, char** argv);
+    MvdApplication(int &argc, char **argv);
 
-	int init();
-	void initLanguage();
-	void parseCommandLine();
-	QStringList getLanguage(QString lang);
-	void installTranslators(const QStringList & langs);
-	void changeGuiLanguage(const QString & lang);
-	const QString& currentGuiLanguage() { return mGuiLanguage; };
-	bool usingGui() const { return MvdApplication::UseGui; }
+    int init();
+    void initLanguage();
+    void parseCommandLine();
+    QStringList getLanguage(QString lang);
+    void installTranslators(const QStringList &langs);
+    void changeGuiLanguage(const QString &lang);
+    const QString &currentGuiLanguage() { return mGuiLanguage; };
+    bool usingGui() const { return MvdApplication::UseGui; }
 
-	static bool UseGui;
+    static bool UseGui;
 
 private:
-	void showHeader();
-	void showVersion();
-	void showUsage();
-	void showAvailableLanguages();
+    void showHeader();
+    void showVersion();
+    void showUsage();
+    void showAvailableLanguages();
 
-	MvdMainWindow* mMainWindow;
-	QString mLanguage;
-	QString mGuiLanguage;
-	bool mShowSplash;
-	QString mFile;
+    MvdMainWindow *mMainWindow;
+    QString mLanguage;
+    QString mGuiLanguage;
+    bool mShowSplash;
+    QString mFile;
 };
 
 namespace Movida {
-	extern MvdApplication* Application;
+extern MvdApplication *Application;
 }
 
 #endif // MVD_APPLICATION_H

@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: exportdialog_p.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -23,7 +23,7 @@
 //  -------------
 //
 // This file is not part of the MvdShared API.  It exists for the convenience
-// of Movida.  This header file may change from version to version without notice, 
+// of Movida.  This header file may change from version to version without notice,
 // or even be removed.
 //
 // We mean it.
@@ -33,24 +33,26 @@
 #define MVD_EXPORTDIALOG_P_H
 
 #include "exportdialog.h"
-#include "exportstartpage.h"
+
 #include "exportconfigpage.h"
 #include "exportfinalpage.h"
-#include <QStringList>
+#include "exportstartpage.h"
+
+#include <QtCore/QStringList>
 
 //! \internal
 class MvdExportDialog::Private
 {
 public:
-	enum { StartPage, ConfigPage, FinalPage };
+    enum { StartPage, ConfigPage, FinalPage };
 
-	MvdExportStartPage* startPage;
-	MvdExportConfigPage* configPage;
-	MvdExportFinalPage* finalPage;
+    MvdExportStartPage *startPage;
+    MvdExportConfigPage *configPage;
+    MvdExportFinalPage *finalPage;
 
-	bool closing;
-	MvdExportDialog::Result exportResult;
-	MvdExportDialog::ErrorType errorType;
+    bool closing;
+    MvdExportDialog::Result exportResult;
+    MvdExportDialog::ErrorType errorType;
 };
 
 #endif // MVD_EXPORTDIALOG_P_H

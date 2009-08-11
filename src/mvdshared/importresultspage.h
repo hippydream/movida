@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: importresultspage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,8 +22,9 @@
 #define MVD_IMPORTRESULTSPAGE_H
 
 #include "ui_importresultspage.h"
-#include "sharedglobal.h"
+
 #include "importexportpage.h"
+#include "sharedglobal.h"
 
 class QLabel;
 class QStackedWidget;
@@ -32,55 +33,55 @@ class QTreeWidgetItem;
 
 class MvdImportResultsPage : public MvdImportExportPage
 {
-	Q_OBJECT
-	Q_PROPERTY(int resultsCount READ resultsCount)
-	Q_PROPERTY(int selectedResultsCount READ selectedResultsCount)
+    Q_OBJECT
+    Q_PROPERTY(int resultsCount READ resultsCount)
+    Q_PROPERTY(int selectedResultsCount READ selectedResultsCount)
 
-public:
-	enum ItemType { StandardItem, SectionItem };
+public :
+    enum ItemType { StandardItem, SectionItem };
 
-	MvdImportResultsPage(QWidget* parent = 0);
+    MvdImportResultsPage(QWidget *parent = 0);
 
-	int addMatch(QString title, const QString& year, const QString& notes = QString());
-	void addSection(QString title, const QString& notes = QString());
-	void addSubSection(QString title, const QString& notes = QString());
+    int addMatch(QString title, const QString &year, const QString &notes = QString());
+    void addSection(QString title, const QString &notes = QString());
+    void addSubSection(QString title, const QString &notes = QString());
 
-	void initializePage();
-	void cleanupPage();
+    void initializePage();
+    void cleanupPage();
 
-	QList<int> jobs() const;
+    QList<int> jobs() const;
 
-	void showMessage(const QString& msg, MovidaShared::MessageType t);
-	void setBusyStatus(bool busy);
+    void showMessage(const QString &msg, MovidaShared::MessageType t);
+    void setBusyStatus(bool busy);
 
-	void setProgress(int v);
-	void setProgressMaximum(int m);
-	int progress() const;
+    void setProgress(int v);
+    void setProgressMaximum(int m);
+    int progress() const;
 
-	int resultsCount() const;
-	int selectedResultsCount() const;
+    int resultsCount() const;
+    int selectedResultsCount() const;
 
 signals:
-	void resultsCountChanged(int count = 0);
-	void selectedResultsCountChanged(int count = 0);
+    void resultsCountChanged(int count = 0);
+    void selectedResultsCountChanged(int count = 0);
 
 private slots:
-	void resultsSelectionChanged();
-	void resultsCheckStateChanged();
-	void ensureItemVisible();
+    void resultsSelectionChanged();
+    void resultsCheckStateChanged();
+    void ensureItemVisible();
 
 private:
-	Ui::MvdImportResultsPage ui;
+    Ui::MvdImportResultsPage ui;
 
-	int matchId;
-	int lastSelectedMatches;
-	bool locked;
+    int matchId;
+    int lastSelectedMatches;
+    bool locked;
 
-	QTreeWidgetItem* currentSection;
+    QTreeWidgetItem *currentSection;
 
-	int countMatches(int* selected = 0) const;
-	int countSections(const QTreeWidgetItem* section = 0) const;
-	void setLock(bool lock);
+    int countMatches(int *selected = 0) const;
+    int countSections(const QTreeWidgetItem *section = 0) const;
+    void setLock(bool lock);
 };
 
 #endif // MVD_IMPORTRESULTSPAGE_H

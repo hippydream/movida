@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: exportconfigpage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,21 +22,22 @@
 #define MVD_EXPORTCONFIGPAGE_H
 
 #include "ui_exportconfigpage.h"
-#include "sharedglobal.h"
+
 #include "importexportpage.h"
+#include "sharedglobal.h"
 
 class MvdExportConfigPage : public MvdImportExportPage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdExportConfigPage(QWidget* parent = 0);
+    MvdExportConfigPage(QWidget *parent = 0);
 
-	void initializePage();
-	void cleanupPage();
+    void initializePage();
+    void cleanupPage();
 
 private:
-	Ui::MvdExportConfigPage ui;
+    Ui::MvdExportConfigPage ui;
 };
 
 #endif // MVD_EXPORTCONFIGPAGE_H

@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: clearspin.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,31 +22,32 @@
 #define MVD_CLEARSPIN_H
 
 #include "sharedglobal.h"
-#include <QSpinBox>
+
+#include <QtGui/QSpinBox>
 
 class MVD_EXPORT_SHARED MvdClearSpin : public QSpinBox
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdClearSpin(QWidget* parent = 0);
+    MvdClearSpin(QWidget * parent = 0);
 
-	QSize sizeHint() const;
+    QSize sizeHint() const;
 
 protected:
-	virtual void paintEvent(QPaintEvent*);
-	virtual void resizeEvent(QResizeEvent*);
-	virtual void showEvent(QShowEvent*);
+    virtual void paintEvent(QPaintEvent *);
+    virtual void resizeEvent(QResizeEvent *);
+    virtual void showEvent(QShowEvent *);
 
 protected slots:
-	virtual void clearButtonClicked();
+    virtual void clearButtonClicked();
 
 private slots:
-	void updateClearButton(const QString& text);
+    void updateClearButton(const QString &text);
 
 private:
-	class Private;
-	Private* d;
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_CLEAREDIT_H

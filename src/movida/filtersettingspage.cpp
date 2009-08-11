@@ -2,7 +2,7 @@
 ** Filename: filtersettingspage.cpp
 ** Revision: 1
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.sourceforge.net/).
 **
@@ -20,61 +20,59 @@
 **************************************************************************/
 
 #include "filtersettingspage.h"
+
 #include "mvdcore/core.h"
 #include "mvdcore/settings.h"
-#include <QIcon>
+
+#include <QtGui/QIcon>
 
 /*!
-	\class MvdFilterSettingsPage filtersettingspage.h
+    \class MvdFilterSettingsPage filtersettingspage.h
 
-	\brief Filter settings widget for preferences dialog.
+    \brief Filter settings widget for preferences dialog.
 */
 
 
 /*!
-	Creates a new page.
+    Creates a new page.
 */
-MvdFilterSettingsPage::MvdFilterSettingsPage(MvdSettingsDialog* parent)
-: MvdSettingsPage(parent)
+MvdFilterSettingsPage::MvdFilterSettingsPage(MvdSettingsDialog *parent) :
+    MvdSettingsPage(parent)
 {
-	setupUi(this);
-	connect(Ui::MvdFilterSettingsPage::qsResetAttributes, SIGNAL(linkActivated(QString)), this, SLOT(linkActivated(QString)));
-	
-	QByteArray ba = Movida::settings().value("movida/quick-filter/attributes").toByteArray();
+    setupUi(this);
+    connect(Ui::MvdFilterSettingsPage::qsResetAttributes, SIGNAL(linkActivated(QString)), this, SLOT(linkActivated(QString)));
+
+    QByteArray ba = Movida::settings().value("movida/quick-filter/attributes").toByteArray();
 }
 
 /*!
-	Apply and store changes.
+    Apply and store changes.
 */
 void MvdFilterSettingsPage::store()
-{
-}
+{ }
 
 /*!
-	Reset to default values.
+    Reset to default values.
 */
 void MvdFilterSettingsPage::reset()
-{
-}
+{ }
 
 /*!
-	Returns the title to be used for this page.
+    Returns the title to be used for this page.
 */
 QString MvdFilterSettingsPage::label()
 {
-	return tr("Filter");
+    return tr("Filter");
 }
 
 /*!
-	Returns the icon to be used for this page.
+    Returns the icon to be used for this page.
 */
 QIcon MvdFilterSettingsPage::icon()
 {
-	return QIcon(":/images/preferences/filter.png");
+    return QIcon(":/images/preferences/filter.png");
 }
 
 //! \internal
-void MvdFilterSettingsPage::linkActivated(const QString& s)
-{
-
-}
+void MvdFilterSettingsPage::linkActivated(const QString &s)
+{ }

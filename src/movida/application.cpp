@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: application.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,24 +19,28 @@
 **************************************************************************/
 
 #include "application.h"
+
 #include "guiglobal.h"
 #include "mainwindow.h"
+
 #include "mvdcore/core.h"
 #include "mvdcore/logger.h"
-#include "mvdcore/settings.h"
 #include "mvdcore/pathresolver.h"
-#include <QtGlobal>
-#include <QStyle>
-#include <QStyleFactory>
-#include <QTranslator>
-#include <QTextCodec>
-#include <QDir>
-#include <QFile>
-#include <QMessageBox>
-#include <iostream>
-#include <cstdlib>
+#include "mvdcore/settings.h"
 
-#if defined(Q_WS_WIN)
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QTextCodec>
+#include <QtCore/QTranslator>
+#include <QtCore/QtGlobal>
+#include <QtGui/QMessageBox>
+#include <QtGui/QStyle>
+#include <QtGui/QStyleFactory>
+
+#include <cstdlib>
+#include <iostream>
+
+#if defined (Q_WS_WIN)
 #include <windows.h>
 #endif
 
@@ -69,339 +73,344 @@ extern const char MVD_ARG_CONSOLE_SHORT[] = "-cl";
 
 using namespace Movida;
 bool MvdApplication::UseGui = false;
-MvdApplication* Movida::Application = 0;
+MvdApplication *Movida::Application = 0;
 
-MvdApplication::MvdApplication(int& argc, char** argv)
-: QApplication(argc, argv)
+MvdApplication::MvdApplication(int &argc, char **argv) :
+    QApplication(argc, argv)
 {
-	Movida::Application = this;
+    Movida::Application = this;
 
-	setApplicationName("Movida");
-	setOrganizationName("42cows.org");
-	setOrganizationDomain("movida.42cows.org");
+    setApplicationName("Movida");
+    setOrganizationName("42cows.org");
+    setOrganizationDomain("movida.42cows.org");
 }
 
 void MvdApplication::initLanguage()
 {
-	QStringList langs = getLanguage(QString(mLanguage));
+    QStringList langs = getLanguage(QString(mLanguage));
 
-	if (!langs.isEmpty())
-		installTranslators(langs);
+    if (!langs.isEmpty())
+        installTranslators(langs);
 }
 
 void MvdApplication::parseCommandLine()
 {
-	mShowSplash = true;
-	bool usage = false;
-	bool header = false;
-	bool availLangs = false;
-	bool version = false;
-	bool reset = false;
+    mShowSplash = true;
+    bool usage = false;
+    bool header = false;
+    bool availLangs = false;
+    bool version = false;
+    bool reset = false;
 
-	QStringList argv = arguments();
-	int argc = argv.size();
+    QStringList argv = arguments();
+    int argc = argv.size();
 
-	for (int i = 1; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i) {
 
-		const QString& arg = argv[i];
+        const QString &arg = argv[i];
 
-		if ((arg == MVD_ARG_LANG || arg == MVD_ARG_LANG_SHORT) && (++i < argc)) {
-			mLanguage = argv[i];
-		} else if (arg == MVD_ARG_VERSION || arg == MVD_ARG_VERSION_SHORT) {
-			header = true;
-			version = true;
-		} else if (arg == MVD_ARG_HELP || arg == MVD_ARG_HELP_SHORT) {
-			header = true;
-			usage = true;
-		} else if (arg == MVD_ARG_AVAILLANG || arg == MVD_ARG_AVAILLANG_SHORT) {
-			header = true;
-			availLangs = true;
-		}
-	}
+        if ((arg == MVD_ARG_LANG || arg == MVD_ARG_LANG_SHORT) && (++i < argc)) {
+            mLanguage = argv[i];
+        } else if (arg == MVD_ARG_VERSION || arg == MVD_ARG_VERSION_SHORT) {
+            header = true;
+            version = true;
+        } else if (arg == MVD_ARG_HELP || arg == MVD_ARG_HELP_SHORT) {
+            header = true;
+            usage = true;
+        } else if (arg == MVD_ARG_AVAILLANG || arg == MVD_ARG_AVAILLANG_SHORT) {
+            header = true;
+            availLangs = true;
+        }
+    }
 
-	// Init translations
-	initLanguage();
+    // Init translations
+    initLanguage();
 
-	// Show command line help
-	if (header)
-		showHeader();
-	if (version)
-		showVersion();
-	if (availLangs)
-		showAvailableLanguages();
-	if (usage)
-		showUsage();
-	// Don't run the GUI init process called from main.cpp, and return
-	if (!header)
-		MvdApplication::UseGui = true;
-	else
-		return;
+    // Show command line help
+    if (header)
+        showHeader();
+    if (version)
+        showVersion();
+    if (availLangs)
+        showAvailableLanguages();
+    if (usage)
+        showUsage();
+    // Don't run the GUI init process called from main.cpp, and return
+    if (!header)
+        MvdApplication::UseGui = true;
+    else
+        return;
 
-	// We are going to run something other than command line help
-	for (int i = 1; i < argc; i++) {
-		QString arg = argv[i];
+    // We are going to run something other than command line help
+    for (int i = 1; i < argc; i++) {
+        QString arg = argv[i];
 
-		if ((arg == MVD_ARG_LANG || arg == MVD_ARG_LANG_SHORT) && (++i < argc)) {
-			continue;
-		} else if ( arg == MVD_ARG_CONSOLE || arg == MVD_ARG_CONSOLE_SHORT ) {
-			continue;
-		} else if (arg == MVD_ARG_NOSPLASH || arg == MVD_ARG_NOSPLASH_SHORT) {
-			mShowSplash = false;
-		} else if (arg == MVD_ARG_NOGUI || arg == MVD_ARG_NOGUI_SHORT) {
-			MvdApplication::UseGui = false;
-		} else if ((arg == MVD_ARG_DISPLAY || arg == MVD_ARG_DISPLAY_SHORT || arg == MVD_ARG_DISPLAY_QT) && ++i < argc) {
-			// allow setting of display, QT expects the option -display <display_name> so we discard the
-			// last argument. FIXME: Qt only understands -display not --display and -d , we need to work
-			// around this.
-		} else if (strncmp(qPrintable(arg), "-psn_", 4) == 0) {
-			// Andreas Vox: Qt/Mac has -psn_blah flags that must be accepted.
-		} else if (arg == MVD_ARG_RESET || arg == MVD_ARG_RESET_SHORT) {
-			reset = true;
-		} else {
-			mFile = QFile::decodeName(argv[i].toLatin1().constData());
-			if (!QFileInfo(mFile).exists()) {
-				showHeader();
-				if (mFile.left(1) == "-" || mFile.left(2) == "--") {
-					std::cout << tr("Invalid argument: ").toLatin1().constData() << mFile.toLatin1().constData() << std::endl;
-				} else {
-					std::cout << tr("File %1 does not exist, aborting.").arg(mFile).toLatin1().constData() << std::endl;
-				}
-				mFile.clear();
-				showUsage();
-				MvdApplication::UseGui = false;
-				return;
-			}
-		}
-	}
+        if ((arg == MVD_ARG_LANG || arg == MVD_ARG_LANG_SHORT) && (++i < argc)) {
+            continue;
+        } else if (arg == MVD_ARG_CONSOLE || arg == MVD_ARG_CONSOLE_SHORT) {
+            continue;
+        } else if (arg == MVD_ARG_NOSPLASH || arg == MVD_ARG_NOSPLASH_SHORT) {
+            mShowSplash = false;
+        } else if (arg == MVD_ARG_NOGUI || arg == MVD_ARG_NOGUI_SHORT) {
+            MvdApplication::UseGui = false;
+        } else if ((arg == MVD_ARG_DISPLAY || arg == MVD_ARG_DISPLAY_SHORT || arg == MVD_ARG_DISPLAY_QT) && ++i < argc) {
+            // allow setting of display, QT expects the option -display <display_name> so we discard the
+            // last argument. FIXME: Qt only understands -display not --display and -d , we need to work
+            // around this.
+        } else if (strncmp(qPrintable(arg), "-psn_", 4) == 0) {
+            // Andreas Vox: Qt/Mac has -psn_blah flags that must be accepted.
+        } else if (arg == MVD_ARG_RESET || arg == MVD_ARG_RESET_SHORT) {
+            reset = true;
+        } else {
+            mFile = QFile::decodeName(argv[i].toLatin1().constData());
+            if (!QFileInfo(mFile).exists()) {
+                showHeader();
+                if (mFile.left(1) == "-" || mFile.left(2) == "--") {
+                    std::cout << tr("Invalid argument: ").toLatin1().constData() << mFile.toLatin1().constData() << std::endl;
+                } else {
+                    std::cout << tr("File %1 does not exist, aborting.").arg(mFile).toLatin1().constData() << std::endl;
+                }
+                mFile.clear();
+                showUsage();
+                MvdApplication::UseGui = false;
+                return;
+            }
+        }
+    }
 
-	if (reset) {
-		settings().clear();
-	}
+    if (reset) {
+        settings().clear();
+    }
 }
 
 int MvdApplication::init()
 {
-	processEvents();
+    processEvents();
 
-	if (MvdApplication::UseGui) {
-		MvdLogger::setUseHtml(true);
+    if (MvdApplication::UseGui) {
+        MvdLogger::setUseHtml(true);
 
-		if (!MvdCore::initCore()) {
-			QMessageBox::warning(0, MVD_CAPTION, tr("Failed to initialize the application.\nPlease see the log file for details."));
-			return MVD_ERROR_INIT;
-		}
+        if (!MvdCore::initCore()) {
+            QMessageBox::warning(0, MVD_CAPTION, tr("Failed to initialize the application.\nPlease see the log file for details."));
+            return MVD_ERROR_INIT;
+        }
 
-		QStyle* currentStyle = MvdApplication::style();
-		if (currentStyle) {
-			iLog() << "Using '" << currentStyle->objectName() << "' style.";
-		}
+        QStyle *currentStyle = MvdApplication::style();
+        if (currentStyle) {
+            iLog() << "Using '" << currentStyle->objectName() << "' style.";
+        }
 
 #ifdef Q_WS_X11
-		if (currentStyle->objectName() == QLatin1String("windows")) {
-			QStyle* s = QStyleFactory::create(QLatin1String("plastique"));
-			if (s) {
-				MvdApplication::setStyle(s);
-				iLog() << "Switching to '" << s->objectName() << "' style.";
-			}
-		}
+        if (currentStyle->objectName() == QLatin1String("windows")) {
+            QStyle *s = QStyleFactory::create(QLatin1String("plastique"));
+            if (s) {
+                MvdApplication::setStyle(s);
+                iLog() << "Switching to '" << s->objectName() << "' style.";
+            }
+        }
 #endif
-		mMainWindow = new MvdMainWindow;
-		setActiveWindow(mMainWindow);
-		connect(this, SIGNAL(lastWindowClosed()), this, SLOT(quit()));
+        mMainWindow = new MvdMainWindow;
+        setActiveWindow(mMainWindow);
+        connect(this, SIGNAL(lastWindowClosed()), this, SLOT(quit()));
 
-		mMainWindow->show();
+        mMainWindow->show();
 
-		if (!mFile.isEmpty())
-			mMainWindow->loadCollection(mFile);
-		else mMainWindow->setFocus();
-	}
+        if (!mFile.isEmpty())
+            mMainWindow->loadCollection(mFile);
+        else mMainWindow->setFocus();
+    }
 
-	return MVD_EXIT_SUCCESS;
+    return MVD_EXIT_SUCCESS;
 }
 
 QStringList MvdApplication::getLanguage(QString lang)
 {
-	QStringList langs;
+    QStringList langs;
 
-	// read the locales
-	if (!lang.isEmpty())
-		langs.append(lang);
+    // read the locales
+    if (!lang.isEmpty())
+        langs.append(lang);
 
-	// add in user preferences lang, only overridden by lang command line option
-	QString prefLang = settings().contains("movida/general/language") ?
-		settings().value("movida/general/language").toString() : QString();
-	if (!prefLang.isEmpty())
-		langs.append(prefLang);
+    // add in user preferences lang, only overridden by lang command line option
+    QString prefLang = settings().contains("movida/general/language") ?
+                       settings().value("movida/general/language").toString() : QString();
+    if (!prefLang.isEmpty())
+        langs.append(prefLang);
 
-	if (!(lang = MvdCore::env("LC_ALL")).isEmpty())
-		langs.append(lang);
-	if (!(lang = MvdCore::env("LC_MESSAGES")).isEmpty())
-		langs.append(lang);
-	if (!(lang = MvdCore::env("LANG")).isEmpty())
-		langs.append(lang);
+    if (!(lang = MvdCore::env("LC_ALL")).isEmpty())
+        langs.append(lang);
+    if (!(lang = MvdCore::env("LC_MESSAGES")).isEmpty())
+        langs.append(lang);
+    if (!(lang = MvdCore::env("LANG")).isEmpty())
+        langs.append(lang);
 
-#if defined(Q_WS_WIN)
-	wchar_t out[256];
-	QString language, sublanguage;
-	LCID lcIdo = GetUserDefaultLCID();
-	WORD sortId = SORTIDFROMLCID(lcIdo);
-	LANGID langId = GetUserDefaultUILanguage();
-	LCID lcIdn = MAKELCID(langId, sortId);
-	if ( GetLocaleInfoW(lcIdn, LOCALE_SISO639LANGNAME , out, 255) ) {
-		language = QString::fromUtf16( (ushort*)out );
-		if ( GetLocaleInfoW(lcIdn, LOCALE_SISO3166CTRYNAME, out, 255) ) {
-			sublanguage = QString::fromUtf16( (ushort*)out ).toLower();
-			lang = language;
-			if ( sublanguage != language && !sublanguage.isEmpty() )
-				lang += "_" + sublanguage.toUpper();
-			langs.append(lang);
-		}
-	}
+#if defined (Q_WS_WIN)
+    wchar_t out[256];
+    QString language, sublanguage;
+    LCID lcIdo = GetUserDefaultLCID();
+    WORD sortId = SORTIDFROMLCID(lcIdo);
+    LANGID langId = GetUserDefaultUILanguage();
+    LCID lcIdn = MAKELCID(langId, sortId);
+    if (GetLocaleInfoW(lcIdn, LOCALE_SISO639LANGNAME, out, 255)) {
+        language = QString::fromUtf16((ushort *)out);
+        if (GetLocaleInfoW(lcIdn, LOCALE_SISO3166CTRYNAME, out, 255)) {
+            sublanguage = QString::fromUtf16((ushort *)out).toLower();
+            lang = language;
+            if (sublanguage != language && !sublanguage.isEmpty())
+                lang += "_" + sublanguage.toUpper();
+            langs.append(lang);
+        }
+    }
 #endif // Q_WS_WIN
 
-	langs.append(QLocale::languageToString(QLocale::system().language()));
+    langs.append(QLocale::languageToString(QLocale::system().language()));
 
-	// remove duplicate entries...
-	for (QStringList::Iterator it = langs.begin(); it != langs.end(); ++it)
-		if (langs.contains(*it))
-			it = langs.erase(it);
+    // remove duplicate entries...
+    for (QStringList::Iterator it = langs.begin(); it != langs.end(); ++it)
+        if (langs.contains(*it))
+            it = langs.erase(it);
 
-	return langs;
+    return langs;
 }
 
-void MvdApplication::installTranslators(const QStringList& langs)
+void MvdApplication::installTranslators(const QStringList &langs)
 {
-	static QTranslator* trans = 0;
+    static QTranslator *trans = 0;
 
-	if (trans) {
-		removeTranslator(trans);
-		delete trans;
-	}
+    if (trans) {
+        removeTranslator(trans);
+        delete trans;
+    }
 
-	trans = new QTranslator(0);
-	bool loaded = false;
-	QString lang;
+    trans = new QTranslator(0);
+    bool loaded = false;
+    QString lang;
 
-	// Look for user specific translations first
-	QString path = paths().resourcesDir(Movida::UserScope).append("Translations");
-	if (QFile::exists(path)) {
-		path.append("movida");
-		for (int i = 0; i < langs.size() && !loaded; ++i) {
-			QString lang = langs.at(i).left(5);
-			if (lang == "en")
-				break;
-			else loaded = trans->load(QString(path + '.' + lang), ".");
-		}
-	}
+    // Look for user specific translations first
+    QString path = paths().resourcesDir(Movida::UserScope).append("Translations");
+    if (QFile::exists(path)) {
+        path.append("movida");
+        for (int i = 0; i < langs.size() && !loaded; ++i) {
+            QString lang = langs.at(i).left(5);
+            if (lang == "en")
+                break;
+            else loaded = trans->load(QString(path + '.' + lang), ".");
+        }
+    }
 
-	// Try with system wide translations (if any)
-	if (!loaded) {
-		path = paths().resourcesDir(Movida::SystemScope).append("Translations");
-		if (QFile::exists(path)) {
-			path.append("movida");
-			QString lang;
-			for (int i = 0; i < langs.size() && !loaded; ++i) {
-				QString lang = langs.at(i).left(5);
-				if (lang == "en")
-					break;
-				else loaded = trans->load(QString(path + '.' + lang), ".");
-			}
-		}
-	}
+    // Try with system wide translations (if any)
+    if (!loaded) {
+        path = paths().resourcesDir(Movida::SystemScope).append("Translations");
+        if (QFile::exists(path)) {
+            path.append("movida");
+            QString lang;
+            for (int i = 0; i < langs.size() && !loaded; ++i) {
+                QString lang = langs.at(i).left(5);
+                if (lang == "en")
+                    break;
+                else loaded = trans->load(QString(path + '.' + lang), ".");
+            }
+        }
+    }
 
-	if (loaded) {
-		installTranslator(trans);
-		mGuiLanguage = lang;
-	}
+    if (loaded) {
+        installTranslator(trans);
+        mGuiLanguage = lang;
+    }
 }
 
-void MvdApplication::changeGuiLanguage(const QString& newGUILang)
+void MvdApplication::changeGuiLanguage(const QString &newGUILang)
 {
-	QStringList newLangs;
-	if (newGUILang.isEmpty())
-		newLangs.append("en");
-	else
-		newLangs.append(newGUILang);
-	installTranslators(newLangs);
+    QStringList newLangs;
+
+    if (newGUILang.isEmpty())
+        newLangs.append("en");
+    else
+        newLangs.append(newGUILang);
+    installTranslators(newLangs);
 }
 
-static void printArgLine(QTextStream& ts, const char* smallArg, const char* fullArg, const QString& desc)
+static void printArgLine(QTextStream &ts, const char *smallArg, const char *fullArg, const QString &desc)
 {
-	const char* lineformat = "  %1, %2 %3";
-	const int saw = 3;   // Short argument width
-	const int aw = -18;  // Argument width (negative is left aligned)
-	QString line = QString(lineformat)
-		.arg(smallArg, saw)
-		.arg(fullArg, aw)
-		.arg(desc);
-	ts << line;
-	endl(ts);
+    const char *lineformat = "  %1, %2 %3";
+    const int saw = 3;   // Short argument width
+    const int aw = -18;  // Argument width (negative is left aligned)
+    QString line = QString(lineformat)
+                       .arg(smallArg, saw)
+                       .arg(fullArg, aw)
+                       .arg(desc);
+
+    ts << line;
+    endl(ts);
 }
 
 void MvdApplication::showUsage()
 {
-	QFile f;
-	f.open(stderr, QIODevice::WriteOnly);
-	QTextStream ts(&f);
-	ts << tr("Usage: movida [option ... ] [file]") ; endl(ts);
-	ts << tr("Options:") ; endl(ts);
-	printArgLine(ts, MVD_ARG_HELP_SHORT, MVD_ARG_HELP,
-		tr("Print help (this message) and exit") );
-	printArgLine(ts, MVD_ARG_LANG_SHORT, MVD_ARG_LANG,
-		tr("Uses xx as shortcut for a language, eg `en' or `de'") );
-	printArgLine(ts, MVD_ARG_AVAILLANG_SHORT, MVD_ARG_AVAILLANG,
-		tr("List the currently installed interface languages") );
-	printArgLine(ts, MVD_ARG_NOSPLASH_SHORT, MVD_ARG_NOSPLASH,
-		tr("Do not show the splashscreen on startup") );
-	printArgLine(ts, MVD_ARG_VERSION_SHORT, MVD_ARG_VERSION,
-		tr("Output version information and exit") );
-#if defined(Q_WS_WIN) && !defined(_CONSOLE)
-	printArgLine(ts, MVD_ARG_CONSOLE_SHORT, MVD_ARG_CONSOLE,
-		tr("Display a console window") );
+    QFile f;
+
+    f.open(stderr, QIODevice::WriteOnly);
+    QTextStream ts(&f);
+    ts << tr("Usage: movida [option ... ] [file]"); endl(ts);
+    ts << tr("Options:"); endl(ts);
+    printArgLine(ts, MVD_ARG_HELP_SHORT, MVD_ARG_HELP,
+        tr("Print help (this message) and exit"));
+    printArgLine(ts, MVD_ARG_LANG_SHORT, MVD_ARG_LANG,
+        tr("Uses xx as shortcut for a language, eg `en' or `de'"));
+    printArgLine(ts, MVD_ARG_AVAILLANG_SHORT, MVD_ARG_AVAILLANG,
+        tr("List the currently installed interface languages"));
+    printArgLine(ts, MVD_ARG_NOSPLASH_SHORT, MVD_ARG_NOSPLASH,
+        tr("Do not show the splashscreen on startup"));
+    printArgLine(ts, MVD_ARG_VERSION_SHORT, MVD_ARG_VERSION,
+        tr("Output version information and exit"));
+#if defined (Q_WS_WIN) && !defined (_CONSOLE)
+    printArgLine(ts, MVD_ARG_CONSOLE_SHORT, MVD_ARG_CONSOLE,
+        tr("Display a console window"));
 #endif
 
-	endl(ts);
+    endl(ts);
 }
 
 void MvdApplication::showAvailableLanguages()
 {
-	QFile f;
-	f.open(stderr, QIODevice::WriteOnly);
-	QTextStream ts(&f);
-	ts << tr("Installed interface languages for movida are as follows:"); endl(ts);
-	endl(ts);
+    QFile f;
 
-	//! \todo Print installed languages!
-	/*LanguageManager langMgr;
-	langMgr.init();
-	langMgr.printInstalledList();*/
+    f.open(stderr, QIODevice::WriteOnly);
+    QTextStream ts(&f);
+    ts << tr("Installed interface languages for movida are as follows:"); endl(ts);
+    endl(ts);
 
-	endl(ts);
-	ts << tr("To override the default language choice:"); endl(ts);
-	ts << tr("movida -l xx or movida --lang xx, where xx is the language of choice."); endl(ts);
+    //! \todo Print installed languages!
+    /*LanguageManager langMgr;
+       langMgr.init();
+       langMgr.printInstalledList();*/
+
+    endl(ts);
+    ts << tr("To override the default language choice:"); endl(ts);
+    ts << tr("movida -l xx or movida --lang xx, where xx is the language of choice."); endl(ts);
 }
 
 void MvdApplication::showVersion()
 {
-	std::cout << tr("movida version").toLatin1().constData() << " " << MVD_VER_MAJOR << "." << MVD_VER_MINOR << std::endl;
+    std::cout << tr("movida version").toLatin1().constData() << " " << MVD_VER_MAJOR << "." << MVD_VER_MINOR << std::endl;
 }
 
 void MvdApplication::showHeader()
 {
-	QFile f;
-	f.open(stderr, QIODevice::WriteOnly);
-	QTextStream ts(&f);
-	endl(ts);
-	QString heading( tr("movida, the free movie collection manager") );
-	// Build a separator of ----s the same width as the heading
-	QString separator = QString("").rightJustified(heading.length(),'-');
-	// Then output the heading, separator, and docs/www/etc info in an aligned table
-	const int urlwidth = 23;
-	const int descwidth = -(heading.length() - urlwidth - 1);
-	ts << heading; endl(ts);
-	ts << separator; endl(ts);
-	ts << QString("%1 %2").arg( tr("Homepage")+":",      descwidth).arg("http://movida.42cows.org" ); endl(ts);
-	ts << QString("%1 %2").arg( tr("Documentation")+":", descwidth).arg("http://movida.42cows.org/help"); endl(ts);
-	ts << QString("%1 %2").arg( tr("Download")+":",          descwidth).arg("http://movida.42cows.org/download"); endl(ts);
-	endl(ts);
+    QFile f;
+
+    f.open(stderr, QIODevice::WriteOnly);
+    QTextStream ts(&f);
+    endl(ts);
+    QString heading(tr("movida, the free movie collection manager"));
+    // Build a separator of ----s the same width as the heading
+    QString separator = QString("").rightJustified(heading.length(), '-');
+    // Then output the heading, separator, and docs/www/etc info in an aligned table
+    const int urlwidth = 23;
+    const int descwidth = -(heading.length() - urlwidth - 1);
+    ts << heading; endl(ts);
+    ts << separator; endl(ts);
+    ts << QString("%1 %2").arg(tr("Homepage") + ":",      descwidth).arg("http://movida.42cows.org"); endl(ts);
+    ts << QString("%1 %2").arg(tr("Documentation") + ":", descwidth).arg("http://movida.42cows.org/help"); endl(ts);
+    ts << QString("%1 %2").arg(tr("Download") + ":",          descwidth).arg("http://movida.42cows.org/download"); endl(ts);
+    endl(ts);
 }

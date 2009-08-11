@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: maininfopage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,60 +21,62 @@
 #ifndef MVD_MAININFOPAGE_H
 #define MVD_MAININFOPAGE_H
 
-#include <QList>
 
 #include "ui_maininfopage.h"
+
 #include "movieeditorpage.h"
+
+#include <QtCore/QList>
 
 class QIcon;
 class QTimer;
 
 class MvdMainInfoPage : public MvdMovieEditorPage, private Ui::MvdMainInfoPage
 {
-        Q_OBJECT
+    Q_OBJECT
 
 public:
-        MvdMainInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent = 0);
+    MvdMainInfoPage(MvdMovieCollection *c, MvdMovieEditor *parent = 0);
 
-        QString label();
-        QIcon icon();
+    QString label();
+    QIcon icon();
 
-        virtual void setMainWidgetFocus();
+    virtual void setMainWidgetFocus();
 
 protected:
-        void setMovieImpl(const MvdMovie& movie);
+    void setMovieImpl(const MvdMovie &movie);
 
-        bool store(MvdMovie& movie);
+    bool store(MvdMovie &movie);
 
 private slots:
-        void linkActivated(const QString& url);
-        void ratingHovered(int);
-        void selectMoviePoster();
-        void setMoviePoster(const QString& path = QString());
-        bool posterDragEntered(const QMimeData& mimeData) const;
-        bool posterDragMoved(const QMimeData& mimeData) const;
-        void posterDragLeave();
-        bool posterDropped(const QMimeData& mimeData);
-        void resetPosterStatus();
-        void statusTimeout();
-        void validate();
-        void updateModifiedStatus();
+    void linkActivated(const QString &url);
+    void ratingHovered(int);
+    void selectMoviePoster();
+    void setMoviePoster(const QString &path = QString());
+    bool posterDragEntered(const QMimeData &mimeData) const;
+    bool posterDragMoved(const QMimeData &mimeData) const;
+    void posterDragLeave();
+    bool posterDropped(const QMimeData &mimeData);
+    void resetPosterStatus();
+    void statusTimeout();
+    void validate();
+    void updateModifiedStatus();
 
 private:
-        QString mDefaultTitle;
-        QString mDefaultOriginalTitle;
-        QString mDefaultStorageId;
-        quint16 mDefaultYear;
-        quint16 mDefaultRunningTime;
-        quint8 mDefaultRating;
-        bool mDefaultIsFavorite;
-        QString mDefaultPoster;
-        QString mPosterPath;
-        int mDefaultSpecialTags;
+    QString mDefaultTitle;
+    QString mDefaultOriginalTitle;
+    QString mDefaultStorageId;
+    quint16 mDefaultYear;
+    quint16 mDefaultRunningTime;
+    quint8 mDefaultRating;
+    bool mDefaultIsFavorite;
+    QString mDefaultPoster;
+    QString mPosterPath;
+    int mDefaultSpecialTags;
 
-        QTimer* mStatusTimer;
+    QTimer *mStatusTimer;
 
-        QString mMainCaption;
+    QString mMainCaption;
 };
 
 #endif // MVD_MAININFOPAGE_H
