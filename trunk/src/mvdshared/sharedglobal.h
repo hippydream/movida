@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: sharedglobal.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,11 +22,12 @@
 #define MVD_SHAREDGLOBAL_H
 
 #include "mvdcore/global.h"
-#include <QtGlobal>
+
+#include <QtCore/QtGlobal>
 
 #ifndef MVD_EXPORT_SHARED
 # ifdef Q_OS_WIN
-#  if defined(MVD_BUILD_SHARED_DLL)
+#  if defined (MVD_BUILD_SHARED_DLL)
 #   define MVD_EXPORT_SHARED __declspec(dllexport)
 #  else
 #   define MVD_EXPORT_SHARED __declspec(dllimport)
@@ -37,11 +38,11 @@
 #endif // MVD_EXPORT_SHARED
 
 namespace MovidaShared {
-	enum MessageType {
-		InfoMessage = 0,
-		WarningMessage,
-		ErrorMessage
-	};
+enum MessageType {
+    InfoMessage = 0,
+    WarningMessage,
+    ErrorMessage
 };
+}
 
 #endif // MVD_SHAREDGLOBAL_H

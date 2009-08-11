@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: exportfinalpage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,41 +21,40 @@
 #ifndef MVD_EXPORTFINAL_H
 #define MVD_EXPORTFINAL_H
 
-#include "sharedglobal.h"
-#include "importexportpage.h"
 #include "ui_exportfinalpage.h"
+
+#include "importexportpage.h"
+#include "sharedglobal.h"
 
 class QLabel;
 class QRadioButton;
 
 class MvdExportFinalPage : public MvdImportExportPage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdExportFinalPage(QWidget* parent = 0);
+    MvdExportFinalPage(QWidget *parent = 0);
 
-	void showMessage(const QString& msg, MovidaShared::MessageType t);
+    void showMessage(const QString &msg, MovidaShared::MessageType t);
 
-	void initializePage();
-	void cleanupPage();
-	void setBusyStatus(bool busy);
-	void reset();
+    void initializePage();
+    void cleanupPage();
+    void setBusyStatus(bool busy);
+    void reset();
 
-	virtual bool validatePage();
-	virtual void updateButtons();
+    virtual bool validatePage();
+    virtual void updateButtons();
 
-public slots:
-	
 private slots:
-	void restartWizardToggled();
-	void initializePageInternal();
+    void restartWizardToggled();
+    void initializePageInternal();
 
 private:
-	Ui::MvdExportFinalPage ui;
+    Ui::MvdExportFinalPage ui;
 
-	bool mPendingButtonUpdates;
-	QString mFinishButtonText;
+    bool mPendingButtonUpdates;
+    QString mFinishButtonText;
 };
 
 #endif // MVD_EXPORTFINAL_H

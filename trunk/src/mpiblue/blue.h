@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: blue.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,6 +22,7 @@
 #define MPI_BLUE_H
 
 #include "blueglobal.h"
+
 #include "mvdcore/plugininterface.h"
 
 class QTemporaryFile;
@@ -29,101 +30,100 @@ class QTextStream;
 
 class MpiBlue : public MvdPluginInterface
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	enum UpdateInterval {
-		UpdateAlways,
-		UpdateOnce,
-		UpdateDaily,
-		UpdateWeekly,
-		UpdateCustom
-	};
-	
-	enum ScriptStatus {
-		InvalidScript= 0,
-		ValidScript,
-		NoUpdatedScript
-	};
+    enum UpdateInterval {
+        UpdateAlways,
+        UpdateOnce,
+        UpdateDaily,
+        UpdateWeekly,
+        UpdateCustom
+    };
 
-	struct Engine
-	{
-		inline Engine() : 
-			scriptsFetched(false), 
-			updateInterval(UpdateOnce), 
-			updateIntervalHours(0)
-		{}
+    enum ScriptStatus {
+        InvalidScript = 0,
+        ValidScript,
+        NoUpdatedScript
+    };
 
-		inline Engine(const QString& n) : 
-			name(n), 
-			scriptsFetched(false), 
-			updateInterval(UpdateOnce), 
-			updateIntervalHours(0)
-		{}
+    struct Engine {
+        inline Engine() :
+            scriptsFetched(false),
+            updateInterval(UpdateOnce),
+            updateIntervalHours(0)
+        { }
 
-		inline bool operator<(const Engine& o) const
-		{
-			return displayName < o.displayName;
-		}
+        inline Engine(const QString &n) :
+            name(n),
+            scriptsFetched(false),
+            updateInterval(UpdateOnce),
+            updateIntervalHours(0)
+        { }
 
-		QString name;
-		QString displayName;
-		QString updateUrl;
+        inline bool operator<(const Engine &o) const
+        {
+            return displayName < o.displayName;
+        }
 
-		QString interpreter;
-		
-		QString resultsScript;
-		QString resultsUrl;
+        QString name;
+        QString displayName;
+        QString updateUrl;
 
-		QString importScript;
-		QString importUrl;
+        QString interpreter;
 
-		QString searchUrl;
+        QString resultsScript;
+        QString resultsUrl;
 
-		bool scriptsFetched;
+        QString importScript;
+        QString importUrl;
 
-		UpdateInterval updateInterval;
-		quint8 updateIntervalHours;
-	};
+        QString searchUrl;
 
-	MpiBlue(QObject* parent = 0);
-	virtual ~MpiBlue();
+        bool scriptsFetched;
 
-	// MvdPluginInterface overloads:
-	bool init();
-	void unload();
-	QString lastError() const;
-	PluginInfo info() const;
-	QList<PluginAction> actions() const;
-	void actionTriggeredImplementation(const QString& name, const QStringList& parameters);
+        UpdateInterval updateInterval;
+        quint8 updateIntervalHours;
+    };
 
-	QString tempDir();
+    MpiBlue(QObject *parent = 0);
+    virtual ~MpiBlue();
 
-	static UpdateInterval updateIntervalFromString(QString s, quint8* hours);
-	static QString updateIntervalToString(UpdateInterval i, quint8 hours);
+    // MvdPluginInterface overloads:
+    bool init();
+    void unload();
+    QString lastError() const;
+    PluginInfo info() const;
+    QList<PluginAction> actions() const;
+    void actionTriggeredImplementation(const QString &name, const QStringList &parameters);
 
-	static bool engineRequiresUpdate(const Engine& engine);
-	
-	static void setScriptPaths(Engine* engine);
-	static QString locateScriptPath(const QString& name);
-	static MpiBlue::ScriptStatus isValidScriptFile(const QString& path);
-	static MpiBlue::ScriptStatus isValidScriptFile(QTemporaryFile* tempFile, bool httpNotModified);
+    QString tempDir();
+
+    static UpdateInterval updateIntervalFromString(QString s, quint8 *hours);
+    static QString updateIntervalToString(UpdateInterval i, quint8 hours);
+
+    static bool engineRequiresUpdate(const Engine &engine);
+
+    static void setScriptPaths(Engine *engine);
+    static QString locateScriptPath(const QString &name);
+    static MpiBlue::ScriptStatus isValidScriptFile(const QString &path);
+    static MpiBlue::ScriptStatus isValidScriptFile(QTemporaryFile *tempFile, bool httpNotModified);
 
 private:
-	void loadEngines(bool loadBundled = true);
-	void loadEnginesFromFile(const QString& path);
-	inline bool isValidEngine(const Engine& engine) const;
-		
-	static MpiBlue::ScriptStatus isValidScriptFile(QTextStream& stream);
+    void loadEngines(bool loadBundled = true);
+    void loadEnginesFromFile(const QString &path);
+    inline bool isValidEngine(const Engine &engine) const;
 
-	QList<Engine*> mEngines;
-	QString mTempDir;
+    static MpiBlue::ScriptStatus isValidScriptFile(QTextStream &stream);
+
+    QList<Engine *> mEngines;
+    QString mTempDir;
 };
 
 namespace MpiBluePlugin {
-	extern MpiBlue* instance;
+extern MpiBlue *instance;
 };
 
-extern "C" MPI_EXPORT_BLUE MvdPluginInterface* pluginInterface(QObject* parent);
+extern "C" MPI_EXPORT_BLUE MvdPluginInterface *pluginInterface(QObject *parent);
 
 #endif // MPI_BLUE_H

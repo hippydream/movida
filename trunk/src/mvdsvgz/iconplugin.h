@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: iconplugin.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,18 +21,18 @@
 #ifndef MVD_SVGZ_ICONPLUGIN_H
 #define MVD_SVGZ_ICONPLUGIN_H
 
-#include <QIconEnginePluginV2>
+#include <QtGui/QIconEnginePluginV2>
 
 class MvdSvgzIconEnginePlugin : public QIconEnginePluginV2
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdSvgzIconEnginePlugin(QObject* parent = 0);
-	virtual ~MvdSvgzIconEnginePlugin();
+    MvdSvgzIconEnginePlugin(QObject *parent = 0);
+    virtual ~MvdSvgzIconEnginePlugin();
 
-	virtual QIconEngineV2* create(const QString& filename = QString());
-	virtual QStringList keys() const;
+    virtual QIconEngineV2 *create(const QString &filename = QString());
+    virtual QStringList keys() const;
 };
 
 #endif // MVD_SVGZ_ICONPLUGIN_H

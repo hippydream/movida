@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: md5.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -24,16 +24,16 @@
 #include "global.h"
 
 class QByteArray;
-class QString;
 class QFile;
+class QString;
 
 class MVD_EXPORT MvdMd5
 {
 public:
-	static QString hashData(const QByteArray& bytes);
-	static QString hashData(const char* bytes, int size);
-	static QString hashFile(QFile* file);
-	static QString hashFile(const QString& filename);
+    static QString hashData(const QByteArray &bytes);
+    static QString hashData(const char *bytes, int size);
+    static QString hashFile(QFile *file);
+    static QString hashFile(const QString &filename);
 };
 
 #endif // MVD_MD5_H

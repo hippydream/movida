@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: settingsdialog.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,23 +22,25 @@
 #define MVD_SETTINGSDIALOG_H
 
 #include "multipagedialog.h"
-#include "mvdcore/shareddata.h"
+
 #include "mvdcore/movie.h"
-#include <QList>
+#include "mvdcore/shareddata.h"
+
+#include <QtCore/QList>
 
 class MvdSettingsDialog : public MvdMultiPageDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdSettingsDialog(QWidget* parent = 0);
-	
+    MvdSettingsDialog(QWidget *parent = 0);
+
 protected:
-	virtual void closeEvent(QCloseEvent* e);
+    virtual void closeEvent(QCloseEvent *e);
 
 private slots:
-	void applySettings();
-	void cancelSettings();
+    void applySettings();
+    void cancelSettings();
 };
 
 #endif // MVD_SETTINGSDIALOG_H

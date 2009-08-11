@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: treewidget.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,97 +22,107 @@
 #define MVD_TREEWIDGET_H
 
 #include "guiglobal.h"
-#include <QTreeWidget>
-#include <QTreeWidgetItem>
-#include <QList>
-#include <QHash>
-#include <QContextMenuEvent>
-#include <QHeaderView>
 
-class MvdTreeWidget_P;
+#include <QtCore/QHash>
+#include <QtCore/QList>
+#include <QtGui/QContextMenuEvent>
+#include <QtGui/QHeaderView>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QTreeWidgetItem>
+
 class QPoint;
 class QString;
 class QKeyEvent;
 
 class MvdTreeWidget : public QTreeWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	enum CursorMovement {
-		MoveByRow = 0x01, MoveByColumn = 0x02, MoveByIndex = MoveByRow | MoveByColumn
-	};
+    enum CursorMovement {
+        MoveByRow = 0x01, MoveByColumn = 0x02, MoveByIndex = MoveByRow | MoveByColumn
+    };
 
-	MvdTreeWidget(QWidget* parent = 0);
-	virtual ~MvdTreeWidget();
+    MvdTreeWidget(QWidget *parent = 0);
+    virtual ~MvdTreeWidget();
 
-	bool isHeaderContextMenuDisabled() const;
-	void setHeaderContextMenuDisabled(bool disable);
+    bool isHeaderContextMenuDisabled() const;
+    void setHeaderContextMenuDisabled(bool disable);
 
-	CursorMovement cursorMovement() const;
-	void setCursorMovement(CursorMovement m);
+    CursorMovement cursorMovement() const;
+    void setCursorMovement(CursorMovement m);
 
-	bool isPlaceHolder(QTreeWidgetItem* item) const;
+    bool isPlaceHolder(QTreeWidgetItem *item) const;
 
-	virtual QList<QTreeWidgetItem*> filteredSelectedItems() const;
-	virtual QList<mvdid> filteredSelectedIds() const;
-	virtual QList<QTreeWidgetItem*> itemsById(const QList<mvdid>& ids) const;
-	
+    virtual QList<QTreeWidgetItem *> filteredSelectedItems() const;
+    virtual QList<mvdid> filteredSelectedIds() const;
+    virtual QList<QTreeWidgetItem *> itemsById(const QList<mvdid> &ids) const;
+
 signals:
-	void contextMenuRequested(QTreeWidgetItem* item, int column);
+    void contextMenuRequested(QTreeWidgetItem *item, int column);
 
 protected:
-	virtual bool eventFilter(QObject* o, QEvent* e);
-	virtual void showHeaderContext(const QPoint& p);
-	virtual void contextMenuEvent(QContextMenuEvent* e);
-	virtual void keyPressEvent(QKeyEvent* e);
-	virtual QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+    virtual bool eventFilter(QObject *o, QEvent *e);
+    virtual void showHeaderContext(const QPoint &p);
+    virtual void contextMenuEvent(QContextMenuEvent *e);
+    virtual void keyPressEvent(QKeyEvent *e);
+    virtual QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
 private:
-	MvdTreeWidget_P* d;
+    class Private;
+    Private *d;
 };
 
-class MvdTreeWidgetItem : public QTreeWidgetItem
+class MvdTreeWidgetItem :
+    public QTreeWidgetItem
 {
 public:
-	MvdTreeWidgetItem ( int type = Type )
-		: QTreeWidgetItem (type) {}
-	MvdTreeWidgetItem ( const QStringList & strings, int type = Type ) 
-		: QTreeWidgetItem (strings, type) {}
-	MvdTreeWidgetItem ( MvdTreeWidget * parent, int type = Type ) 
-		: QTreeWidgetItem (parent, type) {}
-	MvdTreeWidgetItem ( MvdTreeWidget * parent, const QStringList & strings, int type = Type ) 
-		: QTreeWidgetItem (parent, strings, type) {}
-	MvdTreeWidgetItem ( MvdTreeWidget * parent, MvdTreeWidgetItem * preceding, int type = Type ) 
-		: QTreeWidgetItem (parent, preceding, type) {}
-	MvdTreeWidgetItem ( MvdTreeWidgetItem * parent, int type = Type ) 
-		: QTreeWidgetItem (parent, type) {}
-	MvdTreeWidgetItem ( MvdTreeWidgetItem * parent, const QStringList & strings, int type = Type ) 
-		: QTreeWidgetItem (parent, strings, type) {}
-	MvdTreeWidgetItem ( MvdTreeWidgetItem * parent, MvdTreeWidgetItem * preceding, int type = Type ) 
-		: QTreeWidgetItem (parent, preceding, type) {}
-	MvdTreeWidgetItem ( const MvdTreeWidgetItem & other ) 
-		: QTreeWidgetItem (other) {}
+    MvdTreeWidgetItem(int type = Type) :
+        QTreeWidgetItem(type) { }
 
-	virtual bool operator<(const QTreeWidgetItem& other) const
-	{
-		if (!treeWidget())
-			return QTreeWidgetItem::operator <(other);
+    MvdTreeWidgetItem(const QStringList &strings, int type = Type) :
+        QTreeWidgetItem(strings, type) { }
 
-		if (QHeaderView* h = treeWidget()->header())
-		{
-			bool invert = h->sortIndicatorOrder() == Qt::DescendingOrder;
+    MvdTreeWidgetItem(MvdTreeWidget *parent, int type = Type) :
+        QTreeWidgetItem(parent, type) { }
 
-			QVariant v = data(0, Movida::PlaceholderRole);
-			if (!v.isNull() && v.toBool())
-				return invert ? true : false;
-			v = other.data(0, Movida::PlaceholderRole);
-			if (!v.isNull() && v.toBool())
-				return invert ? false : true;
-		}
+    MvdTreeWidgetItem(MvdTreeWidget *parent, const QStringList &strings, int type = Type) :
+        QTreeWidgetItem(parent, strings, type) { }
 
-		return QTreeWidgetItem::operator <(other);
-	}
+    MvdTreeWidgetItem(MvdTreeWidget *parent, MvdTreeWidgetItem *preceding, int type = Type) :
+        QTreeWidgetItem(parent, preceding, type) { }
+
+    MvdTreeWidgetItem(MvdTreeWidgetItem *parent, int type = Type) :
+        QTreeWidgetItem(parent, type) { }
+
+    MvdTreeWidgetItem(MvdTreeWidgetItem *parent, const QStringList &strings, int type = Type) :
+        QTreeWidgetItem(parent, strings, type) { }
+
+    MvdTreeWidgetItem(MvdTreeWidgetItem *parent, MvdTreeWidgetItem *preceding, int type = Type) :
+        QTreeWidgetItem(parent, preceding, type) { }
+
+    MvdTreeWidgetItem(const MvdTreeWidgetItem &other) :
+        QTreeWidgetItem(other) { }
+
+    virtual bool operator<(const QTreeWidgetItem &other) const
+    {
+        if (!treeWidget())
+            return QTreeWidgetItem::operator<(other);
+
+        if (QHeaderView * h = treeWidget()->header()) {
+            bool invert = h->sortIndicatorOrder() == Qt::DescendingOrder;
+
+            QVariant v = data(0, Movida::PlaceholderRole);
+            if (!v.isNull() && v.toBool())
+                return invert ? true : false;
+            v = other.data(0, Movida::PlaceholderRole);
+            if (!v.isNull() && v.toBool())
+                return invert ? false : true;
+        }
+
+        return QTreeWidgetItem::operator<(other);
+    }
+
 };
 
 #endif // MVD_TREEWIDGET_H

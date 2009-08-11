@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: expandinglineedit.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,44 +21,45 @@
 #include "expandinglineedit.h"
 
 /*!
-	\class MvdExpandingLineEdit expandinglineedit.h
-	\ingroup MovidaShared
+    \class MvdExpandingLineEdit expandinglineedit.h
+    \ingroup MovidaShared
 
-	\brief QLineEdit subclass that adapts to the text width. It should be used as editor
-	widget in item views.
+    \brief QLineEdit subclass that adapts to the text width. It should be used as editor
+    widget in item views.
 
-	Source code comes from the private QExpandingLineEdit found in the Qt 4.3
-	QItemEditorFactory.
+    Source code comes from the private QExpandingLineEdit found in the Qt 4.3
+    QItemEditorFactory.
 */
 
-MvdExpandingLineEdit::MvdExpandingLineEdit(QWidget* parent)
-: QLineEdit(parent), originalWidth(-1)
+MvdExpandingLineEdit::MvdExpandingLineEdit(QWidget *parent) :
+    QLineEdit(parent),
+    originalWidth(-1)
 {
-	connect(this, SIGNAL(textChanged(QString)), this, SLOT(resizeToContents()));
+    connect(this, SIGNAL(textChanged(QString)), this, SLOT(resizeToContents()));
 }
 
-MvdExpandingLineEdit::MvdExpandingLineEdit(const QString& contents, QWidget* parent)
-	: QLineEdit(contents, parent), originalWidth(-1)
+MvdExpandingLineEdit::MvdExpandingLineEdit(const QString &contents, QWidget *parent) :
+    QLineEdit(contents, parent),
+    originalWidth(-1)
 {
-	connect(this, SIGNAL(textChanged(QString)), this, SLOT(resizeToContents()));
+    connect(this, SIGNAL(textChanged(QString)), this, SLOT(resizeToContents()));
 }
 
 //! \internal
 void MvdExpandingLineEdit::resizeToContents()
 {
-	if (originalWidth == -1)
-		originalWidth = width();
-	if (QWidget* parent = parentWidget())
-	{
-		QPoint position = pos();
-		QFontMetrics fm(font());
-		int hintWidth = sizeHint().width() - (fm.width(QLatin1Char('x')) * 17) + fm.width(displayText());
-		int parentWidth = parent->width();
-		int maxWidth = isRightToLeft() ? position.x() + width() : parentWidth - position.x();
-		int newWidth = qBound(originalWidth, hintWidth, maxWidth);
-		if (isRightToLeft())
-			setGeometry(position.x() - newWidth + width(), position.y(), newWidth, height());
-		else
-			resize(newWidth, height());
-	}
+    if (originalWidth == -1)
+        originalWidth = width();
+    if (QWidget * parent = parentWidget()) {
+        QPoint position = pos();
+        QFontMetrics fm(font());
+        int hintWidth = sizeHint().width() - (fm.width(QLatin1Char('x')) * 17) + fm.width(displayText());
+        int parentWidth = parent->width();
+        int maxWidth = isRightToLeft() ? position.x() + width() : parentWidth - position.x();
+        int newWidth = qBound(originalWidth, hintWidth, maxWidth);
+        if (isRightToLeft())
+            setGeometry(position.x() - newWidth + width(), position.y(), newWidth, height());
+        else
+            resize(newWidth, height());
+    }
 }

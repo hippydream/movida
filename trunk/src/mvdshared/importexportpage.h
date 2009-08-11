@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: importpage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -23,77 +23,82 @@
 
 #include "exportdialog.h"
 #include "importdialog.h"
-#include <QWizardPage>
+
+#include <QtGui/QWizardPage>
 
 /*!
-	\class MvdImportExportPage importexportpage.h
-	\ingroup MovidaShared
+    \class MvdImportExportPage importexportpage.h
+    \ingroup MovidaShared
 
-	\brief Base class for a movie import/export wizard page.
+    \brief Base class for a movie import/export wizard page.
 */
 
 class MvdImportExportPage : public QWizardPage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdImportExportPage(QWidget* parent = 0)
-	: QWizardPage(parent), busy(false), preventCloseOnBusy(false) { }
-	
-	virtual void setBusyStatus(bool busy)
-	{ this->busy = busy; emit completeChanged(); }
+    MvdImportExportPage(QWidget *parent = 0) :
+        QWizardPage(parent),
+        busy(false),
+        preventCloseOnBusy(false) { }
 
-	bool busyStatus() const { return busy; }
+    virtual void setBusyStatus(bool busy)
+    { this->busy = busy; emit completeChanged(); }
 
-	virtual void showMessage(const QString& msg, MovidaShared::MessageType t)
-	{ Q_UNUSED(msg); Q_UNUSED(t); }
+    bool busyStatus() const { return busy; }
 
-	//! Re-implements the superclass method to ensure that the status is not busy.
-	virtual bool isComplete() const
-	{ return !busy && QWizardPage::isComplete(); }
+    virtual void showMessage(const QString &msg, MovidaShared::MessageType t)
+    { Q_UNUSED(msg); Q_UNUSED(t); }
 
-	//! Set this property to prevent the wizard being closed on a busy page. Default is false.
-	bool preventCloseWhenBusy() const
-	{ return preventCloseOnBusy; }
+    //! Re-implements the superclass method to ensure that the status is not busy.
+    virtual bool isComplete() const
+    { return !busy && QWizardPage::isComplete(); }
 
-	void setPreventCloseWhenBusy(bool prevent)
-	{ preventCloseOnBusy = prevent; }
+    //! Set this property to prevent the wizard being closed on a busy page. Default is false.
+    bool preventCloseWhenBusy() const
+    { return preventCloseOnBusy; }
 
-	/*! Re-implement this method to force enabling or disabling of the wizard buttons.
-		Some of the wizard buttons (e.g. "Finish" and "Next"/"Back") cannot be disabled
-		with a simple QWidget::setEnabled() because the wizard will change their state, unless
-		it is done in this method.
-	*/
-	virtual void updateButtons()
-	{ }
-	
-	//! This method is supposed to do what it tells.. reset the page and prepare for a new import/export.
-	virtual void reset()
-	{ }
+    void setPreventCloseWhenBusy(bool prevent)
+    { preventCloseOnBusy = prevent; }
 
-	/*! Convenience method, returns a pointer to the import dialog using this page. 
-		Do not call this from a MvdExportDialog. Use exportDialog() instead.
-	*/
-	MvdImportDialog* importDialog() const
-	{
-		MvdImportDialog* w = qobject_cast<MvdImportDialog*>(wizard());
-		Q_ASSERT_X(w, "MvdImportExportPage::importDialog()", "Internal error.");
-		return w;
-	}
+    /*! Re-implement this method to force enabling or disabling of the wizard buttons.
+       Some of the wizard buttons (e.g. "Finish" and "Next"/"Back") cannot be disabled
+       with a simple QWidget::setEnabled() because the wizard will change their state, unless
+       it is done in this method.
+     */
+    virtual void updateButtons()
+    { }
 
-	/*! Convenience method, returns a pointer to the export dialog using this page. 
-		Do not call this from a MvdImportDialog. Use importDialog() instead.
-	*/
-	MvdExportDialog* exportDialog() const
-	{
-		MvdExportDialog* w = qobject_cast<MvdExportDialog*>(wizard());
-		Q_ASSERT_X(w, "MvdImportExportPage::exportDialog()", "Internal error.");
-		return w;
-	}
+    //! This method is supposed to do what it tells.. reset the page and prepare for a new import/export.
+    virtual void reset()
+    { }
+
+    /*! Convenience method, returns a pointer to the import dialog using this page.
+        Do not call this from a MvdExportDialog. Use exportDialog() instead.
+     */
+    MvdImportDialog *importDialog() const
+    {
+        MvdImportDialog *w = qobject_cast<MvdImportDialog *>(wizard());
+
+        Q_ASSERT_X(w, "MvdImportExportPage::importDialog()", "Internal error.");
+        return w;
+    }
+
+    /*! Convenience method, returns a pointer to the export dialog using this page.
+        Do not call this from a MvdImportDialog. Use importDialog() instead.
+     */
+    MvdExportDialog *exportDialog() const
+    {
+        MvdExportDialog *w = qobject_cast<MvdExportDialog *>(wizard());
+
+        Q_ASSERT_X(w, "MvdImportExportPage::exportDialog()", "Internal error.");
+        return w;
+    }
 
 private:
-	bool busy;
-	bool preventCloseOnBusy;
+    bool busy;
+    bool preventCloseOnBusy;
 };
 
 #endif // MVD_IMPORTEXPORTPAGE_H

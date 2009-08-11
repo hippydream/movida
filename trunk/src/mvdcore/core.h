@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: core.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,101 +22,101 @@
 #define MVD_CORE_H
 
 #include "global.h"
-#include <QVariant>
-#include <QUrl>
-#include <QtGlobal>
+
+#include <QtCore/QUrl>
+#include <QtCore/QVariant>
+#include <QtCore/QtGlobal>
 #ifdef Q_OS_WIN32
-# include "qt_windows.h"
+# include <qt_windows.h>
 #endif
 #include <libxml/xmlerror.h>
 
-class MvdCore_P;
 class MvdPluginContext;
 
 namespace Movida {
-        enum MessageType
-        {
-                InformationMessage,
-                WarningMessage,
-                ErrorMessage
-        };
+enum MessageType {
+    InformationMessage,
+    WarningMessage,
+    ErrorMessage
+};
 
-        MVD_EXPORT extern void info(const QString& msg);
-        MVD_EXPORT extern void warning(const QString& msg);
-        MVD_EXPORT extern void error(const QString& msg);
+MVD_EXPORT extern void info(const QString &msg);
+MVD_EXPORT extern void warning(const QString &msg);
+MVD_EXPORT extern void error(const QString &msg);
 
-        typedef void (*MessageHandler)(MessageType, const QString& msg);
-        MVD_EXPORT extern void registerMessageHandler(Movida::MessageHandler handler);
-}
+typedef void (*MessageHandler)(MessageType, const QString &msg);
+MVD_EXPORT extern void registerMessageHandler(Movida::MessageHandler handler);
+} // Movida namespace
 
 class MVD_EXPORT MvdActionUrl
 {
 public:
-        inline bool isValid() const { return !action.isEmpty(); }
-        operator QString() const;
+    inline bool isValid() const { return !action.isEmpty(); }
 
-        QString action;
-        QString parameter;
+    operator QString() const;
+
+    QString action;
+    QString parameter;
 };
 
 class MVD_EXPORT MvdCore
 {
 public:
-        enum LocateOption {
-                NoLocateOption = 0x00, IncludeApplicationPath = 0x01
+    enum LocateOption {
+        NoLocateOption = 0x00, IncludeApplicationPath = 0x01
 #ifdef Q_WS_WIN32
-                , IncludeRegistryCache = 0x02
+        , IncludeRegistryCache = 0x02
 #endif
-        };
-        Q_DECLARE_FLAGS(LocateOptions, LocateOption)
+    };
+    Q_DECLARE_FLAGS(LocateOptions, LocateOption)
 
-        static bool initCore();
-        static void loadStatus();
-        static void storeStatus();
+    static bool initCore();
+    static void loadStatus();
+    static void storeStatus();
 
-        static QVariant parameter(const QString& name);
-        static void registerParameters(const QHash<QString,QVariant>& p);
+    static QVariant parameter(const QString &name);
+    static void registerParameters(const QHash<QString, QVariant> &p);
 
-        static mvdid atoid(const char* c, bool* ok = 0);
+    static mvdid atoid(const char *c, bool *ok = 0);
 
-        static QString replaceNewLine(QString text);
+    static QString replaceNewLine(QString text);
 
-        static QByteArray toLatin1PercentEncoding(const QString& input,
-                const QByteArray& exclude = QByteArray(),
-                const QByteArray& include = QByteArray());
+    static QByteArray toLatin1PercentEncoding(const QString &input,
+    const QByteArray &exclude = QByteArray(),
+    const QByteArray &include = QByteArray());
 
-        static QString decodeXmlEntities(const char* s);
-        static QString decodeXmlEntities(QString s);
+    static QString decodeXmlEntities(const char *s);
+    static QString decodeXmlEntities(QString s);
 
-        static MvdActionUrl parseActionUrl(const QString& url);
-        static MvdActionUrl parseActionUrl(const QUrl& url) { return parseActionUrl(url.toString()); }
+    static MvdActionUrl parseActionUrl(const QString &url);
+    static MvdActionUrl parseActionUrl(const QUrl &url) { return parseActionUrl(url.toString()); }
 
-        static QString locateApplication(QString name, LocateOptions options = IncludeApplicationPath);
+    static QString locateApplication(QString name, LocateOptions options = IncludeApplicationPath);
 
-        static QString env(const QString& s, Qt::CaseSensitivity cs = Qt::CaseInsensitive);
+    static QString env(const QString &s, Qt::CaseSensitivity cs = Qt::CaseInsensitive);
 
-        static void replaceEnvVariables(QString& s);
-        static QString toLocalFilePath(QString s, bool considerDirectory = false);
-        static QString fixedFilePath(QString s);
+    static void replaceEnvVariables(QString &s);
+    static QString toLocalFilePath(QString s, bool considerDirectory = false);
+    static QString fixedFilePath(QString s);
 
-        static bool isValidYear(QString s);
+    static bool isValidYear(QString s);
 
-        static MvdPluginContext* pluginContext();
+    static MvdPluginContext *pluginContext();
 
 #ifdef Q_OS_WIN32
-        static QString MvdCore::getWindowsRegString(HKEY key, const QString& subKey);
+    static QString MvdCore::getWindowsRegString(HKEY key, const QString &subKey);
 #endif
 
 private:
-        static MvdCore_P* d;
-        static bool MvdCoreInitOk;
-        static MvdPluginContext* PluginContext;
+    class Private;
+    static Private *d;
+    static bool MvdCoreInitOk;
+    static MvdPluginContext *PluginContext;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(MvdCore::LocateOptions)
 
-namespace Movida
-{
-        void xmlStructuredErrorHandler(void* userData, xmlErrorPtr error);
+namespace Movida {
+void xmlStructuredErrorHandler(void *userData, xmlErrorPtr error);
 }
 
 #endif // MVD_CORE_H

@@ -2,7 +2,7 @@
 ** Filename: crash_main_other.cpp
 ** Revision: 3
 **
-** Copyright (C) 2007 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.sourceforge.net/).
 **
@@ -32,20 +32,20 @@
 #include <QFileInfo>
 
 namespace MovidaCrash {
-	bool isParentOfMovida();
+bool isParentOfMovida();
 }
 
 bool MovidaCrash::isParentOfMovida()
 {
-	//! \todo MAC OSX does not (always) use the /proc filesystem!
-	
-	QString procFileName = QString("/proc/%1/cmdline").arg(getppid());
-	QFile procFile(procFileName);
-	
-	if (procFile.open(QIODevice::ReadOnly)) {
-		QString line = procFile.readLine();
-		QFileInfo info(line);
-		return info.fileName().toLower() == "movida";
-	}
-	return true;
+    //! \todo MAC OSX does not (always) use the /proc filesystem!
+
+    QString procFileName = QString("/proc/%1/cmdline").arg(getppid());
+    QFile procFile(procFileName);
+
+    if (procFile.open(QIODevice::ReadOnly)) {
+        QString line = procFile.readLine();
+        QFileInfo info(line);
+        return info.fileName().toLower() == "movida";
+    }
+    return true;
 }

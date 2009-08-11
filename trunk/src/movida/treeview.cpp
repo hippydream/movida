@@ -2,7 +2,7 @@
 ** Filename: treeview.cpp
 ** Review: 3
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -20,286 +20,286 @@
 **************************************************************************/
 
 #include "treeview.h"
+
 #include "mainwindow.h"
+
 #include "mvdcore/settings.h"
-#include <QApplication>
-#include <QCursor>
-#include <QHeaderView>
-#include <QMenu>
-#include <QString>
-#include <QKeyEvent>
+
+#include <QtCore/QString>
+#include <QtGui/QApplication>
+#include <QtGui/QCursor>
+#include <QtGui/QHeaderView>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QMenu>
 
 /*!
-	\class MvdTreeView treeview.h
-	\ingroup movida
+    \class MvdTreeView treeview.h
+    \ingroup movida
 
-	\brief Custom QTreeView implementation.
+    \brief Custom QTreeView implementation.
 */
 
 
 /************************************************************************
-MvdTreeView
-*************************************************************************/
+    MvdTreeView
+ *************************************************************************/
 
 /*!
-	Creates a new empty data view.
+    Creates a new empty data view.
 */
-MvdTreeView::MvdTreeView(QWidget* parent)
-: QTreeView(parent), mDisableHeaderContextMenu(false)
+MvdTreeView::MvdTreeView(QWidget *parent) :
+    QTreeView(parent),
+    mDisableHeaderContextMenu(false)
 {
-	header()->installEventFilter(this);
+    header()->installEventFilter(this);
 
-	setSortingEnabled(true);
-	setRootIsDecorated(false);
-	// setDropIndicatorShown(false);
+    setSortingEnabled(true);
+    setRootIsDecorated(false);
+    // setDropIndicatorShown(false);
 }
 
 /*!
-	Deletes this view and releases any used resources.
+    Deletes this view and releases any used resources.
 */
 MvdTreeView::~MvdTreeView()
 {
-	header()->removeEventFilter(this);
+    header()->removeEventFilter(this);
 }
 
 /*!
-	Returns true if no header context menu should be shown.
+    Returns true if no header context menu should be shown.
 */
 bool MvdTreeView::isHeaderContextMenuDisabled() const
 {
-	return mDisableHeaderContextMenu;
+    return mDisableHeaderContextMenu;
 }
 
 /*!
-	Enables or disables the header context menu.
+    Enables or disables the header context menu.
 */
 void MvdTreeView::setHeaderContextMenuDisabled(bool disable)
 {
-	mDisableHeaderContextMenu = disable;
+    mDisableHeaderContextMenu = disable;
 }
 
 /*!
-	\internal Handles the header context menu.
+    \internal Handles the header context menu.
 */
-bool MvdTreeView::eventFilter(QObject* o, QEvent* e)
+bool MvdTreeView::eventFilter(QObject *o, QEvent *e)
 {
-	switch (e->type())
-	{
-		case QEvent::ContextMenu:
-		{
-			if (mDisableHeaderContextMenu || !isEnabled())
-				return true;
-				
-			QContextMenuEvent* me = (QContextMenuEvent*)e;
-			
-			int columnCount = header()->count();
+    switch (e->type()) {
+        case QEvent::ContextMenu:
+        {
+            if (mDisableHeaderContextMenu || !isEnabled())
+                return true;
 
-			if (columnCount != 0)
-			{
-				// do not show a menu if we only have one column
-				if (columnCount != 1)
-					showHeaderContext(me->pos());
-			}
-			return true;
-		}
-		default:
-			;
-	}
+            QContextMenuEvent *me = (QContextMenuEvent *)e;
 
-	return QTreeView::eventFilter(o, e);
+            int columnCount = header()->count();
+
+            if (columnCount != 0) {
+                // do not show a menu if we only have one column
+                if (columnCount != 1)
+                    showHeaderContext(me->pos());
+            }
+            return true;
+        }
+
+        default:
+            ;
+    }
+
+    return QTreeView::eventFilter(o, e);
 }
 
 /*!
-	\internal Shows a context menu to select visible columns.
+    \internal Shows a context menu to select visible columns.
 */
-void MvdTreeView::showHeaderContext(const QPoint& p)
+void MvdTreeView::showHeaderContext(const QPoint &p)
 {
-	QHeaderView* h = header();
+    QHeaderView *h = header();
 
-	if (h == 0)
-		return;
+    if (h == 0)
+        return;
 
-	int currentLogical = h->logicalIndexAt(p);
-	Q_UNUSED(currentLogical)
-	
-	QMenu context(this);
-	
-	//! \todo Should menus have a title (or sort of)?
-	QAction* _fakeAction = context.addAction(tr("Visible columns"));
-	QFont font = _fakeAction->font();
+    int currentLogical = h->logicalIndexAt(p);
+    Q_UNUSED(currentLogical)
+
+    QMenu context(this);
+
+    //! \todo Should menus have a title (or sort of)?
+    QAction *_fakeAction = context.addAction(tr("Visible columns"));
+    QFont font = _fakeAction->font();
     font.setBold(true);
     _fakeAction->setFont(font);
 
-	context.addSeparator();
+    context.addSeparator();
 
-	QAbstractItemModel* mod = model();
+    QAbstractItemModel *mod = model();
 
-	// Column names are first sorted by their name
-	QMap<QString, int> map;
-	QHash<QAction*, int> hash;
+    // Column names are first sorted by their name
+    QMap<QString, int> map;
+    QHash<QAction *, int> hash;
 
-	for (int i = 0; i < h->count(); ++i)
-	{
-		QString txt;
-		if (mod == 0)
-		{
-			txt = QString::number(i);
-		}
-		else
-		{
-			QVariant v = mod->headerData(i, Qt::Horizontal, Qt::DisplayRole);
-			if (v.type() == QVariant::String)
-				txt = v.toString();
-			else txt = QString::number(i);
-		}
+    for (int i = 0; i < h->count(); ++i) {
+        QString txt;
+        if (mod == 0) {
+            txt = QString::number(i);
+        } else {
+            QVariant v = mod->headerData(i, Qt::Horizontal, Qt::DisplayRole);
+            if (v.type() == QVariant::String)
+                txt = v.toString();
+            else txt = QString::number(i);
+        }
 
-		map.insert(txt, i );
-	}
+        map.insert(txt, i);
+    }
 
-	for (QMap<QString,int>::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
-	{
-		QString txt = it.key();
-		int idx = it.value();
+    for (QMap<QString, int>::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it) {
+        QString txt = it.key();
+        int idx = it.value();
 
-		QAction* act = context.addAction(txt);
-		act->setCheckable(true);
-		act->setChecked( !h->isSectionHidden( h->logicalIndex(idx) ) );
+        QAction *act = context.addAction(txt);
+        act->setCheckable(true);
+        act->setChecked(!h->isSectionHidden(h->logicalIndex(idx)));
 
-		//! \todo Highlight current column in context menu?
-		/*
-		if (idx == currentLogical)
-		{
-			QFont font = act->font();
-			font.setItalic(true);
-			act->setFont(font);
-		}
-		*/
+        //! \todo Highlight current column in context menu?
+        /*
+           if (idx == currentLogical)
+           {
+           QFont font = act->font();
+           font.setItalic(true);
+           act->setFont(font);
+           }
+         */
 
-		hash.insert(act, idx);
-	}
+        hash.insert(act, idx);
+    }
 
-	QAction* _res = context.exec(header()->mapToGlobal(p));
-	if (_res == 0 || _res == _fakeAction)
-		return;
+    QAction *_res = context.exec(header()->mapToGlobal(p));
+    if (_res == 0 || _res == _fakeAction)
+        return;
 
-	int col = hash[_res];
-	h->setSectionHidden( h->logicalIndex(col), !_res->isChecked());
-	if (_res->isChecked())
-		resizeColumnToContents(col);
+    int col = hash[_res];
+    h->setSectionHidden(h->logicalIndex(col), !_res->isChecked());
+    if (_res->isChecked())
+        resizeColumnToContents(col);
 }
 
 //! \internal
-void MvdTreeView::contextMenuEvent(QContextMenuEvent* e)
+void MvdTreeView::contextMenuEvent(QContextMenuEvent *e)
 {
-	QModelIndex index = indexAt(e->pos());
-	emit contextMenuRequested(index, e->reason());
+    QModelIndex index = indexAt(e->pos());
+    emit contextMenuRequested(index, e->reason());
 }
 
 //! \internal
-void MvdTreeView::keyPressEvent(QKeyEvent* e)
+void MvdTreeView::keyPressEvent(QKeyEvent *e)
 {
-	if (e->key() == Qt::Key_Space && Movida::MainWindow->isQuickFilterVisible()) {
-		e->accept();
-		return;
-	}
+    if (e->key() == Qt::Key_Space && Movida::MainWindow->isQuickFilterVisible()) {
+        e->accept();
+        return;
+    }
 
-	e->ignore();
-	QTreeView::keyPressEvent(e);
+    e->ignore();
+    QTreeView::keyPressEvent(e);
 }
 
 //! \internal
-void MvdTreeView::setModel(QAbstractItemModel* model)
+void MvdTreeView::setModel(QAbstractItemModel *model)
 {
-	QTreeView::setModel(model);
-	
-	if (model != 0)
-	{
-		connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), 
-			this, SIGNAL(itemSelectionChanged()));
-	}
+    QTreeView::setModel(model);
+
+    if (model != 0) {
+        connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+            this, SIGNAL(itemSelectionChanged()));
+    }
 }
 
 /*!
-	Returns true if the view's model has any selected row.
+    Returns true if the view's model has any selected row.
 */
 bool MvdTreeView::hasSelectedRows() const
 {
-	QItemSelectionModel* sel = selectionModel();
-	return sel != 0 && sel->selectedRows().count();
+    QItemSelectionModel *sel = selectionModel();
+
+    return sel != 0 && sel->selectedRows().count();
 }
 
 /*!
-	Returns the view's selected rows.
+    Returns the view's selected rows.
 */
 QModelIndexList MvdTreeView::selectedRows() const
 {
-	QItemSelectionModel* sel = selectionModel();
-	return sel != 0 ? sel->selectedRows() : QModelIndexList();
+    QItemSelectionModel *sel = selectionModel();
+
+    return sel != 0 ? sel->selectedRows() : QModelIndexList();
 }
 
 //! Returns the first selected index or a null QModelIndex.
 QModelIndex MvdTreeView::selectedIndex() const
 {
-	QItemSelectionModel* sel = selectionModel();
-	if (sel != 0)
-	{
-		QModelIndexList list = sel->selectedIndexes();
-		if (!list.isEmpty())
-			return list.at(0);
-	}
+    QItemSelectionModel *sel = selectionModel();
 
-	return QModelIndex();
+    if (sel != 0) {
+        QModelIndexList list = sel->selectedIndexes();
+        if (!list.isEmpty())
+            return list.at(0);
+    }
+
+    return QModelIndex();
 }
 
 //! Returns the selected indexes or a null QModelIndex.
 QModelIndexList MvdTreeView::selectedIndexes() const
 {
-	QItemSelectionModel* sel = selectionModel();
-	return sel != 0 ? sel->selectedIndexes() : QModelIndexList();
+    QItemSelectionModel *sel = selectionModel();
+
+    return sel != 0 ? sel->selectedIndexes() : QModelIndexList();
 }
 
-void MvdTreeView::selectIndex(const QModelIndex& idx)
+void MvdTreeView::selectIndex(const QModelIndex &idx)
 {
-	if (!idx.isValid())
-		return;
+    if (!idx.isValid())
+        return;
 
-	QItemSelectionModel* sel = selectionModel();
-	if (sel == 0)
-		return;
+    QItemSelectionModel *sel = selectionModel();
+    if (sel == 0)
+        return;
 
-	sel->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    sel->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }
 
-void MvdTreeView::dragEnterEvent(QDragEnterEvent* e)
+void MvdTreeView::dragEnterEvent(QDragEnterEvent *e)
 {
-	// By-pass QTreeView's d&d handling
-	QAbstractItemView::dragEnterEvent(e);
+    // By-pass QTreeView's d&d handling
+    QAbstractItemView::dragEnterEvent(e);
 }
 
-void MvdTreeView::dragLeaveEvent(QDragLeaveEvent* e)
+void MvdTreeView::dragLeaveEvent(QDragLeaveEvent *e)
 {
-	// By-pass QTreeView's d&d handling
-	QAbstractItemView::dragLeaveEvent(e);
+    // By-pass QTreeView's d&d handling
+    QAbstractItemView::dragLeaveEvent(e);
 }
 
-void MvdTreeView::dragMoveEvent(QDragMoveEvent* e)
+void MvdTreeView::dragMoveEvent(QDragMoveEvent *e)
 {
-	// Fix: Qt does not allow to customize the drop indicator
-	// or to disable it without disabling d&d, so we simply enable
-	// it just to have Qt accept/reject the drag but disable it right
-	// after do avoid the indicator being actually painted.
-	setDropIndicatorShown(true);
-	// By-pass QTreeView's d&d handling
-	QAbstractItemView::dragMoveEvent(e);
-	setDropIndicatorShown(false);
+    // Fix: Qt does not allow to customize the drop indicator
+    // or to disable it without disabling d&d, so we simply enable
+    // it just to have Qt accept/reject the drag but disable it right
+    // after do avoid the indicator being actually painted.
+    setDropIndicatorShown(true);
+    // By-pass QTreeView's d&d handling
+    QAbstractItemView::dragMoveEvent(e);
+    setDropIndicatorShown(false);
 }
 
-void MvdTreeView::dropEvent(QDropEvent* event)
+void MvdTreeView::dropEvent(QDropEvent *event)
 {
-	// Discard internal drops
-	if (event->source() != this) {
-		// By-pass QTreeView's d&d handling
-		QAbstractItemView::dropEvent(event);
-		return;
-	}
+    // Discard internal drops
+    if (event->source() != this) {
+        // By-pass QTreeView's d&d handling
+        QAbstractItemView::dropEvent(event);
+        return;
+    }
 }

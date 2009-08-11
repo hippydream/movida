@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: ratingwidget.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,269 +19,276 @@
 **************************************************************************/
 
 #include "ratingwidget.h"
-#include <QPaintEvent>
-#include <QPainter>
-#include <QIcon>
-#include <math.h>
+
+#include <QtGui/QIcon>
+#include <QtGui/QPaintEvent>
+#include <QtGui/QPainter>
+
+#include <cmath>
 
 /*!
-	\class MvdRatingWidget ratingwidget.h
-	\\ingroup Movida
+    \class MvdRatingWidget ratingwidget.h
+    \\ingroup Movida
 
-	\brief QWidget subclass, used to draw a 'rating'-like image sequence.
+    \brief QWidget subclass, used to draw a 'rating'-like image sequence.
 */
 
 /************************************************************************
-MvdRatingWidget_P
-*************************************************************************/
+    MvdRatingWidget::Private
+ *************************************************************************/
 
 //! \internal
-class MvdRatingWidget_P
+class MvdRatingWidget::Private
 {
 public:
-	MvdRatingWidget_P() : value(0), minimum(0), maximum(10),
-		size(QSize(22, 22)),
-		mousePressed(false), hoveredIndex(-1), active(false)
-	{}
+    Private() :
+        value(0),
+        minimum(0),
+        maximum(10),
+        size(QSize(22, 22)),
+        mousePressed(false),
+        hoveredIndex(-1),
+        active(false)
+    { }
 
-	//! \internal Returns the index (starting from 0) of the highlighted pixmap or -1.
-	inline void updateHoveredIndex(const QPoint& p, const QSize& sz)
-	{
-		int idx = -1;
+    //! \internal Returns the index (starting from 0) of the highlighted pixmap or -1.
+    inline void updateHoveredIndex(const QPoint &p, const QSize &sz)
+    {
+        int idx = -1;
 
-		if (p.x() >= 0 &&
-			p.y() >= 0 &&
-			p.x() < sz.width() &&
-			p.y() < sz.height())
-		{
-			int itemWidth = sz.width() / maximum;
-			idx = (int) floor((double)p.x() / itemWidth);
-		}
+        if (p.x() >= 0 &&
+            p.y() >= 0 &&
+            p.x() < sz.width() &&
+            p.y() < sz.height()) {
+            int itemWidth = sz.width() / maximum;
+            idx = (int)floor((double)p.x() / itemWidth);
+        }
 
-		hoveredIndex = idx;
-	}
+        hoveredIndex = idx;
+    }
 
-	int value;
-	int minimum;
-	int maximum;
+    int value;
+    int minimum;
+    int maximum;
 
-	QIcon icon;
-	QSize size;
+    QIcon icon;
+    QSize size;
 
-	bool mousePressed;
-	int hoveredIndex;
-	bool active;
+    bool mousePressed;
+    int hoveredIndex;
+    bool active;
 };
 
 
 /************************************************************************
-MvdRatingWidget
-*************************************************************************/
+    MvdRatingWidget
+ *************************************************************************/
 
 /*!
-	Builds a new rating label with a default star-like pixmap.
+    Builds a new rating label with a default star-like pixmap.
 */
-MvdRatingWidget::MvdRatingWidget(QWidget* parent)
-: QWidget(parent), d(new MvdRatingWidget_P)
+MvdRatingWidget::MvdRatingWidget(QWidget *parent) :
+    QWidget(parent),
+    d(new Private)
 {
-	setFixedSize(d->size);
-	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	setMouseTracking(true);
+    setFixedSize(d->size);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    setMouseTracking(true);
 }
 
 //! Destructor.
 MvdRatingWidget::~MvdRatingWidget()
 {
-	delete d;
+    delete d;
 }
 
 //! Returns the current rating.
 int MvdRatingWidget::value() const
 {
-	return d->value;
+    return d->value;
 }
 
 /*!
-	Sets the current value (if it is not lower than minimum() or higher than maximum())
-	and updates the label.
+    Sets the current value (if it is not lower than minimum() or higher than maximum())
+    and updates the label.
 */
 void MvdRatingWidget::setValue(int value)
 {
-	if (value < d->minimum || value > d->maximum)
-		return;
+    if (value < d->minimum || value > d->maximum)
+        return;
 
-	d->value = value;
+    d->value = value;
 
-	update();
+    update();
 
-	emit valueChanged(value);
+    emit valueChanged(value);
 }
 
 //! Returns the current minimum value. Remember that the minimum is used for a missing rating.
 int MvdRatingWidget::minimum() const
 {
-	return d->minimum;
+    return d->minimum;
 }
 
 /*!
-	Sets the current minimum value (if it is a positive and lower that maximum() value).
-	Remember that the minimum is used for a missing rating.
+    Sets the current minimum value (if it is a positive and lower that maximum() value).
+    Remember that the minimum is used for a missing rating.
 */
 void MvdRatingWidget::setMinimum(int value)
 {
-	if (value < 0 || value > d->maximum)
-		return;
+    if (value < 0 || value > d->maximum)
+        return;
 
-	d->minimum = value;
+    d->minimum = value;
 
-	if (d->value < value)
-		setValue(value);
+    if (d->value < value)
+        setValue(value);
 }
 
 //! Returns the current maximum value.
 int MvdRatingWidget::maximum() const
 {
-	return d->maximum;
+    return d->maximum;
 }
 
 /*!
-	Sets the new maximum value (if it is a positive and lower than minimum() value).
+    Sets the new maximum value (if it is a positive and lower than minimum() value).
 */
 void MvdRatingWidget::setMaximum(int value)
 {
-	if (value < d->minimum || value == d->maximum)
-		return;
+    if (value < d->minimum || value == d->maximum)
+        return;
 
-	QWidget::updateGeometry();
+    QWidget::updateGeometry();
 
-	d->maximum = value;
+    d->maximum = value;
 
-	if (d->value > value)
-		setValue(value);
+    if (d->value > value)
+        setValue(value);
 
-	QSize sz = sizeHint();
-	setMinimumSize(sz);
-	setMaximumSize(sz);
+    QSize sz = sizeHint();
+    setMinimumSize(sz);
+    setMaximumSize(sz);
 }
 
 //! Returns the icon used for the rating.
 QIcon MvdRatingWidget::icon() const
 {
-	return d->icon;
+    return d->icon;
 }
 
 /*!
-	Sets an icon to be used for the rating.
-	The QIcon::Selected mode is used when the mouse is hovered, and the QIcon::Disabled
-	state for values > than the set rating.
+    Sets an icon to be used for the rating.
+    The QIcon::Selected mode is used when the mouse is hovered, and the QIcon::Disabled
+    state for values > than the set rating.
 */
-void MvdRatingWidget::setIcon(const QIcon& i, QSize size)
+void MvdRatingWidget::setIcon(const QIcon &i, QSize size)
 {
-	d->icon = i;
-	d->size = size.isValid() ? size : QSize(22, 22);
-	setFixedSize(d->size);
-	QWidget::updateGeometry();
+    d->icon = i;
+    d->size = size.isValid() ? size : QSize(22, 22);
+    setFixedSize(d->size);
+    QWidget::updateGeometry();
 }
 
 //! \internal Returns the size hint for this widget.
 QSize MvdRatingWidget::sizeHint() const
 {
-	return QSize(d->size.width() * d->maximum, d->size.height());
+    return QSize(d->size.width() * d->maximum, d->size.height());
 }
 
 //! Returns the minimum size hint for this widget.
 QSize MvdRatingWidget::minimumSizeHint() const
 {
-	return sizeHint();
+    return sizeHint();
 }
 
 //! \internal
-void MvdRatingWidget::mouseMoveEvent(QMouseEvent* e)
+void MvdRatingWidget::mouseMoveEvent(QMouseEvent *e)
 {
-	Q_UNUSED(e);
+    Q_UNUSED(e);
 
-	int oldHovered = d->hoveredIndex;
-	d->active = false;
+    int oldHovered = d->hoveredIndex;
+    d->active = false;
 
-	QPoint p = this->mapFromGlobal(QCursor::pos());
-	QSize sz = sizeHint();
-	d->updateHoveredIndex(p, sz);
+    QPoint p = this->mapFromGlobal(QCursor::pos());
+    QSize sz = sizeHint();
+    d->updateHoveredIndex(p, sz);
 
-	if (oldHovered != d->hoveredIndex) {
-		update();
-		emit hovered(d->hoveredIndex < 0 ? -1 : d->hoveredIndex + 1);
-	}
+    if (oldHovered != d->hoveredIndex) {
+        update();
+        emit hovered(d->hoveredIndex < 0 ? -1 : d->hoveredIndex + 1);
+    }
 }
 
 //! \internal
-void MvdRatingWidget::leaveEvent(QEvent* e)
+void MvdRatingWidget::leaveEvent(QEvent *e)
 {
-	Q_UNUSED(e);
+    Q_UNUSED(e);
 
-	int oldHovered = d->hoveredIndex;
-	d->hoveredIndex = -1;
-	d->active = false;
+    int oldHovered = d->hoveredIndex;
+    d->hoveredIndex = -1;
+    d->active = false;
 
-	update();
+    update();
 
-	if (oldHovered != d->hoveredIndex)
-		emit hovered(-1);
+    if (oldHovered != d->hoveredIndex)
+        emit hovered(-1);
 }
 
 //! \internal
-void MvdRatingWidget::mousePressEvent(QMouseEvent* e)
+void MvdRatingWidget::mousePressEvent(QMouseEvent *e)
 {
-	if ((e->button() & Qt::LeftButton) == 0) {
-		QWidget::mousePressEvent(e);
-		return;
-	}
+    if ((e->button() & Qt::LeftButton) == 0) {
+        QWidget::mousePressEvent(e);
+        return;
+    }
 
-	QPoint p = this->mapFromGlobal(QCursor::pos());
-	QSize sz = sizeHint();
-	d->updateHoveredIndex(p, sz);
+    QPoint p = this->mapFromGlobal(QCursor::pos());
+    QSize sz = sizeHint();
+    d->updateHoveredIndex(p, sz);
 
-	if (d->hoveredIndex >= 0) {
-		d->value = d->minimum + d->hoveredIndex + 1;
-		d->mousePressed = true;
-		d->active = true;
-		update();
-		emit valueChanged(d->value);
-	}
+    if (d->hoveredIndex >= 0) {
+        d->value = d->minimum + d->hoveredIndex + 1;
+        d->mousePressed = true;
+        d->active = true;
+        update();
+        emit valueChanged(d->value);
+    }
 }
 
 //! \internal
-void MvdRatingWidget::mouseReleaseEvent(QMouseEvent* e)
+void MvdRatingWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-	Q_UNUSED(e);
-	d->mousePressed = false;
-	update();
+    Q_UNUSED(e);
+    d->mousePressed = false;
+    update();
 }
 
 //! \internal
-void MvdRatingWidget::paintEvent(QPaintEvent* e)
+void MvdRatingWidget::paintEvent(QPaintEvent *e)
 {
-	Q_UNUSED(e);
-	QPainter p(this);
+    Q_UNUSED(e);
+    QPainter p(this);
 
-	if (d->icon.isNull()) {
-		p.drawText(rect(), tr("Rating: %1").arg(d->value));
-		p.end();
-		return;
-	}
+    if (d->icon.isNull()) {
+        p.drawText(rect(), tr("Rating: %1").arg(d->value));
+        p.end();
+        return;
+    }
 
-	for (int i = 0; i < d->maximum - d->minimum; ++i) {
-		if (d->hoveredIndex >= 0 && !d->active) {
-			// Highlight items up to the hovered index
-			if (i <= d->hoveredIndex)
-				p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Selected));
-			else p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Disabled));
-		} else {
-			// Draw normal rating
-			if (i < d->value)
-				p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Normal));
-			else p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Disabled));
-		}
-	}
+    for (int i = 0; i < d->maximum - d->minimum; ++i) {
+        if (d->hoveredIndex >= 0 && !d->active) {
+            // Highlight items up to the hovered index
+            if (i <= d->hoveredIndex)
+                p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Selected));
+            else p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Disabled));
+        } else {
+            // Draw normal rating
+            if (i < d->value)
+                p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Normal));
+            else p.drawPixmap(d->size.width() * i, 0, d->icon.pixmap(d->size, QIcon::Disabled));
+        }
+    }
 
-	p.end();
+    p.end();
 }

@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: mainsettingspage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,24 +22,25 @@
 #define MVD_MAINSETTINGSPAGE_H
 
 #include "ui_mainsettingspage.h"
+
 #include "settingspage.h"
 
 class QIcon;
 
 class MvdMainSettingsPage : public MvdSettingsPage, private Ui::MvdMainSettingsPage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdMainSettingsPage(MvdSettingsDialog* parent = 0);
+    MvdMainSettingsPage(MvdSettingsDialog *parent = 0);
 
-	void store();
-	void reset();
-	QString label();
-	QIcon icon();
+    void store();
+    void reset();
+    QString label();
+    QIcon icon();
 
 private slots:
-	void clearMruTriggered();
+    void clearMruTriggered();
 };
 
 #endif // MVD_MAINSETTINGSPAGE_H

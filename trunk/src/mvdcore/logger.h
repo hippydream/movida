@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: logger.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,59 +22,59 @@
 #define MVD_LOGGER_H
 
 #include "global.h"
-#include <QTextStream>
-#include <QString>
+
+#include <QtCore/QString>
+#include <QtCore/QTextStream>
 
 class MVD_EXPORT MvdLogger : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	static MvdLogger& instance();
+    static MvdLogger &instance();
 
-	static void setUseHtml(bool useHtml);
-	static bool isUsingHtml();
+    static void setUseHtml(bool useHtml);
+    static bool isUsingHtml();
 
-	MvdLogger &operator<< (QChar t);
-	MvdLogger &operator<< (bool t);
-	MvdLogger &operator<< (char t);
-	MvdLogger &operator<< (signed short t);
-	MvdLogger &operator<< (unsigned short t);
-	MvdLogger &operator<< (signed int t);
-	MvdLogger &operator<< (unsigned int t);
-	MvdLogger &operator<< (signed long t);
-	MvdLogger &operator<< (unsigned long t);
-	MvdLogger &operator<< (qint64 t);
-	MvdLogger &operator<< (quint64 t);
-	MvdLogger &operator<< (float t);
-	MvdLogger &operator<< (double t);
-	MvdLogger &operator<< (const char* t);
-	MvdLogger &operator<< (const QString& t);
-	MvdLogger &operator<< (const QLatin1String& t);
-	MvdLogger &operator<< (const QByteArray& t);
-	MvdLogger &operator<< (const void* t);
-	MvdLogger &operator<< (QTextStreamFunction f);
-	inline MvdLogger &appendTimestamp(const QString& message = QString());
+    MvdLogger &operator<<(QChar t);
+    MvdLogger &operator<<(bool t);
+    MvdLogger &operator<<(char t);
+    MvdLogger &operator<<(signed short t);
+    MvdLogger &operator<<(unsigned short t);
+    MvdLogger &operator<<(signed int t);
+    MvdLogger &operator<<(unsigned int t);
+    MvdLogger &operator<<(signed long t);
+    MvdLogger &operator<<(unsigned long t);
+    MvdLogger &operator<<(qint64 t);
+    MvdLogger &operator<<(quint64 t);
+    MvdLogger &operator<<(float t);
+    MvdLogger &operator<<(double t);
+    MvdLogger &operator<<(const char *t);
+    MvdLogger &operator<<(const QString &t);
+    MvdLogger &operator<<(const QLatin1String &t);
+    MvdLogger &operator<<(const QByteArray &t);
+    MvdLogger &operator<<(const void *t);
+    MvdLogger &operator<<(QTextStreamFunction f);
+    inline MvdLogger &appendTimestamp(const QString &message = QString());
 
 private:
-	MvdLogger();
-	MvdLogger(const MvdLogger&);
-	MvdLogger& operator=(const MvdLogger&);
-	virtual ~MvdLogger();
+    MvdLogger();
+    MvdLogger(const MvdLogger &);
+    MvdLogger &operator=(const MvdLogger &);
+    virtual ~MvdLogger();
 
-	static void create();
-	static volatile MvdLogger* mInstance;
-	static bool mDestroyed;
+    static void create();
+    static volatile MvdLogger *mInstance;
+    static bool mDestroyed;
 
-	class Private;
-	Private* d;
+    class Private;
+    Private *d;
 };
 
-namespace Movida
-{
-	MVD_EXPORT extern MvdLogger& iLog();
-	MVD_EXPORT extern MvdLogger& wLog();
-	MVD_EXPORT extern MvdLogger& eLog();
+namespace Movida {
+MVD_EXPORT extern MvdLogger &iLog();
+MVD_EXPORT extern MvdLogger &wLog();
+MVD_EXPORT extern MvdLogger &eLog();
 }
 
 #endif // MVD_LOGGER_H

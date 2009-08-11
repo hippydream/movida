@@ -2,7 +2,7 @@
 ** Filename: rowselectionmodel.h
 ** Review: 3
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,28 +22,32 @@
 #ifndef MVD_ROWSELECTIONMODEL_H
 #define MVD_ROWSELECTIONMODEL_H
 
-#include <QItemSelectionModel>
+#include <QtGui/QItemSelectionModel>
 
 class MvdRowSelectionModel : public QItemSelectionModel
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdRowSelectionModel(QAbstractItemModel* model) :
-		QItemSelectionModel(model) {}
-	MvdRowSelectionModel(QAbstractItemModel* model, QObject* parent) :
-		QItemSelectionModel(model, parent) {}
+    MvdRowSelectionModel(QAbstractItemModel *model) :
+        QItemSelectionModel(model)
+    { }
+
+    MvdRowSelectionModel(QAbstractItemModel *model, QObject *parent) :
+        QItemSelectionModel(model, parent)
+    { }
 
 public slots:
-	virtual void select(const QModelIndex& index, QItemSelectionModel::SelectionFlags command)
-	{
-		QItemSelectionModel::select(index, command | QItemSelectionModel::Rows);
-	}
+    virtual void select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command)
+    {
+        QItemSelectionModel::select(index, command | QItemSelectionModel::Rows);
+    }
 
-	virtual void select(const QItemSelection& selection, QItemSelectionModel::SelectionFlags command)
-	{
-		QItemSelectionModel::select(selection, command | QItemSelectionModel::Rows);
-	}
+    virtual void select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command)
+    {
+        QItemSelectionModel::select(selection, command | QItemSelectionModel::Rows);
+    }
+
 };
 
 #endif // MVD_ROWSELECTIONMODEL_H

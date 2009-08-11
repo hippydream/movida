@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: messagebox.cpp
 **
-** Copyright (C) 2007-2008-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009-2008 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,7 +22,8 @@
 #define MVD_MESSAGEBOX_H
 
 #include "sharedglobal.h"
-#include <QMessageBox>
+
+#include <QtGui/QMessageBox>
 
 class MVD_EXPORT_SHARED MvdMessageBox : public QMessageBox
 {
@@ -31,24 +32,24 @@ class MVD_EXPORT_SHARED MvdMessageBox : public QMessageBox
 public:
     explicit MvdMessageBox(QWidget *parent = 0);
     MvdMessageBox(Icon icon, const QString &title, const QString &text,
-        StandardButtons buttons = NoButton, QWidget *parent = 0,
+        StandardButtons buttons = NoButton, QWidget * parent = 0,
         Qt::WindowFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
-    ~MvdMessageBox();
+    virtual ~MvdMessageBox();
 
-    static StandardButton critical(QWidget* parent, const QString& title,
-        const QString& text, StandardButtons buttons = Ok,
+    static StandardButton critical(QWidget *parent, const QString &title,
+        const QString &text, StandardButtons buttons = Ok,
         StandardButton defaultButton = NoButton);
 
-    static StandardButton information(QWidget* parent, const QString& title,
-        const QString& text, StandardButtons buttons = Ok,
+    static StandardButton information(QWidget *parent, const QString &title,
+        const QString &text, StandardButtons buttons = Ok,
         StandardButton defaultButton = NoButton);
 
-    static StandardButton question(QWidget* parent, const QString& title,
-        const QString& text, StandardButtons buttons = Ok,
+    static StandardButton question(QWidget *parent, const QString &title,
+        const QString &text, StandardButtons buttons = Ok,
         StandardButton defaultButton = NoButton);
 
-    static StandardButton warning(QWidget* parent, const QString& title,
-        const QString& text, StandardButtons buttons = Ok,
+    static StandardButton warning(QWidget *parent, const QString &title,
+        const QString &text, StandardButtons buttons = Ok,
         StandardButton defaultButton = NoButton);
 };
 

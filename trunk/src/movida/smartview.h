@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: smartviewwidget.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -25,34 +25,34 @@
 
 class MvdSmartView : public MvdListView
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	enum ItemSize {
-		SmallItemSize,
-		MediumItemSize,
-		LargeItemSize
-	};
+    enum ItemSize {
+        SmallItemSize,
+        MediumItemSize,
+        LargeItemSize
+    };
 
-	MvdSmartView(QWidget* parent = 0);
-	MvdSmartView(QAbstractItemModel* model, QWidget* parent = 0);
-	virtual ~MvdSmartView();
+    MvdSmartView(QWidget *parent = 0);
+    MvdSmartView(QAbstractItemModel *model, QWidget *parent = 0);
+    virtual ~MvdSmartView();
 
-	ItemSize itemSize() const;
-	void setItemSize(ItemSize s);
+    ItemSize itemSize() const;
+    void setItemSize(ItemSize s);
 
 signals:
-	void contextMenuRequested(const QModelIndex& index);
+    void contextMenuRequested(const QModelIndex &index);
 
 protected:
-	bool event(QEvent* e);
-	void keyPressEvent(QKeyEvent* e);
-	void contextMenuEvent(QContextMenuEvent* e);
-	void startDrag(Qt::DropActions supportedActions);
-	void dragEnterEvent(QDragEnterEvent* e);
+    bool event(QEvent *e);
+    void keyPressEvent(QKeyEvent *e);
+    void contextMenuEvent(QContextMenuEvent *e);
+    void startDrag(Qt::DropActions supportedActions);
+    void dragEnterEvent(QDragEnterEvent *e);
 
 private:
-	void init();
+    void init();
 };
 
 #endif // MVD_SMARTVIEW_H

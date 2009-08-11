@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: collectionmetaeditor.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,7 +22,8 @@
 #define MVD_COLLECTIONMETAEDITOR_H
 
 #include "ui_collectionmetaeditor.h"
-#include <QDialog>
+
+#include <QtGui/QDialog>
 
 class MvdMovieCollection;
 class QCloseEvent;
@@ -30,24 +31,24 @@ class QKeyEvent;
 
 class MvdCollectionMetaEditor : public QDialog, private Ui::MvdCollectionMetaEditor
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdCollectionMetaEditor(QWidget* parent = 0);
+    MvdCollectionMetaEditor(QWidget *parent = 0);
 
-	void setCollection(MvdMovieCollection* c);
-	bool isModified() const;
+    void setCollection(MvdMovieCollection *c);
+    bool isModified() const;
 
 protected:
-	virtual void closeEvent(QCloseEvent* e);
-	virtual void keyPressEvent(QKeyEvent* e);
+    virtual void closeEvent(QCloseEvent *e);
+    virtual void keyPressEvent(QKeyEvent *e);
 
 public slots:
-	virtual void accept();
-	virtual void reject();
+    virtual void accept();
+    virtual void reject();
 
 private:
-	MvdMovieCollection* mCollection;
+    MvdMovieCollection *mCollection;
 };
 
 #endif // MVD_COLLECTIONMETAEDITOR_H

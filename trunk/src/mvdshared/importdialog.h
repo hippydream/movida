@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: importdialog.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,98 +21,100 @@
 #ifndef MVD_IMPORTDIALOG_H
 #define MVD_IMPORTDIALOG_H
 
-#include "sharedglobal.h"
 #include "searchengine.h"
-#include "mvdcore/moviedata.h"
-#include <QDialog>
-#include <QHash>
-#include <QVariant>
-#include <QPushButton>
-#include <QWizard>
-#include <QStringList>
+#include "sharedglobal.h"
 
-class MvdImportDialog_P;
-class MvdImportStartPage;
-class MvdImportResultsPage;
+#include "mvdcore/moviedata.h"
+
+#include <QtCore/QHash>
+#include <QtCore/QStringList>
+#include <QtCore/QVariant>
+#include <QtGui/QDialog>
+#include <QtGui/QPushButton>
+#include <QtGui/QWizard>
+
 class MvdImportFinalPage;
+class MvdImportResultsPage;
+class MvdImportStartPage;
 
 class MVD_EXPORT_SHARED MvdImportDialog : public QWizard
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	//! What happened?
-	enum Result {
-		/*! No error occurred. */
-		Success = 0,
-		/* Movie data import failed for some movie */
-		MovieDataFailed,
-		/* Movie poster import failed for some movie */
-		MoviePosterFailed,
-		/* No search could be performed or some other critical error occurred. */
-		CriticalError
-	};
+    //! What happened?
+    enum Result {
+        /*! No error occurred. */
+        Success = 0,
+        /* Movie data import failed for some movie */
+        MovieDataFailed,
+        /* Movie poster import failed for some movie */
+        MoviePosterFailed,
+        /* No search could be performed or some other critical error occurred. */
+        CriticalError
+    };
 
-	//! Why did it happen?
-	enum ErrorType {
-		UnknownError = 0,
-		NetworkError,
-		FileError,
-		InvalidEngineError,
-		EngineError
-	};
+    //! Why did it happen?
+    enum ErrorType {
+        UnknownError = 0,
+        NetworkError,
+        FileError,
+        InvalidEngineError,
+        EngineError
+    };
 
-	MvdImportDialog(QWidget* parent = 0);
+    MvdImportDialog(QWidget *parent = 0);
 
-	virtual int nextId() const;
+    virtual int nextId() const;
 
-	int registerEngine(const MvdSearchEngine& engine);
+    int registerEngine(const MvdSearchEngine &engine);
 
-	void showMessage(const QString& msg, MovidaShared::MessageType type = MovidaShared::InfoMessage);
+    void showMessage(const QString &msg, MovidaShared::MessageType type = MovidaShared::InfoMessage);
 
-	void setImportSteps(quint8 s);
-	void setNextImportStep();
+    void setImportSteps(quint8 s);
+    void setNextImportStep();
 
-	void setSearchSteps(quint8 s);
-	void setNextSearchStep();
+    void setSearchSteps(quint8 s);
+    void setNextSearchStep();
 
-	int addMatch(const QString& title, const QString& year, const QString& notes = QString());
-	void addMovieData(const MvdMovieData& md);
+    int addMatch(const QString &title, const QString &year, const QString &notes = QString());
+    void addMovieData(const MvdMovieData &md);
 
-	void addSection(const QString& title, const QString& notes = QString());
-	void addSubSection(const QString& title, const QString& notes = QString());
+    void addSection(const QString &title, const QString &notes = QString());
+    void addSubSection(const QString &title, const QString &notes = QString());
 
-	void setErrorType(ErrorType type);
-	ErrorType errorType() const;
+    void setErrorType(ErrorType type);
+    ErrorType errorType() const;
 
-	void done(Result res = Success);
-	Result result() const;
+    void done(Result res = Success);
+    Result result() const;
 
-	void accept();
+    void accept();
 
-	bool preventCloseWhenBusy() const;
-	bool isBusy() const;
+    bool preventCloseWhenBusy() const;
+    bool isBusy() const;
 
-	bool confirmCloseWizard();
-	
+    bool confirmCloseWizard();
+
 public slots:
-	virtual void reject();
+    virtual void reject();
 
 protected:
-	void closeEvent(QCloseEvent* e);
-	void keyPressEvent(QKeyEvent* e);
+    void closeEvent(QCloseEvent *e);
+    void keyPressEvent(QKeyEvent *e);
 
 signals:
-	void engineConfigurationRequest(int engine);
-	void searchRequest(const QString& query, int engine);
-	void importRequest(const QList<int>& matches);
-	void resetRequest();
+    void engineConfigurationRequest(int engine);
+    void searchRequest(const QString &query, int engine);
+    void importRequest(const QList<int> &matches);
+    void resetRequest();
 
 private slots:
-	void pageChanged(int newPage);
+    void pageChanged(int newPage);
 
 private:
-	MvdImportDialog_P* d;
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_IMPORTDIALOG_H

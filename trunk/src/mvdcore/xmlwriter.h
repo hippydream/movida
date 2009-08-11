@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: xmlwriter.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,71 +22,71 @@
 #define MVD_XMLWRITER_H
 
 #include "global.h"
-#include <QHash>
-#include <QPair>
+
+#include <QtCore/QHash>
+#include <QtCore/QPair>
 
 class QIODevice;
 class QTextCodec;
 
-class MvdXmlWriter_P;
-
 class MVD_EXPORT MvdXmlWriter
 {
 public:
-        // Fix a bug with GCC not able to parse the template class default parameters
-        typedef QHash<QString,QString> AttributeMap;
-        typedef QPair<QString,QString> Attribute;
+    // Fix a bug with GCC not able to parse the template class default parameters
+    typedef QHash<QString, QString> AttributeMap;
+    typedef QPair<QString, QString> Attribute;
 
-        enum Option { NoOptions = 0x0, WriteEncodingOption };
-        Q_DECLARE_FLAGS(Options, Option)
+    enum Option { NoOptions = 0x0, WriteEncodingOption };
+    Q_DECLARE_FLAGS(Options, Option)
 
-        static const Options DefaultOptions;
+    static const Options DefaultOptions;
 
-        enum LineBreakType { UnixLineBreak, WindowsLineBreak, MacLineBreak };
+    enum LineBreakType { UnixLineBreak, WindowsLineBreak, MacLineBreak };
 
-        MvdXmlWriter(QIODevice* device, QTextCodec* codec = 0, Options = DefaultOptions);
-        MvdXmlWriter(QString* string, QTextCodec* codec = 0, Options = DefaultOptions);
-        virtual ~MvdXmlWriter();
+    MvdXmlWriter(QIODevice * device, QTextCodec * codec = 0, Options = DefaultOptions);
+    MvdXmlWriter(QString * string, QTextCodec * codec = 0, Options = DefaultOptions);
+    virtual ~MvdXmlWriter();
 
-        void writeString(const QString& string);
-        void writeLine();
+    void writeString(const QString &string);
+    void writeLine();
 
-        void writeOpenTag(const QString& name, const Attribute& a1, const Attribute& a2 = Attribute(), const Attribute& a3 = Attribute());
-        void writeOpenTag(const QString& name, const AttributeMap& attrs = AttributeMap());
-        void writeCloseTag(const QString& name);
-        void writeAtomTag(const QString& name, const Attribute& a1, const Attribute& a2 = Attribute(), const Attribute& a3 = Attribute());
-        void writeAtomTag(const QString& name, const AttributeMap& attrs = AttributeMap());
-        void writeTaggedString(const QString& name, const QString& string, const Attribute& a1, const Attribute& a2 = Attribute(), const Attribute& a3 = Attribute());
-        void writeTaggedString(const QString& name, const QString& string, const AttributeMap& attrs = AttributeMap());
-        void writeCDataString(const QString& name, const QString& string, const Attribute& a1, const Attribute& a2 = Attribute(), const Attribute& a3 = Attribute());
-        void writeCDataString(const QString& name, const QString& string, const AttributeMap& attrs = AttributeMap());
+    void writeOpenTag(const QString &name, const Attribute &a1, const Attribute &a2 = Attribute(), const Attribute &a3 = Attribute());
+    void writeOpenTag(const QString &name, const AttributeMap &attrs = AttributeMap());
+    void writeCloseTag(const QString &name);
+    void writeAtomTag(const QString &name, const Attribute &a1, const Attribute &a2 = Attribute(), const Attribute &a3 = Attribute());
+    void writeAtomTag(const QString &name, const AttributeMap &attrs = AttributeMap());
+    void writeTaggedString(const QString &name, const QString &string, const Attribute &a1, const Attribute &a2 = Attribute(), const Attribute &a3 = Attribute());
+    void writeTaggedString(const QString &name, const QString &string, const AttributeMap &attrs = AttributeMap());
+    void writeCDataString(const QString &name, const QString &string, const Attribute &a1, const Attribute &a2 = Attribute(), const Attribute &a3 = Attribute());
+    void writeCDataString(const QString &name, const QString &string, const AttributeMap &attrs = AttributeMap());
 
-        void writeComment(const QString& comment);
-        void startComment();
-        void endComment();
+    void writeComment(const QString &comment);
+    void startComment();
+    void endComment();
 
-        LineBreakType lineBreakType() const;
-        void setLineBreakType(LineBreakType type);
+    LineBreakType lineBreakType() const;
+    void setLineBreakType(LineBreakType type);
 
-        bool pauseIndent() const;
-        void setPauseIndent(bool pause);
+    bool pauseIndent() const;
+    void setPauseIndent(bool pause);
 
-        void writeCurrentIndent();
+    void writeCurrentIndent();
 
-        int indentType() const;
-        void setIndentType(int spaces);
+    int indentType() const;
+    void setIndentType(int spaces);
 
-        bool autoNewLine() const;
-        void setAutoNewLine(bool on);
+    bool autoNewLine() const;
+    void setAutoNewLine(bool on);
 
-        bool skipEmptyTags() const;
-        void setSkipEmptyTags(bool skip);
+    bool skipEmptyTags() const;
+    void setSkipEmptyTags(bool skip);
 
-        bool skipEmptyAttributes() const;
-        void setSkipEmptyAttributes(bool skip);
+    bool skipEmptyAttributes() const;
+    void setSkipEmptyAttributes(bool skip);
 
 private:
-        MvdXmlWriter_P* d;
+    class Private;
+    Private *d;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(MvdXmlWriter::Options)
 

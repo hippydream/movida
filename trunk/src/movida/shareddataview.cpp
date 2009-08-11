@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: shareddataview.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,105 +19,120 @@
 **************************************************************************/
 
 #include "shareddataview.h"
-#include "shareddatamodel.h"
+
+#include "filterwidget.h"
 #include "guiglobal.h"
 #include "mainwindow.h"
-#include "filterwidget.h"
+#include "shareddatamodel.h"
+
 #include "mvdcore/core.h"
+
 #include "mvdshared/grafx.h"
 
-MvdSharedDataView::MvdSharedDataView(QWidget* parent)
-: MvdTreeView(parent)
-{
-}
+MvdSharedDataView::MvdSharedDataView(QWidget *parent) :
+    MvdTreeView(parent)
+{ }
 
 MvdSharedDataView::~MvdSharedDataView()
-{
-}
+{ }
 
 void MvdSharedDataView::startDrag(Qt::DropActions supportedActions)
 {
-	const int MaxValues = MvdCore::parameter("movida/d&d/max-values").toInt();
+    const int MaxValues = MvdCore::parameter("movida/d&d/max-values").toInt();
 
-	MvdSharedDataModel* m = dynamic_cast<MvdSharedDataModel*>(model());
-	if (!m)
-		return;
+    MvdSharedDataModel *m = dynamic_cast<MvdSharedDataModel *>(model());
 
-	Movida::DataRole role = m->role();
+    if (!m)
+        return;
 
-	QStringList values;
-	QList<mvdid> ids;
-	QModelIndexList indexes = selectedRows();
-	if (indexes.count() > 0) {
-		QMimeData* data = model()->mimeData(indexes);
-		if (!data)
-			return;
+    Movida::DataRole role = m->role();
 
-		int validIndexes = 0;
-		foreach (QModelIndex index, indexes) {
-			if (!index.isValid())
-				continue;
+    QStringList values;
+    QList<mvdid> ids;
+    QModelIndexList indexes = selectedRows();
+    if (indexes.count() > 0) {
+        QMimeData *data = model()->mimeData(indexes);
+        if (!data)
+            return;
 
-			++validIndexes;
-			
-			mvdid id = index.data(Movida::IdRole).toUInt();
-			ids.append(id);
+        int validIndexes = 0;
+        foreach(QModelIndex index, indexes)
+        {
+            if (!index.isValid())
+                continue;
 
-			if (values.size() >= MaxValues)
-				continue;
+            ++validIndexes;
 
-			QString s = index.data(Movida::UniqueDisplayRole).toString();
+            mvdid id = index.data(Movida::IdRole).toUInt();
+            ids.append(id);
 
-			if (!s.isEmpty() && !values.contains(s))
-				values.append(s);
-		}
+            if (values.size() >= MaxValues)
+                continue;
 
-		if (validIndexes == 0)
-			return;
+            QString s = index.data(Movida::UniqueDisplayRole).toString();
 
-		QDrag* drag = new QDrag(this);
-		drag->setMimeData(data);
+            if (!s.isEmpty() && !values.contains(s))
+                values.append(s);
+        }
 
-		if (validIndexes > 1) {
-			qSort(values);
-			QString msg;
-			switch (role) {
-			case Movida::PersonRole: msg = tr("%1 persons: ", "Shared data D&D", validIndexes); break;
-			case Movida::CountryRole: msg = tr("%1 countries: ", "Shared data D&D", validIndexes); break;
-			case Movida::GenreRole: msg = tr("%1 genres: ", "Shared data D&D", validIndexes); break;
-			case Movida::LanguageRole: msg = tr("%1 languages: ", "Shared data D&D", validIndexes); break;
-			case Movida::TagRole: msg = tr("%1 tags: ", "Shared data D&D", validIndexes); break;
-			default: ;
-			}
-			msg = msg.arg(validIndexes);
-			QString s = values.at(0);
-			values.replace(0, s.prepend(msg));
-		}
+        if (validIndexes == 0)
+            return;
 
-		if (validIndexes > values.size())
-			values.append(QString("..."));
+        QDrag *drag = new QDrag(this);
+        drag->setMimeData(data);
 
-		QPixmap pm = MvdGrafx::sharedDataDragPixmap(values.join(QLatin1String(", ")), this->font());
-		drag->setPixmap(pm);
+        if (validIndexes > 1) {
+            qSort(values);
+            QString msg;
+            switch (role) {
+                case Movida::PersonRole:
+                    msg = tr("%1 persons: ", "Shared data D&D", validIndexes); break;
 
-		//! \todo Offset should ensure that the pixmap is visible on any OS/Style
-		drag->setHotSpot(drag->hotSpot() - QPoint(14, 10));
+                case Movida::CountryRole:
+                    msg = tr("%1 countries: ", "Shared data D&D", validIndexes); break;
 
-		Qt::DropAction action = drag->start(supportedActions);
-		Q_UNUSED(action);
-	}
+                case Movida::GenreRole:
+                    msg = tr("%1 genres: ", "Shared data D&D", validIndexes); break;
+
+                case Movida::LanguageRole:
+                    msg = tr("%1 languages: ", "Shared data D&D", validIndexes); break;
+
+                case Movida::TagRole:
+                    msg = tr("%1 tags: ", "Shared data D&D", validIndexes); break;
+
+                default:
+                    ;
+            }
+            msg = msg.arg(validIndexes);
+            QString s = values.at(0);
+            values.replace(0, s.prepend(msg));
+        }
+
+        if (validIndexes > values.size())
+            values.append(QString("..."));
+
+        QPixmap pm = MvdGrafx::sharedDataDragPixmap(values.join(QLatin1String(", ")), this->font());
+        drag->setPixmap(pm);
+
+        //! \todo Offset should ensure that the pixmap is visible on any OS/Style
+        drag->setHotSpot(drag->hotSpot() - QPoint(14, 10));
+
+        Qt::DropAction action = drag->start(supportedActions);
+        Q_UNUSED(action);
+    }
 }
 
-void MvdSharedDataView::mouseDoubleClickEvent(QMouseEvent* e)
+void MvdSharedDataView::mouseDoubleClickEvent(QMouseEvent *e)
 {
-	MvdSharedDataModel* m = dynamic_cast<MvdSharedDataModel*>(model());
-	QModelIndex index = indexAt(e->pos());
-	if (!m || !index.isValid())
-		return;
+    MvdSharedDataModel *m = dynamic_cast<MvdSharedDataModel *>(model());
+    QModelIndex index = indexAt(e->pos());
 
-	mvdid id = index.data(Movida::IdRole).toUInt();
-	if (id == MvdNull)
-		return;
+    if (!m || !index.isValid())
+        return;
 
-	Movida::MainWindow->filterWidget()->applySharedDataFilter(QString::number(id), true);
+    mvdid id = index.data(Movida::IdRole).toUInt();
+    if (id == MvdNull)
+        return;
+
+    Movida::MainWindow->filterWidget()->applySharedDataFilter(QString::number(id), true);
 }

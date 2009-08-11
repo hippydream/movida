@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: filterwidget.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,49 +22,51 @@
 #define MVD_FILTERWIDGET_H
 
 #include "ui_filterwidget.h"
+
 #include "shareddatamodel.h"
-#include <QWidget>
+
+#include <QtGui/QWidget>
 
 class QLineEdit;
 class QPixmap;
 
 class MvdFilterWidget : public QFrame, private Ui::MvdFilterWidget
 {
-	Q_OBJECT
-	
+    Q_OBJECT
+
 public:
-	enum Message {
-		NoMessage = 0,
-		NoResultsWarning,
-		SyntaxErrorWarning,
-		DropInfo
-	};
+    enum Message {
+        NoMessage = 0,
+        NoResultsWarning,
+        SyntaxErrorWarning,
+        DropInfo
+    };
 
-	MvdFilterWidget(QWidget* parent = 0);
-	
-	QLineEdit* editor() const;
+    MvdFilterWidget(QWidget *parent = 0);
 
-	void setMessage(Message m);
-	Message message() const;
+    QLineEdit *editor() const;
 
-	void setCaseSensitivity(Qt::CaseSensitivity cs);
-	Qt::CaseSensitivity caseSensitivity() const;
+    void setMessage(Message m);
+    Message message() const;
 
-	void applySharedDataFilter(const QString& itemIds, bool replaceFilter);
+    void setCaseSensitivity(Qt::CaseSensitivity cs);
+    Qt::CaseSensitivity caseSensitivity() const;
+
+    void applySharedDataFilter(const QString &itemIds, bool replaceFilter);
 
 protected:
-	void dragEnterEvent(QDragEnterEvent* e);
-	void dragMoveEvent(QDragMoveEvent* e);
-	void dropEvent(QDropEvent* e);
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dragMoveEvent(QDragMoveEvent *e);
+    void dropEvent(QDropEvent *e);
 
 signals:
-	void hideRequest();
-	void caseSensitivityChanged();
+    void hideRequest();
+    void caseSensitivityChanged();
 
 private:
-	Message mMessage;
-	QPixmap mWarning;
-	QPixmap mInfo;
+    Message mMessage;
+    QPixmap mWarning;
+    QPixmap mInfo;
 };
 
 #endif // MVD_FILTERWIDGET_H

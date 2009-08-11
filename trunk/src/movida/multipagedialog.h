@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: multipagedialog.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,58 +22,60 @@
 #define MVD_MULTIPAGEDIALOG_H
 
 #include "ui_multipagedialog.h"
-#include <QDialog>
-#include <QMap>
-#include <QList>
+
+#include <QtCore/QList>
+#include <QtCore/QMap>
+#include <QtGui/QDialog>
 
 class MvdMPDialogPage;
 class QShowEvent;
 
 class MvdMultiPageDialog : public QDialog, private Ui::MvdMultiPageDialog
 {
-        Q_OBJECT
+    Q_OBJECT
 
 public:
-        MvdMultiPageDialog(QWidget* parent = 0);
+    MvdMultiPageDialog(QWidget *parent = 0);
 
-        virtual int addPage(MvdMPDialogPage* p);
-        virtual void showPage(MvdMPDialogPage* p);
+    virtual int addPage(MvdMPDialogPage *p);
+    virtual void showPage(MvdMPDialogPage *p);
 
-        virtual MvdMPDialogPage* currentPage() const;
-        virtual int currentIndex() const;
+    virtual MvdMPDialogPage *currentPage() const;
+    virtual int currentIndex() const;
 
-        virtual QDialogButtonBox* buttonBox() const;
-        virtual QDialogButtonBox* advancedButtonBox() const;
+    virtual QDialogButtonBox *buttonBox() const;
+    virtual QDialogButtonBox *advancedButtonBox() const;
 
-        void setSubtitle(const QString& s);
-        QString subtitle() const;
+    void setSubtitle(const QString &s);
+    QString subtitle() const;
 
-        virtual void setAdvancedControlsVisible(bool visible);
-        virtual bool advancedControlsVisible() const;
+    virtual void setAdvancedControlsVisible(bool visible);
+    virtual bool advancedControlsVisible() const;
 
-        void setDiscardChanges(bool discard) { mDiscardChanges = discard; }
-        bool discardChanges() const { return mDiscardChanges; }
+    void setDiscardChanges(bool discard) { mDiscardChanges = discard; }
+
+    bool discardChanges() const { return mDiscardChanges; }
 
 protected:
-        virtual void showEvent(QShowEvent* event);
+    virtual void showEvent(QShowEvent *event);
 
 protected slots:
-        virtual void validationStateChanged(MvdMPDialogPage* page);
-        virtual void modifiedStateChanged(MvdMPDialogPage* page);
+    virtual void validationStateChanged(MvdMPDialogPage *page);
+    virtual void modifiedStateChanged(MvdMPDialogPage *page);
 
 signals:
-        void externalActionTriggered(const QString& id, const QVariant& data
-                = QVariant());
-        void currentPageChanged(MvdMPDialogPage* page);
+    void externalActionTriggered(const QString &id, const QVariant &data
+    = QVariant());
+    void currentPageChanged(MvdMPDialogPage *page);
 
 private slots:
-        void do_validationStateChanged(MvdMPDialogPage* p = 0);
-        void do_modifiedStateChanged(MvdMPDialogPage* p = 0);
-        void emit_currentPageChanged();
+    void do_validationStateChanged(MvdMPDialogPage *p = 0);
+    void do_modifiedStateChanged(MvdMPDialogPage *p = 0);
+    void emit_currentPageChanged();
 
 private:
-        QString mSubtitle;
-        bool mDiscardChanges;
+    QString mSubtitle;
+    bool mDiscardChanges;
 };
 
 #endif // MVD_MULTIPAGEDIALOG_H

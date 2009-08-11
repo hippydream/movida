@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: itemdelegate.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,80 +22,78 @@
 #define MVD_ITEMDELEGATE_H
 
 #include "guiglobal.h"
-#include <QItemDelegate>
-#include <QModelIndex>
-#include <QLineEdit>
-#include <QAbstractItemModel>
+
+#include <QtCore/QAbstractItemModel>
+#include <QtCore/QModelIndex>
+#include <QtGui/QItemDelegate>
+#include <QtGui/QLineEdit>
 
 /*!
-	\class MvdItemDelegate itemdelegate.h
-	\ingroup Movida
+    \class MvdItemDelegate itemdelegate.h
+    \ingroup Movida
 
-	\brief QItemDelegate with custom validators.
+    \brief QItemDelegate with custom validators.
 */
 
 class MvdItemDelegate : public QItemDelegate
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdItemDelegate(QObject* parent = 0)
-	: QItemDelegate(parent)
-	{
+    MvdItemDelegate(QObject *parent = 0) :
+        QItemDelegate(parent)
+    { }
 
-	}
+    void setEditorData(QWidget *editor, const QModelIndex &index) const
+    {
+        if (!editor)
+            return;
 
-	void setEditorData(QWidget* editor, const QModelIndex& index) const
-	{
-		if (!editor)
-			return;
+        QVariant v = index.data(Movida::PlaceholderRole);
+        bool isPlaceHolder = v.isNull() ? false : v.toBool();
 
-		QVariant v = index.data(Movida::PlaceholderRole);
-		bool isPlaceHolder = v.isNull() ? false : v.toBool();
-	
-		if (isPlaceHolder)
-			return;
+        if (isPlaceHolder)
+            return;
 
-		QItemDelegate::setEditorData(editor, index);
-	}
+        QItemDelegate::setEditorData(editor, index);
+    }
 
-	void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
-	{
-		if (!model || !editor)
-			return;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+    {
+        if (!model || !editor)
+            return;
 
-		bool ok, skipDelegate = true;
+        bool ok, skipDelegate = true;
 
-		Movida::ItemValidator validator = (Movida::ItemValidator) index.data(Movida::ValidationRole).toUInt(&ok);
-		if (!ok)
-			validator = Movida::NoValidator;
+        Movida::ItemValidator validator = (Movida::ItemValidator)index.data(Movida::ValidationRole).toUInt(&ok);
+        if (!ok)
+            validator = Movida::NoValidator;
 
-		switch (validator)
-		{
-			case Movida::UndoEmptyValitator:
-			{
-				if (QLineEdit* e = qobject_cast<QLineEdit*>(editor))
-				{
-					skipDelegate = false;
-					QString s = e->text().trimmed();
-					if (!s.isEmpty())
-						model->setData(index, s, Qt::DisplayRole);
-				}
-			}
-			break;
-			default:
-			{
-				if (QLineEdit* e = qobject_cast<QLineEdit*>(editor))
-				{
-					skipDelegate = false;
-					model->setData(index, e->text().trimmed(), Qt::DisplayRole);
-				}
-			}
-		}
+        switch (validator) {
+            case Movida::UndoEmptyValitator:
+            {
+                if (QLineEdit * e = qobject_cast<QLineEdit *>(editor)) {
+                    skipDelegate = false;
+                    QString s = e->text().trimmed();
+                    if (!s.isEmpty())
+                        model->setData(index, s, Qt::DisplayRole);
+                }
+            }
+            break;
 
-		if (skipDelegate)
-			QItemDelegate::setModelData(editor, model, index);
-	}
+            default:
+            {
+                if (QLineEdit * e = qobject_cast<QLineEdit *>(editor)) {
+                    skipDelegate = false;
+                    model->setData(index, e->text().trimmed(), Qt::DisplayRole);
+                }
+            }
+        }
+
+        if (skipDelegate)
+            QItemDelegate::setModelData(editor, model, index);
+    }
+
 };
 
 #endif // MVD_ITEMDELEGATE_H

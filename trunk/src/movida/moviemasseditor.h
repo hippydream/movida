@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: moviemasseditor.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,39 +21,41 @@
 #ifndef MVD_MOVIEMASSEDITOR_H
 #define MVD_MOVIEMASSEDITOR_H
 
-#include "mvdcore/movie.h"
 #include "ui_moviemasseditor.h"
-#include <QDialog>
-#include <QList>
+
+#include "mvdcore/movie.h"
+
+#include <QtCore/QList>
+#include <QtGui/QDialog>
 
 class MvdMovieCollection;
 class QCloseEvent;
 
 class MvdMovieMassEditor : public QDialog, protected Ui::MvdMovieMassEditor
 {
-	Q_OBJECT
-		
+    Q_OBJECT
+
 public:
-	MvdMovieMassEditor(MvdMovieCollection* c, QWidget* parent = 0);
-	
-	bool setMovies(const QList<mvdid>& ids);
+    MvdMovieMassEditor(MvdMovieCollection *c, QWidget *parent = 0);
+
+    bool setMovies(const QList<mvdid> &ids);
 
 public slots:
-	bool storeMovies();
+    bool storeMovies();
 
 protected:
-	virtual void closeEvent(QCloseEvent* e);
+    virtual void closeEvent(QCloseEvent *e);
 
 private slots:
-	void cancelTriggered();
-	void storeTriggered();
-	void linkActivated(const QString& url);
-	void ratingHovered(int);
-	void updateUi();
+    void cancelTriggered();
+    void storeTriggered();
+    void linkActivated(const QString &url);
+    void ratingHovered(int);
+    void updateUi();
 
 private:
-	MvdMovieCollection* mCollection;
-	QList<mvdid> mMovieIds;
+    MvdMovieCollection *mCollection;
+    QList<mvdid> mMovieIds;
 };
 
 #endif // MVD_MOVIEMASSEDITOR_H

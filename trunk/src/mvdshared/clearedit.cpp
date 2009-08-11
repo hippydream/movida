@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: clearedit.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,166 +19,181 @@
 **************************************************************************/
 
 #include "clearedit.h"
-#include <QApplication>
-#include <QToolButton>
-#include <QStyle>
-#include <QPainter>
-#include <QStyleOptionFrameV2>
-#include <math.h>
+
+#include <QtGui/QApplication>
+#include <QtGui/QPainter>
+#include <QtGui/QStyle>
+#include <QtGui/QStyleOptionFrameV2>
+#include <QtGui/QToolButton>
+
+#include <cmath>
 
 // From QLineEdit
 #define verticalMargin 1
 #define horizontalMargin 2
 
 namespace {
-    //! Check out style issues with Oxygen
-    static int spacing() {
-        QStyle* s = QApplication::style();
-        if (s->inherits("OxygenStyle"))
-            return 3;
-        return 2;
-    }
+//! Check out style issues with Oxygen
+static int spacing()
+{
+    QStyle *s = QApplication::style();
 
-    static QSize& adjustSizeHint(QSize& sz) {
-        QStyle* s = QApplication::style();
-        // oxygen style will cause a wrong vertical size hint
-        // if the line edit has a stylesheet
-        if (s->inherits("OxygenStyle"))
-            sz.rheight() = 27;
-        return sz;
-    }
+    if (s->inherits("OxygenStyle"))
+        return 3;
+    return 2;
+}
+
+static QSize &adjustSizeHint(QSize &sz)
+{
+    QStyle *s = QApplication::style();
+
+    // oxygen style will cause a wrong vertical size hint
+    // if the line edit has a stylesheet
+    if (s->inherits("OxygenStyle"))
+        sz.rheight() = 27;
+    return sz;
+}
+
 }
 
 class MvdClearEdit::Private
 {
 public:
-        Private() : clearButton(0) {}
+    Private() :
+        clearButton(0) { }
 
-        QToolButton* clearButton;
-        QString placeHolder;
-        QSize pixmapSize;
+    QToolButton *clearButton;
+    QString placeHolder;
+    QSize pixmapSize;
 };
 
-MvdClearEdit::MvdClearEdit(QWidget* parent)
-: QLineEdit(parent), d(new Private)
+MvdClearEdit::MvdClearEdit(QWidget *parent) :
+    QLineEdit(parent),
+    d(new Private)
 {
-        QPixmap pixmap(":/images/clear-edit.png");
-        d->pixmapSize = pixmap.size();
+    QPixmap pixmap(":/images/clear-edit.png");
 
-        d->clearButton = new QToolButton(this);
-        d->clearButton->setToolTip(tr("Click to clear the text."));
-        d->clearButton->setIcon(QIcon(pixmap));
-        d->clearButton->setIconSize(pixmap.size());
-        d->clearButton->setCursor(Qt::PointingHandCursor);
-        d->clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
-        d->clearButton->setFocusPolicy(Qt::NoFocus);
-        d->clearButton->hide();
-        connect(d->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
+    d->pixmapSize = pixmap.size();
 
-        connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateClearButton(const QString&)));
+    d->clearButton = new QToolButton(this);
+    d->clearButton->setToolTip(tr("Click to clear the text."));
+    d->clearButton->setIcon(QIcon(pixmap));
+    d->clearButton->setIconSize(pixmap.size());
+    d->clearButton->setCursor(Qt::PointingHandCursor);
+    d->clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
+    d->clearButton->setFocusPolicy(Qt::NoFocus);
+    d->clearButton->hide();
+    connect(d->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
 
-        QString styleSheet = QLatin1String("QLineEdit {");
-        styleSheet += QString(" padding-right: %1;").arg(d->pixmapSize.width() + 2 * ::spacing());
+    connect(this, SIGNAL(textChanged(const QString &)), this, SLOT(updateClearButton(const QString &)));
 
-        if (style()->inherits("OxygenStyle")) // Focus effect is too close to the text! Add more spacing.
-            styleSheet += QString(" padding-left: %1;").arg(::spacing());
+    QString styleSheet = QLatin1String("QLineEdit {");
+    styleSheet += QString(" padding-right: %1;").arg(d->pixmapSize.width() + 2 * ::spacing());
 
-        styleSheet += QLatin1String("}");
-        setStyleSheet(styleSheet);
+    if (style()->inherits("OxygenStyle"))   // Focus effect is too close to the text! Add more spacing.
+        styleSheet += QString(" padding-left: %1;").arg(::spacing());
+
+    styleSheet += QLatin1String("}");
+    setStyleSheet(styleSheet);
 }
 
-void MvdClearEdit::resizeEvent(QResizeEvent* e)
+void MvdClearEdit::resizeEvent(QResizeEvent *e)
 {
-        QLineEdit::resizeEvent(e);
+    QLineEdit::resizeEvent(e);
 
-        QStyleOptionFrameV2 opt;
-        initStyleOption(&opt);
+    QStyleOptionFrameV2 opt;
+    initStyleOption(&opt);
 
-        QRect r = style()->subElementRect(QStyle::SE_LineEditContents, &opt, this);
+    QRect r = style()->subElementRect(QStyle::SE_LineEditContents, &opt, this);
 
-        int vscroll;
-        QFontMetrics fm = fontMetrics();
-        Qt::Alignment va = QStyle::visualAlignment(layoutDirection(), QFlag(alignment()));
-        switch (va & Qt::AlignVertical_Mask) {
+    int vscroll;
+    QFontMetrics fm = fontMetrics();
+    Qt::Alignment va = QStyle::visualAlignment(layoutDirection(), QFlag(alignment()));
+    switch (va & Qt::AlignVertical_Mask) {
         case Qt::AlignBottom:
-                vscroll = r.y() + r.height() - fm.height() - verticalMargin;
-                break;
+            vscroll = r.y() + r.height() - fm.height() - verticalMargin;
+            break;
+
         case Qt::AlignTop:
-                vscroll = r.y() + verticalMargin;
-                break;
+            vscroll = r.y() + verticalMargin;
+            break;
+
         default:
-                //center
-                vscroll = r.y() + (r.height() - fm.height() + 1) / 2;
-                break;
-        }
+            //center
+            vscroll = r.y() + (r.height() - fm.height() + 1) / 2;
+            break;
+    }
 
-        QRect lineRect(r.x() + horizontalMargin * 3, vscroll, r.width() - 2 * horizontalMargin, fm.height());
+    QRect lineRect(r.x() + horizontalMargin * 3, vscroll, r.width() - 2 * horizontalMargin, fm.height());
 
-        d->clearButton->move(
-                lineRect.right(),
-                (int)ceil((lineRect.height() - d->pixmapSize.height()) / 2.0) + ::spacing()
+    d->clearButton->move(
+        lineRect.right(),
+        (int)ceil((lineRect.height() - d->pixmapSize.height()) / 2.0) + ::spacing()
         );
 }
 
 QSize MvdClearEdit::sizeHint() const
 {
-        QSize sz = QLineEdit::sizeHint();
-        return adjustSizeHint(sz);
+    QSize sz = QLineEdit::sizeHint();
+
+    return adjustSizeHint(sz);
 }
 
-void MvdClearEdit::updateClearButton(const QString& text)
+void MvdClearEdit::updateClearButton(const QString &text)
 {
-        d->clearButton->setVisible(!text.isEmpty());
+    d->clearButton->setVisible(!text.isEmpty());
 }
 
 //! Sets a string to be displayed as place holder when the widget contains no text.
-void MvdClearEdit::setPlaceHolder(const QString& s)
+void MvdClearEdit::setPlaceHolder(const QString &s)
 {
-        d->placeHolder = s.trimmed();
+    d->placeHolder = s.trimmed();
 }
 
 //! Returns the current place holder string, if any.
 QString MvdClearEdit::placeHolder() const
 {
-        return d->placeHolder;
+    return d->placeHolder;
 }
 
-void MvdClearEdit::paintEvent(QPaintEvent* e)
+void MvdClearEdit::paintEvent(QPaintEvent *e)
 {
-        QLineEdit::paintEvent(e);
+    QLineEdit::paintEvent(e);
 
-        // Draw place holder
-        if (d->placeHolder.isEmpty() || !text().isEmpty() || hasFocus())
-                return;
+    // Draw place holder
+    if (d->placeHolder.isEmpty() || !text().isEmpty() || hasFocus())
+        return;
 
-        QPainter p(this);
+    QPainter p(this);
 
-        QRect r;
-        const QPalette& pal = palette();
+    QRect r;
+    const QPalette &pal = palette();
 
-        QStyleOptionFrameV2 panel;
-        initStyleOption(&panel);
-        r = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
-        p.setClipRect(r);
+    QStyleOptionFrameV2 panel;
+    initStyleOption(&panel);
+    r = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
+    p.setClipRect(r);
 
-        int vscroll;
-        QFontMetrics fm = fontMetrics();
-        Qt::Alignment va = QStyle::visualAlignment(layoutDirection(), QFlag(alignment()));
-        switch (va & Qt::AlignVertical_Mask) {
+    int vscroll;
+    QFontMetrics fm = fontMetrics();
+    Qt::Alignment va = QStyle::visualAlignment(layoutDirection(), QFlag(alignment()));
+    switch (va & Qt::AlignVertical_Mask) {
         case Qt::AlignBottom:
-                vscroll = r.y() + r.height() - fm.height() - verticalMargin;
-                break;
+            vscroll = r.y() + r.height() - fm.height() - verticalMargin;
+            break;
+
         case Qt::AlignTop:
-                vscroll = r.y() + verticalMargin;
-                break;
+            vscroll = r.y() + verticalMargin;
+            break;
+
         default:
-                //center
-                vscroll = r.y() + (r.height() - fm.height() + 1) / 2;
-                break;
-        }
+            //center
+            vscroll = r.y() + (r.height() - fm.height() + 1) / 2;
+            break;
+    }
 
-        QRect lineRect(r.x() + horizontalMargin * 3, vscroll, r.width() - 2 * horizontalMargin, fm.height());
+    QRect lineRect(r.x() + horizontalMargin * 3, vscroll, r.width() - 2 * horizontalMargin, fm.height());
 
-        p.setPen(pal.color(QPalette::Disabled, QPalette::Text));
-        p.drawText(lineRect, d->placeHolder);
+    p.setPen(pal.color(QPalette::Disabled, QPalette::Text));
+    p.drawText(lineRect, d->placeHolder);
 }

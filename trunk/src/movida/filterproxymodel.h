@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: filterproxymodel.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,56 +22,61 @@
 #define MVD_FILTERPROXYMODEL_H
 
 #include "guiglobal.h"
-#include <QSortFilterProxyModel>
-#include <QByteArray>
+
+#include <QtCore/QByteArray>
+#include <QtGui/QSortFilterProxyModel>
 
 class MvdFilterProxyModel : public QSortFilterProxyModel
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdFilterProxyModel(QObject* parent = 0);
+    MvdFilterProxyModel(QObject *parent = 0);
 
-	void setQuickFilterAttributes(const QByteArray& alist);
-	QByteArray quickFilterAttributes() const;
+    void setQuickFilterAttributes(const QByteArray &alist);
+    QByteArray quickFilterAttributes() const;
 
-	int sortColumn() const;
-	Movida::MovieAttribute sortAttribute() const;
-	Qt::SortOrder sortOrder() const;
+    int sortColumn() const;
+    Movida::MovieAttribute sortAttribute() const;
+    Qt::SortOrder sortOrder() const;
 
-	void sortByAttribute(Movida::MovieAttribute attribute, Qt::SortOrder order = Qt::AscendingOrder);
-	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+    void sortByAttribute(Movida::MovieAttribute attribute, Qt::SortOrder order = Qt::AscendingOrder);
+    virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
-	virtual bool setFilterAdvancedString(const QString& q);
-	virtual QString filterAdvancedString() const;
+    virtual bool setFilterAdvancedString(const QString &q);
+    virtual QString filterAdvancedString() const;
 
 signals:
-	void sorted();
+    void sorted();
 
 protected:
-	bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
 private:
-	struct Function {
-		Function(Movida::FilterFunction ff, const QStringList& p, bool negated) : type(ff), parameters(p), neg(negated) {}
-		Movida::FilterFunction type;
-		QStringList parameters;
-		bool neg;
-	};
+    struct Function {
+        Function(Movida::FilterFunction ff, const QStringList &p, bool negated) :
+            type(ff),
+            parameters(p),
+            neg(negated) { }
 
-	bool rebuildPatterns();
-	bool testFunction(int sourceRow, const QModelIndex& sourceParent, 
-		const Function& function) const;
-	inline QList<mvdid> idList(const QStringList& sl) const;
+        Movida::FilterFunction type;
+        QStringList parameters;
+        bool neg;
+    };
 
-	QList<Movida::MovieAttribute> mMovieAttributes;
-	int mSortColumn;
-	Qt::SortOrder mSortOrder;
+    bool rebuildPatterns();
+    bool testFunction(int sourceRow, const QModelIndex &sourceParent,
+    const Function &function) const;
+    inline QList<mvdid> idList(const QStringList &sl) const;
 
-	QString mQuery;
-	bool mInvalidQuery;
-	QList<Function> mFunctions;
-	QStringList mPlainStrings;
+    QList<Movida::MovieAttribute> mMovieAttributes;
+    int mSortColumn;
+    Qt::SortOrder mSortOrder;
+
+    QString mQuery;
+    bool mInvalidQuery;
+    QList<Function> mFunctions;
+    QStringList mPlainStrings;
 };
 
 #endif // MVD_FILTERPROXYMODEL_H

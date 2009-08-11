@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: mpdialogpage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,59 +22,73 @@
 #define MVD_MPDIALOGPAGE_H
 
 #include "multipagedialog.h"
-#include <QWidget>
-#include <QVariant>
+
+#include <QtCore/QVariant>
+#include <QtGui/QWidget>
 
 class QIcon;
 
 /*!
-	\class MvdMPDialogPage mpdialogpage.h
-	\ingroup Movida
+    \class MvdMPDialogPage mpdialogpage.h
+    \ingroup Movida
 
-	\brief Common interface to MvdMultiPageDialog pages.
+    \brief Common interface to MvdMultiPageDialog pages.
 */
 
-class MvdMPDialogPage : public QWidget
+class MvdMPDialogPage :
+    public QWidget
 {
-	Q_OBJECT
+Q_OBJECT
 
 public:
-	MvdMPDialogPage(MvdMultiPageDialog* parent = 0) : QWidget(parent), 
-		mValid(true), mModified(false), mDialog(parent) {};
+    MvdMPDialogPage(MvdMultiPageDialog *parent = 0) :
+        QWidget(parent),
+        mValid(true),
+        mModified(false),
+        mDialog(parent)
+    { }
 
-	MvdMultiPageDialog* dialog() const { return mDialog; }
+    MvdMultiPageDialog *dialog() const
+    { return mDialog; }
 
-	//! Subclasses should reset all the values to their default.
-	virtual void reset() = 0;
-	//! Subclasses should return a title to be displayed somewhere in the dialog.
-	virtual QString label() = 0;
-	//! Subclasses should return an icon that might be displayed somewhere in the dialog.
-	virtual QIcon icon() = 0;
+    //! Subclasses should reset all the values to their default.
+    virtual void reset() = 0;
+    //! Subclasses should return a title to be displayed somewhere in the dialog.
+    virtual QString label() = 0;
+    //! Subclasses should return an icon that might be displayed somewhere in the dialog.
+    virtual QIcon icon() = 0;
 
-	//! Returns true if this page is valid and no required user input is missing.
-	bool isValid() const { return mValid; }
-	//! Sets this page to valid or not (default is true). This method will emit a validationStateChanged() signal if the status changes.
-	void setValid(bool valid) { if (mValid != valid) { mValid = valid; emit validationStateChanged(); } }
+    //! Returns true if this page is valid and no required user input is missing.
+    bool isValid() const
+    { return mValid; }
 
-	//! Returns true if this page has been modified.
-	bool isModified() const { return mModified; }
-	//! Sets this page to modified or not (default is false). This method will emit a modifiedStateChanged() signal if the status changes.
-	void setModified(bool modified) { if (mModified != modified) { mModified = modified; emit modifiedStateChanged(); } }
+    //! Sets this page to valid or not (default is true). This method will emit a validationStateChanged() signal if the status changes.
+    void setValid(bool valid)
+    { if (mValid != valid) { mValid = valid; emit validationStateChanged(); } }
 
-	//! Subclasses can implement this to set the focus on the main widget.
-	virtual void setMainWidgetFocus() {};
+    //! Returns true if this page has been modified.
+    bool isModified() const
+    { return mModified; }
+
+    //! Sets this page to modified or not (default is false). This method will emit a modifiedStateChanged() signal if the status changes.
+    void setModified(bool modified)
+    { if (mModified != modified) { mModified = modified; emit modifiedStateChanged(); } }
+
+    //! Subclasses can implement this to set the focus on the main widget.
+    virtual void setMainWidgetFocus()
+    { }
 
 signals:
-	void externalActionTriggered(const QString& id, const QVariant& data = QVariant());
-	//! Emitted whenever the this page changes its 'valid' state.
-	void validationStateChanged();
-	//! Emitted whenever the this page changes its 'modified' state.
-	void modifiedStateChanged();
+    void externalActionTriggered(const QString &id, const QVariant &data = QVariant());
+    //! Emitted whenever the this page changes its 'valid' state.
+    void validationStateChanged();
+    //! Emitted whenever the this page changes its 'modified' state.
+    void modifiedStateChanged();
 
 private:
-	bool mValid;
-	bool mModified;
-	MvdMultiPageDialog* mDialog;
+    bool mValid;
+    bool mModified;
+    MvdMultiPageDialog *mDialog;
 };
 
 #endif // MVD_MPDIALOGPAGE_H

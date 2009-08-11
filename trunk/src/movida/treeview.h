@@ -2,7 +2,7 @@
 ** Filename: treeview.h
 ** Review: 3
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,55 +22,54 @@
 #ifndef MVD_TREEVIEW_H
 #define MVD_TREEVIEW_H
 
-#include <QTreeView>
-#include <QList>
-#include <QHash>
-#include <QContextMenuEvent>
+#include <QtCore/QHash>
+#include <QtCore/QList>
+#include <QtGui/QContextMenuEvent>
+#include <QtGui/QTreeView>
 
+class QKeyEvent;
 class QPoint;
 class QString;
-class QKeyEvent;
 
 class MvdTreeView : public QTreeView
 {
-	Q_OBJECT
-  
+    Q_OBJECT
+
 public:
-	MvdTreeView(QWidget* parent = 0);
-	virtual ~MvdTreeView();
+    MvdTreeView(QWidget *parent = 0);
+    virtual ~MvdTreeView();
 
-	bool isHeaderContextMenuDisabled() const;
-	void setHeaderContextMenuDisabled(bool disable);
+    bool isHeaderContextMenuDisabled() const;
+    void setHeaderContextMenuDisabled(bool disable);
 
-	void setModel(QAbstractItemModel* model);
+    void setModel(QAbstractItemModel *model);
 
-	bool hasSelectedRows() const;
-	QModelIndexList selectedRows() const;
+    bool hasSelectedRows() const;
+    QModelIndexList selectedRows() const;
 
-	QModelIndex selectedIndex() const;
-	QModelIndexList selectedIndexes() const;
+    QModelIndex selectedIndex() const;
+    QModelIndexList selectedIndexes() const;
 
-	void selectIndex(const QModelIndex& idx);
+    void selectIndex(const QModelIndex &idx);
 
 public slots:
-
 signals:
-	void contextMenuRequested(const QModelIndex& index, QContextMenuEvent::Reason);
-	void itemSelectionChanged();
+    void contextMenuRequested(const QModelIndex &index, QContextMenuEvent::Reason);
+    void itemSelectionChanged();
 
 protected:
-	virtual void showHeaderContext(const QPoint& p);
+    virtual void showHeaderContext(const QPoint &p);
 
-	bool eventFilter(QObject* o, QEvent* e);
-	void contextMenuEvent(QContextMenuEvent* e);
-	void keyPressEvent(QKeyEvent* e);
-	void dragEnterEvent(QDragEnterEvent* e);
-	void dragLeaveEvent(QDragLeaveEvent* e);
-	void dragMoveEvent(QDragMoveEvent* e);
-	void dropEvent(QDropEvent* e);
+    bool eventFilter(QObject *o, QEvent *e);
+    void contextMenuEvent(QContextMenuEvent *e);
+    void keyPressEvent(QKeyEvent *e);
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dragLeaveEvent(QDragLeaveEvent *e);
+    void dragMoveEvent(QDragMoveEvent *e);
+    void dropEvent(QDropEvent *e);
 
 private:
-	bool mDisableHeaderContextMenu;
+    bool mDisableHeaderContextMenu;
 };
 
 #endif // MVD_TREEVIEW_H

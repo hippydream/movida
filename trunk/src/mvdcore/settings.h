@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: settings.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,58 +22,57 @@
 #define MVD_SETTINGS_H
 
 #include "global.h"
-#include <QVariant>
+
+#include <QtCore/QVariant>
 
 class QSettings;
 
 class MVD_EXPORT MvdSettings
 {
 public:
-	enum Status
-	{
-		NoError = 0,
-		AccessError,
-		FormatError
-	};
+    enum Status {
+        NoError = 0,
+        AccessError,
+        FormatError
+    };
 
-	static MvdSettings& instance();
+    static MvdSettings &instance();
 
-	void clear();
+    void clear();
 
-	void beginGroup(const QString& prefix);
-	void endGroup();
-	QString group() const;
+    void beginGroup(const QString &prefix);
+    void endGroup();
+    QString group() const;
 
-	int beginReadArray(const QString& prefix);
-	void beginWriteArray(const QString& prefix, int size = -1);
-	void setArrayIndex(int i);
-	void endArray();
+    int beginReadArray(const QString &prefix);
+    void beginWriteArray(const QString &prefix, int size = -1);
+    void setArrayIndex(int i);
+    void endArray();
 
-	bool contains(const QString& key) const;
+    bool contains(const QString &key) const;
 
-	void remove(const QString& key);
-	void setDefaultValue(const QString& key, const QVariant& value);
-	void setValue(const QString& key, const QVariant& value);
-	QVariant value(const QString& key, const QVariant& defaultValue = QVariant()) const;
+    void remove(const QString &key);
+    void setDefaultValue(const QString &key, const QVariant &value);
+    void setValue(const QString &key, const QVariant &value);
+    QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
 
-	Status status() const;
+    Status status() const;
 
 private:
-	MvdSettings();
-	MvdSettings(const MvdSettings&);
-	MvdSettings& operator=(const MvdSettings&);
-	virtual ~MvdSettings();
+    MvdSettings();
+    MvdSettings(const MvdSettings &);
+    MvdSettings &operator=(const MvdSettings &);
+    virtual ~MvdSettings();
 
-	static void create();
-	static volatile MvdSettings* mInstance;
-	static bool mDestroyed;
+    static void create();
+    static volatile MvdSettings *mInstance;
+    static bool mDestroyed;
 
-	QSettings* mSettings;
+    QSettings *mSettings;
 };
 
-namespace Movida
-{
-	extern MVD_EXPORT MvdSettings& settings();
+namespace Movida {
+extern MVD_EXPORT MvdSettings &settings();
 }
 
 #endif // MVD_SETTINGS_H

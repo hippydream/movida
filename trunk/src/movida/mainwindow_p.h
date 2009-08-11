@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: mainwindow_p.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -28,7 +28,6 @@
 //
 // We mean it.
 //
-
 
 #ifndef MVD_MAINWINDOW_P_H
 #define MVD_MAINWINDOW_P_H
@@ -74,7 +73,7 @@ class MvdMainWindow::Private : public QObject
     Q_OBJECT
 
 public:
-    Private(MvdMainWindow* p) :
+    Private(MvdMainWindow * p) :
         mCollection(0),
         mMovieModel(0),
         mSelectionModel(0),
@@ -142,18 +141,16 @@ public:
         mDetailsDock(0),
         mSharedDataDock(0),
         q(p)
-    {
-
-    }
+    { }
 
     void setupUi();
 
-    QAction* createAction();
+    QAction *createAction();
     void createActions();
     void createMenus();
     void createToolBars();
-    void initAction(QAction* action, const QString& text, const QString& shortInfo,
-        const QString& longInfo, const QString& shortcut) const;
+    void initAction(QAction *action, const QString &text, const QString &shortInfo,
+    const QString &longInfo, const QString &shortcut) const;
     void retranslateUi();
     void setupConnections();
 
@@ -164,11 +161,11 @@ public:
 
     void updateCaption();
 
-    mvdid movieIndexToId(const QModelIndex& index) const;
+    mvdid movieIndexToId(const QModelIndex &index) const;
     QModelIndex movieIdToIndex(mvdid id) const;
 
     void loadPlugins();
-    void loadPluginsFromDir(const QString& path);
+    void loadPluginsFromDir(const QString &path);
     void unloadPlugins();
 
     void registerMessageHandler()
@@ -182,11 +179,11 @@ public:
     // Shared Data panel D&D
     void sdeDragStarted();
 
-    void dispatchMessage(Movida::MessageType t, const QString& m);
+    void dispatchMessage(Movida::MessageType t, const QString &m);
 
     bool closeCollection();
 
-    void setMoviePoster(quint32 movieId, const QUrl& url);
+    void setMoviePoster(quint32 movieId, const QUrl &url);
 
 public slots:
     void movieViewSelectionChanged();
@@ -207,17 +204,17 @@ public slots:
     void filter();
     void filter(QString s);
 
-    void openRecentFile(QAction* a);
-    bool collectionLoaderCallback(int state, const QVariant& data);
+    void openRecentFile(QAction *a);
+    bool collectionLoaderCallback(int state, const QVariant &data);
     bool loadCollectionDlg();
     bool saveCollectionDlg();
 
-    void addRecentFile(const QString& file);
+    void addRecentFile(const QString &file);
 
-    void showMovieContextMenu(const QModelIndex& index);
+    void showMovieContextMenu(const QModelIndex &index);
 
-    void movieViewToggled(QAction*);
-    void sortActionTriggered(QAction* a = 0);
+    void movieViewToggled(QAction *);
+    void sortActionTriggered(QAction *a = 0);
     void treeViewSorted(int logicalIndex);
 
     void infoPanelClosedByUser()
@@ -227,37 +224,41 @@ public slots:
 
 public:
     // The current movie collection
-    MvdMovieCollection* mCollection;
-    MvdCollectionModel* mMovieModel;
-    MvdRowSelectionModel* mSelectionModel;
-    MvdSharedDataModel* mSharedDataModel;
+    MvdMovieCollection *mCollection;
+    MvdCollectionModel *mMovieModel;
+    MvdRowSelectionModel *mSelectionModel;
+    MvdSharedDataModel *mSharedDataModel;
 
     QPointer<MvdMovieEditor> mMovieEditor;
 
-    QList<MvdPluginInterface*> mPlugins;
+    QList<MvdPluginInterface *> mPlugins;
 
     // For various HTTP requests.
     struct RemoteRequest {
         enum { Invalid = 0, MoviePoster };
 
-        RemoteRequest() : requestType(Invalid), requestId(-1), target(MvdNull), tempFile(0) {}
+        RemoteRequest() :
+            requestType(Invalid),
+            requestId(-1),
+            target(MvdNull),
+            tempFile(0) { }
 
         QUrl url;
         quint16 requestType;
         int requestId;
         QVariant data;
         mvdid target;
-        QTemporaryFile* tempFile;
+        QTemporaryFile *tempFile;
     };
 
     //! Consider using network manager
-    QHttp* mHttp;
+    QHttp *mHttp;
     QList<RemoteRequest> mPendingRemoteRequests;
 
     // Filter bar
-    MvdFilterWidget* mFilterWidget;
-    QTimer* mHideFilterTimer;
-    MvdFilterProxyModel* mFilterModel;
+    MvdFilterWidget *mFilterWidget;
+    QTimer *mHideFilterTimer;
+    MvdFilterProxyModel *mFilterModel;
 
     // D&D
     bool mDraggingSharedData;
@@ -268,81 +269,81 @@ public:
     // GUI
     //////////////////////////////////////////////////////////////////////////
 
-    QGridLayout* mMainLayout;
+    QGridLayout *mMainLayout;
 
     // Actions
-    QAction* mA_FileExit;
-    QAction* mA_FileNew;
-    QAction* mA_FileOpen;
-    QAction* mA_FileOpenLast;
-    QAction* mA_FileImport;
-    QAction* mA_FileExport;
-    QAction* mA_FileRecent;
-    QAction* mA_FileSave;
-    QAction* mA_FileSaveAs;
+    QAction *mA_FileExit;
+    QAction *mA_FileNew;
+    QAction *mA_FileOpen;
+    QAction *mA_FileOpenLast;
+    QAction *mA_FileImport;
+    QAction *mA_FileExport;
+    QAction *mA_FileRecent;
+    QAction *mA_FileSave;
+    QAction *mA_FileSaveAs;
 
-    QAction* mA_ViewModeTree;
-    QAction* mA_ViewModeSmart;
-    QAction* mA_ViewModeZoom;
-    QAction* mA_ViewModeZoomIn;
-    QAction* mA_ViewModeZoomOut;
-    QActionGroup* mAG_ViewMode;
-    QAction* mA_ViewDetails;
-    QAction* mA_ViewSort;
-    QActionGroup* mAG_ViewSort;
-    QAction* mA_ViewSortDescending;
+    QAction *mA_ViewModeTree;
+    QAction *mA_ViewModeSmart;
+    QAction *mA_ViewModeZoom;
+    QAction *mA_ViewModeZoomIn;
+    QAction *mA_ViewModeZoomOut;
+    QActionGroup *mAG_ViewMode;
+    QAction *mA_ViewDetails;
+    QAction *mA_ViewSort;
+    QActionGroup *mAG_ViewSort;
+    QAction *mA_ViewSortDescending;
 
-    QAction* mA_CollAddMovie;
-    QAction* mA_CollRemMovie;
-    QAction* mA_CollEdtMovie;
-    QAction* mA_CollMedMovie;
-    QAction* mA_CollDupMovie;
-    QAction* mA_CollMeta;
+    QAction *mA_CollAddMovie;
+    QAction *mA_CollRemMovie;
+    QAction *mA_CollEdtMovie;
+    QAction *mA_CollMedMovie;
+    QAction *mA_CollDupMovie;
+    QAction *mA_CollMeta;
 
-    QAction* mA_ToolSdEditor;
-    QAction* mA_ToolPref;
-    QAction* mA_ToolLog;
+    QAction *mA_ToolSdEditor;
+    QAction *mA_ToolPref;
+    QAction *mA_ToolLog;
 
-    QAction* mA_HelpAbout;
-    QAction* mA_HelpContents;
-    QAction* mA_HelpIndex;
+    QAction *mA_HelpAbout;
+    QAction *mA_HelpContents;
+    QAction *mA_HelpIndex;
 
-    QAction* mA_LockToolBars;
+    QAction *mA_LockToolBars;
 
     // Top level menus
-    QMenu* mMN_File;
-    QMenu* mMN_View;
-    QMenu* mMN_Collection;
-    QMenu* mMN_Plugins;
-    QMenu* mMN_Tools;
-    QMenu* mMN_Help;
+    QMenu *mMN_File;
+    QMenu *mMN_View;
+    QMenu *mMN_Collection;
+    QMenu *mMN_Plugins;
+    QMenu *mMN_Tools;
+    QMenu *mMN_Help;
 
     // Sub menus
-    QMenu* mMN_FileMRU;
-    QMenu* mMN_FileImport;
-    QMenu* mMN_FileExport;
-    QMenu* mMN_ViewSort;
+    QMenu *mMN_FileMRU;
+    QMenu *mMN_FileImport;
+    QMenu *mMN_FileExport;
+    QMenu *mMN_ViewSort;
 
     // Tool bars
-    QToolBar* mTB_MainToolBar;
+    QToolBar *mTB_MainToolBar;
 
     // Info panel
-    MvdInfoPanel* mInfoPanel;
+    MvdInfoPanel *mInfoPanel;
     bool mInfoPanelClosedByUser;
 
     // Views
-    QStackedWidget* mMainViewStack;
-    MvdSmartView* mSmartView;
-    MvdMovieTreeView* mTreeView;
-    MvdBrowserView* mDetailsView;
-    MvdSharedDataEditor* mSharedDataEditor;
+    QStackedWidget *mMainViewStack;
+    MvdSmartView *mSmartView;
+    MvdMovieTreeView *mTreeView;
+    MvdBrowserView *mDetailsView;
+    MvdSharedDataEditor *mSharedDataEditor;
 
     // Dock windows
-    MvdDockWidget* mDetailsDock;
-    MvdDockWidget* mSharedDataDock;
+    MvdDockWidget *mDetailsDock;
+    MvdDockWidget *mSharedDataDock;
 
 private:
-    MvdMainWindow* q;
+    MvdMainWindow *q;
 };
 
 #endif // MVD_MAINWINDOW_P_H

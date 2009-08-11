@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: iconengine.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,33 +21,32 @@
 #ifndef MVD_SVGZ_ICONENGINE_H
 #define MVD_SVGZ_ICONENGINE_H
 
-#include <QIconEngineV2>
-#include <QSharedData>
+#include <QtCore/QSharedData>
+#include <QtGui/QIconEngineV2>
 
-class MvdSvgzIconEnginePrivate;
-
-class MvdSvgzIconEngine : public QIconEngineV2
+class MvdSvgzIconEngine :
+    public QIconEngineV2
 {
 public:
-	MvdSvgzIconEngine();
-	MvdSvgzIconEngine(const MvdSvgzIconEngine& other);
-	virtual ~MvdSvgzIconEngine();
+    MvdSvgzIconEngine();
+    MvdSvgzIconEngine(const MvdSvgzIconEngine &other);
+    virtual ~MvdSvgzIconEngine();
 
-	void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state);
-	QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state);
-	QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
+    void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state);
+    QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state);
+    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
 
-	void addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state);
-	void addFile(const QString &fileName, const QSize &size, QIcon::Mode mode, QIcon::State state);
+    void addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state);
+    void addFile(const QString &fileName, const QSize &size, QIcon::Mode mode, QIcon::State state);
 
-	QString key() const;
-	QIconEngineV2 *clone() const;
-	bool read(QDataStream &in);
-	bool write(QDataStream &out) const;
+    QString key() const;
+    QIconEngineV2 *clone() const;
+    bool read(QDataStream &in);
+    bool write(QDataStream &out) const;
 
 private:
-	QSharedDataPointer<MvdSvgzIconEnginePrivate> d;
-
+    class Private;
+    QSharedDataPointer<Private> d;
 };
 
 #endif // MVD_SVGZ_ICONENGINE_H

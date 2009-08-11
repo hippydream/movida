@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: mainwindow.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -34,20 +34,21 @@
 #include <QtGui/QAbstractItemView>
 #include <QtGui/QMainWindow>
 
-class MvdCollectionModel;
 class MvdBrowserView;
+class MvdCollectionModel;
 class MvdDockWidget;
-class MvdInfoPanel;
 class MvdFilterProxyModel;
 class MvdFilterWidget;
+class MvdInfoPanel;
 class MvdMovieCollection;
+class MvdMovieTreeView;
+class MvdPluginInterface;
 class MvdPluginInterface;
 class MvdRowSelectionModel;
 class MvdSharedDataEditor;
 class MvdSharedDataModel;
 class MvdSmartView;
-class MvdMovieTreeView;
-class MvdPluginInterface;
+
 class QAction;
 class QActionGroup;
 class QEvent;
@@ -63,7 +64,7 @@ class QToolBar;
 class QUrl;
 
 namespace Movida {
-    extern void mainWindowMessageHandler(Movida::MessageType t, const QString& m);
+extern void mainWindowMessageHandler(Movida::MessageType t, const QString &m);
 }
 
 
@@ -72,28 +73,28 @@ class MvdMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MvdMainWindow(QWidget* parent = 0);
+    MvdMainWindow(QWidget *parent = 0);
     virtual ~MvdMainWindow();
     void cleanUp();
 
-    mvdid movieIndexToId(const QModelIndex& index) const;
+    mvdid movieIndexToId(const QModelIndex &index) const;
     QModelIndex movieIdToIndex(mvdid id) const;
 
-    virtual bool eventFilter(QObject* o, QEvent* e);
+    virtual bool eventFilter(QObject *o, QEvent *e);
 
-    MvdMovieCollection* currentCollection() const;
+    MvdMovieCollection *currentCollection() const;
     QList<mvdid> selectedMovies() const;
 
-    MvdPluginInterface* locatePlugin(const QString& id) const;
+    MvdPluginInterface *locatePlugin(const QString &id) const;
 
-    MvdFilterWidget* filterWidget() const;
+    MvdFilterWidget *filterWidget() const;
     bool isQuickFilterVisible() const;
 
-    void setMoviePoster(quint32 movieId, const QUrl& url);
+    void setMoviePoster(quint32 movieId, const QUrl &url);
 
 public slots:
     void newCollection();
-    bool loadCollection(const QString& file);
+    bool loadCollection(const QString &file);
     void loadLastCollection();
     bool saveCollection();
 
@@ -107,42 +108,42 @@ public slots:
 
     void clearRecentFiles();
 
-    void handleLinkClicked(const QUrl& url);
+    void handleLinkClicked(const QUrl &url);
 
     void showLog();
     void showPreferences();
 
     void addMovie();
     void duplicateCurrentMovie();
-    void editMovie(const QModelIndex& index);
+    void editMovie(const QModelIndex &index);
     void editNextMovie();
     void editPreviousMovie();
     void editSelectedMovies();
     void massEditSelectedMovies();
-    void removeMovie(const QModelIndex& index);
-    void removeMovies(const QModelIndexList& list);
+    void removeMovie(const QModelIndex &index);
+    void removeMovies(const QModelIndexList &list);
     void removeSelectedMovies();
 
-    void showMovieContextMenu(const QModelIndex& index);
+    void showMovieContextMenu(const QModelIndex &index);
 
     void showCollectionMeta();
     void showFilterWidget();
     void showSharedDataEditor();
 
 protected:
-    virtual void closeEvent(QCloseEvent* e);
-    virtual void keyPressEvent(QKeyEvent* e);
-    virtual QMenu* createPopupMenu();
+    virtual void closeEvent(QCloseEvent *e);
+    virtual void keyPressEvent(QKeyEvent *e);
+    virtual QMenu *createPopupMenu();
 
 private:
-    friend void Movida::mainWindowMessageHandler(Movida::MessageType t, const QString& m);
+    friend void Movida::mainWindowMessageHandler(Movida::MessageType t, const QString &m);
 
     class Private;
     Private *d;
 };
 
 namespace Movida {
-    extern MvdMainWindow* MainWindow;
+extern MvdMainWindow *MainWindow;
 }
 
 #endif // MVD_MAINWINDOW_H

@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: shareddataeditor.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,90 +19,91 @@
 **************************************************************************/
 
 #include "shareddataeditor.h"
-#include "treeview.h"
+
 #include "shareddatamodel.h"
-#include <QGridLayout>
-#include <QMouseEvent>
-#include <QDrag>
-#include <QMimeData>
+#include "treeview.h"
+
+#include <QtCore/QMimeData>
+#include <QtGui/QDrag>
+#include <QtGui/QGridLayout>
+#include <QtGui/QMouseEvent>
 
 /*!
-	\class MvdSharedDataEditor shareddataeditor.h
-	\ingroup movida
+    \class MvdSharedDataEditor shareddataeditor.h
+    \ingroup movida
 
-	\brief Shared data viewer/editor.
+    \brief Shared data viewer/editor.
 */
 
 
-MvdSharedDataEditor::MvdSharedDataEditor(QWidget* parent)
-: QWidget(parent)
+MvdSharedDataEditor::MvdSharedDataEditor(QWidget *parent) :
+    QWidget(parent)
 {
-	init();
+    init();
 }
 
-MvdSharedDataEditor::MvdSharedDataEditor(QAbstractItemModel* model, QWidget* parent)
-: QWidget(parent)
+MvdSharedDataEditor::MvdSharedDataEditor(QAbstractItemModel *model, QWidget *parent) :
+    QWidget(parent)
 {
-	init();
-	Ui::MvdSharedDataEditor::view->setModel(model);
+    init();
+    Ui::MvdSharedDataEditor::view->setModel(model);
 }
 
 MvdSharedDataEditor::~MvdSharedDataEditor()
-{
+{ }
 
-}
-
-void MvdSharedDataEditor::setModel(QAbstractItemModel* model)
+void MvdSharedDataEditor::setModel(QAbstractItemModel *model)
 {
-	Ui::MvdSharedDataEditor::view->setModel(model);
+    Ui::MvdSharedDataEditor::view->setModel(model);
 }
 
 //! \internal
 void MvdSharedDataEditor::init()
 {
-	setupUi(this);
-	filterEdit->setPlaceHolder(tr("Search this list..."));
+    setupUi(this);
+    filterEdit->setPlaceHolder(tr("Search this list..."));
 
-	dataRole->addItem(tr("People"), QVariant((uint)Movida::PersonRole));
-	dataRole->addItem(tr("Genres"), QVariant((uint)Movida::GenreRole));
-	dataRole->addItem(tr("Tags"), QVariant((uint)Movida::TagRole));
-	dataRole->addItem(tr("Countries"), QVariant((uint)Movida::CountryRole));
-	dataRole->addItem(tr("Languages"), QVariant((uint)Movida::LanguageRole));
+    dataRole->addItem(tr("People"), QVariant((uint) Movida::PersonRole));
+    dataRole->addItem(tr("Genres"), QVariant((uint) Movida::GenreRole));
+    dataRole->addItem(tr("Tags"), QVariant((uint) Movida::TagRole));
+    dataRole->addItem(tr("Countries"), QVariant((uint) Movida::CountryRole));
+    dataRole->addItem(tr("Languages"), QVariant((uint) Movida::LanguageRole));
 
-	connect(dataRole, SIGNAL(currentIndexChanged(int)), SLOT(updateDataRole()));
+    connect(dataRole, SIGNAL(currentIndexChanged(int)), SLOT(updateDataRole()));
 
-	Ui::MvdSharedDataEditor::view->setDragEnabled(true);
+    Ui::MvdSharedDataEditor::view->setDragEnabled(true);
 
-	Ui::MvdSharedDataEditor::view->setDragEnabled(true);
-	Ui::MvdSharedDataEditor::view->setAcceptDrops(true);
+    Ui::MvdSharedDataEditor::view->setDragEnabled(true);
+    Ui::MvdSharedDataEditor::view->setAcceptDrops(true);
 }
 
 //! \internal
-void MvdSharedDataEditor::contextMenuEvent(QContextMenuEvent* cme)
+void MvdSharedDataEditor::contextMenuEvent(QContextMenuEvent *cme)
 {
-	QPoint viewpoint = Ui::MvdSharedDataEditor::view->mapFromGlobal(cme->globalPos());
-	if (!viewpoint.isNull() && Ui::MvdSharedDataEditor::view->model())
-	{
-		QModelIndex index = Ui::MvdSharedDataEditor::view->indexAt(viewpoint);
-		emit contextMenuRequested(index);
-	}
+    QPoint viewpoint = Ui::MvdSharedDataEditor::view->mapFromGlobal(cme->globalPos());
+
+    if (!viewpoint.isNull() && Ui::MvdSharedDataEditor::view->model()) {
+        QModelIndex index = Ui::MvdSharedDataEditor::view->indexAt(viewpoint);
+        emit contextMenuRequested(index);
+    }
 }
 
 void MvdSharedDataEditor::updateDataRole()
 {
-	MvdSharedDataModel* m = dynamic_cast<MvdSharedDataModel*>(Ui::MvdSharedDataEditor::view->model());
-	Q_ASSERT(m);
+    MvdSharedDataModel *m = dynamic_cast<MvdSharedDataModel *>(Ui::MvdSharedDataEditor::view->model());
 
-	Movida::DataRole role = (Movida::DataRole) dataRole->itemData(dataRole->currentIndex()).toUInt();
-	m->setRole(role);
+    Q_ASSERT(m);
+
+    Movida::DataRole role = (Movida::DataRole)dataRole->itemData(dataRole->currentIndex()).toUInt();
+    m->setRole(role);
 }
 
-QAbstractItemModel* MvdSharedDataEditor::model() const
+QAbstractItemModel *MvdSharedDataEditor::model() const
 {
-	return Ui::MvdSharedDataEditor::view->model();
+    return Ui::MvdSharedDataEditor::view->model();
 }
 
-QAbstractItemView* MvdSharedDataEditor::view() const
+QAbstractItemView *MvdSharedDataEditor::view() const
 {
-	return Ui::MvdSharedDataEditor::view;
+    return Ui::MvdSharedDataEditor::view;
 }

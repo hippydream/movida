@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: collectionloader.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,52 +22,53 @@
 #define MVD_COLLECTIONLOADER_H
 
 #include "global.h"
-#include <QObject>
-#include <QHash>
+
+#include <QtCore/QObject>
+#include <QtCore/QHash>
 
 class MvdMovieCollection;
 
-class MVD_EXPORT MvdCollectionLoader : QObject
+class MVD_EXPORT MvdCollectionLoader : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	struct Info {
-		Info() : expectedMovieCount(0) {}
+    struct Info {
+        Info() :
+            expectedMovieCount(0) { }
 
-		int expectedMovieCount;
-		QHash<QString,QString> metadata;
-	};
+        int expectedMovieCount;
+        QHash<QString, QString> metadata;
+    };
 
-	enum ProgressType {
-		CollectionInfo,
-		ProgressInfo
-	};
+    enum ProgressType {
+        CollectionInfo,
+        ProgressInfo
+    };
 
-	enum StatusCode
-	{
-		NoError = 0,
-		InvalidCollectionError,
-		FileOpenError,
-		FileNotFoundError,
-		ZipError,
-		InvalidFileError,
-		TemporaryDirectoryError,
-		UnknownError
-	};
+    enum StatusCode {
+        NoError = 0,
+        InvalidCollectionError,
+        FileOpenError,
+        FileNotFoundError,
+        ZipError,
+        InvalidFileError,
+        TemporaryDirectoryError,
+        UnknownError
+    };
 
-	MvdCollectionLoader(QObject* parent = 0);
-	virtual ~MvdCollectionLoader();
+    MvdCollectionLoader(QObject * parent = 0);
+    virtual ~MvdCollectionLoader();
 
-	void setProgressHandler(QObject* receiver, const char* member);
-	StatusCode load(MvdMovieCollection* collection, QString file = QString());
+    void setProgressHandler(QObject *receiver, const char *member);
+    StatusCode load(MvdMovieCollection *collection, QString file = QString());
 
 private slots:
-	void extractionProgress(int);
+    void extractionProgress(int);
 
 private:
-	class Private;
-	Private* d;
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_COLLECTIONLOADER_H

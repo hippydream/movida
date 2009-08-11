@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: dockwidget.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -21,39 +21,39 @@
 #ifndef MVD_DOCKWIDGET_H
 #define MVD_DOCKWIDGET_H
 
-#include <QDockWidget>
+#include <QtGui/QDockWidget>
 
 class QHideEvent;
 class QShowEvent;
 
-class MvdDockWidget : public QDockWidget {
-	Q_OBJECT
-		
+class MvdDockWidget : public QDockWidget
+{
+    Q_OBJECT
+
 public:
-	MvdDockWidget(const QString & title, QWidget * parent = 0)
-	: QDockWidget(title, parent) {
-	}
-	
-	MvdDockWidget(QWidget * parent = 0)
-	: QDockWidget(parent) {
-	}
-	
+    MvdDockWidget(const QString &title, QWidget *parent = 0) :
+        QDockWidget(title, parent) { }
+
+    MvdDockWidget(QWidget *parent = 0) :
+        QDockWidget(parent) { }
+
 protected:
-	virtual void hideEvent(QHideEvent* event)
-	{
-		emit toggled(false);
-		QDockWidget::hideEvent(event);
-	}
-	
-	virtual void showEvent(QShowEvent* event)
-	{
-		emit toggled(true);
-		QDockWidget::showEvent(event);
-	}
-	
-	
+    virtual void hideEvent(QHideEvent *event)
+    {
+        emit toggled(false);
+
+        QDockWidget::hideEvent(event);
+    }
+
+    virtual void showEvent(QShowEvent *event)
+    {
+        emit toggled(true);
+
+        QDockWidget::showEvent(event);
+    }
+
 signals:
-	void toggled(bool visible);
+    void toggled(bool visible);
 };
 
 #endif // MVD_DOCKWIDGET_H

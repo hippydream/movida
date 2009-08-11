@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: extendedinfopage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,33 +22,34 @@
 #define MVD_EXTENDEDINFOPAGE_H
 
 #include "ui_extendedinfopage.h"
+
 #include "movieeditorpage.h"
 
 class QIcon;
 
 class MvdExtendedInfoPage : public MvdMovieEditorPage, private Ui::MvdExtendedInfoPage
 {
-	Q_OBJECT
-		
+    Q_OBJECT
+
 public:
-	MvdExtendedInfoPage(MvdMovieCollection* c, MvdMovieEditor* parent = 0);
-	
-	QString label();
-	QIcon icon();
+    MvdExtendedInfoPage(MvdMovieCollection *c, MvdMovieEditor *parent = 0);
 
-	void setMovieImpl(const MvdMovie& movie);
+    QString label();
+    QIcon icon();
 
-	bool store(MvdMovie& movie);
+    void setMovieImpl(const MvdMovie &movie);
+
+    bool store(MvdMovie &movie);
 
 private slots:
-	void linkActivated(const QString& url);
-	void updateModifiedStatus();
-	void moveUp();
-	void moveDown();
-	void itemSelectionChanged();
+    void linkActivated(const QString &url);
+    void updateModifiedStatus();
+    void moveUp();
+    void moveDown();
+    void itemSelectionChanged();
 
 private:
-	MvdSDTreeWidget* currentView() const;
+    MvdSDTreeWidget *currentView() const;
 };
 
 #endif // MVD_EXTENDEDINFOPAGE_H

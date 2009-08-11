@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: movietreeviewdelegate.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,32 +22,33 @@
 #define MVD_MOVIETREEVIEWDELEGATE_H
 
 #include "guiglobal.h"
-#include <QItemDelegate>
-#include <QTextLayout>
-#include <QTextOption>
+
+#include <QtGui/QItemDelegate>
+#include <QtGui/QTextLayout>
+#include <QtGui/QTextOption>
 
 class MvdMovieTreeViewDelegate : public QItemDelegate
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdMovieTreeViewDelegate(QObject* parent = 0);
+    MvdMovieTreeViewDelegate(QObject *parent = 0);
 
 protected:
-	virtual void paint(QPainter* painter,
-		const QStyleOptionViewItem& option,
-		const QModelIndex& index) const;
+    virtual void paint(QPainter *painter,
+    const QStyleOptionViewItem &option,
+    const QModelIndex &index) const;
 
-	virtual QSize sizeHint(const QStyleOptionViewItem& option,
-		const QModelIndex& index) const;
+    virtual QSize sizeHint(const QStyleOptionViewItem &option,
+    const QModelIndex &index) const;
 
 private:
-	static const int Margin;
+    static const int Margin;
 
-	QIcon mRatingIcon;
-	QIcon mSeenIcon;
-	QIcon mSpecialIcon;
-	QIcon mLoanedIcon;
+    QIcon mRatingIcon;
+    QIcon mSeenIcon;
+    QIcon mSpecialIcon;
+    QIcon mLoanedIcon;
 };
 
 #endif // MVD_MOVIETREEVIEWDELEGATE_H

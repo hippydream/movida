@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: queryvalidator.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -26,57 +26,59 @@
 #include <QRegExp>
 
 /*!
-	\class MvdQueryValidator queryvalidator.h
-	\ingroup MovidaShared
+    \class MvdQueryValidator queryvalidator.h
+    \ingroup MovidaShared
 
-	\brief Validates a search engine query using regular expressions.
+    \brief Validates a search engine query using regular expressions.
 */
 
-class MvdQueryValidator : public QValidator
+class MvdQueryValidator :
+    public QValidator
 {
 public:
-	//! Creates a new validator that only accepts non empty strings (i.e. strings that contain at least one non white space character).
-	MvdQueryValidator(QObject* parent = 0)
-	: QValidator(parent)
-	{}
+    //! Creates a new validator that only accepts non empty strings (i.e. strings that contain at least one non white space character).
+    MvdQueryValidator(QObject *parent = 0) :
+        QValidator(parent)
+    { }
 
-	//! Creates a new validator for the specified regular expression.
-	MvdQueryValidator(const QString& pattern, QObject* parent = 0)
-	: QValidator(parent)
-	{
-		rx.setPattern(pattern);
-	}
+    //! Creates a new validator for the specified regular expression.
+    MvdQueryValidator(const QString &pattern, QObject *parent = 0) :
+        QValidator(parent)
+    {
+        rx.setPattern(pattern);
+    }
 
-	//! Creates a new validator for the specified regular expression.
-	MvdQueryValidator(const QRegExp& regExp, QObject* parent = 0) 
-	: QValidator(parent), rx(regExp)
-	{ }
+    //! Creates a new validator for the specified regular expression.
+    MvdQueryValidator(const QRegExp &regExp, QObject *parent = 0) :
+        QValidator(parent),
+        rx(regExp)
+    { }
 
-	virtual void fixup(QString& input) const
-	{
-		input = input.trimmed();
-	}
+    virtual void fixup(QString &input) const
+    {
+        input = input.trimmed();
+    }
 
-	virtual ~MvdQueryValidator()
-	{}
+    virtual ~MvdQueryValidator()
+    { }
 
-	virtual QValidator::State validate(QString& input, int& pos) const
-	{
-		Q_UNUSED(pos);
+    virtual QValidator::State validate(QString &input, int &pos) const
+    {
+        Q_UNUSED(pos);
 
-		if (input.isEmpty())
-			return QValidator::Intermediate;
+        if (input.isEmpty())
+            return QValidator::Intermediate;
 
-		if (input.trimmed().isEmpty())
-			return QValidator::Intermediate;
+        if (input.trimmed().isEmpty())
+            return QValidator::Intermediate;
 
-		if (!rx.pattern().isEmpty() && rx.isValid())
-			return rx.exactMatch(input) ? QValidator::Acceptable : QValidator::Invalid;
-		
-		return QValidator::Acceptable;
-	}
+        if (!rx.pattern().isEmpty() && rx.isValid())
+            return rx.exactMatch(input) ? QValidator::Acceptable : QValidator::Invalid;
 
-	QRegExp rx;
+        return QValidator::Acceptable;
+    }
+
+    QRegExp rx;
 };
 
 #endif // MVD_QUERYVALIDATOR_H

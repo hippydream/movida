@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: crash_main.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -18,7 +18,7 @@
 **
 **************************************************************************/
 
-#include <QtGlobal>
+#include <QtCore/QtGlobal>
 
 #ifndef Q_OS_WIN
 #include "crash_main_other.cpp"
@@ -28,14 +28,14 @@
 
 #define MVDCH_CAPTION "Movida crash handler"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-	QApplication app(argc, argv);
+    QApplication app(argc, argv);
 
-	if (!MovidaCrash::isParentOfMovida()) {
-		QMessageBox::critical(0, MVDCH_CAPTION, QCoreApplication::translate("", "Sorry, but this application can only be executed by movida."));
-		return EXIT_FAILURE;
-	}
+    if (!MovidaCrash::isParentOfMovida()) {
+        QMessageBox::critical(0, MVDCH_CAPTION, QCoreApplication::translate("", "Sorry, but this application can only be executed by movida."));
+        return EXIT_FAILURE;
+    }
 
-	QMessageBox::critical(0, MVDCH_CAPTION, QCoreApplication::translate("", "Sorry, but movida crashed :-(\n\nActually, you should not wonder about it, as movida is still under heavy development.\nFeel free to contact the authors or wait for another version."));
+    QMessageBox::critical(0, MVDCH_CAPTION, QCoreApplication::translate("", "Sorry, but movida crashed :-(\n\nActually, you should not wonder about it, as movida is still under heavy development.\nFeel free to contact the authors or wait for another version."));
 }

@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: unzip.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -23,12 +23,12 @@
 
 #include "global.h"
 
-#include <QtGlobal>
-#include <QDateTime>
-#include <QMap>
+#include <QtCore/QDateTime>
+#include <QtCore/QMap>
+#include <QtCore/QtGlobal>
+
 #include <zlib/zlib.h>
 
-class MvdUnZip_P;
 class QIODevice;
 class QFile;
 class QDir;
@@ -38,110 +38,106 @@ class QObject;
 class MVD_EXPORT MvdUnZip
 {
 public:
-        enum ErrorCode
-        {
-                NoError,
-                ZlibInitError,
-                ZlibError,
-                FileOpenError,
-                FilePartiallyCorruptedError,
-                FileCorruptedError,
-                WrongPasswordError,
-                NoOpenArchiveError,
-                FileNotFoundError,
-                ReadError,
-                WriteError,
-                SeekError,
-                CreateDirError,
-                InvalidDeviceError,
-                InvalidArchiveError,
-                HeaderConsistencyError,
+    enum ErrorCode {
+        NoError,
+        ZlibInitError,
+        ZlibError,
+        FileOpenError,
+        FilePartiallyCorruptedError,
+        FileCorruptedError,
+        WrongPasswordError,
+        NoOpenArchiveError,
+        FileNotFoundError,
+        ReadError,
+        WriteError,
+        SeekError,
+        CreateDirError,
+        InvalidDeviceError,
+        InvalidArchiveError,
+        HeaderConsistencyError,
 
-                EncryptedFileSkipped,
-                AllEncryptedFilesSkipped
-        };
+        EncryptedFileSkipped,
+        AllEncryptedFilesSkipped
+    };
 
-        enum ExtractionOption
-        {
-                //! Extracts paths (default)
-                ExtractPaths = 0x01,
-                //! Ignores paths and extracts all the files to the same directory
-                SkipPaths = 0x02,
+    enum ExtractionOption {
+        //! Extracts paths (default)
+        ExtractPaths = 0x01,
+        //! Ignores paths and extracts all the files to the same directory
+        SkipPaths = 0x02,
 
-                NoReset = 0x04
-                //! Internal use
-        };
-        Q_DECLARE_FLAGS(ExtractionOptions, ExtractionOption)
+        NoReset = 0x04
+                  //! Internal use
+    };
+    Q_DECLARE_FLAGS(ExtractionOptions, ExtractionOption)
 
-                enum CompressionMethod
-        {
-                NoCompression, Deflated, UnknownCompression
-        };
+    enum CompressionMethod {
+        NoCompression, Deflated, UnknownCompression
+    };
 
-        enum FileType
-        {
-                File, Directory
-        };
+    enum FileType {
+        File, Directory
+    };
 
-        struct ZipEntry
-        {
-                ZipEntry();
+    struct ZipEntry {
+        ZipEntry();
 
-                QString filename;
-                QString comment;
+        QString filename;
+        QString comment;
 
-                quint32 compressedSize;
-                quint32 uncompressedSize;
-                quint32 crc32;
+        quint32 compressedSize;
+        quint32 uncompressedSize;
+        quint32 crc32;
 
-                QDateTime lastModified;
+        QDateTime lastModified;
 
-                CompressionMethod compression;
-                FileType type;
+        CompressionMethod compression;
+        FileType type;
 
-                bool encrypted;
-        };
+        bool encrypted;
+    };
 
-        MvdUnZip();
-        virtual ~MvdUnZip();
+    MvdUnZip();
+    virtual ~MvdUnZip();
 
-        void setPasswordHandler(QObject* obj, const char* member);
-        void setProgressHandler(QObject* obj, const char* member);
+    void setPasswordHandler(QObject *obj, const char *member);
+    void setProgressHandler(QObject *obj, const char *member);
 
-        bool isOpen() const;
+    bool isOpen() const;
 
-        MvdUnZip::ErrorCode openArchive(const QString& filename);
-        MvdUnZip::ErrorCode openArchive(QIODevice* device);
-        void closeArchive();
+    MvdUnZip::ErrorCode openArchive(const QString &filename);
+    MvdUnZip::ErrorCode openArchive(QIODevice *device);
+    void closeArchive();
 
-        QString archiveComment() const;
+    QString archiveComment() const;
 
-        QString formatError(MvdUnZip::ErrorCode c) const;
+    QString formatError(MvdUnZip::ErrorCode c) const;
 
-        bool contains(const QString& file) const;
+    bool contains(const QString &file) const;
 
-        QStringList fileList() const;
-        QList<ZipEntry> entryList() const;
+    QStringList fileList() const;
+    QList<ZipEntry> entryList() const;
 
-        MvdUnZip::ErrorCode extractAll(const QString& dirname,
-                ExtractionOptions options = ExtractPaths);
-        MvdUnZip::ErrorCode extractAll(const QDir& dir,
-                ExtractionOptions options = ExtractPaths);
+    MvdUnZip::ErrorCode extractAll(const QString &dirname,
+    ExtractionOptions options = ExtractPaths);
+    MvdUnZip::ErrorCode extractAll(const QDir &dir,
+    ExtractionOptions options = ExtractPaths);
 
-        MvdUnZip::ErrorCode extractFile(const QString& filename, const QString& dirname,
-                ExtractionOptions options = ExtractPaths);
-        MvdUnZip::ErrorCode extractFile(const QString& filename, const QDir& dir,
-                ExtractionOptions options = ExtractPaths);
-        MvdUnZip::ErrorCode extractFile(const QString& filename, QIODevice* device,
-                ExtractionOptions options = ExtractPaths);
+    MvdUnZip::ErrorCode extractFile(const QString &filename, const QString &dirname,
+    ExtractionOptions options = ExtractPaths);
+    MvdUnZip::ErrorCode extractFile(const QString &filename, const QDir &dir,
+    ExtractionOptions options = ExtractPaths);
+    MvdUnZip::ErrorCode extractFile(const QString &filename, QIODevice *device,
+    ExtractionOptions options = ExtractPaths);
 
-        MvdUnZip::ErrorCode extractFiles(const QStringList& filenames, const QString& dirname,
-                ExtractionOptions options = ExtractPaths);
-        MvdUnZip::ErrorCode extractFiles(const QStringList& filenames, const QDir& dir,
-                ExtractionOptions options = ExtractPaths);
+    MvdUnZip::ErrorCode extractFiles(const QStringList &filenames, const QString &dirname,
+    ExtractionOptions options = ExtractPaths);
+    MvdUnZip::ErrorCode extractFiles(const QStringList &filenames, const QDir &dir,
+    ExtractionOptions options = ExtractPaths);
 
 private:
-        MvdUnZip_P* d;
+    class Private;
+    Private *d;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(MvdUnZip::ExtractionOptions)
 

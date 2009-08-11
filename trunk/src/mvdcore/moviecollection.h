@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: moviecollection.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -23,94 +23,96 @@
 
 #include "global.h"
 #include "shareddata.h"
-#include <QHash>
-#include <QList>
-#include <QString>
-#include <QStringList>
-#include <QVariant>
+
+#include <QtCore/QHash>
+#include <QtCore/QList>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtCore/QVariant>
 
 class MvdLogger;
 class MvdMovie;
-class MvdMovieCollection_P;
 class MvdMovieData;
 
 class MVD_EXPORT MvdMovieCollection : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdMovieCollection();
-	MvdMovieCollection(const MvdMovieCollection& m);
-	virtual ~MvdMovieCollection();
-	MvdMovieCollection& operator=(const MvdMovieCollection& m);
+    MvdMovieCollection();
+    MvdMovieCollection(const MvdMovieCollection &m);
+    virtual ~MvdMovieCollection();
+    MvdMovieCollection &operator=(const MvdMovieCollection &m);
 
-	typedef QHash<mvdid, MvdMovie> MovieList;
-	
-	enum MetaDataType {
-		NameInfo, OwnerInfo, EMailInfo, WebsiteInfo, NotesInfo, 
-		DataPathInfo, TempPathInfo,
-		InvalidInfo
-	};
+    typedef QHash<mvdid, MvdMovie> MovieList;
 
-	enum ImageCategory {
-		MoviePosterImage, GenericImage
-	};
-	
-	MvdSharedData& sharedData() const;
+    enum MetaDataType {
+        NameInfo, OwnerInfo, EMailInfo, WebsiteInfo, NotesInfo,
+        DataPathInfo, TempPathInfo,
+        InvalidInfo
+    };
 
-	void setMetaData(MetaDataType ci, const QString& val);
-	QString metaData(MetaDataType ci) const;
+    enum ImageCategory {
+        MoviePosterImage, GenericImage
+    };
 
-	int count() const;
-	bool isEmpty() const;
+    MvdSharedData &sharedData() const;
 
-	MovieList movies() const;
-	QList<mvdid> movieIds() const;
-	MvdMovie movie(mvdid id) const;
+    void setMetaData(MetaDataType ci, const QString &val);
+    QString metaData(MetaDataType ci) const;
 
-	mvdid addMovie(const MvdMovie& movie);
-	void updateMovie(mvdid id, const MvdMovie& movie);
-	void removeMovie(mvdid id);
+    int count() const;
+    bool isEmpty() const;
 
-    mvdid addMovie(const MvdMovieData& movie,
-        const QHash<QString, QVariant>& extra = (QHash<QString, QVariant>()) );
-	
-	bool contains(const QString& title, int year) const;
-	
-	void clear();
-	
-	bool isModified() const;
-	void setModifiedStatus(bool modified);
-	
-	QString fileName() const;
-	void setFileName(const QString& f);
-	
-	QString path() const;
-	void setPath(const QString& p);
+    MovieList movies() const;
+    QList<mvdid> movieIds() const;
+    MvdMovie movie(mvdid id) const;
 
-	QString addImage(const QString& path, ImageCategory category = GenericImage);
+    mvdid addMovie(const MvdMovie &movie);
+    void updateMovie(mvdid id, const MvdMovie &movie);
+    void removeMovie(mvdid id);
 
-	void clearPersistentData();
+    mvdid addMovie(const MvdMovieData &movie,
+    const QHash<QString, QVariant> &extra = (QHash<QString, QVariant>()));
+
+    bool contains(const QString &title, int year) const;
+
+    void clear();
+
+    bool isModified() const;
+    void setModifiedStatus(bool modified);
+
+    QString fileName() const;
+    void setFileName(const QString &f);
+
+    QString path() const;
+    void setPath(const QString &p);
+
+    QString addImage(const QString &path, ImageCategory category = GenericImage);
+
+    void clearPersistentData();
 
 signals:
-	void movieAdded(mvdid id);
-	void movieChanged(mvdid id);
-	void movieRemoved(mvdid id);
-	void metaDataChanged(int t, const QString& v);
-	void changed();
-	void cleared();
-	void modified();
-	void saved();
-	void destroyed();
-	
+    void movieAdded(mvdid id);
+    void movieChanged(mvdid id);
+    void movieRemoved(mvdid id);
+    void metaDataChanged(int t, const QString &v);
+    void changed();
+    void cleared();
+    void modified();
+    void saved();
+    void destroyed();
+
 private:
-	MvdMovieCollection_P* d;
+    class Private;
+    Private *d;
 
 public:
-	typedef MvdMovieCollection_P* DataPtr;
-	inline DataPtr& data_ptr() { return d; }
-	void detach();
-	bool isDetached() const;
+    typedef Private *DataPtr;
+    inline DataPtr &data_ptr() { return d; }
+
+    void detach();
+    bool isDetached() const;
 };
 Q_DECLARE_SHARED(MvdMovieCollection)
 

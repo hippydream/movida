@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: browserview.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,58 +22,61 @@
 #define MVD_BROWSERVIEW_H
 
 #include "sharedglobal.h"
+
 #include "mvdcore/global.h"
-#include <QWidget>
-#include <QList>
-#include <QUrl>
+
+#include <QtCore/QList>
+#include <QtCore/QUrl>
+#include <QtGui/QWidget>
 
 class MvdMovieCollection;
 class MvdMovieData;
+
 class QAction;
-class QWebView;
-class QWebPage;
 class QWebFrame;
+class QWebPage;
+class QWebView;
 
 class MVD_EXPORT_SHARED MvdBrowserView : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdBrowserView(QWidget* parent = 0);
-	virtual ~MvdBrowserView();
+    MvdBrowserView(QWidget *parent = 0);
+    virtual ~MvdBrowserView();
 
-	void setMovieCollection(MvdMovieCollection* c);
+    void setMovieCollection(MvdMovieCollection *c);
 
-	int cacheMovieData(const MvdMovieData& md);
-	void clearCachedMovieData(int id);
+    int cacheMovieData(const MvdMovieData &md);
+    void clearCachedMovieData(int id);
 
-	void setControlsVisible(bool visible);
-	bool controlsVisible() const;
+    void setControlsVisible(bool visible);
+    bool controlsVisible() const;
 
-	void showMovie(mvdid id);
-	void showMovies(const QList<mvdid>& ids);
-	void showMovieData(int id);
+    void showMovie(mvdid id);
+    void showMovies(const QList<mvdid> &ids);
+    void showMovieData(int id);
 
 public slots:
-	void clear();
-	void blank();
-	void setUrl(QString url);
+    void clear();
+    void blank();
+    void setUrl(QString url);
 
-	bool eventFilter(QObject* o, QEvent* e);
+    bool eventFilter(QObject *o, QEvent *e);
 
 signals:
-	void linkClicked(const QUrl& url);
+    void linkClicked(const QUrl &url);
 
 protected:
-	virtual void showContextMenu(QContextMenuEvent* e);
+    virtual void showContextMenu(QContextMenuEvent *e);
 
-	QWebFrame* frame() const;
-	QWebPage* page() const;
-	QWebView* webView() const;
+    QWebFrame *frame() const;
+    QWebPage *page() const;
+    QWebView *webView() const;
 
 private:
-	class Private;
-	Private* d;
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_BROWSERVIEW_H

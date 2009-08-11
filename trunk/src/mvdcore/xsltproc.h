@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: xsltproc.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -22,35 +22,36 @@
 #define MVD_XSLTPROC_H
 
 #include "global.h"
-#include <QHash>
+
+#include <QtCore/QHash>
 
 class QIODevice;
 
 class MVD_EXPORT MvdXsltProc
 {
 public:
-	typedef QHash<QString, QString> ParameterList;
+    typedef QHash<QString, QString> ParameterList;
 
-	MvdXsltProc();
-	MvdXsltProc(const QString& xslpath);
+    MvdXsltProc();
+    MvdXsltProc(const QString &xslpath);
 
-	bool isOk() const;
+    bool isOk() const;
 
-	bool loadXslFile(const QString& xslpath);
+    bool loadXslFile(const QString &xslpath);
 
-	QString processText(const QString& txt, 
-		const ParameterList& params = ParameterList());
-	QString processFile(const QString& file, 
-		const ParameterList& params = ParameterList());
+    QString processText(const QString &txt,
+    const ParameterList &params = ParameterList());
+    QString processFile(const QString &file,
+    const ParameterList &params = ParameterList());
 
-	bool processTextToDevice(const QString& txt, QIODevice* dev, 
-		const ParameterList& params = ParameterList());
-	bool processFileToDevice(const QString& file, QIODevice* dev, 
-		const ParameterList& params = ParameterList());
+    bool processTextToDevice(const QString &txt, QIODevice *dev,
+    const ParameterList &params = ParameterList());
+    bool processFileToDevice(const QString &file, QIODevice *dev,
+    const ParameterList &params = ParameterList());
 
 private:
-	class Private;
-	Private* d;
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_XSLTPROC_H

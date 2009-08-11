@@ -2,7 +2,7 @@
 ** Filename: filtersettingspage.h
 ** Revision: 3
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.sourceforge.net/).
 **
@@ -23,24 +23,25 @@
 #define MVD_FILTERSETTINGSPAGE_H
 
 #include "ui_filtersettingspage.h"
+
 #include "settingspage.h"
 
 class QIcon;
 
 class MvdFilterSettingsPage : public MvdSettingsPage, private Ui::MvdFilterSettingsPage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdFilterSettingsPage(MvdSettingsDialog* parent = 0);
+    MvdFilterSettingsPage(MvdSettingsDialog *parent = 0);
 
-	void store();
-	void reset();
-	QString label();
-	QIcon icon();
+    void store();
+    void reset();
+    QString label();
+    QIcon icon();
 
 private slots:
-	void linkActivated(const QString& s);
+    void linkActivated(const QString &s);
 };
 
 #endif // MVD_FILTERSETTINGSPAGE_H

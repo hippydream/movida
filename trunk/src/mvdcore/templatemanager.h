@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: templatemanager.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -23,56 +23,55 @@
 
 #include "global.h"
 #include "movie.h"
-#include "moviedata.h"
 #include "moviecollection.h"
+#include "moviedata.h"
 
 class MVD_EXPORT MvdTemplateManager
 {
 public:
-	static MvdTemplateManager& instance();
+    static MvdTemplateManager &instance();
 
-	QStringList templates(const QString& category) const;
+    QStringList templates(const QString &category) const;
 
-	QString movieToXml(const MvdMovie& movie, const MvdMovieCollection& collection);
-	QString movieToHtml(const MvdMovie& movie, const MvdMovieCollection& collection, 
-		const QString& templateCategory, const QString& templateName = QString());
+    QString movieToXml(const MvdMovie &movie, const MvdMovieCollection &collection);
+    QString movieToHtml(const MvdMovie &movie, const MvdMovieCollection &collection,
+    const QString &templateCategory, const QString &templateName = QString());
 
-	bool movieToHtmlFile(const MvdMovie& movie, const MvdMovieCollection& collection, 
-		const QString& filename, 
-		const QString& templateCategory, const QString& templateName = QString());
+    bool movieToHtmlFile(const MvdMovie &movie, const MvdMovieCollection &collection,
+    const QString &filename,
+    const QString &templateCategory, const QString &templateName = QString());
 
-	bool movieDataToHtmlFile(const MvdMovieData& movieData,
-		const QString& filename, 
-		const QString& templateCategory, const QString& templateName = QString());
+    bool movieDataToHtmlFile(const MvdMovieData &movieData,
+    const QString &filename,
+    const QString &templateCategory, const QString &templateName = QString());
 
-	QString movieDataToHtml(const MvdMovieData& movieData, 
-		const QString& templateCategory, const QString& templateName = QString());
-	QString movieDataFileToHtml(const QString& movieDataFile, 
-		const QString& templateCategory, const QString& templateName = QString());
-	QString movieDataStringToHtml(const QString& movieDataString, 
-		const QString& templateCategory, const QString& templateName = QString());
+    QString movieDataToHtml(const MvdMovieData &movieData,
+    const QString &templateCategory, const QString &templateName = QString());
+    QString movieDataFileToHtml(const QString &movieDataFile,
+    const QString &templateCategory, const QString &templateName = QString());
+    QString movieDataStringToHtml(const QString &movieDataString,
+    const QString &templateCategory, const QString &templateName = QString());
 
-	bool collectionToHtmlFile(MvdMovieCollection* collection, 
-		const QString& filename, 
-		const QString& templateCategory, const QString& templateName = QString());
+    bool collectionToHtmlFile(MvdMovieCollection *collection,
+    const QString &filename,
+    const QString &templateCategory, const QString &templateName = QString());
 
 private:
-	MvdTemplateManager();
-	MvdTemplateManager(const MvdTemplateManager&);
-	MvdTemplateManager& operator=(const MvdTemplateManager&);
-	virtual ~MvdTemplateManager();
+    MvdTemplateManager();
+    MvdTemplateManager(const MvdTemplateManager &);
+    MvdTemplateManager &operator=(const MvdTemplateManager &);
+    virtual ~MvdTemplateManager();
 
-	static void create();
-	static volatile MvdTemplateManager* mInstance;
-	static bool mDestroyed;
+    static void create();
+    static volatile MvdTemplateManager *mInstance;
+    static bool mDestroyed;
 
-	class Private;
-	Private* d;
+    class Private;
+    Private *d;
 };
 
-namespace Movida
-{
-	MVD_EXPORT extern MvdTemplateManager& tmanager();
+namespace Movida {
+MVD_EXPORT extern MvdTemplateManager &tmanager();
 }
 
 #endif // MVD_TEMPLATEMANAGER_H

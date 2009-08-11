@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: grafx.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -28,8 +28,8 @@ class QPixmap;
 class QStringList;
 
 namespace MvdGrafx {
-	MVD_EXPORT_SHARED QPixmap moviesDragPixmap(const QStringList& posterPaths, QString message, QFont font);
-	MVD_EXPORT_SHARED QPixmap sharedDataDragPixmap(const QString& values, QFont font);
-};
+MVD_EXPORT_SHARED QPixmap moviesDragPixmap(const QStringList &posterPaths, QString message, QFont font);
+MVD_EXPORT_SHARED QPixmap sharedDataDragPixmap(const QString &values, QFont font);
+}
 
 #endif // MVD_GRAFX_H

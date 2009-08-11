@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: collectionmetaeditor.cpp
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -19,90 +19,92 @@
 **************************************************************************/
 
 #include "collectionmetaeditor.h"
-#include "mvdcore/moviecollection.h"
-#include <QCloseEvent>
-#include <QKeyEvent>
-#include <QMessageBox>
 
-MvdCollectionMetaEditor::MvdCollectionMetaEditor(QWidget* parent)
-: QDialog(parent), mCollection(0)
+#include "mvdcore/moviecollection.h"
+
+#include <QtGui/QCloseEvent>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QMessageBox>
+
+MvdCollectionMetaEditor::MvdCollectionMetaEditor(QWidget *parent) :
+    QDialog(parent),
+    mCollection(0)
 {
-	setupUi(this);
-	setWindowTitle(tr("Collection properties"));
+    setupUi(this);
+    setWindowTitle(tr("Collection properties"));
 }
 
-void MvdCollectionMetaEditor::setCollection(MvdMovieCollection* c)
+void MvdCollectionMetaEditor::setCollection(MvdMovieCollection *c)
 {
-	if (!c)
-		return;
+    if (!c)
+        return;
 
-	mCollection = c;
+    mCollection = c;
 
-	name->setText(c->metaData(MvdMovieCollection::NameInfo));
-	owner->setText(c->metaData(MvdMovieCollection::OwnerInfo));
-	mail->setText(c->metaData(MvdMovieCollection::EMailInfo));
-	website->setText(c->metaData(MvdMovieCollection::WebsiteInfo));
-	notes->setText(c->metaData(MvdMovieCollection::NotesInfo));
+    name->setText(c->metaData(MvdMovieCollection::NameInfo));
+    owner->setText(c->metaData(MvdMovieCollection::OwnerInfo));
+    mail->setText(c->metaData(MvdMovieCollection::EMailInfo));
+    website->setText(c->metaData(MvdMovieCollection::WebsiteInfo));
+    notes->setText(c->metaData(MvdMovieCollection::NotesInfo));
 }
 
 void MvdCollectionMetaEditor::accept()
 {
-	//! \todo validate
-	if (!mCollection)
-		return;
+    //! \todo validate
+    if (!mCollection)
+        return;
 
-	if (isModified()) {
-		mCollection->setMetaData(MvdMovieCollection::NameInfo, name->text().trimmed());
-		mCollection->setMetaData(MvdMovieCollection::OwnerInfo, owner->text().trimmed());
-		mCollection->setMetaData(MvdMovieCollection::EMailInfo, mail->text().trimmed());
-		mCollection->setMetaData(MvdMovieCollection::WebsiteInfo, website->text().trimmed());
-		mCollection->setMetaData(MvdMovieCollection::NotesInfo, notes->toPlainText().trimmed());
-	}
+    if (isModified()) {
+        mCollection->setMetaData(MvdMovieCollection::NameInfo, name->text().trimmed());
+        mCollection->setMetaData(MvdMovieCollection::OwnerInfo, owner->text().trimmed());
+        mCollection->setMetaData(MvdMovieCollection::EMailInfo, mail->text().trimmed());
+        mCollection->setMetaData(MvdMovieCollection::WebsiteInfo, website->text().trimmed());
+        mCollection->setMetaData(MvdMovieCollection::NotesInfo, notes->toPlainText().trimmed());
+    }
 
-	QDialog::accept();
+    QDialog::accept();
 }
 
 void MvdCollectionMetaEditor::reject()
 {
-	setResult(QDialog::Rejected);
-	close();
+    setResult(QDialog::Rejected);
+    close();
 }
 
-void MvdCollectionMetaEditor::keyPressEvent(QKeyEvent* e)
+void MvdCollectionMetaEditor::keyPressEvent(QKeyEvent *e)
 {
-	switch (e->key())
-	{
-	case Qt::Key_Escape:
-		close();
-		e->ignore();
-		return;
-	}
+    switch (e->key()) {
+        case Qt::Key_Escape:
+            close();
+            e->ignore();
+            return;
+    }
 
-	QDialog::keyPressEvent(e);
+    QDialog::keyPressEvent(e);
 }
 
-void MvdCollectionMetaEditor::closeEvent(QCloseEvent* e)
+void MvdCollectionMetaEditor::closeEvent(QCloseEvent *e)
 {
-	if (isModified()) {
-		if (QMessageBox::question(this, MVD_CAPTION, tr("The collection information has been modified. Are you sure you want to discard the changes?"), 
-			QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
-			e->ignore();
-			return;
-	}
+    if (isModified()) {
+        if (QMessageBox::question(this, MVD_CAPTION, tr("The collection information has been modified. Are you sure you want to discard the changes?"),
+                QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+            e->ignore();
+        return;
+    }
 
-	QDialog::close();
+    QDialog::close();
 }
 
 //!
 bool MvdCollectionMetaEditor::isModified() const
 {
-	if (!mCollection)
-		return false;
+    if (!mCollection)
+        return false;
 
-	return
-		mCollection->metaData(MvdMovieCollection::NameInfo) != name->text().trimmed() ||
-		mCollection->metaData(MvdMovieCollection::OwnerInfo) != owner->text().trimmed() ||
-		mCollection->metaData(MvdMovieCollection::EMailInfo) != mail->text().trimmed() ||
-		mCollection->metaData(MvdMovieCollection::WebsiteInfo) != website->text().trimmed() ||
-		mCollection->metaData(MvdMovieCollection::NotesInfo) != notes->toPlainText().trimmed();
+    return
+        mCollection->metaData(MvdMovieCollection::NameInfo) != name->text().trimmed() ||
+        mCollection->metaData(MvdMovieCollection::OwnerInfo) != owner->text().trimmed() ||
+        mCollection->metaData(MvdMovieCollection::EMailInfo) != mail->text().trimmed() ||
+        mCollection->metaData(MvdMovieCollection::WebsiteInfo) != website->text().trimmed() ||
+        mCollection->metaData(MvdMovieCollection::NotesInfo) != notes->toPlainText().trimmed();
 }

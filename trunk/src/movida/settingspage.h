@@ -1,7 +1,7 @@
 /**************************************************************************
 ** Filename: settingspage.h
 **
-** Copyright (C) 2007-2008 Angius Fabrizio. All rights reserved.
+** Copyright (C) 2007-2009 Angius Fabrizio. All rights reserved.
 **
 ** This file is part of the Movida project (http://movida.42cows.org/).
 **
@@ -28,15 +28,18 @@ class QIcon;
 
 class MvdSettingsPage : public MvdMPDialogPage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MvdSettingsPage(MvdSettingsDialog* parent = 0) : 
-		MvdMPDialogPage(parent) {};
+    MvdSettingsPage(MvdSettingsDialog *parent = 0) :
+        MvdMPDialogPage(parent)
+    { }
 
-	//! Default implementation returns false.
-	virtual bool isModified() const { return false; };
-	virtual void store() = 0;
+    //! Default implementation returns false.
+    virtual bool isModified() const
+    { return false; }
+
+    virtual void store() = 0;
 };
 
 #endif // MVD_SETTINGSPAGE_H
