@@ -114,14 +114,14 @@ Qt::CaseSensitivity MvdFilterWidget::caseSensitivity() const
 
 void MvdFilterWidget::dragEnterEvent(QDragEnterEvent *e)
 {
-    if (e->mimeData()->hasFormat(MvdCore::parameter("movida/mime/movie-attributes").toString())) {
+    if (e->mimeData()->hasFormat(Movida::core().parameter("movida/mime/movie-attributes").toString())) {
         e->acceptProposedAction();
     } else e->ignore();
 }
 
 void MvdFilterWidget::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (e->mimeData()->hasFormat(MvdCore::parameter("movida/mime/movie-attributes").toString())) {
+    if (e->mimeData()->hasFormat(Movida::core().parameter("movida/mime/movie-attributes").toString())) {
         e->acceptProposedAction();
     } else e->ignore();
 }
@@ -130,7 +130,7 @@ void MvdFilterWidget::dropEvent(QDropEvent *e)
 {
     const QMimeData *md = e->mimeData();
     QString idList =
-        QString::fromLatin1(md->data(MvdCore::parameter("movida/mime/movie-attributes").toString()));
+        QString::fromLatin1(md->data(Movida::core().parameter("movida/mime/movie-attributes").toString()));
 
     Qt::DropAction dropAction = e->proposedAction();
     bool replaceFilter = dropAction == Qt::MoveAction;
@@ -161,4 +161,19 @@ void MvdFilterWidget::applySharedDataFilter(const QString &itemIds, bool replace
 
     text.append(filter);
     editor()->setText(text);
+}
+
+bool MvdFilterWidget::event(QEvent *e)
+{
+    return QFrame::event(e);
+}
+
+bool MvdFilterWidget::isEmpty() const
+{
+    return editor()->text().trimmed().isEmpty();
+}
+
+QString MvdFilterWidget::filter() const
+{
+    return editor()->text();
 }

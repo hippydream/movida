@@ -32,6 +32,7 @@ class MvdFilterProxyModel : public QSortFilterProxyModel
 
 public:
     MvdFilterProxyModel(QObject *parent = 0);
+    virtual ~MvdFilterProxyModel();
 
     void setQuickFilterAttributes(const QByteArray &alist);
     QByteArray quickFilterAttributes() const;
@@ -46,37 +47,23 @@ public:
     virtual bool setFilterAdvancedString(const QString &q);
     virtual QString filterAdvancedString() const;
 
+    virtual void setSourceModel(QAbstractItemModel *sourceModel);
+
 signals:
     void sorted();
 
 protected:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+
+protected slots:
+    virtual void onSourceDataChanged(const QModelIndex &, const QModelIndex &);
+    virtual void onSourceRowsAboutToBeRemoved(const QModelIndex &, int, int);
+    virtual void onSourceModelDestroyed(QObject*);
 
 private:
-    struct Function {
-        Function(Movida::FilterFunction ff, const QStringList &p, bool negated) :
-            type(ff),
-            parameters(p),
-            neg(negated) { }
-
-        Movida::FilterFunction type;
-        QStringList parameters;
-        bool neg;
-    };
-
-    bool rebuildPatterns();
-    bool testFunction(int sourceRow, const QModelIndex &sourceParent,
-    const Function &function) const;
-    inline QList<mvdid> idList(const QStringList &sl) const;
-
-    QList<Movida::MovieAttribute> mMovieAttributes;
-    int mSortColumn;
-    Qt::SortOrder mSortOrder;
-
-    QString mQuery;
-    bool mInvalidQuery;
-    QList<Function> mFunctions;
-    QStringList mPlainStrings;
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_FILTERPROXYMODEL_H

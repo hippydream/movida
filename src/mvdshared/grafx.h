@@ -24,12 +24,14 @@
 #include "sharedglobal.h"
 
 class QFont;
+class QImage;
 class QPixmap;
 class QStringList;
 
 namespace MvdGrafx {
 MVD_EXPORT_SHARED QPixmap moviesDragPixmap(const QStringList &posterPaths, QString message, QFont font);
 MVD_EXPORT_SHARED QPixmap sharedDataDragPixmap(const QString &values, QFont font);
+MVD_EXPORT_SHARED void setImageTransparency(QImage& image, int alpha);
 }
 
 #endif // MVD_GRAFX_H

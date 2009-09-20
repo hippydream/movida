@@ -59,7 +59,7 @@ public:
     MvdSharedData &sharedData() const;
 
     void setMetaData(MetaDataType ci, const QString &val);
-    QString metaData(MetaDataType ci) const;
+    QString metaData(MetaDataType ci, bool dontCreateDirs = false) const;
 
     int count() const;
     bool isEmpty() const;
@@ -68,7 +68,7 @@ public:
     QList<mvdid> movieIds() const;
     MvdMovie movie(mvdid id) const;
 
-    mvdid addMovie(const MvdMovie &movie);
+    mvdid addMovie(MvdMovie &movie);
     void updateMovie(mvdid id, const MvdMovie &movie);
     void removeMovie(mvdid id);
 

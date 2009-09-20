@@ -49,13 +49,18 @@
 #include "mvdcore/pathresolver.h"
 #include "mvdcore/plugininterface.h"
 #include "mvdcore/settings.h"
+#include "mvdcore/utils.h"
+
+#ifdef _MVD_DEBUG
+#include "mvdcore/templatecache.h"
+#endif
 
 #include "mvdshared/browserview.h"
 
 #include <QtCore/QDir>
-#include <QtCore/QLibrary>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QTimer>
+#include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QFrame>
 #include <QtGui/QGridLayout>
@@ -73,6 +78,13 @@ namespace {
 struct PluginAction {
     QString name;
     int type;
+};
+
+enum TempDirType {
+    RootTempDir = 0,
+    CollectionTempDir,
+    CollectionDataDir,
+    TemplatesTempDir
 };
 }
 Q_DECLARE_METATYPE(::PluginAction);
@@ -94,8 +106,8 @@ void MvdMainWindow::Private::setupUi()
     layout->setSpacing(0);
 
     mInfoPanel = new MvdInfoPanel;
-    mInfoPanel->closeImmediately(); // by-pass automatic delayed hiding
-    layout->addWidget(mInfoPanel, 0, 0);
+    mInfoPanel->hide();
+    layout->addWidget(mInfoPanel, 2, 0);
 
     mMainViewStack = new QStackedWidget;
     mMainViewStack->setFrameShadow(QFrame::Raised);
@@ -109,16 +121,24 @@ void MvdMainWindow::Private::setupUi()
     mFilterModel->setDynamicSortFilter(true);
     mFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     mFilterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    mFilterModel->setFilterRole(Movida::FilterRole);
+    mFilterModel->setSortRole(Movida::SortRole);
+
+    const QAbstractItemView::EditTriggers editTriggers =
+        (QAbstractItemView::EditTriggers)
+        QAbstractItemView::AllEditTriggers & ~QAbstractItemView::CurrentChanged;
 
     mSmartView = new MvdSmartView(q);
     mSmartView->setObjectName("movie-smart-view");
     mSmartView->setModel(mFilterModel);
+    mSmartView->setEditTriggers(editTriggers);
 
     mTreeView = new MvdMovieTreeView(q);
     mTreeView->setObjectName("movie-tree-view");
     mTreeView->setModel(mFilterModel);
     mTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     mTreeView->setDragEnabled(true);
+    mTreeView->setEditTriggers(editTriggers);
 
     MvdMovieTreeViewDelegate *mtvd = new MvdMovieTreeViewDelegate(q);
     mTreeView->setItemDelegateForColumn(int(Movida::RatingAttribute), mtvd);
@@ -158,7 +178,7 @@ void MvdMainWindow::Private::setupUi()
     mFilterWidget = new MvdFilterWidget;
     mFilterWidget->setVisible(false);
     mFilterWidget->editor()->installEventFilter(q);
-    layout->addWidget(mFilterWidget, 2, 0);
+    layout->addWidget(mFilterWidget, 0, 0);
 
     mHideFilterTimer = new QTimer(q);
     mHideFilterTimer->setInterval(5000);
@@ -169,13 +189,15 @@ void MvdMainWindow::Private::setupUi()
     createToolBars();
     q->lockToolBars(true);
 
-    // Intercept drag & drop. Need to install on viewport or D&D events will be blocked by the view.
     mSmartView->setAcceptDrops(true);
-    mSmartView->viewport()->installEventFilter(q);
     mTreeView->setAcceptDrops(true);
-    mTreeView->viewport()->installEventFilter(q);
 
     retranslateUi();
+
+    connect(&Movida::core(), SIGNAL(collectionCreated(MvdMovieCollection*)),
+            this, SLOT(collectionCreated(MvdMovieCollection*)));
+    connect(&Movida::core(), SIGNAL(pluginsUnloaded()),
+            this, SLOT(pluginsUnloaded()));
 }
 
 QAction *MvdMainWindow::Private::createAction()
@@ -265,9 +287,6 @@ void MvdMainWindow::Private::createActions()
     mA_CollEdtMovie = createAction();
     mA_CollEdtMovie->setIcon(QIcon(":/images/edit.svgz"));
 
-    mA_CollMedMovie = createAction();
-    mA_CollMedMovie->setIcon(QIcon(":/images/mass-edit.svgz"));
-
     mA_CollDupMovie = createAction();
     mA_CollDupMovie->setIcon(QIcon(":/images/edit-copy.svgz"));
 
@@ -309,7 +328,7 @@ void MvdMainWindow::Private::createMenus()
     mMN_File = menuBar->addMenu(MvdMainWindow::tr("&File"));
     mMN_View = menuBar->addMenu(MvdMainWindow::tr("&View"));
     mMN_Collection = menuBar->addMenu(MvdMainWindow::tr("&Collection"));
-    mMN_Plugins = menuBar->addMenu(MvdMainWindow::tr("&Plugins"));
+    mMN_Plugins = menuBar->addMenu(MvdMainWindow::tr("&Plugins")); //! \todo Merge Tools & Plugins menu
     mMN_Tools = menuBar->addMenu(MvdMainWindow::tr("&Tools"));
     mMN_Help = menuBar->addMenu(MvdMainWindow::tr("&Help"));
 
@@ -355,7 +374,6 @@ void MvdMainWindow::Private::createMenus()
     mMN_Collection->addAction(mA_CollAddMovie);
     mMN_Collection->addAction(mA_CollRemMovie);
     mMN_Collection->addAction(mA_CollEdtMovie);
-    mMN_Collection->addAction(mA_CollMedMovie);
     mMN_Collection->addAction(mA_CollDupMovie);
     mMN_Collection->addSeparator();
     mMN_Collection->addAction(mA_CollMeta);
@@ -367,6 +385,28 @@ void MvdMainWindow::Private::createMenus()
     mMN_Help->addAction(mA_HelpAbout);
     mMN_Help->addAction(mA_HelpContents);
     mMN_Help->addAction(mA_HelpIndex);
+
+#ifdef _MVD_DEBUG
+    mMN_Tools->addSeparator();
+    QMenu* toolsTempDirs = new QMenu("T&emp Directories", q);
+    mMN_Tools->addMenu(toolsTempDirs);
+
+    QAction* temp_dir_action = toolsTempDirs->addAction("Root");
+    temp_dir_action->setData((int)RootTempDir);
+    connect(temp_dir_action, SIGNAL(triggered()), this, SLOT(openTempDir()));
+
+    temp_dir_action = toolsTempDirs->addAction("Collection (Temp)");
+    temp_dir_action->setData((int)CollectionTempDir);
+    connect(temp_dir_action, SIGNAL(triggered()), this, SLOT(openTempDir()));
+
+    temp_dir_action = toolsTempDirs->addAction("Collection (Data)");
+    temp_dir_action->setData((int)CollectionDataDir);
+    connect(temp_dir_action, SIGNAL(triggered()), this, SLOT(openTempDir()));
+
+    temp_dir_action = toolsTempDirs->addAction("Templates");
+    temp_dir_action->setData((int)TemplatesTempDir);
+    connect(temp_dir_action, SIGNAL(triggered()), this, SLOT(openTempDir()));
+#endif
 }
 
 void MvdMainWindow::Private::createToolBars()
@@ -529,8 +569,8 @@ void MvdMainWindow::Private::retranslateUi()
     shortcut = MvdMainWindow::tr("Ctrl+M");
     initAction(mA_CollAddMovie, text, shortInfo, longInfo, shortcut);
 
-    text = MvdMainWindow::tr("&Remove selected movie");
-    shortInfo = MvdMainWindow::tr("Removes the selected movie from the collection");
+    text = MvdMainWindow::tr("&Delete selected movie");
+    shortInfo = MvdMainWindow::tr("Delete the selected movie from the collection");
     longInfo = shortInfo;
     shortcut = MvdMainWindow::tr("Delete");
     initAction(mA_CollRemMovie, text, shortInfo, longInfo, shortcut);
@@ -540,12 +580,6 @@ void MvdMainWindow::Private::retranslateUi()
     longInfo = shortInfo;
     shortcut = MvdMainWindow::tr("Ctrl+E");
     initAction(mA_CollEdtMovie, text, shortInfo, longInfo, shortcut);
-
-    text = MvdMainWindow::tr("&Mass edit selected movies");
-    shortInfo = MvdMainWindow::tr("Open a dialog to assign common properties to the selected movies");
-    longInfo = shortInfo;
-    shortcut = MvdMainWindow::tr("Ctrl+Shift+E");
-    initAction(mA_CollMedMovie, text, shortInfo, longInfo, shortcut);
 
     text = MvdMainWindow::tr("&Duplicate selected movie");
     shortInfo = MvdMainWindow::tr("Duplicate the selected movie");
@@ -634,24 +668,23 @@ void MvdMainWindow::Private::setupConnections()
     connect(mA_CollAddMovie, SIGNAL(triggered()), q, SLOT(addMovie()));
     connect(mA_CollRemMovie, SIGNAL(triggered()), q, SLOT(removeSelectedMovies()));
     connect(mA_CollEdtMovie, SIGNAL(triggered()), q, SLOT(editSelectedMovies()));
-    connect(mA_CollMedMovie, SIGNAL(triggered()), q, SLOT(massEditSelectedMovies()));
     connect(mA_CollDupMovie, SIGNAL(triggered()), q, SLOT(duplicateCurrentMovie()));
     connect(mA_CollMeta, SIGNAL(triggered()), q, SLOT(showCollectionMeta()));
 
     connect(mA_LockToolBars, SIGNAL(toggled(bool)), q, SLOT(lockToolBars(bool)));
 
-    connect(mTreeView, SIGNAL(doubleClicked(const QModelIndex &)), q, SLOT(editMovie(const QModelIndex &)));
-    connect(mTreeView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+    connect(mTreeView, SIGNAL(activated(QModelIndex)), q, SLOT(editMovie(QModelIndex)));
+    connect(mTreeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
         this, SLOT(movieViewSelectionChanged()));
-    connect(mTreeView, SIGNAL(contextMenuRequested(const QModelIndex &, QContextMenuEvent::Reason)),
-        q, SLOT(showMovieContextMenu(const QModelIndex &)));
+    connect(mTreeView, SIGNAL(contextMenuRequested(QModelIndex, QContextMenuEvent::Reason)),
+        q, SLOT(showMovieContextMenu(QModelIndex)));
     connect(mTreeView->header(), SIGNAL(sectionClicked(int)), this, SLOT(treeViewSorted(int)));
 
-    connect(mSmartView, SIGNAL(doubleClicked(const QModelIndex &)), q, SLOT(editMovie(const QModelIndex &)));
-    connect(mSmartView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+    connect(mSmartView, SIGNAL(activated(QModelIndex)), q, SLOT(editMovie(QModelIndex)));
+    connect(mSmartView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
         this, SLOT(movieViewSelectionChanged()));
-    connect(mSmartView, SIGNAL(contextMenuRequested(const QModelIndex &)),
-        q, SLOT(showMovieContextMenu(const QModelIndex &)));
+    connect(mSmartView, SIGNAL(contextMenuRequested(QModelIndex)),
+        q, SLOT(showMovieContextMenu(QModelIndex)));
 
     connect(mMainViewStack, SIGNAL(currentChanged(int)), this, SLOT(currentViewChanged()));
 
@@ -665,25 +698,125 @@ void MvdMainWindow::Private::setupConnections()
     connect(mInfoPanel, SIGNAL(closedByUser()), this, SLOT(infoPanelClosedByUser()));
 
     // Application shortcuts
-    connect(new QShortcut(Qt::CTRL + Qt::Key_F, q), SIGNAL(activated()), q, SLOT(showFilterWidget()));
+    Movida::createShortcut(QKeySequence(Qt::CTRL + Qt::Key_F), q, SLOT(toggleFilterWidget()), q);
+    Movida::createShortcut(QKeySequence(Qt::Key_Escape), q, SLOT(escape()), this);
+
+    // DEBUG
+#ifdef _MVD_DEBUG
+    Movida::createShortcut(QKeySequence(Qt::CTRL + Qt::Key_P), q, SLOT(showPersistentMessage()), this);
+    Movida::createShortcut(QKeySequence(Qt::CTRL + Qt::Key_T), q, SLOT(showTemporaryMessage()), this);
+#endif
+}
+
+void MvdMainWindow::Private::loadPlugins()
+{
+    QList<MvdPluginInterface *> plugins = Movida::core().plugins();
+    foreach (MvdPluginInterface * iface, plugins) {
+
+        MvdPluginInterface::PluginInfo info = iface->info();
+        QList<MvdPluginInterface::PluginAction> actions = iface->actions();
+
+        //! \todo sort plugin names?
+        QMenu *pluginMenu = mMN_Plugins->addMenu(info.name);
+
+        for (int j = 0; j < actions.size(); ++j) {
+            const MvdPluginInterface::PluginAction &a = actions.at(j);
+
+            QAction *qa = createAction();
+            qa->setText(a.text);
+            qa->setStatusTip(a.helpText);
+            qa->setIcon(a.icon);
+
+            if (!a.shortcuts.isEmpty()) {
+                const QKeySequence& ks = a.shortcuts[0];
+                qa->setShortcut(ks);
+            }
+
+            ::PluginAction pa;
+            pa.name = QString("%1/%2").arg(info.uniqueId.trimmed()).arg(a.name);
+            pa.type = a.type;
+            qa->setData(QVariant::fromValue<PluginAction>(pa));
+
+            connect(qa, SIGNAL(triggered()), this, SLOT(pluginActionTriggered()));
+
+            pluginMenu->addAction(qa);
+
+            if (a.type & MvdPluginInterface::ImportAction) {
+                mMN_FileImport->addAction(qa);
+            }
+
+            if (a.type & MvdPluginInterface::ExportAction) {
+                mMN_FileExport->addAction(qa);
+            }
+        }
+
+        pluginMenu->setEnabled(!pluginMenu->isEmpty());
+    }
 }
 
 void MvdMainWindow::Private::movieViewSelectionChanged()
 {
-    QModelIndexList list = mTreeView->selectedRows();
+    const QModelIndexList list = mTreeView->selectedRows();
+    const int count = list.size();
+    const bool empty = count == 0;
 
-    mA_CollRemMovie->setEnabled(!list.isEmpty());
-    mA_CollEdtMovie->setEnabled(list.size() == 1);
-    mA_CollMedMovie->setEnabled(list.size() > 1);
-    mA_CollDupMovie->setEnabled(list.size() == 1);
+    mA_CollRemMovie->setEnabled(!empty);
+    mA_CollEdtMovie->setEnabled(!empty);
+    mA_CollDupMovie->setEnabled(count == 1);
 
+    updateActionTexts(count);
     updateBrowserView();
+
+    q->movieSelectionChanged();
+}
+
+//! Updates the text of actions that are related to selected movies.
+void MvdMainWindow::Private::updateActionTexts(int count)
+{
+    int action_count;
+    action_count = Movida::variantValue(mA_CollEdtMovie->property("_mvd_count"), 0);
+    if (action_count != count) {
+        QString text, shortInfo;
+        
+        text = count > 1 
+            ? MvdMainWindow::tr("&Edit selected movies", "", count)
+            : MvdMainWindow::tr("&Edit selected movie");
+        shortInfo = count > 1 
+            ? MvdMainWindow::tr("Open a dialog to edit the selected movies", "", count)
+            : MvdMainWindow::tr("Open a dialog to edit the selected movie");
+        mA_CollEdtMovie->setText(text);
+        mA_CollEdtMovie->setStatusTip(shortInfo);
+
+        text = count > 1 
+            ? MvdMainWindow::tr("&Delete selected movies", "", count)
+            : MvdMainWindow::tr("&Delete selected movie");
+        shortInfo = count > 1 
+            ? MvdMainWindow::tr("Delete the selected movies from the collection", "", count)
+            : MvdMainWindow::tr("Delete the selected movie from the collection");
+        mA_CollRemMovie->setText(text);
+        mA_CollRemMovie->setStatusTip(shortInfo);
+
+        text = count > 1 
+            ? MvdMainWindow::tr("&Edit selected movies", "", count)
+            : MvdMainWindow::tr("&Edit selected movie");
+        shortInfo = count > 1 
+            ? MvdMainWindow::tr("Open a dialog to edit the selected movies", "", count)
+            : MvdMainWindow::tr("Open a dialog to edit the selected movie");
+        mA_CollEdtMovie->setText(text);
+        mA_CollEdtMovie->setStatusTip(shortInfo);
+        mA_CollEdtMovie->setIcon(count > 1 ? QIcon(":/images/mass-edit.svgz") : QIcon(":/images/edit.svgz"));
+    }
 }
 
 void MvdMainWindow::Private::updateBrowserView()
 {
     QList<mvdid> ids = q->selectedMovies();
     mDetailsView->showMovies(ids);
+}
+
+void MvdMainWindow::Private::timerEvent(QTimerEvent *e)
+{
+    Q_UNUSED(e);
 }
 
 //! Updates GUI elements after the current view has changed (e.g. tree -> smart view).
@@ -729,29 +862,33 @@ void MvdMainWindow::Private::updateViewSortMenu()
     Creates a new collection. Sets the collection as the view's model and
     connects the proper signals and slots.
 */
-void MvdMainWindow::Private::createNewCollection()
+void MvdMainWindow::Private::collectionCreated(MvdMovieCollection* c)
 {
-    if (mCollection) {
-        delete mCollection;
-    }
+    Q_ASSERT(c);
 
-    mCollection = new MvdMovieCollection();
-    MvdCore::pluginContext()->collection = mCollection;
-    mMovieModel->setMovieCollection(mCollection);
-    mSharedDataModel->setMovieCollection(mCollection);
-    mDetailsView->setMovieCollection(mCollection);
+    mMovieModel->setMovieCollection(c);
+    mSharedDataModel->setMovieCollection(c);
+    mDetailsView->setMovieCollection(c);
 
-    connect(mCollection, SIGNAL(modified()), this, SLOT(collectionModified()));
-    connect(mCollection, SIGNAL(metaDataChanged(int, QString)), this, SLOT(collectionMetaDataChanged(int)));
-    connect(mCollection, SIGNAL(movieChanged(mvdid)), this, SLOT(movieChanged(mvdid)));
+    mA_FileNew->setDisabled(true);
+
+    connect(c, SIGNAL(modified()), this, SLOT(collectionModified()));
+    connect(c, SIGNAL(metaDataChanged(int, QString)), this, SLOT(collectionMetaDataChanged(int)));
+    connect(c, SIGNAL(movieAdded(mvdid)), this, SLOT(movieAdded(mvdid)));
+    connect(c, SIGNAL(movieChanged(mvdid)), this, SLOT(movieChanged(mvdid)));
+}
+
+void MvdMainWindow::Private::pluginsUnloaded()
+{
+    mMN_Plugins->clear();
 }
 
 //! Called when the collection is modified.
 void MvdMainWindow::Private::collectionModified()
 {
-    bool isEmpty = mCollection->isEmpty();
-    bool isNewCollection = mCollection->path().isEmpty();
-    bool isModified = mCollection->isModified();
+    bool isEmpty = core().currentCollection()->isEmpty();
+    bool isNewCollection = core().currentCollection()->path().isEmpty();
+    bool isModified = core().currentCollection()->isModified();
 
     q->setWindowModified(isModified);
 
@@ -772,10 +909,13 @@ void MvdMainWindow::Private::collectionMetaDataChanged(int _t)
 //! Called when a movie in the collection is modified.
 void MvdMainWindow::Private::movieChanged(mvdid id)
 {
-    mvdid current = movieIndexToId(mTreeView->selectedIndex());
+    Q_UNUSED(id);
+}
 
-    if (current == 0)
-        return;
+//! Called when a movie is added to the collection.
+void MvdMainWindow::Private::movieAdded(mvdid id)
+{
+    Q_UNUSED(id);
 }
 
 /*!
@@ -785,17 +925,16 @@ void MvdMainWindow::Private::updateCaption()
 {
     QString windowTitle;
 
-    if (mCollection)
-        windowTitle = mCollection->metaData(MvdMovieCollection::NameInfo);
+    windowTitle = core().currentCollection()->metaData(MvdMovieCollection::NameInfo);
 
-    if (mCollection && !windowTitle.isEmpty()) {
+    if (!windowTitle.isEmpty()) {
         ;
-    } else if (!mCollection || mCollection->fileName().isEmpty()) {
+    } else if (core().currentCollection()->fileName().isEmpty()) {
         windowTitle = MvdMainWindow::tr("New Collection");
     } else {
-        if (!mCollection->path().isEmpty())
-            windowTitle = mCollection->path();
-        else windowTitle = mCollection->fileName();
+        if (!core().currentCollection()->path().isEmpty())
+            windowTitle = core().currentCollection()->path();
+        else windowTitle = core().currentCollection()->fileName();
     }
 
     windowTitle.append(QLatin1String("[*]"));
@@ -807,7 +946,7 @@ void MvdMainWindow::Private::updateCaption()
 #endif
 
     q->setWindowTitle(windowTitle);
-    q->setWindowModified(mCollection && mCollection->isModified());
+    q->setWindowModified(core().currentCollection() && core().currentCollection()->isModified());
 }
 
 mvdid MvdMainWindow::Private::movieIndexToId(const QModelIndex &index) const
@@ -825,192 +964,6 @@ QModelIndex MvdMainWindow::Private::movieIdToIndex(mvdid id) const
     return index.isValid() ? mFilterModel->mapFromSource(index) : QModelIndex();
 }
 
-//! \internal Loads plugins from all the available plugin dirs.
-void MvdMainWindow::Private::loadPlugins()
-{
-    unloadPlugins();
-
-    mMN_Plugins->setEnabled(true);
-
-    QString path = paths().resourcesDir(Movida::UserScope).append("Plugins");
-    loadPluginsFromDir(path);
-    path = paths().resourcesDir(Movida::SystemScope).append("Plugins");
-    if (!path.isEmpty())
-        loadPluginsFromDir(path);
-
-    if (mMN_Plugins->isEmpty())
-        mMN_Plugins->setEnabled(false);
-}
-
-//! \internal Loads plugins from the given plugins dir.
-void MvdMainWindow::Private::loadPluginsFromDir(const QString &path)
-{
-    if (!mCollection)
-        createNewCollection();
-
-    QDir pluginDir(path);
-
-#if defined (Q_WS_WIN)
-    QString ext = "*.dll";
-    QString prefix = "mpi";
-#elif defined (Q_WS_MAC)
-    QString ext = "*.dylib";
-    QString prefix = "libmpi";
-#else
-    QString ext = "*.so";
-    QString prefix = "libmpi";
-#endif
-
-    QFileInfoList list = pluginDir.entryInfoList(QStringList() << ext);
-    for (int i = 0; i < list.size(); ++i) {
-        QFileInfo &fi = list[i];
-        QString name = fi.completeBaseName();
-
-        if (!name.startsWith(prefix))
-            continue;
-
-        QLibrary myLib(fi.absoluteFilePath());
-        if (!myLib.load()) {
-            eLog() << QString("Failed to load %1 (reason: %2)")
-                .arg(fi.absoluteFilePath()).arg(myLib.errorString());
-            continue;
-        }
-
-        iLog() << "Checking plugin " << fi.absoluteFilePath();
-
-        typedef MvdPluginInterface * (*PluginInterfaceF)(QObject *);
-        PluginInterfaceF pluginInterfaceF = (PluginInterfaceF)myLib.resolve("pluginInterface");
-        if (!pluginInterfaceF)
-            continue;
-
-        MvdPluginInterface *iface = pluginInterfaceF(q);
-        if (!iface)
-            continue;
-
-        MvdPluginInterface::PluginInfo info = iface->info();
-        if (info.uniqueId.trimmed().isEmpty()) {
-            wLog() << "Discarding plugin with no unique ID.";
-            continue;
-        }
-
-        info.uniqueId.replace(QLatin1Char('/'), QLatin1Char('.'));
-
-        bool discard = false;
-        foreach(MvdPluginInterface * plug, mPlugins)
-        {
-            QString s = plug->info().uniqueId.trimmed();
-
-            if (s.replace(QLatin1Char('/'), QLatin1Char('.')) == info.uniqueId.trimmed()) {
-                discard = true;
-                break;
-            }
-        }
-        if (discard) {
-            wLog() << QString("Discarding plugin with duplicate ID '%1'.").arg(info.uniqueId);
-            continue;
-        }
-
-        if (info.name.trimmed().isEmpty()) {
-            wLog() << "Discarding plugin with no name.";
-            continue;
-        }
-
-        iLog() << QString("Loading '%1' plugin.").arg(info.uniqueId);
-
-        QString dataStorePath = paths().resourcesDir(Movida::UserScope).append("Plugins/").append(fi.completeBaseName());
-        if (!QFile::exists(dataStorePath)) {
-            QDir d;
-            if (!d.mkpath(dataStorePath)) {
-                eLog() << "Failed to create user data store for plugin: " << dataStorePath;
-                continue;
-            }
-        }
-
-        dataStorePath = MvdCore::toLocalFilePath(dataStorePath, true);
-        iface->setDataStore(dataStorePath, Movida::UserScope);
-        iLog() << QString("'%1' plugin user data store: ").arg(info.name).append(dataStorePath);
-
-        // Create global data store
-        dataStorePath = paths().resourcesDir(Movida::SystemScope);
-        if (!dataStorePath.isEmpty()) {
-            dataStorePath.append("Plugins/").append(fi.completeBaseName());
-            bool ok = true;
-            if (!QFile::exists(dataStorePath)) {
-                QDir d;
-                if (!d.mkpath(dataStorePath)) {
-                    wLog() << "Failed to create global data store for plugin: " << dataStorePath;
-                    ok = false;
-                }
-            } else ok = true;
-
-            if (ok) {
-                dataStorePath = MvdCore::toLocalFilePath(dataStorePath, true);
-                iface->setDataStore(dataStorePath, Movida::SystemScope);
-                iLog() << QString("'%1' plugin system data store: ").arg(info.name).append(dataStorePath);
-            }
-        }
-
-
-        QList<MvdPluginInterface::PluginAction> actions;
-
-        // Initialize plugin
-        bool pluginOk = iface->init();
-        if (pluginOk) {
-            iLog() << QString("'%1' plugin initialized.").arg(info.name);
-            actions = iface->actions();
-        } else wLog() << QString("Failed to initialize '%1' plugin.").arg(info.name);
-
-        //! \todo sort plugin names?
-        QMenu *pluginMenu = mMN_Plugins->addMenu(info.name);
-        if (actions.isEmpty()) {
-            pluginMenu->setEnabled(false);
-        }
-
-        for (int j = 0; j < actions.size(); ++j) {
-            const MvdPluginInterface::PluginAction &a = actions.at(j);
-            QAction *qa = createAction();
-            qa->setText(a.text);
-            qa->setStatusTip(a.helpText);
-            qa->setIcon(a.icon);
-
-                ::PluginAction pa;
-            pa.name = QString("%1/%2").arg(info.uniqueId.trimmed()).arg(a.name);
-            pa.type = a.type;
-            qa->setData(QVariant::fromValue<PluginAction>(pa));
-
-            connect(qa, SIGNAL(triggered()), this, SLOT(pluginActionTriggered()));
-
-            pluginMenu->addAction(qa);
-
-            if (a.type & MvdPluginInterface::ImportAction) {
-                mMN_FileImport->addAction(qa);
-            }
-
-            if (a.type & MvdPluginInterface::ExportAction) {
-                mMN_FileExport->addAction(qa);
-            }
-        }
-
-        mPlugins.append(iface);
-    }
-}
-
-//! \internal Unloads plugins and frees used memory. Also clears the plugins menu.
-void MvdMainWindow::Private::unloadPlugins()
-{
-    if (mPlugins.isEmpty())
-        return;
-
-    while (!mPlugins.isEmpty()) {
-        MvdPluginInterface *p = mPlugins.takeFirst();
-        iLog() << QLatin1String("Unloading plugin: ") << p->info().name;
-        p->unload();
-        delete p;
-    }
-
-    mMN_Plugins->clear();
-}
-
 void MvdMainWindow::Private::pluginActionTriggered()
 {
     QAction *a = qobject_cast<QAction *>(sender());
@@ -1025,7 +978,8 @@ void MvdMainWindow::Private::pluginActionTriggered()
     QString actionName = l[1];
 
     MvdPluginInterface *iface = 0;
-    foreach(MvdPluginInterface * i, mPlugins)
+    QList<MvdPluginInterface *> pluginList = Movida::core().plugins();
+    foreach(MvdPluginInterface * i, pluginList)
     {
         QString s = i->info().uniqueId.trimmed();
 
@@ -1088,22 +1042,23 @@ void MvdMainWindow::Private::cleanUp()
         p.setValue("movida/smart-view/item-size", "small");
     else p.setValue("movida/smart-view/item-size", "medium");
 
-    unloadPlugins();
-
     paths().removeDirectoryTree(paths().tempDir());
 
-    if (mCollection && mCollection->isModified()) {
+    if (core().currentCollection()->isModified()) {
         //! \todo Emergency save!
     }
 
     // This must be called last!!! Singletons should not be accessed from now on!
-    MvdCore::storeStatus();
+    Movida::core().storeStatus();
 }
 
 //! Returns false if the quick filter should not be shown after a key press (e.g. because focus is on the SD editor)
 bool MvdMainWindow::Private::shouldShowQuickFilter() const
 {
-    if (!mCollection || mCollection->isEmpty())
+    if (mFilterWidget->isVisible())
+        return true;
+
+    if (core().currentCollection()->isEmpty())
         return false;
 
     // Shared data editor must not loose its focus
@@ -1176,7 +1131,7 @@ void MvdMainWindow::Private::updateFileMenu()
     }
 
     // IMPORT/EXPORT
-    bool hasMovies = mCollection && !mCollection->isEmpty();
+    bool hasMovies = !core().currentCollection()->isEmpty();
     mMN_FileImport->setDisabled(mMN_FileImport->isEmpty());
     mMN_FileExport->setDisabled(!hasMovies || mMN_FileExport->isEmpty());
 
@@ -1194,7 +1149,7 @@ void MvdMainWindow::Private::updatePluginsMenu()
     if (mMN_Plugins->isEmpty())
         return;
 
-    bool hasMovies = mCollection && !mCollection->isEmpty();
+    bool hasMovies = !core().currentCollection()->isEmpty();
 
     QList<QAction *> l = mMN_Plugins->actions();
     for (int i = 0; i < l.size(); ++i) {
@@ -1261,22 +1216,29 @@ void MvdMainWindow::Private::filter(QString s)
         mInfoPanelClosedByUser = false;
 
     if (!s.isEmpty() && !mInfoPanelClosedByUser) {
-        mInfoPanel->setText(MvdMainWindow::tr("Movie filter is active. Clear or close the filter bar to show all movies."));
-        mInfoPanel->show();
-    } else mInfoPanel->hide();
+        const int visible = mFilterModel->rowCount();
+        const int total = mFilterModel->sourceModel()->rowCount();
+        if (visible == total)
+            q->showPersistentMessage(MvdMainWindow::tr("Filter matches all the movies. Clear or close the filter bar to reset the filter."));
+        else if (visible == 1)
+            q->showPersistentMessage(MvdMainWindow::tr("Showing one movie out of %1. Clear or close the filter bar to show all movies.")
+                .arg(total));
+        else q->showPersistentMessage(MvdMainWindow::tr("Showing %1 movies out of %2. Clear or close the filter bar to show all movies.", "", visible)
+            .arg(visible).arg(total));
+    } else q->hideMessages();
 }
 
 void MvdMainWindow::Private::dispatchMessage(Movida::MessageType t, const QString &m)
 {
     switch (t) {
         case Movida::InformationMessage:
-            mInfoPanel->showTemporaryMessage(m); break;
+            q->showTemporaryMessage(m); break;
 
         case Movida::WarningMessage:
-            mInfoPanel->showTemporaryMessage(m); break;
+            q->showTemporaryMessage(m); break;
 
         case Movida::ErrorMessage:
-            mInfoPanel->showTemporaryMessage(m); break;
+            q->showTemporaryMessage(m); break;
 
         default:
             ;
@@ -1376,10 +1338,9 @@ bool MvdMainWindow::Private::loadCollectionDlg()
     Returns false if the collection has not been saved
     (this is not necessarily an error).
 */
-bool MvdMainWindow::Private::saveCollectionDlg()
+bool MvdMainWindow::Private::saveCollectionDlg(bool silent)
 {
-    Q_ASSERT(mCollection);
-    Q_ASSERT(!mCollection->isEmpty());
+    Q_ASSERT(!core().currentCollection()->isEmpty());
 
     QString lastDir = Movida::settings().value("movida/directories/collection").toString();
 
@@ -1399,14 +1360,15 @@ bool MvdMainWindow::Private::saveCollectionDlg()
     }
 
     MvdCollectionSaver saver(q);
-    MvdCollectionSaver::StatusCode res = saver.save(mCollection, filename);
+    MvdCollectionSaver::StatusCode res = saver.save(core().currentCollection(), filename);
 
     if (res != MvdCollectionSaver::NoError) {
-        QMessageBox::warning(q, MVD_CAPTION, MvdMainWindow::tr("Failed to save the collection."));
+        if (!silent)
+            QMessageBox::warning(q, MVD_CAPTION, MvdMainWindow::tr("Failed to save the collection."));
         return false;
     }
 
-    mCollection->setModifiedStatus(false);
+    core().currentCollection()->setModifiedStatus(false);
     mA_FileSave->setEnabled(false);
     updateCaption();
     return true;
@@ -1416,18 +1378,19 @@ bool MvdMainWindow::Private::saveCollectionDlg()
     Closes the current collection and initializes a new empty collection.
     Returns false if the collection has not been closed.
 */
-bool MvdMainWindow::Private::closeCollection()
+bool MvdMainWindow::Private::closeCollection(bool silent, bool *error)
 {
-    q->resetFilter();
+    if (error)
+        *error = false;
 
-    if (!mCollection)
-        return true;
+    if (!mFilterWidget->isEmpty())
+        q->resetFilter();
 
     int res = QMessageBox::Discard;
 
-    bool isNewEmptyCollection = mCollection->path().isEmpty() && mCollection->isEmpty();
+    bool isNewEmptyCollection = core().currentCollection()->path().isEmpty() && core().currentCollection()->isEmpty();
 
-    if (mCollection->isModified() && !isNewEmptyCollection) {
+    if (core().currentCollection()->isModified() && !isNewEmptyCollection) {
         res = QMessageBox::question(q, MVD_CAPTION,
             MvdMainWindow::tr("The collection has been modified.\nDo you want to save the changes?"),
             QMessageBox::Save, QMessageBox::Discard, QMessageBox::Cancel);
@@ -1438,9 +1401,12 @@ bool MvdMainWindow::Private::closeCollection()
 
     if (res == QMessageBox::Save) {
         bool result;
-        if (mCollection->path().isEmpty())
-            result = saveCollectionDlg();
-        else result = q->saveCollection();
+        if (core().currentCollection()->path().isEmpty())
+            result = saveCollectionDlg(silent);
+        else result = q->saveCollection(silent);
+
+        if (error)
+            *error = result;
 
         if (!result)
             return false;
@@ -1452,8 +1418,8 @@ bool MvdMainWindow::Private::closeCollection()
 
     updateCaption();
 
-    mCollection->clearPersistentData();
-    createNewCollection();
+    core().currentCollection()->clearPersistentData();
+    core().createNewCollection();
 
     return true;
 }
@@ -1492,16 +1458,56 @@ void MvdMainWindow::Private::showMovieContextMenu(const QModelIndex &index)
     Q_ASSERT(senderWidget);
 
     QMenu menu;
-    QAction *addNew = 0;
     QAction *editCurrent = 0;
     QAction *editSelected = 0;
     QAction *deleteCurrent = 0;
     QAction *deleteSelected = 0;
 
-    bool currentIsSelected = false;
-    bool hasMovies = mCollection && !mCollection->isEmpty();
+    const bool currentIsSelected = false;
+    const bool hasMovies = !core().currentCollection()->isEmpty();
+    const bool hasVisibleMovies = mFilterModel->rowCount();
 
-    addNew = menu.addAction(MvdMainWindow::tr("New movie..."));
+//! \todo Delete/edit movie menu must be singular+plural
+//! \todo Merge MassEdit menu action with Edit
+//! \todo Mass editor special flag combos must use checked = on/off if all movies have (don't have) that flag
+//! \todo Remove accidentally added mass editor code using QInputDialog
+//! \todo Complete mass editor
+
+    /// Selected movie(s)
+    QModelIndexList selected = mSelectionModel->selectedRows();
+    
+    if (selected.size() == 1) {
+
+        mvdid currentId = movieIndexToId(selected.at(0));
+        MvdMovie movie = core().currentCollection()->movie(currentId);
+        if (movie.isValid()) {
+            if (!menu.isEmpty())
+                menu.addSeparator();
+            
+            /*QString title = q->fontMetrics().elidedText(movie.validTitle(), Qt::ElideMiddle, 300);
+            editCurrent = menu.addAction(MvdMainWindow::tr("Edit \"%1\"", "Edit movie").arg(title));
+            deleteCurrent = menu.addAction(MvdMainWindow::tr("Delete \"%1\"", "Delete movie").arg(title));*/
+            menu.addAction(mA_CollEdtMovie);
+            menu.addAction(mA_CollRemMovie);
+        }
+
+    } else if (selected.size() > 1) {
+
+        if (!menu.isEmpty())
+            menu.addSeparator();
+        /*editSelected = menu.addAction(MvdMainWindow::tr("Edit selected movies"));
+        deleteSelected = menu.addAction(MvdMainWindow::tr("Delete selected movies"));*/
+        menu.addAction(mA_CollEdtMovie);
+        menu.addAction(mA_CollRemMovie);
+    }
+
+
+    /// Collection
+
+    if (!menu.isEmpty())
+        menu.addSeparator();
+
+    menu.addAction(mA_CollAddMovie);
 
     menu.addMenu(mMN_FileImport);
     mMN_FileImport->setEnabled(!mMN_FileImport->isEmpty());
@@ -1512,71 +1518,17 @@ void MvdMainWindow::Private::showMovieContextMenu(const QModelIndex &index)
     if (!mMN_FileExport->isEmpty() && hasMovies)
         updatePluginsMenu();
 
-    QModelIndexList selected = mSelectionModel->selectedRows();
-    mvdid currentId = movieIndexToId(index);
-    bool movieMenuAdded = false;
-    if (currentId != MvdNull) {
 
-        MvdMovie movie = mCollection->movie(currentId);
-        if (movie.isValid()) {
-            if (!menu.isEmpty())
-                menu.addSeparator();
-            movieMenuAdded = true;
-            QString title = q->fontMetrics().elidedText(movie.validTitle(), Qt::ElideMiddle, 300);
-            editCurrent = menu.addAction(MvdMainWindow::tr("Edit \"%1\"", "Edit movie").arg(title));
-            deleteCurrent = menu.addAction(MvdMainWindow::tr("Delete \"%1\"", "Delete movie").arg(title));
-        }
-    }
+    /// Movie view
 
-
-    if (selected.size() > 1) {
+    if (q->currentMovieView() == mSmartView && hasVisibleMovies) {
+        //! \todo Add common interface for movie views with a method to return (context) menu actions
         if (!menu.isEmpty())
             menu.addSeparator();
-        editSelected = menu.addAction(MvdMainWindow::tr("Edit selected movies"));
-        deleteSelected = menu.addAction(MvdMainWindow::tr("Delete selected movies"));
-    } else if (!selected.isEmpty() && !movieMenuAdded) {
-        QModelIndex selectedIndex = selected.first();
-        if (selectedIndex.isValid()) {
-            mvdid id = mFilterModel->data(selectedIndex, Movida::IdRole).toUInt();
-            if (id != MvdNull) {
-                MvdMovie movie = mCollection->movie(id);
-                if (movie.isValid()) {
-                    if (!menu.isEmpty())
-                        menu.addSeparator();
-                    currentIsSelected = true;
-                    movieMenuAdded = true;
-                    QString title = q->fontMetrics().elidedText(movie.validTitle(), Qt::ElideMiddle, 300);
-                    editCurrent = menu.addAction(MvdMainWindow::tr("Edit \"%1\"", "Edit movie").arg(title));
-                    deleteCurrent = menu.addAction(MvdMainWindow::tr("Delete \"%1\"", "Delete movie").arg(title));
-                }
-            }
-        }
+        menu.addMenu(mMN_ViewSort);
     }
 
-    if (sender() == mSmartView && mAG_ViewSort && mMovieModel->rowCount()) {
-        if (!menu.isEmpty())
-            menu.addSeparator();
-        QMenu *sortMenu = menu.addMenu(MvdMainWindow::tr("Sort"));
-        sortMenu->addActions(mAG_ViewSort->actions());
-        sortMenu->addSeparator();
-        sortMenu->addAction(mA_ViewSortDescending);
-    }
-
-    QAction *res = menu.exec(QCursor::pos());
-    if (!res)
-        return;
-
-    if (res == addNew) {
-        q->addMovie();
-    } else if (res == editCurrent) {
-        q->editMovie(currentIsSelected ? selected.first() : index);
-    } else if (res == deleteCurrent) {
-        q->removeMovie(currentIsSelected ? selected.first() : index);
-    } else if (res == deleteSelected) {
-        q->removeMovies(selected);
-    } else if (res == editSelected) {
-        q->editSelectedMovies();
-    }
+    menu.exec(QCursor::pos());
 }
 
 void MvdMainWindow::Private::movieViewToggled(QAction *a)
@@ -1623,7 +1575,7 @@ void MvdMainWindow::Private::setMoviePoster(mvdid movieId, const QUrl &url)
 {
     if (movieId == MvdNull)
         return;
-    MvdMovie movie = mCollection->movie(movieId);
+    MvdMovie movie = core().currentCollection()->movie(movieId);
     if (!movie.isValid())
         return;
 
@@ -1631,10 +1583,10 @@ void MvdMainWindow::Private::setMoviePoster(mvdid movieId, const QUrl &url)
 
     if (url.scheme() == QLatin1String("file")) {
         QString f = url.toLocalFile();
-        f = mCollection->addImage(f, MvdMovieCollection::MoviePosterImage);
+        f = core().currentCollection()->addImage(f, MvdMovieCollection::MoviePosterImage);
         if (!f.isEmpty()) {
             movie.setPoster(f);
-            mCollection->updateMovie(movieId, movie);
+            core().currentCollection()->updateMovie(movieId, movie);
             q->statusBar()->showMessage(MvdMainWindow::tr("A new movie poster has been set for '%1'.").arg(t));
         } else q->statusBar()->showMessage(MvdMainWindow::tr("Failed to set a movie poster set for '%1'.").arg(t));
 
@@ -1689,7 +1641,7 @@ void MvdMainWindow::Private::httpRequestFinished(int id, bool error)
     switch (rr.requestType) {
         case RemoteRequest::MoviePoster:
         {
-            MvdMovie m = mCollection->movie(rr.target);
+            MvdMovie m = core().currentCollection()->movie(rr.target);
             if (!m.isValid()) {
                 wLog() << "Failed to set movie poster for " << rr.data.toString() << " - invalid movie ID.";
                 delete rr.tempFile;
@@ -1703,12 +1655,12 @@ void MvdMainWindow::Private::httpRequestFinished(int id, bool error)
                 return;
             }
 
-            QString s = mCollection->addImage(rr.tempFile->fileName());
+            QString s = core().currentCollection()->addImage(rr.tempFile->fileName());
             if (s.isEmpty()) {
                 q->statusBar()->showMessage(MvdMainWindow::tr("Failed to set a movie poster set for '%1'.").arg(rr.data.toString()));
             } else {
                 m.setPoster(s);
-                mCollection->updateMovie(rr.target, m);
+                core().currentCollection()->updateMovie(rr.target, m);
                 q->statusBar()->showMessage(MvdMainWindow::tr("A new movie poster has been set for '%1'.").arg(rr.data.toString()));
             }
 
@@ -1721,3 +1673,181 @@ void MvdMainWindow::Private::httpRequestFinished(int id, bool error)
 }
 
 Q_DECLARE_METATYPE(MvdCollectionLoader::Info);
+
+
+/////////////////////////////////////////////////////////////
+
+namespace {
+    enum LogHighlightRules {
+        HeaderLHRule = 0,
+        TextLineLHRule,
+        DateLHRule,
+        InfoLHRule,
+        WarningLHRule,
+        ErrorLHRule,
+        WarningLineLHRule,
+        ErrorLineLHRule,
+        PathLHRule,
+        LHRuleCount // Special
+    };
+}
+
+bool MvdLogSyntaxHighlighter::mRulesInitialized = false;
+QVector<MvdLogSyntaxHighlighter::HighlightingRule> MvdLogSyntaxHighlighter::mHighlightingRules =
+        QVector<MvdLogSyntaxHighlighter::HighlightingRule>(LHRuleCount);
+
+MvdLogSyntaxHighlighter::MvdLogSyntaxHighlighter(QTextDocument *parent) :
+    QSyntaxHighlighter(parent)
+{
+    if (!mRulesInitialized) {
+        mRulesInitialized = true;
+
+        HighlightingRule rule;
+
+        static QTextCharFormat DefaultCharFormat;
+        static QFont DefaultFont = QApplication::font();
+        DefaultCharFormat.setFont(DefaultFont);
+
+        rule.format = DefaultCharFormat;
+        rule.format.setFontWeight(QFont::Bold);
+        mHighlightingRules[(int)HeaderLHRule] = rule;
+
+        rule.format = DefaultCharFormat;
+        mHighlightingRules[(int)TextLineLHRule] = rule;
+
+        rule.format = DefaultCharFormat;
+        rule.format.setForeground(QColor("#585858"));
+        rule.format.setFontItalic(true);
+        rule.pattern.setPattern("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}");
+        mHighlightingRules[(int)DateLHRule] = rule;
+
+        rule.format = DefaultCharFormat;
+        rule.pattern.setPattern("INFO");
+        mHighlightingRules[(int)InfoLHRule] = rule;
+
+        rule.format = DefaultCharFormat;
+        rule.format.setForeground(QColor("#FF8000"));
+        rule.pattern.setPattern("WARNING");
+        mHighlightingRules[(int)WarningLHRule] = rule;
+
+        rule.format = DefaultCharFormat;
+        rule.format.setForeground(QColor("#C00000"));
+        rule.pattern.setPattern("ERROR");
+        mHighlightingRules[(int)ErrorLHRule] = rule;
+
+        rule.format = DefaultCharFormat;
+        mHighlightingRules[(int)WarningLineLHRule] = rule;
+
+        rule.format = DefaultCharFormat;
+        mHighlightingRules[(int)ErrorLineLHRule] = rule;
+
+        rule.format = DefaultCharFormat;
+        rule.format.setForeground(QColor("#000080"));
+        rule.pattern.setCaseSensitivity(Qt::CaseInsensitive);
+        rule.pattern.setPattern("(?:(?:[a-z]+:(?:(?://)|\\\\)?)|(?:/))?[^/\\\\]+(?:[\\w\\. \\-$~!/\\\\])+");
+        mHighlightingRules[(int)PathLHRule] = rule;
+        rule.pattern.setCaseSensitivity(Qt::CaseSensitive);
+        // http://host.path.xxx?=
+        // c:\test\kakk a\ncas%
+        // /home/blue/lalla$
+        // ~/home/blue/llalla
+    }
+}
+
+void MvdLogSyntaxHighlighter::highlightBlock(const QString &text)
+{
+    if (text.isEmpty())
+        return;
+
+    // First apply the base format
+    const HighlightingRule &rule = mHighlightingRules[(int)TextLineLHRule];
+    setFormat(0, text.length(), rule.format);
+
+    // Now look for the header
+
+    static const QString headerSignature = QLatin1String("Movida log: ");
+    int start = 0;
+    if (text.startsWith(headerSignature)) {
+        start = qMax(text.indexOf("\n"), text.length());
+        const HighlightingRule &rule = mHighlightingRules[(int)HeaderLHRule];
+        setFormat(0, start, rule.format);
+    }
+
+    if (start == text.length())
+        return;
+
+    for (int i = 0; i < mHighlightingRules.size(); ++i) {
+        const HighlightingRule &rule = mHighlightingRules[i];
+        if (i == (int)TextLineLHRule || i == (int)HeaderLHRule)
+            continue;
+        const QRegExp &expression = rule.pattern;
+        if (expression.pattern().isEmpty())
+            continue;
+        int index = expression.indexIn(text, start);
+        while (index >= 0) {
+            int length = expression.matchedLength();
+            if (!length)
+                break;
+            setFormat(index, length, rule.format);
+            index = expression.indexIn(text, index + length);
+        }
+    }
+}
+
+void MvdMainWindow::Private::escape()
+{
+    if (mInfoPanel->isVisible()) {
+        q->hideMessages();
+        return;
+    }
+
+    if (mFilterWidget->isVisible()) {
+        q->resetFilter();
+        return;
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
+#ifdef _MVD_DEBUG
+
+void MvdMainWindow::Private::openTempDir()
+{
+    QAction* a = qobject_cast<QAction*>(sender());
+    if (!a)
+        return;
+
+    TempDirType t = (TempDirType) a->data().toInt();
+    QString path;
+
+    static const bool DontCreateDirs = true;
+
+    if (t == RootTempDir)
+        path = paths().tempDir();
+    else if (t == CollectionTempDir)
+        path = core().currentCollection()->metaData(MvdMovieCollection::TempPathInfo, DontCreateDirs);
+    else if (t == CollectionDataDir)
+        path = core().currentCollection()->metaData(MvdMovieCollection::DataPathInfo, DontCreateDirs);
+    else if (t == TemplatesTempDir)
+        path = tcache().cacheDirectory();
+
+    if (!path.isEmpty()) {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+    }
+}
+
+void MvdMainWindow::Private::showPersistentMessage()
+{
+    if (mInfoPanel->isVisible())
+        q->hideMessages();
+    else q->showPersistentMessage("Persistent TEST");
+}
+
+void MvdMainWindow::Private::showTemporaryMessage()
+{
+    q->showTemporaryMessage("Temporary TEST");
+}
+
+#endif // _MVD_DEBUG

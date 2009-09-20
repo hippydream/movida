@@ -21,6 +21,7 @@
 #include "smartviewdelegate.h"
 
 #include "mainwindow.h"
+#include "smartview.h"
 
 #include "mvdcore/core.h"
 #include "mvdcore/movie.h"
@@ -32,7 +33,6 @@
 #include <QtCore/QtDebug>
 #include <QtGui/QApplication>
 #include <QtGui/QFontMetrics>
-#include <QtGui/QListView>
 #include <QtGui/QPainter>
 #include <QtGui/QStatusBar>
 
@@ -80,12 +80,12 @@ const Qt::Alignment MvdSmartViewDelegate::IconAlignment = Qt::AlignHCenter | Qt:
     like spacing and ViewMode if the view is a QListView.
     Please change these parameters after setting the delegate if you need to.
 */
-MvdSmartViewDelegate::MvdSmartViewDelegate(QObject *parent) :
+MvdSmartViewDelegate::MvdSmartViewDelegate(MvdSmartView *parent) :
     QItemDelegate(parent),
     mItemSize(InvalidItemSize)
 {
-    mView = qobject_cast<QListView *>(parent);
-    Q_ASSERT_X(mView, "MvdSmartViewDelegate constructor", "MvdSmartViewDelegate must be used on a QListView or on a QListView subclass.");
+    mView = parent;
+    Q_ASSERT(mView);
 
     QPalette p = mView->palette();
     p.setBrush(QPalette::Normal, QPalette::Highlight, QBrush(SelectionColor));
@@ -150,7 +150,7 @@ void MvdSmartViewDelegate::setItemSize(ItemSize size)
 
     QHash<QString, QVariant> p;
     p.insert("movida/movie-poster/cached-size", mIconSize);
-    MvdCore::registerParameters(p);
+    Movida::core().registerParameters(p);
 
     rebuildDefaultIcon();
 }
@@ -178,7 +178,7 @@ void MvdSmartViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
     bool isSelected =  option.state & QStyle::State_Selected;
     bool hasFocus =  option.state & QStyle::State_HasFocus;
-    bool isEnabled = option.state & QStyle::State_Enabled;
+    bool isEnabled = option.state & QStyle::State_Enabled; //! Find a better way to render during load time
     bool isActive = option.state & QStyle::State_Active;
     int ctrlIndex = -1;
     Control hoveredCtrl = hoveredControl(option.rect, &ctrlIndex);
@@ -336,7 +336,13 @@ void MvdSmartViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     // render slightly different images.
     painter->setRenderHint(QPainter::Antialiasing, false);
     painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
-    painter->drawPixmap(rIcon, pixmap.isNull() ? mDefaultPoster : pixmap);
+    if (!isEnabled) {
+        painter->setOpacity(0.3);
+        painter->drawPixmap(rIcon, pixmap.isNull() ? mDefaultPoster : pixmap);
+        painter->setOpacity(1.0);
+    } else {
+        painter->drawPixmap(rIcon, pixmap.isNull() ? mDefaultPoster : pixmap);
+    }
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->setRenderHint(QPainter::SmoothPixmapTransform, false);
 
@@ -475,18 +481,18 @@ void MvdSmartViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         QModelIndex columnIndex = model->index(index.row(), int(Movida::RatingAttribute), index.parent());
         rating = columnIndex.data(Movida::SmartViewDisplayRole).toInt();
     }
-    int maxRating = MvdCore::parameter("mvdcore/max-rating").toInt();
+    int maxRating = Movida::core().parameter("mvdcore/max-rating").toInt();
 
     // Center rating below icon
     QRect rRating(rControls);
     rRating.setWidth(ControlSize);
     for (int i = 1; i <= maxRating; ++i) {
         if (hoveredCtrl == RatingControl) {
-            if (i <= ctrlIndex)
+            if (i <= ctrlIndex && isEnabled)
                 painter->drawPixmap(rRating, mRatingIcon.pixmap(ControlSize, ControlSize, QIcon::Selected));
             else painter->drawPixmap(rRating, mRatingIcon.pixmap(ControlSize, ControlSize, QIcon::Disabled));
         } else {
-            if (i <= rating)
+            if (i <= rating && isEnabled)
                 painter->drawPixmap(rRating, mRatingIcon.pixmap(ControlSize, ControlSize, QIcon::Normal));
             else painter->drawPixmap(rRating, mRatingIcon.pixmap(ControlSize, ControlSize, QIcon::Disabled));
         }
@@ -497,11 +503,11 @@ void MvdSmartViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     QRect rCurrentControl(rControls);
     rCurrentControl.setLeft(rControls.x() + rControls.width() - rControls.height());
     painter->drawPixmap(rCurrentControl, mSpecialIcon.pixmap(rCurrentControl.size(),
-            hoveredCtrl == SpecialControl ? QIcon::Selected : isSpecial ? QIcon::Normal : QIcon::Disabled));
+            hoveredCtrl == SpecialControl ? QIcon::Selected : isSpecial&&isEnabled ? QIcon::Normal : QIcon::Disabled));
 
     rCurrentControl.moveLeft(rCurrentControl.left() - ControlSize - Padding);
     painter->drawPixmap(rCurrentControl, mSeenIcon.pixmap(rCurrentControl.size(),
-            hoveredCtrl == SeenControl ? QIcon::Selected : isSeen ? QIcon::Normal : QIcon::Disabled));
+            hoveredCtrl == SeenControl ? QIcon::Selected : isSeen&&isEnabled ? QIcon::Normal : QIcon::Disabled));
 
     painter->restore();
     //////////////////////////////////////////////////////////////////////////
@@ -663,6 +669,9 @@ MvdSmartViewDelegate::Control MvdSmartViewDelegate::hoveredControl(const QRect &
     if (QApplication::mouseButtons())
         return NoControl;
 
+    if (mView->isDragging())
+        return NoControl;
+
     QPoint p = mView->mapFromGlobal(QCursor::pos());
     if (!itemRect.contains(p))
         return NoControl;
@@ -676,7 +685,7 @@ MvdSmartViewDelegate::Control MvdSmartViewDelegate::hoveredControl(const QRect &
         return NoControl;
 
     // Rating controls
-    int maxRating = MvdCore::parameter("mvdcore/max-rating").toInt();
+    int maxRating = Movida::core().parameter("mvdcore/max-rating").toInt();
     QRect r = rControls;
     r.setWidth(ControlSize * maxRating);
     if (r.contains(p)) {
@@ -711,7 +720,8 @@ void MvdSmartViewDelegate::mousePressed(const QRect &rect, const QModelIndex &in
         return;
 
     Q_ASSERT(Movida::MainWindow);
-    MvdMovieCollection *c = Movida::MainWindow->currentCollection();
+    MvdMovieCollection *c = Movida::core().currentCollection();
+    Q_ASSERT(c);
     mvdid id = index.data(Movida::IdRole).toUInt();
     if (!id)
         return;

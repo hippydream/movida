@@ -154,7 +154,7 @@ struct SettingsGroup {
 void writeSettingsNode(MvdXmlWriter &xml, const SettingsGroup &node, const QString &groupName = QString())
 {
     if (!groupName.isEmpty())
-        xml.writeOpenTag("group", MvdXmlWriter::Attribute("name", groupName));
+        xml.writeOpenTag("group", MvdAttribute("name", groupName));
 
     for (SettingsGroupList::ConstIterator it = node.children.constBegin(); it != node.children.constEnd(); ++it)
         writeSettingsNode(xml, it.value(), it.key());
@@ -163,7 +163,7 @@ void writeSettingsNode(MvdXmlWriter &xml, const SettingsGroup &node, const QStri
         xml.writeTaggedString(
             "setting",
             variantToString(it.value()),
-            MvdXmlWriter::Attribute("name", it.key()));
+            MvdAttribute("name", it.key()));
     }
 
     if (!groupName.isEmpty())
@@ -296,7 +296,7 @@ bool writeXmlSettings(QIODevice &device, const QSettings::SettingsMap &map)
 
     MvdXmlWriter xml(&device);
     QString dateTime = QDateTime::currentDateTime().toString(Qt::ISODate);
-    xml.writeOpenTag("movida-settings", MvdXmlWriter::Attribute("update", dateTime));
+    xml.writeOpenTag("movida-settings", MvdAttribute("update", dateTime));
 
     writeSettingsNode(xml, root);
 

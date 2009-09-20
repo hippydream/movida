@@ -89,6 +89,11 @@ public:
         return value.toLower() == o.value.toLower();
     }
 
+    inline bool operator<(const MvdSdItem &o) const
+    {
+        return QString::localeAwareCompare(value, o.value) < 0;
+    }
+
     //! This defines what this item is about (a person, an URL, a movie genre, etc.).
     Movida::DataRole role;
 

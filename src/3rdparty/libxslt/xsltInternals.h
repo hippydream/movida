@@ -21,6 +21,7 @@
 #include <libxml/xmlstring.h>
 #include <libxslt/xslt.h>
 #include "xsltexports.h"
+#include "xsltlocale.h"
 #include "numbersInternals.h"
 
 #ifdef __cplusplus
@@ -29,14 +30,29 @@ extern "C" {
 
 /* #define XSLT_DEBUG_PROFILE_CACHE */
 
+/**
+ * XSLT_IS_TEXT_NODE:
+ *
+ * check if the argument is a text node
+ */
 #define XSLT_IS_TEXT_NODE(n) ((n != NULL) && \
     (((n)->type == XML_TEXT_NODE) || \
      ((n)->type == XML_CDATA_SECTION_NODE)))
 
 
+/**
+ * XSLT_MARK_RES_TREE_FRAG:
+ *
+ * internal macro to set up tree fragments
+ */
 #define XSLT_MARK_RES_TREE_FRAG(n) \
     (n)->name = (char *) xmlStrdup(BAD_CAST " fake node libxslt");
 
+/**
+ * XSLT_IS_RES_TREE_FRAG:
+ *
+ * internal macro to test tree fragments
+ */
 #define XSLT_IS_RES_TREE_FRAG(n) \
     ((n != NULL) && ((n)->type == XML_DOCUMENT_NODE) && \
      ((n)->name != NULL) && ((n)->name[0] == ' '))
@@ -45,6 +61,7 @@ extern "C" {
  * XSLT_REFACTORED_KEYCOMP:
  *
  * Internal define to enable on-demand xsl:key computation.
+ * That's the only mode now but the define is kept for compatibility
  */
 #define XSLT_REFACTORED_KEYCOMP
 
@@ -64,6 +81,11 @@ extern "C" {
 /* #define XSLT_REFACTORED */
 /* ==================================================================== */
 
+/**
+ * XSLT_REFACTORED_VARS:
+ *
+ * Internal define to enable the refactored variable part of libxslt
+ */
 #define XSLT_REFACTORED_VARS
 
 #ifdef XSLT_REFACTORED
@@ -84,7 +106,7 @@ extern const xmlChar *xsltXSLTAttrMarker;
 /* #define XSLT_REFACTORED_XSLT_NSCOMP */
 
 /**
- * XSLT_REFACTORED_XPATHCOMP
+ * XSLT_REFACTORED_XPATHCOMP:
  *
  * Internal define to enable the optimization of the
  * compilation of XPath expressions.
@@ -95,27 +117,57 @@ extern const xmlChar *xsltXSLTAttrMarker;
 
 extern const xmlChar *xsltConstNamespaceNameXSLT;
 
+/**
+ * IS_XSLT_ELEM_FAST:
+ *
+ * quick test to detect XSLT elements
+ */
 #define IS_XSLT_ELEM_FAST(n) \
     (((n) != NULL) && ((n)->ns != NULL) && \
     ((n)->ns->href == xsltConstNamespaceNameXSLT))
 
+/**
+ * IS_XSLT_ATTR_FAST:
+ *
+ * quick test to detect XSLT attributes
+ */
 #define IS_XSLT_ATTR_FAST(a) \
     (((a) != NULL) && ((a)->ns != NULL) && \
     ((a)->ns->href == xsltConstNamespaceNameXSLT))
 
+/**
+ * XSLT_HAS_INTERNAL_NSMAP:
+ *
+ * check for namespace mapping
+ */
 #define XSLT_HAS_INTERNAL_NSMAP(s) \
     (((s) != NULL) && ((s)->principal) && \
      ((s)->principal->principalData) && \
      ((s)->principal->principalData->nsMap))
 
+/**
+ * XSLT_GET_INTERNAL_NSMAP:
+ *
+ * get pointer to namespace map
+ */
 #define XSLT_GET_INTERNAL_NSMAP(s) ((s)->principal->principalData->nsMap)
 
 #else /* XSLT_REFACTORED_XSLT_NSCOMP */
 
+/**
+ * IS_XSLT_ELEM_FAST:
+ *
+ * quick check whether this is an xslt element
+ */
 #define IS_XSLT_ELEM_FAST(n) \
     (((n) != NULL) && ((n)->ns != NULL) && \
      (xmlStrEqual((n)->ns->href, XSLT_NAMESPACE)))
 
+/**
+ * IS_XSLT_ATTR_FAST:
+ *
+ * quick check for xslt namespace attribute
+ */
 #define IS_XSLT_ATTR_FAST(a) \
     (((a) != NULL) && ((a)->ns != NULL) && \
      (xmlStrEqual((a)->ns->href, XSLT_NAMESPACE)))
@@ -389,15 +441,16 @@ typedef enum {
     XSLT_FUNC_PARAM,
     XSLT_FUNC_VARIABLE,
     XSLT_FUNC_WHEN,
-    XSLT_FUNC_EXTENSION,
+    XSLT_FUNC_EXTENSION
 #ifdef XSLT_REFACTORED
+    ,
     XSLT_FUNC_OTHERWISE,
     XSLT_FUNC_FALLBACK,
     XSLT_FUNC_MESSAGE,
     XSLT_FUNC_INCLUDE,
     XSLT_FUNC_ATTRSET,
     XSLT_FUNC_LITERAL_RESULT_ELEMENT,
-    XSLT_FUNC_UNKOWN_FORWARDS_COMPAT,
+    XSLT_FUNC_UNKOWN_FORWARDS_COMPAT
 #endif
 } xsltStyleType;
 
@@ -993,6 +1046,7 @@ struct _xsltStyleItemSort {
     int      descending;	/* sort */
     const xmlChar *lang;	/* sort */
     int      has_lang;		/* sort */
+    xsltLocale locale;		/* sort */
     const xmlChar *case_order;	/* sort */
     int      lower_first;	/* sort */
 
@@ -1242,6 +1296,11 @@ struct _xsltCompilerNodeInfo {
     xsltStyleType curChildType;    
 };
 
+/**
+ * XSLT_CCTXT:
+ *
+ * get pointer to compiler context
+ */
 #define XSLT_CCTXT(style) ((xsltCompilerCtxtPtr) style->compCtxt) 
 
 typedef enum {
@@ -1324,6 +1383,7 @@ struct _xsltStylePreComp {
     int      descending;	/* sort */
     const xmlChar *lang;	/* sort */
     int      has_lang;		/* sort */
+    xsltLocale locale;		/* sort */
     const xmlChar *case_order;	/* sort */
     int      lower_first;	/* sort */
 
@@ -1701,21 +1761,17 @@ struct _xsltTransformContext {
     int parserOptions;			/* parser options xmlParserOption */
 
     /*
-     * dictionnary: shared between stylesheet, context and documents.
+     * dictionary: shared between stylesheet, context and documents.
      */
     xmlDictPtr dict;
-    /*
-     * The current source doc; one of: the initial source doc, a RTF
-     * or a source doc aquired via the document() function.
-     */
-    xmlDocPtr		tmpDoc;
+    xmlDocPtr		tmpDoc; /* Obsolete; not used in the library. */
     /*
      * all document text strings are internalized
      */
     int internalized;
     int nbKeys;
-    int hasTemplKeyPatterns;    
-    xsltTemplatePtr currentTemplateRule; /* the Current Template Rule */    
+    int hasTemplKeyPatterns;
+    xsltTemplatePtr currentTemplateRule; /* the Current Template Rule */
     xmlNodePtr initialContextNode;
     xmlDocPtr initialContextDoc;
     xsltTransformCachePtr cache;
@@ -1723,7 +1779,8 @@ struct _xsltTransformContext {
     xmlDocPtr localRVT; /* list of local tree fragments; will be freed when
 			   the instruction which created the fragment
                            exits */
-    xmlDocPtr localRVTBase;    
+    xmlDocPtr localRVTBase;
+    int keyInitLevel;   /* Needed to catch recursive keys issues */
 };
 
 /**
@@ -1906,7 +1963,8 @@ XSLTPUBFUN int XSLTCALL
 			xsltInitCtxtKey		(xsltTransformContextPtr ctxt,
 						 xsltDocumentPtr doc,
 						 xsltKeyDefPtr keyd);
-
+XSLTPUBFUN int XSLTCALL
+			xsltInitAllDocKeys	(xsltTransformContextPtr ctxt);
 #ifdef __cplusplus
 }
 #endif

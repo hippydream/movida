@@ -85,6 +85,33 @@ void MvdMultiPageDialog::showPage(MvdMPDialogPage *p)
     contents->setCurrentWidget(p);
 }
 
+MvdMPDialogPage *MvdMultiPageDialog::pageAt(int index) const
+{
+    return dynamic_cast<MvdMPDialogPage *>(contents->widget(index));
+}
+
+int MvdMultiPageDialog::indexOf(MvdMPDialogPage *page) const
+{
+    return contents->indexOf(page);
+}
+
+QList<MvdMPDialogPage *> MvdMultiPageDialog::pages() const
+{
+    QList<MvdMPDialogPage *> list;
+    const int c = contents->count();
+    for (int i = 0; i < c; ++i) {
+        MvdMPDialogPage *p = pageAt(i);
+        if (p)
+            list.append(p);
+    }
+    return list;
+}
+
+int MvdMultiPageDialog::pageCount() const
+{
+    return contents->count();
+}
+
 //! Returns a pointer to the button container.
 QDialogButtonBox *MvdMultiPageDialog::buttonBox() const
 {
@@ -152,7 +179,7 @@ void MvdMultiPageDialog::setSubtitle(const QString &s)
     if (!mSubtitle.isEmpty())
         title.append(" - ").append(mSubtitle);
 
-    setWindowTitle(title);
+    setWindowTitle(title.simplified());
 }
 
 //! Returns the subtitle for this dialog. A subtitle is usually displayed between square brackets next to the window title.

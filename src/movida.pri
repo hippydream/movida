@@ -39,6 +39,7 @@ macx { PLATFORM = macx }
 
 CONFIG(debug, debug|release) {
     TEMP = $${ROOT}/tmp/$${PLATFORM}/debug/$${TARGET}/
+    DEFINES += _MVD_DEBUG
 } else {
     TEMP = $${ROOT}/tmp/$${PLATFORM}/release/$${TARGET}/
 }

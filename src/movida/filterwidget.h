@@ -54,10 +54,14 @@ public:
 
     void applySharedDataFilter(const QString &itemIds, bool replaceFilter);
 
+    bool isEmpty() const;
+    QString filter() const;
+
 protected:
-    void dragEnterEvent(QDragEnterEvent *e);
-    void dragMoveEvent(QDragMoveEvent *e);
-    void dropEvent(QDropEvent *e);
+    virtual bool event(QEvent *e);
+    virtual void dragEnterEvent(QDragEnterEvent *e);
+    virtual void dragMoveEvent(QDragMoveEvent *e);
+    virtual void dropEvent(QDropEvent *e);
 
 signals:
     void hideRequest();

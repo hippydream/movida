@@ -36,7 +36,7 @@ MvdMovieTreeView::MvdMovieTreeView(QWidget *parent) :
 
 void MvdMovieTreeView::startDrag(Qt::DropActions supportedActions)
 {
-    const int MaxPosters = MvdCore::parameter("movida/d&d/max-pixmaps").toInt();
+    const int MaxPosters = Movida::core().parameter("movida/d&d/max-pixmaps").toInt();
 
     QModelIndexList indexes = selectedRows();
 

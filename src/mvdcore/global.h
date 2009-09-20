@@ -22,6 +22,8 @@
 #define MVD_GLOBAL_H
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QHash>
+#include <QtCore/QPair>
 #include <QtCore/QString>
 #include <QtCore/QtGlobal>
 
@@ -98,6 +100,13 @@ extern ColorMode colorModeFromString(QString s);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Movida::Tags)
 
 // libxml string conversion macros
-#define _X(s) QString::fromUtf8((const char *)s)
+#define MVD_QSTR(s) QString::fromUtf8((const char *)s)
+#define MVD_CSTR(s) s.toUtf8().constData()
+
+typedef QHash<QString, QString> MvdAttributeMap;
+typedef QPair<QString, QString> MvdAttribute;
+
+#define MVD_ATTR(key, value) MvdAttribute(key, value)
+#define MVD_CATTR(ckey, value) MvdAttribute(QLatin1String(key), value)
 
 #endif // MVD_GLOBAL_H

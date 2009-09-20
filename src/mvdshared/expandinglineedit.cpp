@@ -32,15 +32,15 @@
 */
 
 MvdExpandingLineEdit::MvdExpandingLineEdit(QWidget *parent) :
-    QLineEdit(parent),
-    originalWidth(-1)
+    MvdLineEdit(parent),
+    mOriginalWidth(-1)
 {
     connect(this, SIGNAL(textChanged(QString)), this, SLOT(resizeToContents()));
 }
 
 MvdExpandingLineEdit::MvdExpandingLineEdit(const QString &contents, QWidget *parent) :
-    QLineEdit(contents, parent),
-    originalWidth(-1)
+    MvdLineEdit(contents, parent),
+    mOriginalWidth(-1)
 {
     connect(this, SIGNAL(textChanged(QString)), this, SLOT(resizeToContents()));
 }
@@ -48,15 +48,15 @@ MvdExpandingLineEdit::MvdExpandingLineEdit(const QString &contents, QWidget *par
 //! \internal
 void MvdExpandingLineEdit::resizeToContents()
 {
-    if (originalWidth == -1)
-        originalWidth = width();
+    if (mOriginalWidth == -1)
+        mOriginalWidth = width();
     if (QWidget * parent = parentWidget()) {
         QPoint position = pos();
         QFontMetrics fm(font());
-        int hintWidth = sizeHint().width() - (fm.width(QLatin1Char('x')) * 17) + fm.width(displayText());
-        int parentWidth = parent->width();
-        int maxWidth = isRightToLeft() ? position.x() + width() : parentWidth - position.x();
-        int newWidth = qBound(originalWidth, hintWidth, maxWidth);
+        const int hintWidth = sizeHint().width() - (fm.width(QLatin1Char('x')) * 17) + fm.width(displayText());
+        const int parentWidth = parent->width();
+        const int maxWidth = isRightToLeft() ? position.x() + width() : parentWidth - position.x();
+        const int newWidth = qBound(mOriginalWidth, hintWidth, maxWidth);
         if (isRightToLeft())
             setGeometry(position.x() - newWidth + width(), position.y(), newWidth, height());
         else

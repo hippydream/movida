@@ -61,7 +61,7 @@ void MvdMovieTreeViewDelegate::paint(QPainter *painter, const QStyleOptionViewIt
         QSize sz(n, n);
         QRect r(option.rect.x(), option.rect.y(), sz.width() * rating, sz.height());
         painter->drawTiledPixmap(r, mRatingIcon.pixmap(sz));
-        int maxRating = MvdCore::parameter("mvdcore/max-rating").toInt();
+        int maxRating = Movida::core().parameter("mvdcore/max-rating").toInt();
         rating = maxRating - rating;
         r.setX(r.x() + r.width());
         r.setWidth(sz.width() * rating);
@@ -108,7 +108,7 @@ QSize MvdMovieTreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, con
     int h = sz.height();
 
     if (index.column() == Movida::RatingAttribute) {
-        int maxRating = MvdCore::parameter("mvdcore/max-rating").toInt();
+        int maxRating = Movida::core().parameter("mvdcore/max-rating").toInt();
         h = sz.height();
         w = h * maxRating;
 

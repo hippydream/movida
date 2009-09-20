@@ -39,6 +39,10 @@ class MVD_EXPORT MvdSharedData : public QObject
 public:
     typedef QHash<mvdid, MvdSdItem> ItemList;
 
+    typedef QPair<mvdid, MvdSdItem> ItemPair;
+    typedef QList<ItemPair> ItemPairList;
+    typedef QVector<ItemPair> ItemPairVector;
+
     enum ReferenceType {
         MovieReferences = 0x01,
         PersonReferences = 0x02,
@@ -86,6 +90,9 @@ public:
     void setAutoPurge(bool enable);
     bool autoPurge() const;
     bool canPurge() const;
+
+    static ItemPairList sortedItemList(const ItemList &list);
+    static ItemPairVector sortedItemVector(const ItemList &list);
 
 public slots:
     void clear();

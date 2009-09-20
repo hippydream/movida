@@ -20,28 +20,28 @@ extern "C" {
  *
  * the version string like "1.2.3"
  */
-#define LIBXSLT_DOTTED_VERSION "1.1.17"
+#define LIBXSLT_DOTTED_VERSION "1.1.24"
 
 /**
  * LIBXSLT_VERSION:
  *
- * the version number: 1.2.3 value is 1002003
+ * the version number: 1.2.3 value is 10203
  */
-#define LIBXSLT_VERSION 10117
+#define LIBXSLT_VERSION 10124
 
 /**
  * LIBXSLT_VERSION_STRING:
  *
- * the version number string, 1.2.3 value is "1002003"
+ * the version number string, 1.2.3 value is "10203"
  */
-#define LIBXSLT_VERSION_STRING "10117"
+#define LIBXSLT_VERSION_STRING "10124"
 
 /**
  * LIBXSLT_VERSION_EXTRA:
  *
  * extra version information, used to show a CVS compilation
  */
-#define	LIBXSLT_VERSION_EXTRA "CVS1069"
+#define	LIBXSLT_VERSION_EXTRA ""
 
 /**
  * WITH_XSLT_DEBUG:
@@ -77,7 +77,7 @@ extern "C" {
 /**
  * XSLT_NEED_TRIO:
  *
- * should be activated in the existing libc library lacks some of the
+ * should be activated if the existing libc library lacks some of the
  * string formatting function, in that case reuse the Trio ones already
  * compiled in the libxml2 library.
  */
@@ -91,6 +91,10 @@ extern "C" {
 #ifndef XSLT_NEED_TRIO
 #define XSLT_NEED_TRIO
 #endif
+#endif
+
+#ifdef	XSLT_NEED_TRIO
+#define	TRIO_REPLACE_STDIO
 #endif
 
 /**
@@ -117,6 +121,19 @@ extern "C" {
 #define WITH_MODULES
 #endif
 #define LIBXSLT_DEFAULT_PLUGINS_PATH() "NULL"
+#endif
+
+/**
+ * Locale support
+ */
+#if 0
+#ifndef XSLT_LOCALE_XLOCALE
+#define XSLT_LOCALE_XLOCALE
+#endif
+#elif 1
+#ifndef XSLT_LOCALE_WINAPI
+#define XSLT_LOCALE_WINAPI
+#endif
 #endif
 
 /**

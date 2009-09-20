@@ -154,7 +154,7 @@ int MvdMovie::Private::isValidYear(const QString &s)
     if (!ok)
         return -1;
 
-    quint16 min = MvdCore::parameter("mvdcore/min-movie-year").toUInt();
+    quint16 min = Movida::core().parameter("mvdcore/min-movie-year").toUInt();
 
     if (n == min - 1)
         return 0;
@@ -164,7 +164,7 @@ int MvdMovie::Private::isValidYear(const QString &s)
 
 QString MvdMovie::Private::cleanString(const QString &s)
 {
-    int maxLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
+    int maxLength = Movida::core().parameter("mvdcore/max-edit-length").toInt();
 
     if (s.length() > maxLength) {
         QString _s(s);
@@ -272,8 +272,8 @@ QString MvdMovie::year() const
     Sets the production year and returns true iif s is a valid 4-digit year.
 
     Clears the year if \p s is empty or
-    MvdCore::parameter("mvdcore/min-movie-year")-1.
-    'Valid' means a year >= MvdCore::parameter("mvdcore/min-movie-year")
+    Movida::core().parameter("mvdcore/min-movie-year")-1.
+    'Valid' means a year >= Movida::core().parameter("mvdcore/min-movie-year")
     and <= currentYear().
 */
 bool MvdMovie::setYear(const QString &s)
@@ -297,7 +297,7 @@ QString MvdMovie::imdbId() const
 //! Sets the IMDb id if s is a valid IMDb id.
 void MvdMovie::setImdbId(const QString &s)
 {
-    QString pattern = MvdCore::parameter("mvdcore/imdb-id-regexp").toString();
+    QString pattern = Movida::core().parameter("mvdcore/imdb-id-regexp").toString();
     QRegExp rx(pattern);
 
     if (rx.exactMatch(s)) {
@@ -353,12 +353,12 @@ quint8 MvdMovie::rating() const
 
 /*!
     Sets the rating for this movie. Returns false if rating is greater than
-    MvdCore::parameter("mvdcore/max-rating").
+    Movida::core().parameter("mvdcore/max-rating").
     A null (0) rating value means that the movie has no rating.
 */
 bool MvdMovie::setRating(quint8 rating)
 {
-    quint8 max = MvdCore::parameter("mvdcore/max-rating").toUInt();
+    quint8 max = Movida::core().parameter("mvdcore/max-rating").toUInt();
 
     if (rating > max)
         return false;
@@ -1017,7 +1017,7 @@ quint16 MvdMovie::runningTime() const
 
 /*!
     Sets the movie running time in minutes.
-    \p minutes has to be <= than MvdCore::parameter("mvdcore/max-running-time")
+    \p minutes has to be <= than Movida::core().parameter("mvdcore/max-running-time")
     or running time will be set to 0.
 */
 void MvdMovie::setRunningTime(quint16 minutes)
@@ -1026,7 +1026,7 @@ void MvdMovie::setRunningTime(quint16 minutes)
         return;
 
     detach();
-    quint16 max = MvdCore::parameter("mvdcore/max-running-time").toUInt();
+    quint16 max = Movida::core().parameter("mvdcore/max-running-time").toUInt();
     d->runningTime = minutes <= max ? minutes : 0;
 }
 
@@ -1044,7 +1044,7 @@ QTime MvdMovie::runningTimeQt() const
     The format is the same as Qt's, so please refer to the QTime::fromString()
     referece documentation for details.
     If the format string is empty, a default value registered in
-    MvdCore::parameter("mvdcore/running-time-format") is used.
+    Movida::core().parameter("mvdcore/running-time-format") is used.
 */
 QString MvdMovie::runningTimeString(QString format) const
 {
@@ -1054,7 +1054,7 @@ QString MvdMovie::runningTimeString(QString format) const
     QTime time = runningTimeQt();
 
     if (format.isEmpty())
-        format = MvdCore::parameter("mvdcore/running-time-format").toString();
+        format = Movida::core().parameter("mvdcore/running-time-format").toString();
 
     return time.toString(format);
 }

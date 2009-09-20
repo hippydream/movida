@@ -89,7 +89,7 @@ QList<MvdMovieData::PersonData> extractPersonData(xmlNodePtr parent, xmlDocPtr d
                 xmlChar *c = xmlNodeListGetString(doc, pNode->xmlChildrenNode, 1);
                 QString s = MvdCore::decodeXmlEntities((const char *)c).trimmed();
                 xmlFree(c);
-                QRegExp rx(MvdCore::parameter("mvdcore/imdb-id-regexp").toString());
+                QRegExp rx(Movida::core().parameter("mvdcore/imdb-id-regexp").toString());
                 if (rx.exactMatch(s))
                     pd.imdbId = s;
             } else if (!xmlStrcmp(pNode->name, (const xmlChar *)"roles")) {
@@ -260,14 +260,14 @@ void writeToXml(MvdXmlWriter *writer, const MvdMovieData &movie, MvdMovieData::O
 
     if (!movie.imdbId.isEmpty()) {
         writer->writeTaggedString("imdb-id", movie.imdbId);
-        writer->writeTaggedString("imdb-url", MvdCore::parameter("mvdcore/imdb-movie-url").toString().arg(movie.imdbId));
+        writer->writeTaggedString("imdb-url", Movida::core().parameter("mvdcore/imdb-movie-url").toString().arg(movie.imdbId));
     }
 
     writer->writeCDataString("plot", movie.plot);
     writer->writeCDataString("notes", movie.notes);
     writer->writeTaggedString("storage-id", movie.storageId);
     writer->writeTaggedString("rating", QString::number(movie.rating),
-        MvdXmlWriter::Attribute("maximum", MvdCore::parameter("mvdcore/max-rating").toString()));
+        MvdAttribute("maximum", Movida::core().parameter("mvdcore/max-rating").toString()));
     writer->writeTaggedString("running-time", QString::number(movie.runningTime));
     writer->writeTaggedString("color-mode", Movida::colorModeToString(movie.colorMode));
 
@@ -374,9 +374,9 @@ void writeToXml(MvdXmlWriter *writer, const MvdMovieData &movie, MvdMovieData::O
             const MvdMovieData::UrlData &ud = movie.urls.at(i);
             if (!ud.description.isEmpty()) {
                 if (ud.isDefault)
-                    writer->writeTaggedString("url", ud.url, MvdXmlWriter::Attribute("description", ud.description),
-                        MvdXmlWriter::Attribute("default", "true"));
-                else writer->writeTaggedString("url", ud.url, MvdXmlWriter::Attribute("description", ud.description));
+                    writer->writeTaggedString("url", ud.url, MvdAttribute("description", ud.description),
+                        MvdAttribute("default", "true"));
+                else writer->writeTaggedString("url", ud.url, MvdAttribute("description", ud.description));
             } else writer->writeTaggedString("url", ud.url);
         }
         writer->writeCloseTag("urls");
@@ -415,7 +415,7 @@ void writeToXml(MvdXmlWriter *writer, const MvdMovieData &movie, MvdMovieData::O
             if (!k.isEmpty()) {
                 QString s = Movida::variantToString(v);
                 writer->writeTaggedString("attribute", s,
-                    MvdXmlWriter::Attribute("name", k));
+                    MvdAttribute("name", k));
             }
             ++begin;
         }
@@ -526,7 +526,7 @@ bool MvdMovieData::loadFromXml(const QString &path, Options options)
                 xmlChar *c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
                 QString s = MvdCore::decodeXmlEntities((const char *)c).trimmed();
                 xmlFree(c);
-                QRegExp rx(MvdCore::parameter("mvdcore/imdb-id-regexp").toString());
+                QRegExp rx(Movida::core().parameter("mvdcore/imdb-id-regexp").toString());
                 if (rx.exactMatch(s))
                     imdbId = s;
             } else if (!xmlStrcmp(resultNode->name, (const xmlChar *)"languages")) {
@@ -566,7 +566,7 @@ bool MvdMovieData::loadFromXml(const QString &path, Options options)
                 QString s = MvdCore::decodeXmlEntities((const char *)c).trimmed();
                 xmlFree(c);
                 xmlChar *attr = xmlGetProp(resultNode, (const xmlChar *)"maximum");
-                int mvdMaximum = MvdCore::parameter("mvdcore/max-rating").toInt();
+                int mvdMaximum = Movida::core().parameter("mvdcore/max-rating").toInt();
                 int xmlMaximum = mvdMaximum;
                 bool ok;
                 if (attr) {
@@ -588,7 +588,7 @@ bool MvdMovieData::loadFromXml(const QString &path, Options options)
                 xmlFree(c);
                 bool ok;
                 int n = s.toInt(&ok);
-                if (ok && n <= MvdCore::parameter("mvdcore/max-running-time").toInt())
+                if (ok && n <= Movida::core().parameter("mvdcore/max-running-time").toInt())
                     runningTime = n;
             } else if (!xmlStrcmp(resultNode->name, (const xmlChar *)"seen")) {
                 xmlChar *c = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);

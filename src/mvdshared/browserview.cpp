@@ -30,6 +30,7 @@
 #include "mvdcore/templatemanager.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QPointer>
 #include <QtCore/QRegExp>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QFileDialog>
@@ -58,8 +59,15 @@ public:
 
     Private(MvdBrowserView * v) :
         collection(0),
+        currentMovie(MvdNull),
         q(v)
-    { }
+    {
+    }
+
+    ~Private()
+    {
+        qDebug("");
+    }
 
     Context context(const QString &s) const;
     void populateContextMenu(QMenu *menu, Context pos) const;
@@ -68,7 +76,8 @@ public:
     QAction *backAction;
     QAction *reloadAction;
     QAction *forwardAction;
-    MvdMovieCollection *collection;
+    QPointer<MvdMovieCollection> collection;
+    mvdid currentMovie;
 
     Ui::MvdBrowserView ui;
     MvdBrowserView *q;
@@ -112,10 +121,25 @@ void MvdBrowserView::Private::contextMenuActionTriggered(const QWebHitTestResult
     switch (a) {
         case SavePoster:
         {
+            MvdMovie movie = !collection.isNull() ? collection->movie(currentMovie) : MvdMovie();
+            QString title = movie.validTitle();
+
             QString sourceFile = hit.imageUrl().toLocalFile();
             QString lastDir = Movida::settings().value("movida/browserview/saveposterdialog").toString();
+            if (!title.isEmpty()) {
+                if (!lastDir.isEmpty() && !lastDir.endsWith("\\") && !lastDir.endsWith("/"))
+                    lastDir.append("/");
+                lastDir.append(title).append(".png");
+                MvdCore::sanitizePath(lastDir);
+            }
             QString destFile = QFileDialog::getSaveFileName(q, MVD_CAPTION, lastDir, q->tr("PNG image files (*.png)"));
-            if (destFile.isEmpty()) return;
+            
+            if (destFile.isEmpty())
+                return;
+
+            QFileInfo info(destFile);
+            Movida::settings().setValue("movida/browserview/saveposterdialog", info.absolutePath());
+
             QFile dest(destFile);
             if (dest.exists())
                 dest.remove();
@@ -167,25 +191,37 @@ MvdBrowserView::MvdBrowserView(QWidget *parent) :
 }
 
 MvdBrowserView::~MvdBrowserView()
-{ }
+{
+    delete d;
+}
 
 void MvdBrowserView::setMovieCollection(MvdMovieCollection *c)
 {
-    d->collection = c;
+    if (!d->collection.isNull())
+        QObject::disconnect(d->collection.data(), 0, this, 0);
+
+    d->collection = QPointer<MvdMovieCollection>(c);
+    d->currentMovie = MvdNull;
+
+    if (!d->collection.isNull())
+        QObject::connect(d->collection.data(), SIGNAL(movieChanged(mvdid)), this, SLOT(movieChanged(mvdid)));
 }
 
 void MvdBrowserView::clear()
 {
     d->ui.webView->setHtml(QString());
+    d->currentMovie = MvdNull;
 }
 
 void MvdBrowserView::blank()
 {
-    QString path = Movida::tcache().blank(d->collection);
+    QString path = Movida::tcache().blank(d->collection.data());
 
     if (path.isEmpty())
         clear();
     else d->ui.webView->setUrl(QUrl::fromLocalFile(path));
+
+    d->currentMovie = MvdNull;
 }
 
 void MvdBrowserView::setUrl(QString url)
@@ -283,6 +319,7 @@ void MvdBrowserView::showMovies(const QList<mvdid> &ids)
         return;
     }
 
+    d->currentMovie = MvdNull;
     d->ui.webView->setHtml(QLatin1String("<html><body><h1>Multiple movies selected</h1></body></html>"));
 }
 
@@ -305,16 +342,20 @@ void MvdBrowserView::showMovies(const QList<mvdid> &ids)
 */
 void MvdBrowserView::showMovie(mvdid id)
 {
-    if (id == MvdNull || !d->collection) {
+    if (id == MvdNull || d->collection.isNull()) {
         blank();
         return;
     }
 
-    QString path = Movida::tcache().movie(d->collection, id);
+    if (d->currentMovie == id)
+        return;
+
+    QString path = Movida::tcache().movie(d->collection.data(), id);
     if (path.isEmpty()) {
         blank();
     } else {
         d->ui.webView->setUrl(QUrl::fromLocalFile(path));
+        d->currentMovie = id;
     }
 }
 
@@ -345,8 +386,11 @@ int MvdBrowserView::cacheMovieData(const MvdMovieData &md)
 
     \see cacheMovieData(const MvdMovieData&)
 */
-void MvdBrowserView::showMovieData(int id)
+void MvdBrowserView::showCachedMovie(int id)
 {
+    if (d->currentMovie == id)
+        return;
+
     QString path = Movida::tcache().movieData(id);
 
     if (path.isEmpty())
@@ -393,7 +437,7 @@ void MvdBrowserView::showContextMenu(QContextMenuEvent *e)
 
     QMenu *menu = new QMenu;
     QUrl url = hit.imageUrl();
-    if (!url.isEmpty() && d->collection) {
+    if (!url.isEmpty() && !d->collection.isNull()) {
         QUrl dp = QUrl::fromLocalFile(d->collection->metaData(MvdMovieCollection::DataPathInfo));
         if (url.path().startsWith(dp.path())) {
             d->populateContextMenu(menu, Private::PosterContext);
@@ -401,7 +445,7 @@ void MvdBrowserView::showContextMenu(QContextMenuEvent *e)
     }
 
     url = hit.linkUrl();
-    if (!url.isEmpty() && d->collection) {
+    if (!url.isEmpty() && !d->collection.isNull()) {
         if (url.scheme() == QLatin1String("movida")) {
             MvdActionUrl aurl = MvdCore::parseActionUrl(url);
             if (aurl.isValid() && aurl.action == QLatin1String("context") && !aurl.parameter.isEmpty()) {
@@ -448,4 +492,12 @@ void MvdBrowserView::setControlsVisible(bool visible)
 bool MvdBrowserView::controlsVisible() const
 {
     return d->ui.controls->isVisible();
+}
+
+void MvdBrowserView::movieChanged(mvdid id)
+{
+    if (id != MvdNull && id == d->currentMovie) {
+        clear();
+        showMovie(id);
+    }
 }

@@ -55,7 +55,10 @@ typedef void* iconv_t;
    have EILSEQ in a different header.  On these systems, define EILSEQ
    ourselves. */
 #ifndef EILSEQ
-#define EILSEQ @EILSEQ@
+/* Igor: called upon EILSEQ from glibc, since autogeneration of this header
+	on Windows didn't do the job. */
+/* #define EILSEQ @EILSEQ@ */
+#define EILSEQ 84
 #endif
 
 
@@ -129,4 +132,3 @@ extern void libiconv_set_relocation_prefix (const char *orig_prefix,
 
 
 #endif /* _LIBICONV_H */
-

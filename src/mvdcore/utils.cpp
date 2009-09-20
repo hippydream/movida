@@ -25,6 +25,7 @@
 #include <QtCore/QPoint>
 #include <QtCore/QRect>
 #include <QtCore/QStringList>
+#include <QtCore/QTime>
 
 namespace Movida {
 
@@ -189,4 +190,156 @@ QString variantToString(const QVariant &v)
     return result;
 }
 
-} // namespace Movida
+/*!
+    Decomposes the string to remove Unicode markers (e.g. accents).
+*/
+QString normalized(const QString& s)
+{
+    QString s2 = s;
+    return normalize(s2);
+}
+
+/*!
+    Decomposes the string to remove Unicode markers (e.g. accents).
+*/
+QString &normalize(QString &s)
+{
+    QString dec = s.normalized(QString::NormalizationForm_D);
+    QString com;
+    com.reserve(s.size());
+    const QChar* uc_begin = dec.unicode();
+    const QChar* uc_end = uc_begin + dec.length();
+    const QChar* c = uc_begin;
+    while (c != uc_end) {
+        if (!c->isMark()) {
+            com.append(*c);
+        }
+        ++c;
+    }
+    com.squeeze();
+    return s = com;
+}
+
+} // Movida namespace
+
+////////////////////////////////////////////////////////////////////////////
+
+
+/*!
+    \class MvdNormalizedItemModel utils.h
+
+    Trivial QStandardItemModel subclass that reimplements ::match() in order to
+    use compare strings using their normalized version wherever possible.
+    See Movida::normalize(QString) or Movida::normalized(QString) for details.
+*/
+
+MvdNormalizedItemModel::MvdNormalizedItemModel(QObject *parent) :
+    QStandardItemModel(parent)
+{
+}
+
+MvdNormalizedItemModel::MvdNormalizedItemModel(int rows, int columns, QObject *parent) :
+    QStandardItemModel(rows, columns, parent)
+{
+}
+
+MvdNormalizedItemModel::~MvdNormalizedItemModel()
+{
+}
+
+/*!
+    This method will use QString::localeAwareCompare() if \p matchType is not MatchExactly
+    or MatchContains.
+
+    If \p matchType is MatchExactly, localeAwareCompare() is used only if both compared
+    items are of type QVariant::String. QVariant's comparison operator is used otherwise.
+
+    If \p matchType is MatchContains, QString::contains() is used. A locale aware version of
+    contains() has not been implemented yet. Future versions of MvdCore might add such feature.
+*/
+QModelIndexList MvdNormalizedItemModel::match(const QModelIndex &start, int role,
+        const QVariant &value, int hits, Qt::MatchFlags flags) const
+{
+    QModelIndexList result;
+    uint matchType = flags & 0x0F;
+    Qt::CaseSensitivity cs = flags & Qt::MatchCaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    bool recurse = flags & Qt::MatchRecursive;
+    bool wrap = flags & Qt::MatchWrap;
+    bool allHits = (hits == -1);
+    QString text; // only convert to a string if it is needed
+    QModelIndex p = parent(start);
+    int from = start.row();
+    int to = rowCount(p);
+
+    // iterates twice if wrapping
+    for (int i = 0; (wrap && i < 2) || (!wrap && i < 1); ++i) {
+        for (int r = from; (r < to) && (allHits || result.count() < hits); ++r) {
+            QModelIndex idx = index(r, start.column(), p);
+            if (!idx.isValid())
+                 continue;
+            QVariant v = data(idx, role);
+            // QVariant based matching
+            if (matchType == Qt::MatchExactly) {
+                if (compare(value, v))
+                    result.append(idx);
+            } else { // QString based matching
+                if (text.isEmpty()) { // lazy conversion
+                    text = value.toString();
+                    Movida::normalized(text);
+                }
+                QString t = v.toString();
+                Movida::normalized(t);
+                switch (matchType) {
+                case Qt::MatchRegExp:
+                    if (QRegExp(text, cs).exactMatch(t))
+                        result.append(idx);
+                    break;
+                case Qt::MatchWildcard:
+                    if (QRegExp(text, cs, QRegExp::Wildcard).exactMatch(t))
+                        result.append(idx);
+                    break;
+                case Qt::MatchStartsWith:
+                    if (t.startsWith(text))
+                        result.append(idx);
+                    break;
+                case Qt::MatchEndsWith:
+                    if (t.endsWith(text))
+                        result.append(idx);
+                    break;
+                case Qt::MatchFixedString:
+                    if (t.compare(text) == 0)
+                        result.append(idx);
+                    break;
+                case Qt::MatchContains:
+                default:
+                    if (t.contains(text, cs))
+                        result.append(idx);
+                }
+            }
+            if (recurse && hasChildren(idx)) { // search the hierarchy
+                result += match(index(0, idx.column(), idx), role,
+                                (text.isEmpty() ? value : text),
+                                (allHits ? -1 : hits - result.count()), flags);
+            }
+        }
+        // prepare for the next iteration
+        from = 0;
+        to = start.row();
+    }
+    return result;
+}
+
+/*! Default implementations uses QString::localeAwareCompare() if both \p a and \p b are
+    of type QVariant::String.
+*/
+bool MvdNormalizedItemModel::compare(const QVariant &a, const QVariant &b) const
+{
+    if (a.type() == QVariant::String && b.type() == QVariant::String) {
+        QString s1 = a.toString();
+        QString s2 = b.toString();
+        Movida::normalize(s1);
+        Movida::normalize(s2);
+        return s1.compare(s2) == 0;
+    }
+    return a == b;
+}

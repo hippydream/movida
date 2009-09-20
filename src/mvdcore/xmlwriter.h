@@ -32,10 +32,6 @@ class QTextCodec;
 class MVD_EXPORT MvdXmlWriter
 {
 public:
-    // Fix a bug with GCC not able to parse the template class default parameters
-    typedef QHash<QString, QString> AttributeMap;
-    typedef QPair<QString, QString> Attribute;
-
     enum Option { NoOptions = 0x0, WriteEncodingOption };
     Q_DECLARE_FLAGS(Options, Option)
 
@@ -50,15 +46,15 @@ public:
     void writeString(const QString &string);
     void writeLine();
 
-    void writeOpenTag(const QString &name, const Attribute &a1, const Attribute &a2 = Attribute(), const Attribute &a3 = Attribute());
-    void writeOpenTag(const QString &name, const AttributeMap &attrs = AttributeMap());
+    void writeOpenTag(const QString &name, const MvdAttribute &a1, const MvdAttribute &a2 = MvdAttribute(), const MvdAttribute &a3 = MvdAttribute());
+    void writeOpenTag(const QString &name, const MvdAttributeMap &attrs = MvdAttributeMap());
     void writeCloseTag(const QString &name);
-    void writeAtomTag(const QString &name, const Attribute &a1, const Attribute &a2 = Attribute(), const Attribute &a3 = Attribute());
-    void writeAtomTag(const QString &name, const AttributeMap &attrs = AttributeMap());
-    void writeTaggedString(const QString &name, const QString &string, const Attribute &a1, const Attribute &a2 = Attribute(), const Attribute &a3 = Attribute());
-    void writeTaggedString(const QString &name, const QString &string, const AttributeMap &attrs = AttributeMap());
-    void writeCDataString(const QString &name, const QString &string, const Attribute &a1, const Attribute &a2 = Attribute(), const Attribute &a3 = Attribute());
-    void writeCDataString(const QString &name, const QString &string, const AttributeMap &attrs = AttributeMap());
+    void writeAtomTag(const QString &name, const MvdAttribute &a1, const MvdAttribute &a2 = MvdAttribute(), const MvdAttribute &a3 = MvdAttribute());
+    void writeAtomTag(const QString &name, const MvdAttributeMap &attrs = MvdAttributeMap());
+    void writeTaggedString(const QString &name, const QString &string, const MvdAttribute &a1, const MvdAttribute &a2 = MvdAttribute(), const MvdAttribute &a3 = MvdAttribute());
+    void writeTaggedString(const QString &name, const QString &string, const MvdAttributeMap &attrs = MvdAttributeMap());
+    void writeCDataString(const QString &name, const QString &string, const MvdAttribute &a1, const MvdAttribute &a2 = MvdAttribute(), const MvdAttribute &a3 = MvdAttribute());
+    void writeCDataString(const QString &name, const QString &string, const MvdAttributeMap &attrs = MvdAttributeMap());
 
     void writeComment(const QString &comment);
     void startComment();

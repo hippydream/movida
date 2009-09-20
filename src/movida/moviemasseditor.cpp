@@ -20,6 +20,8 @@
 
 #include "moviemasseditor.h"
 
+#include "maininfopage.h"
+
 #include "mvdcore/core.h"
 #include "mvdcore/movie.h"
 #include "mvdcore/moviecollection.h"
@@ -37,13 +39,31 @@
 */
 
 
+class MvdMovieMassEditor::Private
+{
+public:
+    Private(MvdMovieMassEditor *p) :
+        q(p)
+    {
+
+    }
+
+private:
+    MvdMovieMassEditor *q;
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
 /*!
     Creates a new dialog.
 */
 MvdMovieMassEditor::MvdMovieMassEditor(MvdMovieCollection *c, QWidget *parent) :
-    QDialog(parent),
-    mCollection(c)
+    MvdMovieEditor(c, parent),
+    d(new Private(this))
 {
+#if 0
     setupUi(this);
 
     //! \todo set a better title (and update on setMovie() or title editing)
@@ -54,7 +74,7 @@ MvdMovieMassEditor::MvdMovieMassEditor(MvdMovieCollection *c, QWidget *parent) :
     Ui::MvdMovieMassEditor::markAsSpecial->setIcon(QIcon(":/images/special.svgz"));
     Ui::MvdMovieMassEditor::markAsLoaned->setIcon(QIcon(":/images/loaned.svgz"));
 
-    quint8 maxRating = MvdCore::parameter("mvdcore/max-rating").toUInt();
+    quint8 maxRating = Movida::core().parameter("mvdcore/max-rating").toUInt();
     Ui::MvdMovieMassEditor::ratingLabel->setMaximum(maxRating);
 
     ratingHovered(-1);
@@ -66,7 +86,58 @@ MvdMovieMassEditor::MvdMovieMassEditor(MvdMovieCollection *c, QWidget *parent) :
     connect(Ui::MvdMovieMassEditor::buttonBox, SIGNAL(accepted()), this, SLOT(storeTriggered()));
 
     connect(Ui::MvdMovieMassEditor::cbStorageID, SIGNAL(toggled(bool)), this, SLOT(updateUi()));
+
+    Ui::MvdMovieMassEditor::markAsLoaned->setTristate(false);
+    Ui::MvdMovieMassEditor::markAsSeen->setTristate(false);
+    Ui::MvdMovieMassEditor::markAsSpecial->setTristate(false);
+#endif
 }
+
+MvdMovieMassEditor::~MvdMovieMassEditor()
+{
+    delete d;
+}
+
+void MvdMovieMassEditor::loadPages()
+{
+
+}
+
+bool MvdMovieMassEditor::setMovies(const QList<mvdid> &ids, bool confirmIfModified)
+{
+    initialize();
+    
+    addPage(new MvdMainInfoPage(collection(), this));
+
+    return false;
+}
+
+QList<mvdid> MvdMovieMassEditor::movieIds() const
+{
+    return QList<mvdid>();
+}
+
+bool MvdMovieMassEditor::storeMovies()
+{
+    return false;
+}
+
+void MvdMovieMassEditor::closeEvent(QCloseEvent *e)
+{
+    MvdMovieEditor::closeEvent(e);
+}
+
+void MvdMovieMassEditor::validationStateChanged(MvdMPDialogPage *page)
+{
+    MvdMovieEditor::validationStateChanged(page);
+}
+
+void MvdMovieMassEditor::modifiedStateChanged(MvdMPDialogPage *page)
+{
+    MvdMovieEditor::modifiedStateChanged(page);
+}
+
+#if 0
 
 /*!
     Sets the movies to be edited.
@@ -79,12 +150,14 @@ bool MvdMovieMassEditor::setMovies(const QList<mvdid> &ids)
     if (mCollection == 0)
         return false;
 
-    Ui::MvdMovieMassEditor::markAsLoaned->setCheckState(Qt::PartiallyChecked);
-    Ui::MvdMovieMassEditor::markAsSeen->setCheckState(Qt::PartiallyChecked);
-    Ui::MvdMovieMassEditor::markAsSpecial->setCheckState(Qt::PartiallyChecked);
-
-    foreach(mvdid id, ids)
+    int loaned = 0;
+    int seen = 0;
+    int special = 0;
+    const int count = ids.size();
+    
+    for (int i = 0; i < count; ++i)
     {
+        mvdid id = ids.at(i);
         MvdMovie movie = mCollection->movie(id);
         QString sid = movie.storageId();
 
@@ -93,7 +166,26 @@ bool MvdMovieMassEditor::setMovies(const QList<mvdid> &ids)
         quint8 rat = movie.rating();
         if (rat && !Ui::MvdMovieMassEditor::ratingLabel->value())
             Ui::MvdMovieMassEditor::ratingLabel->setValue(rat);
+        if (movie.hasSpecialTagEnabled(Movida::LoanedTag))
+            ++loaned;
+        if (movie.hasSpecialTagEnabled(Movida::SeenTag))
+            ++seen;
+        if (movie.hasSpecialTagEnabled(Movida::SpecialTag))
+            ++special;
     }
+
+    Ui::MvdMovieMassEditor::markAsLoaned->setCheckState(loaned == count 
+        ? Qt::Checked 
+        : loaned == 0 ? Qt::Unchecked
+        : Qt::PartiallyChecked);
+    Ui::MvdMovieMassEditor::markAsSeen->setCheckState(seen == count 
+        ? Qt::Checked 
+        : seen == 0 ? Qt::Unchecked
+        : Qt::PartiallyChecked);
+    Ui::MvdMovieMassEditor::markAsSpecial->setCheckState(special == count 
+        ? Qt::Checked 
+        : special == 0 ? Qt::Unchecked
+        : Qt::PartiallyChecked);
 
     mMovieIds = ids;
     return true;
@@ -208,3 +300,4 @@ void MvdMovieMassEditor::updateUi()
 {
     Ui::MvdMovieMassEditor::storageID->setEnabled(Ui::MvdMovieMassEditor::cbStorageID->isChecked());
 }
+#endif

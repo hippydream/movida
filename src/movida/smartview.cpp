@@ -36,21 +36,37 @@
 */
 
 
+class MvdSmartView::Private
+{
+public:
+    Private() :
+        dragging(false)
+    {}
+
+    bool dragging;
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
 MvdSmartView::MvdSmartView(QWidget *parent) :
-    MvdListView(parent)
+    MvdListView(parent), d(new Private)
 {
     init();
 }
 
 MvdSmartView::MvdSmartView(QAbstractItemModel *model, QWidget *parent) :
-    MvdListView(parent)
+    MvdListView(parent), d(new Private)
 {
     init();
     setModel(model);
 }
 
 MvdSmartView::~MvdSmartView()
-{ }
+{
+    delete d;
+}
 
 //! \internal
 void MvdSmartView::init()
@@ -65,6 +81,11 @@ void MvdSmartView::init()
     setFlow(QListView::LeftToRight);
     setResizeMode(QListView::Adjust);
     setMouseTracking(true);
+}
+
+void MvdSmartView::setSelectionModel(QItemSelectionModel *selectionModel)
+{
+    MvdListView::setSelectionModel(selectionModel);
 }
 
 void MvdSmartView::keyPressEvent(QKeyEvent *e)
@@ -147,7 +168,7 @@ void MvdSmartView::setItemSize(ItemSize s)
 
 void MvdSmartView::startDrag(Qt::DropActions supportedActions)
 {
-    const int MaxPosters = MvdCore::parameter("movida/d&d/max-pixmaps").toInt();
+    const int MaxPosters = Movida::core().parameter("movida/d&d/max-pixmaps").toInt();
 
     QModelIndexList indexes = selectedRows();
 
@@ -201,6 +222,34 @@ void MvdSmartView::dragEnterEvent(QDragEnterEvent *e)
         e->ignore();
         return;
     }
-
+    d->dragging = true;
+    connect(e->mimeData(), SIGNAL(destroyed(QObject*)), this, SLOT(dragFinished()));
     MvdListView::dragEnterEvent(e);
+}
+
+void MvdSmartView::dragLeaveEvent(QDragLeaveEvent*e)
+{
+    d->dragging = false;
+    MvdListView::dragLeaveEvent(e);
+}
+
+void MvdSmartView::dragMoveEvent(QDragMoveEvent*e)
+{
+    MvdListView::dragMoveEvent(e);
+}
+
+void MvdSmartView::dropEvent(QDropEvent *e)
+{
+    MvdListView::dropEvent(e);
+    d->dragging = false;
+}
+
+void MvdSmartView::dragFinished()
+{
+    d->dragging = false;
+}
+
+bool MvdSmartView::isDragging() const
+{
+    return d->dragging;
 }

@@ -24,6 +24,7 @@
 
 #include <QtCore/QDateTime>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QMutex>
 #include <QtCore/QtGlobal>
 
@@ -89,7 +90,17 @@ MvdLogger::MvdLogger() :
     QObject(),
     d(new Private)
 {
-    d->file = new QFile(paths().logFile());
+    QString logFilePath = paths().logFile();
+    QFileInfo logFileInfo(logFilePath);
+    if (logFileInfo.exists()) {
+        QString logFilePathOld = logFilePath + QLatin1String(".old");
+        QFileInfo logFileInfoOld(logFilePathOld);
+        if (logFileInfoOld.exists())
+            QFile::remove(logFilePathOld);
+        QFile::rename(logFilePath, logFilePathOld);
+    }
+
+    d->file = new QFile(logFilePath);
     if (!d->file->open(QIODevice::ReadWrite | QIODevice::Truncate)) {
         delete d->file;
         d->file = 0;
@@ -104,10 +115,8 @@ MvdLogger::MvdLogger() :
         }
 
         QDateTime dt = QDateTime::currentDateTime();
-        QString header = tr("Movida log: application started at %1")
-                             .arg(dt.toString(Qt::ISODate)).append(sep);
-        *(d->stream) << header;
-        header = QString().fill('-', header.length());
+        QString header = QString(QLatin1String("Movida log: application started at %1"))
+            .arg(dt.toString(Qt::ISODate)).append(sep);
         *(d->stream) << header << sep;
     }
 }

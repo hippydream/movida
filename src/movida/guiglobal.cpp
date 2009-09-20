@@ -20,6 +20,10 @@
 
 #include "guiglobal.h"
 
+#include "mvdcore/logger.h"
+
+#include <QtGui/QShortcut>
+
 using namespace Movida;
 
 //! Returns a list of movie attributes, ordered by relevance.
@@ -354,4 +358,31 @@ Movida::FilterFunction Movida::filterFunction(const QString &name)
         return Movida::SharedDataIdFilter;
 
     return Movida::InvalidFilterFunction;
+}
+
+void Movida::ShortcutMonitor::ambiguousActivation()
+{
+    QShortcut *s = qobject_cast<QShortcut *>(sender());
+    if (s) {
+        QWidget *p = s->parentWidget();
+        QString pclass = p ? p->metaObject()->className() : QString::fromLatin1("<unknown>");
+        wLog() << QString("Ambiguous shortcut activated. Parent class: %1. Key: %2")
+            .arg(pclass).arg(s->key().toString());
+    }
+}
+
+QShortcut *Movida::createShortcut(const QKeySequence &ks, QWidget *parent, const char *member, QObject *receiver)
+{
+    if (!receiver)
+        receiver = parent;
+
+    if (!receiver)
+        return 0;
+
+    static ShortcutMonitor sc_monitor;
+
+    QShortcut *s = new QShortcut(ks, parent);
+    QObject::connect(s, SIGNAL(activated()), receiver, member);
+    QObject::connect(s, SIGNAL(activatedAmbiguously()), &sc_monitor, SLOT(ambiguousActivation()));
+    return s;
 }

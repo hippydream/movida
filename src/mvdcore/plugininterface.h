@@ -28,16 +28,16 @@
 #include <QtCore/QString>
 #include <QtCore/QVariant>
 #include <QtGui/QIcon>
+#include <QtGui/QKeySequence>
 
 class MvdMovieCollection;
 
 class MvdPluginContext
 {
 public:
-    MvdPluginContext() :
-        collection(0) { }
+    MvdPluginContext()
+    { }
 
-    MvdMovieCollection *collection;
     QHash<QString, QVariant> properties;
     QList<mvdid> selectedMovies;
 };
@@ -75,6 +75,7 @@ public:
         QString helpText;
         QString name;
         ActionTypes type;
+        QList<QKeySequence> shortcuts;
     };
 
     MvdPluginInterface(QObject * parent = 0);

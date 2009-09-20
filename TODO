@@ -9,10 +9,16 @@ SHORT-TERM (URGENT):
 <blue_death>	Add multiple movie editing support to single movie editor
 <blue_death>	"Drop here" message on filter bar should be moved to the info bar
 <blue_death>	Add a "OR combine" checkbox to the filter widget (IS THIS REALLY NECESSARY?)
-<blue_death>	Clearing the current filter should make the view scroll to the first selected item
+<blue_death>	Import: context menu to open IMDb page in the results tree
+<blue_death>	Import: preview browser view needs to handle urls (so we can open the IMDb page from here as well)
+<blue_death>	Alternative titles (must be searched by default by the quick filter)
+<blue_death>	Setting movie poster via D&D in smart view causes a crash
+<blue_death>	Poster D&D from editor is buggy - won't accept drags (also need to implement web import!)
 
 MID-TERM:
 
+<blue_death>	Embed movie editor in main window
+<blue_death>	Movie tree view must be editable
 <blue_death>	Consider adding "open IMDb page" to context menu or toolbar
 <blue_death>	Fix column width in the tree view and clean up the header and the context 
 		menu some how

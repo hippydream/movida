@@ -22,30 +22,72 @@
 #define MVD_CLEAREDIT_H
 
 #include "sharedglobal.h"
+#include "lineedit.h"
 
-#include <QtGui/QLineEdit>
+class QAbstractButton;
 
-class MVD_EXPORT_SHARED MvdClearEdit : public QLineEdit
+class MVD_EXPORT_SHARED MvdClearEdit : public MvdLineEdit
 {
     Q_OBJECT
 
 public:
-    MvdClearEdit(QWidget * parent = 0);
+    MvdClearEdit(QWidget *parent = 0);
+    virtual ~MvdClearEdit();
 
-    void setPlaceHolder(const QString &s);
-    QString placeHolder() const;
+    QSize pixmapSize() const;
+
+    QPixmap pixmap() const;
+    void setPixmap(const QPixmap& pm);
+
+    QString toolTip() const;
+    void setToolTip(const QString& tip);
 
     virtual QSize sizeHint() const;
 
-protected:
-    virtual void resizeEvent(QResizeEvent *);
-    virtual void paintEvent(QPaintEvent *);
+signals:
+    void embeddedActionTriggered();
 
-private slots:
-    void updateClearButton(const QString &text);
+protected:
+    MvdClearEdit(const QPixmap &pixmap, const QString &tip, QWidget * parent = 0);
+
+    QAbstractButton *button() const;
+
+    virtual void resizeEvent(QResizeEvent *);
+
+protected slots:
+    virtual void on_buttonClicked();
+    virtual void updateButton(const QString &text);
+
+private:
+    void init(const QPixmap &pixmap, const QString &tip);
+
+    class Private;
+    Private *d;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class MVD_EXPORT_SHARED MvdResetEdit : public MvdClearEdit
+{
+    Q_OBJECT
+
+public:
+    MvdResetEdit(QWidget *parent = 0);
+    virtual ~MvdResetEdit();
+
+    void setDefaultValue(const QString &s);
+    QString defaultValue() const;
+
+protected:
+    virtual void setTextCalled();
+
+protected slots:
+    virtual void on_buttonClicked();
+    virtual void updateButton(const QString &text);
 
 private:
     class Private;
+    friend class Private;
     Private *d;
 };
 

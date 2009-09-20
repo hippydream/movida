@@ -23,6 +23,8 @@
 
 #include "listview.h"
 
+class MvdSmartViewDelegate;
+
 class MvdSmartView : public MvdListView
 {
     Q_OBJECT
@@ -41,6 +43,8 @@ public:
     ItemSize itemSize() const;
     void setItemSize(ItemSize s);
 
+    virtual void setSelectionModel(QItemSelectionModel *selectionModel);
+
 signals:
     void contextMenuRequested(const QModelIndex &index);
 
@@ -50,8 +54,20 @@ protected:
     void contextMenuEvent(QContextMenuEvent *e);
     void startDrag(Qt::DropActions supportedActions);
     void dragEnterEvent(QDragEnterEvent *e);
+    void dragLeaveEvent(QDragLeaveEvent *e);
+    void dragMoveEvent(QDragMoveEvent*e);
+    void dropEvent(QDropEvent *e);
+
+private slots:
+    void dragFinished();
 
 private:
+    friend class MvdSmartViewDelegate;
+
+    class Private;
+    Private *d;
+
+    bool isDragging() const;
     void init();
 };
 

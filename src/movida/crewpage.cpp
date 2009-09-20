@@ -43,22 +43,22 @@ MvdCrewPage::MvdCrewPage(MvdMovieCollection *c, MvdMovieEditor *parent) :
     setupUi(this);
 
     cast->setMovieCollection(mCollection);
-    cast->setDataSource(Movida::ActorRole);
+    cast->setDataRole(Movida::ActorRole);
     connect(cast, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
     connect(cast, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
     directors->setMovieCollection(mCollection);
-    directors->setDataSource(Movida::DirectorRole);
+    directors->setDataRole(Movida::DirectorRole);
     connect(directors, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
     connect(directors, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
     producers->setMovieCollection(mCollection);
-    producers->setDataSource(Movida::ProducerRole);
+    producers->setDataRole(Movida::ProducerRole);
     connect(producers, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
     connect(producers, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
     crew->setMovieCollection(mCollection);
-    crew->setDataSource(Movida::CrewMemberRole);
+    crew->setDataRole(Movida::CrewMemberRole);
     connect(crew, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
     connect(crew, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
@@ -94,16 +94,16 @@ QIcon MvdCrewPage::icon()
 void MvdCrewPage::setMovieImpl(const MvdMovie &movie)
 {
     cast->setMovie(movie);
-    cast->setDataSource(Movida::ActorRole);
+    cast->setDataRole(Movida::ActorRole);
 
     directors->setMovie(movie);
-    directors->setDataSource(Movida::DirectorRole);
+    directors->setDataRole(Movida::DirectorRole);
 
     producers->setMovie(movie);
-    producers->setDataSource(Movida::ProducerRole);
+    producers->setDataRole(Movida::ProducerRole);
 
     crew->setMovie(movie);
-    crew->setDataSource(Movida::CrewMemberRole);
+    crew->setDataRole(Movida::CrewMemberRole);
 }
 
 bool MvdCrewPage::store(MvdMovie &movie)

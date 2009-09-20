@@ -33,6 +33,22 @@
 
 using namespace Movida;
 
+namespace {
+struct SdItemSorter {
+    SdItemSorter(const MvdSharedData::ItemList &list) : mList(list)
+    {}
+
+    bool operator()(const mvdid &a, const mvdid &b) const
+    {
+        const MvdSdItem& _a = mList[a];
+        const MvdSdItem& _b = mList[b];
+        return _a < _b;
+    }
+
+    const MvdSharedData::ItemList &mList;
+};
+}
+
 /*!
     \class MvdSharedData shareddata.h
     \ingroup MvdCore
@@ -299,7 +315,7 @@ mvdid MvdSharedData::addItem(const MvdSdItem &item)
 
     d->canPurge = true;
 
-    int maxLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
+    int maxLength = Movida::core().parameter("mvdcore/max-edit-length").toInt();
 
     mvdid newId = d->nextId++;
     if (item.value.length() > maxLength || item.description.length() > maxLength) {
@@ -307,10 +323,10 @@ mvdid MvdSharedData::addItem(const MvdSdItem &item)
         _item.value.truncate(maxLength);
         _item.description.truncate(maxLength);
         d->data.insert(newId, _item);
-        d->logNewItem(_item);
+        //d->logNewItem(_item);
     } else {
         d->data.insert(newId, item);
-        d->logNewItem(item);
+        //d->logNewItem(item);
     }
     emit itemAdded(newId);
     return newId;
@@ -567,4 +583,45 @@ bool MvdSharedData::purgeData()
 
     d->canPurge = false;
     return itemRemoved;
+}
+
+/*! Returns a QList of sorted <mvdid, MvdSdItem> QPairs.
+    The items are sorted by calling the MvdSdItem < operator, which in turn
+    uses QString::localeAwareCompare() on the MvdSdItem::value string.
+
+    Consider using sortedItemVector() if possible as it will offer faster
+    linear access to its items.
+*/
+MvdSharedData::ItemPairList MvdSharedData::sortedItemList(const ItemList &list)
+{
+    ::SdItemSorter sorter(list);
+
+    QList<mvdid> klist = list.keys();
+    qSort(klist.begin(), klist.end(), sorter);
+
+    ItemPairList ilist;
+    for (int i = 0; i < klist.size(); ++i) {
+        mvdid id = klist.at(i);
+        ilist.append(ItemPair(id, list[id]));
+    }
+    return ilist;
+}
+
+/*! Returns a QVector of sorted <mvdid, MvdSdItem> QPairs.
+    The items are sorted by calling the MvdSdItem < operator, which in turn
+    uses QString::localeAwareCompare() on the MvdSdItem::value string.
+*/
+MvdSharedData::ItemPairVector MvdSharedData::sortedItemVector(const ItemList &list)
+{
+    ::SdItemSorter sorter(list);
+
+    QList<mvdid> klist = list.keys();
+    qSort(klist.begin(), klist.end(), sorter);
+
+    ItemPairVector ilist(list.size());
+    for (int i = 0; i < klist.size(); ++i) {
+        mvdid id = klist.at(i);
+        ilist[i] = ItemPair(id, list[id]);
+    }
+    return ilist;
 }

@@ -24,6 +24,7 @@
 #include <QtGui/QApplication>
 
 class MvdMainWindow;
+class QSessionManager;
 
 class MvdApplication : public QApplication
 {
@@ -38,10 +39,14 @@ public:
     QStringList getLanguage(QString lang);
     void installTranslators(const QStringList &langs);
     void changeGuiLanguage(const QString &lang);
-    const QString &currentGuiLanguage() { return mGuiLanguage; };
-    bool usingGui() const { return MvdApplication::UseGui; }
+    QString currentGuiLanguage()
+    { return mGuiLanguage; }
+    bool usingGui() const
+    { return MvdApplication::UseGui; }
 
     static bool UseGui;
+
+    virtual void commitData(QSessionManager &manager);
 
 private:
     void showHeader();

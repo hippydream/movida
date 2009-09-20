@@ -39,9 +39,9 @@ class MvdCollectionModel;
 class MvdDockWidget;
 class MvdFilterProxyModel;
 class MvdFilterWidget;
-class MvdInfoPanel;
 class MvdMovieCollection;
 class MvdMovieTreeView;
+class MvdMovieViewListener;
 class MvdPluginInterface;
 class MvdPluginInterface;
 class MvdRowSelectionModel;
@@ -82,21 +82,26 @@ public:
 
     virtual bool eventFilter(QObject *o, QEvent *e);
 
-    MvdMovieCollection *currentCollection() const;
     QList<mvdid> selectedMovies() const;
-
-    MvdPluginInterface *locatePlugin(const QString &id) const;
 
     MvdFilterWidget *filterWidget() const;
     bool isQuickFilterVisible() const;
 
-    void setMoviePoster(quint32 movieId, const QUrl &url);
+    QAbstractItemView* currentMovieView() const;
+
+    void showTemporaryMessage(const QString &msg);
+    void showPersistentMessage(const QString &msg);
+    void hideMessages();
 
 public slots:
-    void newCollection();
+    void setMoviePoster(quint32 movieId, const QUrl &url);
+
+    bool newCollection(bool silent = false, bool *error = 0);
+    bool closeCollection(bool silent = false, bool *error = 0)
+    { return newCollection(silent, error); }
     bool loadCollection(const QString &file);
     void loadLastCollection();
-    bool saveCollection();
+    bool saveCollection(bool silent = false);
 
     void zoomIn();
     void zoomOut();
@@ -128,15 +133,21 @@ public slots:
 
     void showCollectionMeta();
     void showFilterWidget();
+    void toggleFilterWidget();
     void showSharedDataEditor();
 
+signals:
+    void movieSelectionChanged();
+
 protected:
+    virtual bool event(QEvent *e);
     virtual void closeEvent(QCloseEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
     virtual QMenu *createPopupMenu();
 
 private:
     friend void Movida::mainWindowMessageHandler(Movida::MessageType t, const QString &m);
+    friend class MvdMovieViewListener;
 
     class Private;
     Private *d;

@@ -1,6 +1,6 @@
 /*************************************************************************
  *
- * $Id: trio.h,v 1.1 2007/03/03 14:29:17 blue Exp $
+ * $Id: trio.h 897 2003-04-07 12:41:56Z veillard $
  *
  * Copyright (C) 1998 Bjorn Reese and Daniel Stenberg.
  *

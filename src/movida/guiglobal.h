@@ -30,6 +30,9 @@
 
 #define MVD_WINDOW_ICON setWindowIcon(QIcon(":/images/logo.svgz"));
 
+class QKeySequence;
+class QShortcut;
+
 namespace Movida {
 //! Additional item view roles
 enum ViewRole {
@@ -42,8 +45,9 @@ enum ViewRole {
     MovieAttributeRole,
     SmartViewDisplayRole,
     MoviePosterRole,
-    RawDataRole,
-    UniqueDisplayRole
+    UniqueDisplayRole,
+    SortRole,
+    FilterRole
 };
 
 enum ItemValidator {
@@ -120,6 +124,17 @@ QString filterFunctionName(FilterFunction ff);
 QRegExp filterFunctionRegExp(FilterFunction ff);
 FilterFunction filterFunction(const QString &name);
 
+class ShortcutMonitor : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    void ambiguousActivation();
+};
+
+QShortcut *createShortcut(const QKeySequence &ks, QWidget *parent, const char *member, QObject *receiver = 0);
+
 } // Movida namespace
+
 
 #endif // MVD_GUIGLOBAL_H

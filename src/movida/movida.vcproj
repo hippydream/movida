@@ -45,7 +45,7 @@
 				AdditionalOptions="-Zm200 -w34100 -w34189 -Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="4"
 				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtNetwork&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include\QtSvg&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\win32\debug\movida\moc&quot;,&quot;..\..\tmp\win32\debug\movida\ui&quot;,$(QTDIR)\mkspecs\default"
-				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_DLL,QT_SVG_LIB,QT_GUI_LIB,QT_NETWORK_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT"
+				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_DLL,QT_SVG_LIB,QT_GUI_LIB,QT_NETWORK_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT,_MVD_DEBUG"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
 				RuntimeLibrary="3"
@@ -366,7 +366,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC application.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 application.h -o ..\..\tmp\win32\debug\movida\moc\moc_application.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;application.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_application.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;application.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_application.cpp"
 					/>
@@ -377,7 +377,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC application.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 application.h -o ..\..\tmp\win32\release\movida\moc\moc_application.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;application.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_application.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;application.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_application.cpp"
 					/>
@@ -392,7 +392,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC collectionmetaeditor.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 collectionmetaeditor.h -o ..\..\tmp\win32\debug\movida\moc\moc_collectionmetaeditor.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;collectionmetaeditor.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_collectionmetaeditor.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;collectionmetaeditor.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_collectionmetaeditor.cpp"
 					/>
@@ -403,7 +403,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC collectionmetaeditor.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 collectionmetaeditor.h -o ..\..\tmp\win32\release\movida\moc\moc_collectionmetaeditor.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;collectionmetaeditor.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_collectionmetaeditor.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;collectionmetaeditor.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_collectionmetaeditor.cpp"
 					/>
@@ -418,7 +418,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC collectionmodel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 collectionmodel.h -o ..\..\tmp\win32\debug\movida\moc\moc_collectionmodel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;collectionmodel.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_collectionmodel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;collectionmodel.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_collectionmodel.cpp"
 					/>
@@ -429,7 +429,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC collectionmodel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 collectionmodel.h -o ..\..\tmp\win32\release\movida\moc\moc_collectionmodel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;collectionmodel.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_collectionmodel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;collectionmodel.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_collectionmodel.cpp"
 					/>
@@ -444,7 +444,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC crewpage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 crewpage.h -o ..\..\tmp\win32\debug\movida\moc\moc_crewpage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;crewpage.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_crewpage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;crewpage.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_crewpage.cpp"
 					/>
@@ -455,7 +455,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC crewpage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 crewpage.h -o ..\..\tmp\win32\release\movida\moc\moc_crewpage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;crewpage.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_crewpage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;crewpage.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_crewpage.cpp"
 					/>
@@ -470,7 +470,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC dockwidget.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 dockwidget.h -o ..\..\tmp\win32\debug\movida\moc\moc_dockwidget.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;dockwidget.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_dockwidget.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;dockwidget.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_dockwidget.cpp"
 					/>
@@ -481,7 +481,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC dockwidget.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 dockwidget.h -o ..\..\tmp\win32\release\movida\moc\moc_dockwidget.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;dockwidget.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_dockwidget.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;dockwidget.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_dockwidget.cpp"
 					/>
@@ -496,7 +496,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC extendedinfopage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 extendedinfopage.h -o ..\..\tmp\win32\debug\movida\moc\moc_extendedinfopage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;extendedinfopage.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_extendedinfopage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;extendedinfopage.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_extendedinfopage.cpp"
 					/>
@@ -507,7 +507,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC extendedinfopage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 extendedinfopage.h -o ..\..\tmp\win32\release\movida\moc\moc_extendedinfopage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;extendedinfopage.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_extendedinfopage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;extendedinfopage.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_extendedinfopage.cpp"
 					/>
@@ -522,7 +522,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC filterproxymodel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 filterproxymodel.h -o ..\..\tmp\win32\debug\movida\moc\moc_filterproxymodel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;filterproxymodel.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_filterproxymodel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;filterproxymodel.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_filterproxymodel.cpp"
 					/>
@@ -533,7 +533,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC filterproxymodel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 filterproxymodel.h -o ..\..\tmp\win32\release\movida\moc\moc_filterproxymodel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;filterproxymodel.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_filterproxymodel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;filterproxymodel.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_filterproxymodel.cpp"
 					/>
@@ -548,7 +548,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC filtersettingspage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 filtersettingspage.h -o ..\..\tmp\win32\debug\movida\moc\moc_filtersettingspage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;filtersettingspage.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_filtersettingspage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;filtersettingspage.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_filtersettingspage.cpp"
 					/>
@@ -559,7 +559,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC filtersettingspage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 filtersettingspage.h -o ..\..\tmp\win32\release\movida\moc\moc_filtersettingspage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;filtersettingspage.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_filtersettingspage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;filtersettingspage.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_filtersettingspage.cpp"
 					/>
@@ -574,7 +574,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC filterwidget.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 filterwidget.h -o ..\..\tmp\win32\debug\movida\moc\moc_filterwidget.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;filterwidget.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_filterwidget.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;filterwidget.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_filterwidget.cpp"
 					/>
@@ -585,7 +585,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC filterwidget.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 filterwidget.h -o ..\..\tmp\win32\release\movida\moc\moc_filterwidget.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;filterwidget.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_filterwidget.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;filterwidget.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_filterwidget.cpp"
 					/>
@@ -594,6 +594,28 @@
 			<File
 				RelativePath="guiglobal.h"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing guiglobal.h..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;guiglobal.h&quot; -o &quot;.\..\..\tmp\win32\$(ConfigurationName)\movida\moc\moc_guiglobal.cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;guiglobal.h"
+						Outputs="&quot;.\..\..\tmp\win32\$(ConfigurationName)\movida\moc\moc_guiglobal.cpp&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing guiglobal.h..."
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;guiglobal.h&quot; -o &quot;.\..\..\tmp\win32\$(ConfigurationName)\movida\moc\moc_guiglobal.cpp&quot;&#x0D;&#x0A;"
+						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;guiglobal.h"
+						Outputs="&quot;.\..\..\tmp\win32\$(ConfigurationName)\movida\moc\moc_guiglobal.cpp&quot;"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="infopanel.h"
@@ -604,7 +626,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC infopanel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 infopanel.h -o ..\..\tmp\win32\debug\movida\moc\moc_infopanel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;infopanel.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_infopanel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;infopanel.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_infopanel.cpp"
 					/>
@@ -615,7 +637,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC infopanel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 infopanel.h -o ..\..\tmp\win32\release\movida\moc\moc_infopanel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;infopanel.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_infopanel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;infopanel.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_infopanel.cpp"
 					/>
@@ -630,7 +652,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC itemdelegate.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 itemdelegate.h -o ..\..\tmp\win32\debug\movida\moc\moc_itemdelegate.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;itemdelegate.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_itemdelegate.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;itemdelegate.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_itemdelegate.cpp"
 					/>
@@ -641,7 +663,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC itemdelegate.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 itemdelegate.h -o ..\..\tmp\win32\release\movida\moc\moc_itemdelegate.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;itemdelegate.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_itemdelegate.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;itemdelegate.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_itemdelegate.cpp"
 					/>
@@ -656,7 +678,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC linklabel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 linklabel.h -o ..\..\tmp\win32\debug\movida\moc\moc_linklabel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;linklabel.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_linklabel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;linklabel.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_linklabel.cpp"
 					/>
@@ -667,7 +689,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC linklabel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 linklabel.h -o ..\..\tmp\win32\release\movida\moc\moc_linklabel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;linklabel.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_linklabel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;linklabel.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_linklabel.cpp"
 					/>
@@ -682,7 +704,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC linkspage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 linkspage.h -o ..\..\tmp\win32\debug\movida\moc\moc_linkspage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;linkspage.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_linkspage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;linkspage.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_linkspage.cpp"
 					/>
@@ -693,7 +715,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC linkspage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 linkspage.h -o ..\..\tmp\win32\release\movida\moc\moc_linkspage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;linkspage.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_linkspage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;linkspage.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_linkspage.cpp"
 					/>
@@ -712,7 +734,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC maininfopage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 maininfopage.h -o ..\..\tmp\win32\debug\movida\moc\moc_maininfopage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;maininfopage.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_maininfopage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;maininfopage.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_maininfopage.cpp"
 					/>
@@ -723,7 +745,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC maininfopage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 maininfopage.h -o ..\..\tmp\win32\release\movida\moc\moc_maininfopage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;maininfopage.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_maininfopage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;maininfopage.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_maininfopage.cpp"
 					/>
@@ -738,7 +760,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC mainsettingspage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 mainsettingspage.h -o ..\..\tmp\win32\debug\movida\moc\moc_mainsettingspage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;mainsettingspage.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_mainsettingspage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;mainsettingspage.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_mainsettingspage.cpp"
 					/>
@@ -749,7 +771,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC mainsettingspage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 mainsettingspage.h -o ..\..\tmp\win32\release\movida\moc\moc_mainsettingspage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;mainsettingspage.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_mainsettingspage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;mainsettingspage.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_mainsettingspage.cpp"
 					/>
@@ -764,7 +786,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC mainwindow.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 mainwindow.h -o ..\..\tmp\win32\debug\movida\moc\moc_mainwindow.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;mainwindow.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_mainwindow.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;mainwindow.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_mainwindow.cpp"
 					/>
@@ -775,7 +797,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC mainwindow.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 mainwindow.h -o ..\..\tmp\win32\release\movida\moc\moc_mainwindow.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;mainwindow.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_mainwindow.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;mainwindow.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_mainwindow.cpp"
 					/>
@@ -790,7 +812,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC mainwindow_p.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 mainwindow_p.h -o ..\..\tmp\win32\debug\movida\moc\moc_mainwindow_p.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;mainwindow_p.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_mainwindow_p.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;mainwindow_p.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_mainwindow_p.cpp"
 					/>
@@ -801,7 +823,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC mainwindow_p.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 mainwindow_p.h -o ..\..\tmp\win32\release\movida\moc\moc_mainwindow_p.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;mainwindow_p.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_mainwindow_p.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;mainwindow_p.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_mainwindow_p.cpp"
 					/>
@@ -816,7 +838,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movieeditor.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 movieeditor.h -o ..\..\tmp\win32\debug\movida\moc\moc_movieeditor.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;movieeditor.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_movieeditor.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieeditor.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_movieeditor.cpp"
 					/>
@@ -827,7 +849,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movieeditor.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 movieeditor.h -o ..\..\tmp\win32\release\movida\moc\moc_movieeditor.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;movieeditor.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_movieeditor.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieeditor.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_movieeditor.cpp"
 					/>
@@ -842,7 +864,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movieeditorpage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 movieeditorpage.h -o ..\..\tmp\win32\debug\movida\moc\moc_movieeditorpage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;movieeditorpage.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_movieeditorpage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieeditorpage.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_movieeditorpage.cpp"
 					/>
@@ -853,7 +875,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movieeditorpage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 movieeditorpage.h -o ..\..\tmp\win32\release\movida\moc\moc_movieeditorpage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;movieeditorpage.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_movieeditorpage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieeditorpage.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_movieeditorpage.cpp"
 					/>
@@ -868,7 +890,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC moviemasseditor.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 moviemasseditor.h -o ..\..\tmp\win32\debug\movida\moc\moc_moviemasseditor.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;moviemasseditor.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_moviemasseditor.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;moviemasseditor.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_moviemasseditor.cpp"
 					/>
@@ -879,7 +901,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC moviemasseditor.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 moviemasseditor.h -o ..\..\tmp\win32\release\movida\moc\moc_moviemasseditor.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;moviemasseditor.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_moviemasseditor.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;moviemasseditor.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_moviemasseditor.cpp"
 					/>
@@ -894,7 +916,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movietreeview.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 movietreeview.h -o ..\..\tmp\win32\debug\movida\moc\moc_movietreeview.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;movietreeview.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_movietreeview.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movietreeview.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_movietreeview.cpp"
 					/>
@@ -905,7 +927,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movietreeview.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 movietreeview.h -o ..\..\tmp\win32\release\movida\moc\moc_movietreeview.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;movietreeview.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_movietreeview.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movietreeview.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_movietreeview.cpp"
 					/>
@@ -920,7 +942,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movietreeviewdelegate.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 movietreeviewdelegate.h -o ..\..\tmp\win32\debug\movida\moc\moc_movietreeviewdelegate.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;movietreeviewdelegate.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_movietreeviewdelegate.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movietreeviewdelegate.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_movietreeviewdelegate.cpp"
 					/>
@@ -931,7 +953,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movietreeviewdelegate.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 movietreeviewdelegate.h -o ..\..\tmp\win32\release\movida\moc\moc_movietreeviewdelegate.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;movietreeviewdelegate.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_movietreeviewdelegate.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movietreeviewdelegate.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_movietreeviewdelegate.cpp"
 					/>
@@ -946,7 +968,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movieviewlistener.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 movieviewlistener.h -o ..\..\tmp\win32\debug\movida\moc\moc_movieviewlistener.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;movieviewlistener.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_movieviewlistener.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieviewlistener.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_movieviewlistener.cpp"
 					/>
@@ -957,7 +979,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC movieviewlistener.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 movieviewlistener.h -o ..\..\tmp\win32\release\movida\moc\moc_movieviewlistener.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;movieviewlistener.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_movieviewlistener.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;movieviewlistener.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_movieviewlistener.cpp"
 					/>
@@ -972,7 +994,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC mpdialogpage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 mpdialogpage.h -o ..\..\tmp\win32\debug\movida\moc\moc_mpdialogpage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;mpdialogpage.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_mpdialogpage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;mpdialogpage.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_mpdialogpage.cpp"
 					/>
@@ -983,7 +1005,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC mpdialogpage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 mpdialogpage.h -o ..\..\tmp\win32\release\movida\moc\moc_mpdialogpage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;mpdialogpage.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_mpdialogpage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;mpdialogpage.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_mpdialogpage.cpp"
 					/>
@@ -998,7 +1020,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC multipagedialog.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 multipagedialog.h -o ..\..\tmp\win32\debug\movida\moc\moc_multipagedialog.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;multipagedialog.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_multipagedialog.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;multipagedialog.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_multipagedialog.cpp"
 					/>
@@ -1009,7 +1031,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC multipagedialog.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 multipagedialog.h -o ..\..\tmp\win32\release\movida\moc\moc_multipagedialog.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;multipagedialog.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_multipagedialog.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;multipagedialog.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_multipagedialog.cpp"
 					/>
@@ -1024,7 +1046,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC notespage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 notespage.h -o ..\..\tmp\win32\debug\movida\moc\moc_notespage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;notespage.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_notespage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;notespage.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_notespage.cpp"
 					/>
@@ -1035,7 +1057,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC notespage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 notespage.h -o ..\..\tmp\win32\release\movida\moc\moc_notespage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;notespage.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_notespage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;notespage.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_notespage.cpp"
 					/>
@@ -1050,7 +1072,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC posterlabel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 posterlabel.h -o ..\..\tmp\win32\debug\movida\moc\moc_posterlabel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;posterlabel.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_posterlabel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;posterlabel.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_posterlabel.cpp"
 					/>
@@ -1061,7 +1083,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC posterlabel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 posterlabel.h -o ..\..\tmp\win32\release\movida\moc\moc_posterlabel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;posterlabel.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_posterlabel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;posterlabel.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_posterlabel.cpp"
 					/>
@@ -1076,7 +1098,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC ratingwidget.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 ratingwidget.h -o ..\..\tmp\win32\debug\movida\moc\moc_ratingwidget.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;ratingwidget.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_ratingwidget.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;ratingwidget.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_ratingwidget.cpp"
 					/>
@@ -1087,7 +1109,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC ratingwidget.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 ratingwidget.h -o ..\..\tmp\win32\release\movida\moc\moc_ratingwidget.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;ratingwidget.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_ratingwidget.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;ratingwidget.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_ratingwidget.cpp"
 					/>
@@ -1102,7 +1124,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC rowselectionmodel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 rowselectionmodel.h -o ..\..\tmp\win32\debug\movida\moc\moc_rowselectionmodel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;rowselectionmodel.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_rowselectionmodel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;rowselectionmodel.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_rowselectionmodel.cpp"
 					/>
@@ -1113,7 +1135,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC rowselectionmodel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 rowselectionmodel.h -o ..\..\tmp\win32\release\movida\moc\moc_rowselectionmodel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;rowselectionmodel.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_rowselectionmodel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;rowselectionmodel.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_rowselectionmodel.cpp"
 					/>
@@ -1128,7 +1150,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC sdtreewidget.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 sdtreewidget.h -o ..\..\tmp\win32\debug\movida\moc\moc_sdtreewidget.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;sdtreewidget.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_sdtreewidget.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;sdtreewidget.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_sdtreewidget.cpp"
 					/>
@@ -1139,7 +1161,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC sdtreewidget.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 sdtreewidget.h -o ..\..\tmp\win32\release\movida\moc\moc_sdtreewidget.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;sdtreewidget.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_sdtreewidget.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;sdtreewidget.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_sdtreewidget.cpp"
 					/>
@@ -1154,7 +1176,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC settingsdialog.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 settingsdialog.h -o ..\..\tmp\win32\debug\movida\moc\moc_settingsdialog.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;settingsdialog.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_settingsdialog.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;settingsdialog.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_settingsdialog.cpp"
 					/>
@@ -1165,7 +1187,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC settingsdialog.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 settingsdialog.h -o ..\..\tmp\win32\release\movida\moc\moc_settingsdialog.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;settingsdialog.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_settingsdialog.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;settingsdialog.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_settingsdialog.cpp"
 					/>
@@ -1180,7 +1202,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC settingspage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 settingspage.h -o ..\..\tmp\win32\debug\movida\moc\moc_settingspage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;settingspage.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_settingspage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;settingspage.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_settingspage.cpp"
 					/>
@@ -1191,7 +1213,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC settingspage.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 settingspage.h -o ..\..\tmp\win32\release\movida\moc\moc_settingspage.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;settingspage.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_settingspage.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;settingspage.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_settingspage.cpp"
 					/>
@@ -1206,7 +1228,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC shareddataeditor.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 shareddataeditor.h -o ..\..\tmp\win32\debug\movida\moc\moc_shareddataeditor.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;shareddataeditor.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_shareddataeditor.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;shareddataeditor.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_shareddataeditor.cpp"
 					/>
@@ -1217,7 +1239,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC shareddataeditor.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 shareddataeditor.h -o ..\..\tmp\win32\release\movida\moc\moc_shareddataeditor.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;shareddataeditor.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_shareddataeditor.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;shareddataeditor.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_shareddataeditor.cpp"
 					/>
@@ -1232,7 +1254,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC shareddatamodel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 shareddatamodel.h -o ..\..\tmp\win32\debug\movida\moc\moc_shareddatamodel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;shareddatamodel.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_shareddatamodel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;shareddatamodel.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_shareddatamodel.cpp"
 					/>
@@ -1243,7 +1265,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC shareddatamodel.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 shareddatamodel.h -o ..\..\tmp\win32\release\movida\moc\moc_shareddatamodel.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;shareddatamodel.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_shareddatamodel.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;shareddatamodel.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_shareddatamodel.cpp"
 					/>
@@ -1258,7 +1280,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC shareddataview.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 shareddataview.h -o ..\..\tmp\win32\debug\movida\moc\moc_shareddataview.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;shareddataview.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_shareddataview.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;shareddataview.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_shareddataview.cpp"
 					/>
@@ -1269,7 +1291,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC shareddataview.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 shareddataview.h -o ..\..\tmp\win32\release\movida\moc\moc_shareddataview.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;shareddataview.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_shareddataview.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;shareddataview.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_shareddataview.cpp"
 					/>
@@ -1284,7 +1306,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC smartview.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 smartview.h -o ..\..\tmp\win32\debug\movida\moc\moc_smartview.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;smartview.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_smartview.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;smartview.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_smartview.cpp"
 					/>
@@ -1295,7 +1317,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC smartview.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 smartview.h -o ..\..\tmp\win32\release\movida\moc\moc_smartview.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;smartview.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_smartview.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;smartview.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_smartview.cpp"
 					/>
@@ -1310,7 +1332,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC smartviewdelegate.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 smartviewdelegate.h -o ..\..\tmp\win32\debug\movida\moc\moc_smartviewdelegate.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;smartviewdelegate.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_smartviewdelegate.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;smartviewdelegate.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_smartviewdelegate.cpp"
 					/>
@@ -1321,7 +1343,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC smartviewdelegate.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 smartviewdelegate.h -o ..\..\tmp\win32\release\movida\moc\moc_smartviewdelegate.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;smartviewdelegate.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_smartviewdelegate.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;smartviewdelegate.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_smartviewdelegate.cpp"
 					/>
@@ -1336,7 +1358,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC treeview.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 treeview.h -o ..\..\tmp\win32\debug\movida\moc\moc_treeview.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;treeview.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_treeview.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;treeview.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_treeview.cpp"
 					/>
@@ -1347,7 +1369,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC treeview.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 treeview.h -o ..\..\tmp\win32\release\movida\moc\moc_treeview.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;treeview.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_treeview.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;treeview.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_treeview.cpp"
 					/>
@@ -1362,7 +1384,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC treewidget.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 treewidget.h -o ..\..\tmp\win32\debug\movida\moc\moc_treewidget.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -D_MVD_DEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;treewidget.h&quot; -o &quot;..\..\tmp\win32\debug\movida\moc\moc_treewidget.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;treewidget.h"
 						Outputs="..\..\tmp\win32\debug\movida\moc\moc_treewidget.cpp"
 					/>
@@ -1373,7 +1395,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC treewidget.h"
-						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtNetwork&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include\QtSvg&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\movida\moc&quot; -I&quot;..\..\tmp\win32\debug\movida\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 treewidget.h -o ..\..\tmp\win32\release\movida\moc\moc_treewidget.cpp&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -DNDEBUG  -I&quot;$(QTDIR)\include\QtCore\.&quot; -I&quot;$(QTDIR)\include\QtNetwork\.&quot; -I&quot;$(QTDIR)\include\QtGui\.&quot; -I&quot;$(QTDIR)\include\QtSvg\.&quot; -I&quot;$(QTDIR)\include\.&quot; -I&quot;.\..\..\src\.&quot; -I&quot;.\..\..\src\3rdparty\.&quot; -I&quot;.\..\..\src\3rdparty\iconv\.&quot; -I&quot;$(QTDIR)\include\ActiveQt\.&quot; -I&quot;.\..\..\tmp\win32\release\movida\moc\.&quot; -I&quot;.\..\..\tmp\win32\debug\movida\ui\.&quot; -I&quot;$(QTDIR)\mkspecs\default\.&quot; &quot;treewidget.h&quot; -o &quot;..\..\tmp\win32\release\movida\moc\moc_treewidget.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;treewidget.h"
 						Outputs="..\..\tmp\win32\release\movida\moc\moc_treewidget.cpp"
 					/>
@@ -1385,18 +1407,6 @@
 			Filter="cpp;c;cxx;moc;h;def;odl;idl;res;"
 			UniqueIdentifier="{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}"
 			>
-			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_application.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
 			<File
 				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_application.cpp"
 				>
@@ -1410,7 +1420,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_collectionmetaeditor.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_application.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1434,7 +1444,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_collectionmodel.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_collectionmetaeditor.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1458,10 +1468,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_crewpage.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_collectionmodel.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1474,6 +1484,18 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_crewpage.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1506,18 +1528,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_extendedinfopage.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_extendedinfopage.cpp"
 				>
 				<FileConfiguration
@@ -1530,10 +1540,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_filterproxymodel.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_extendedinfopage.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1554,6 +1564,30 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_filterproxymodel.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_filtersettingspage.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\tmp\win32\release\movida\moc\moc_filtersettingspage.cpp"
 				>
 				<FileConfiguration
@@ -1566,7 +1600,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_filtersettingspage.cpp"
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_filterwidget.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1590,10 +1624,22 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_filterwidget.cpp"
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_guiglobal.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_guiglobal.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1626,10 +1672,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_itemdelegate.cpp"
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_itemdelegate.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1638,10 +1684,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_itemdelegate.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_itemdelegate.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1722,18 +1768,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_mainsettingspage.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_mainsettingspage.cpp"
 				>
 				<FileConfiguration
@@ -1746,10 +1780,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_mainwindow.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_mainsettingspage.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1762,6 +1796,18 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_mainwindow.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1842,18 +1888,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_moviemasseditor.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_moviemasseditor.cpp"
 				>
 				<FileConfiguration
@@ -1866,7 +1900,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_movietreeview.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_moviemasseditor.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1890,10 +1924,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_movietreeviewdelegate.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_movietreeview.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1914,10 +1948,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_movieviewlistener.cpp"
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_movietreeviewdelegate.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1930,6 +1964,18 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_movieviewlistener.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1986,18 +2032,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_notespage.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_notespage.cpp"
 				>
 				<FileConfiguration
@@ -2010,7 +2044,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_posterlabel.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_notespage.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2034,7 +2068,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_ratingwidget.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_posterlabel.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2050,6 +2084,18 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_ratingwidget.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2106,18 +2152,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_settingsdialog.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_settingsdialog.cpp"
 				>
 				<FileConfiguration
@@ -2130,10 +2164,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_settingspage.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_settingsdialog.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2154,10 +2188,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_shareddataeditor.cpp"
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_settingspage.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2170,6 +2204,18 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_shareddataeditor.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2202,10 +2248,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_shareddataview.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_shareddataview.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2214,10 +2260,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_shareddataview.cpp"
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_shareddataview.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2250,18 +2296,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\moc\moc_smartviewdelegate.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_smartviewdelegate.cpp"
 				>
 				<FileConfiguration
@@ -2274,10 +2308,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_treeview.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\moc\moc_smartviewdelegate.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2290,6 +2324,18 @@
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\debug\movida\moc\moc_treeview.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2322,18 +2368,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\obj\movida.res"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\tmp\win32\debug\movida\obj\movida.res"
 				>
 				<FileConfiguration
@@ -2346,14 +2380,14 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\movida\rcc\qrc_images.cpp"
+				RelativePath="..\..\tmp\win32\release\movida\obj\movida.res"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
-						Name="VCCLCompilerTool"
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 			</File>
@@ -2370,10 +2404,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\movida\rcc\qrc_templates.cpp"
+				RelativePath="..\..\tmp\win32\debug\movida\rcc\qrc_images.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2386,6 +2420,18 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\release\movida\rcc\qrc_templates.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool

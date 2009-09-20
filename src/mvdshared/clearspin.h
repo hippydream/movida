@@ -32,9 +32,12 @@ class MVD_EXPORT_SHARED MvdClearSpin : public QSpinBox
 public:
     MvdClearSpin(QWidget * parent = 0);
 
+    virtual void setRange(int min, int max);
+
     QSize sizeHint() const;
 
 protected:
+    virtual bool event(QEvent *event);
     virtual void paintEvent(QPaintEvent *);
     virtual void resizeEvent(QResizeEvent *);
     virtual void showEvent(QShowEvent *);

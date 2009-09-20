@@ -192,7 +192,8 @@ void MvdImportFinalPage::restartWizardToggled()
 bool MvdImportFinalPage::validatePage()
 {
     if (ui.restartWizard->isChecked()) {
-        Q_ASSERT(QMetaObject::invokeMethod(wizard(), "restart", Qt::QueuedConnection));
+        bool res = QMetaObject::invokeMethod(wizard(), "restart", Qt::QueuedConnection);
+        Q_ASSERT_X(res, "MvdImportFinalPage", "Failed to invoke QWizard::restart()");
         return false;
     }
 
@@ -217,13 +218,10 @@ void MvdImportFinalPage::importMovies(const MvdMovieDataList &movies)
             else showMessage(tr("Importing '%1'. %2 movie(s) remaining...", "# of movies not imported yet", movies.size() - 1 - i).arg(s).arg(movies.size() - 1 - i), MovidaShared::InfoMessage);
         }
 
-        MvdMovieCollection *collection = MvdCore::pluginContext()->collection;
+        MvdMovieCollection *collection = Movida::core().currentCollection();
         Q_ASSERT(collection);
 
-        const QString _importDate = MvdCore::parameter("mvdcore/extra-attributes/import-date").toString();
-
         QHash<QString, QVariant> extra;
-        extra.insert(_importDate, QDateTime::currentDateTime());
         mvdid movieId = collection->addMovie(m, extra);
         mImportedMovies << movieId;
 

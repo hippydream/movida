@@ -56,6 +56,9 @@
         <item>Trailer</item>
       </special-contents>
       <poster>867eb2a551dd71143353fc74589be9a3</poster>
+	  <extended-attributes>
+        <attribute name="some_string">some_qvariant_to_string</attribute>		 
+	  </extended-attributes>
     </movie>
   </movies>
   </movida-xml-doc>

@@ -37,6 +37,11 @@ public:
         QItemSelectionModel(model, parent)
     { }
 
+    virtual ~MvdRowSelectionModel()
+    {
+        qDebug("DEL");
+    }
+
 public slots:
     virtual void select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command)
     {

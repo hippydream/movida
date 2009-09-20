@@ -27,7 +27,9 @@
 #include "mvdcore/moviecollection.h"
 #include "mvdcore/shareddata.h"
 
+#include <QtCore/QPointer>
 #include <QtGui/QItemDelegate>
+#include <QtGui/QStandardItemModel>
 
 class MvdSDTreeWidget : public MvdTreeWidget
 {
@@ -76,8 +78,8 @@ public:
     MvdSDTreeWidget(Movida::DataRole ds, const MvdMovie &movie,
     MvdMovieCollection *c, QWidget *parent = 0);
 
-    void setDataSource(Movida::DataRole ds);
-    Movida::DataRole dataSource() const { return mDS; }
+    void setDataRole(Movida::DataRole ds);
+    Movida::DataRole dataRole() const { return mDataRole; }
 
     void resetToDefaults();
 
@@ -103,9 +105,12 @@ private slots:
     void updatedModifiedStatus();
 
 private:
+    typedef QPair<QString, ActionDescriptor> ActionItem;
+    typedef QList<ActionItem> ActionItemList;
+
     MvdMovie mMovie;
     MvdMovieCollection *mCollection;
-    Movida::DataRole mDS;
+    Movida::DataRole mDataRole;
     bool mModified;
 
     void init();
@@ -113,7 +118,7 @@ private:
     void setSimpleData(const QList<mvdid> &d);
 
     inline QMenu *createItemMenu(const QString &label,
-    const QMap<QString, ActionDescriptor> &actions, ActionType type);
+        const ActionItemList &actions, ActionType type);
 
     inline QString joinStringList(const QStringList &list, const QString &sep,
     const QString &def = QString()) const;
@@ -121,10 +126,10 @@ private:
 
     inline void executeAction(ActionDescriptor ad, const QVariant &data = QVariant());
 
-    inline QMap<QString, ActionDescriptor> generateActions(quint32 selected = 0, int *itemCount = 0, int max = -1);
+    inline ActionItemList generateActions(quint32 selected = 0, int *itemCount = 0, int max = -1);
     inline void generateActions(const QHash<mvdid, MvdSdItem> &d,
-    const QList<quint32> &current, QMap<QString, ActionDescriptor> &actions,
-    quint32 selected = 0);
+        const QList<quint32> &current, ActionItemList &actions,
+        quint32 selected = 0);
 
     inline void setModified(bool m);
 
@@ -137,32 +142,39 @@ private:
 };
 Q_DECLARE_METATYPE(MvdSDTreeWidget::ActionDescriptor)
 
-class MvdSDDelegate :
-    public QItemDelegate
+//////////////////////////////////////////////////////////////////////////////////////
+
+class MvdSDDelegate : public QItemDelegate
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     MvdSDDelegate(MvdSDTreeWidget *parent = 0);
 
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-    const QModelIndex &index) const;
-    void setEditorData(QWidget *editor, const QModelIndex &index) const;
-    void setModelData(QWidget *editor, QAbstractItemModel *model,
-    const QModelIndex &index) const;
-    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-    const QModelIndex &index) const;
+    virtual QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+        const QModelIndex &index) const;
 
-    bool eventFilter(QObject *object, QEvent *event);
+    virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    virtual void setModelData(QWidget *editor, QAbstractItemModel *model,
+        const QModelIndex &index) const;
+
+    virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
+        const QModelIndex &index) const;
+
+    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+    virtual bool eventFilter(QObject *object, QEvent *event);
 
 private:
     enum ValidatorUse { ValidationUse, MaskUse };
 
     inline MvdSDTreeWidget *tree() const;
     inline Movida::ItemValidator validatorType(const QModelIndex &index,
-    const MvdSDTreeWidget &tree, QVariant *data = 0, ValidatorUse use = ValidationUse) const;
+        const MvdSDTreeWidget &tree, QVariant *data = 0, ValidatorUse use = ValidationUse) const;
     inline bool isItemValid(Movida::DataRole ds,
-    const QTreeWidgetItem &item) const;
+        const QTreeWidgetItem &item) const;
+
+    mutable QPointer<QWidget> mCurrentEditor;
 };
 
 #endif // MVD_SDTREEWIDGET_H

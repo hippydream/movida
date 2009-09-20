@@ -21,7 +21,6 @@
 #include "clearedit.h"
 
 #include <QtGui/QApplication>
-#include <QtGui/QPainter>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOptionFrameV2>
 #include <QtGui/QToolButton>
@@ -43,51 +42,59 @@ static int spacing()
     return 2;
 }
 
-static QSize &adjustSizeHint(QSize &sz)
-{
-    QStyle *s = QApplication::style();
-
-    // oxygen style will cause a wrong vertical size hint
-    // if the line edit has a stylesheet
-    if (s->inherits("OxygenStyle"))
-        sz.rheight() = 27;
-    return sz;
-}
-
 }
 
 class MvdClearEdit::Private
 {
 public:
     Private() :
-        clearButton(0) { }
+        clearButton(0)
+    { }
 
     QToolButton *clearButton;
-    QString placeHolder;
     QSize pixmapSize;
+    QPixmap pixmap;
+    QString defaultValue;
 };
 
 MvdClearEdit::MvdClearEdit(QWidget *parent) :
-    QLineEdit(parent),
+    MvdLineEdit(parent),
     d(new Private)
 {
-    QPixmap pixmap(":/images/clear-edit.png");
+    init(QPixmap(":/images/clear-edit.png"), tr("Clear text."));
+}
 
+MvdClearEdit::MvdClearEdit(const QPixmap &pm, const QString &tip, QWidget *parent) :
+    MvdLineEdit(parent),
+    d(new Private)
+{
+    init(pm, tip);
+}
+
+MvdClearEdit::~MvdClearEdit()
+{
+    delete d;
+}
+
+void MvdClearEdit::init(const QPixmap &pixmap, const QString &tip)
+{
+    d->pixmap = pixmap;
     d->pixmapSize = pixmap.size();
 
     d->clearButton = new QToolButton(this);
-    d->clearButton->setToolTip(tr("Click to clear the text."));
+    d->clearButton->setToolTip(tip);
     d->clearButton->setIcon(QIcon(pixmap));
     d->clearButton->setIconSize(pixmap.size());
     d->clearButton->setCursor(Qt::PointingHandCursor);
     d->clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
     d->clearButton->setFocusPolicy(Qt::NoFocus);
     d->clearButton->hide();
-    connect(d->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
 
-    connect(this, SIGNAL(textChanged(const QString &)), this, SLOT(updateClearButton(const QString &)));
+    connect(d->clearButton, SIGNAL(clicked()), this, SLOT(on_buttonClicked()));
+    connect(d->clearButton, SIGNAL(clicked()), this, SIGNAL(embeddedActionTriggered()));
+    connect(this, SIGNAL(textChanged(const QString &)), this, SLOT(updateButton(const QString &)));
 
-    QString styleSheet = QLatin1String("QLineEdit {");
+    QString styleSheet = QLatin1String("MvdClearEdit {");
     styleSheet += QString(" padding-right: %1;").arg(d->pixmapSize.width() + 2 * ::spacing());
 
     if (style()->inherits("OxygenStyle"))   // Focus effect is too close to the text! Add more spacing.
@@ -97,9 +104,45 @@ MvdClearEdit::MvdClearEdit(QWidget *parent) :
     setStyleSheet(styleSheet);
 }
 
+QAbstractButton *MvdClearEdit::button() const
+{
+    return d->clearButton;
+}
+
+QPixmap MvdClearEdit::pixmap() const
+{
+    return d->pixmap;
+}
+
+QSize MvdClearEdit::pixmapSize() const
+{
+    return d->pixmapSize;
+}
+
+/*! Sets a new pixmap for the embedded button. The pixmap is scaled to
+    MvdClearEdit::pixmapSize() if necessary (currently always 14x10).
+*/
+void MvdClearEdit::setPixmap(const QPixmap& pm)
+{
+    if (d->pixmap.data_ptr() == const_cast<QPixmap&>(pm).data_ptr())
+        return;
+    d->pixmap = pm.scaled(d->pixmapSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    d->clearButton->setIcon(d->pixmap);
+}
+
+QString MvdClearEdit::toolTip() const
+{
+    return d->clearButton->toolTip();
+}
+
+void MvdClearEdit::setToolTip(const QString& tip)
+{
+    d->clearButton->setToolTip(tip);
+}
+
 void MvdClearEdit::resizeEvent(QResizeEvent *e)
 {
-    QLineEdit::resizeEvent(e);
+    MvdLineEdit::resizeEvent(e);
 
     QStyleOptionFrameV2 opt;
     initStyleOption(&opt);
@@ -128,72 +171,124 @@ void MvdClearEdit::resizeEvent(QResizeEvent *e)
 
     d->clearButton->move(
         lineRect.right(),
-        (int)ceil((lineRect.height() - d->pixmapSize.height()) / 2.0) + ::spacing()
+        (int)ceil((rect().height() - d->pixmapSize.height()) / 2.0)
         );
 }
 
 QSize MvdClearEdit::sizeHint() const
 {
-    QSize sz = QLineEdit::sizeHint();
-
-    return adjustSizeHint(sz);
+    return MvdLineEdit::sizeHint();
 }
 
-void MvdClearEdit::updateClearButton(const QString &text)
+void MvdClearEdit::updateButton(const QString &text)
 {
     d->clearButton->setVisible(!text.isEmpty());
 }
 
-//! Sets a string to be displayed as place holder when the widget contains no text.
-void MvdClearEdit::setPlaceHolder(const QString &s)
+void MvdClearEdit::on_buttonClicked()
 {
-    d->placeHolder = s.trimmed();
+    clear();
 }
 
-//! Returns the current place holder string, if any.
-QString MvdClearEdit::placeHolder() const
+
+//////////////////////////////////////////////////////////////////////////
+
+
+class MvdResetEdit::Private
 {
-    return d->placeHolder;
-}
+public:
+    Private(MvdResetEdit *p) :
+      defaultValueSet(false),
+      state(ClearButton),
+      q(p)
+    { }
 
-void MvdClearEdit::paintEvent(QPaintEvent *e)
-{
-    QLineEdit::paintEvent(e);
+    QString defaultValue;
+    bool defaultValueSet;
+    
+    enum State { ClearButton, ResetButton } state;
 
-    // Draw place holder
-    if (d->placeHolder.isEmpty() || !text().isEmpty() || hasFocus())
-        return;
+    void setState(State s) {
+        if (state == s)
+            return;
+        state = s;
 
-    QPainter p(this);
-
-    QRect r;
-    const QPalette &pal = palette();
-
-    QStyleOptionFrameV2 panel;
-    initStyleOption(&panel);
-    r = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
-    p.setClipRect(r);
-
-    int vscroll;
-    QFontMetrics fm = fontMetrics();
-    Qt::Alignment va = QStyle::visualAlignment(layoutDirection(), QFlag(alignment()));
-    switch (va & Qt::AlignVertical_Mask) {
-        case Qt::AlignBottom:
-            vscroll = r.y() + r.height() - fm.height() - verticalMargin;
-            break;
-
-        case Qt::AlignTop:
-            vscroll = r.y() + verticalMargin;
-            break;
-
-        default:
-            //center
-            vscroll = r.y() + (r.height() - fm.height() + 1) / 2;
-            break;
+        if (s == ResetButton) {
+            static const QPixmap pm = QPixmap(":/images/reset-edit.png");
+            q->setPixmap(pm);
+            q->setToolTip(MvdResetEdit::tr("Reset to default value."));
+        } else {
+            static const QPixmap pm = QPixmap(":/images/clear-edit.png");
+            q->setPixmap(pm);
+            q->setToolTip(MvdClearEdit::tr("Clear text."));
+        }
     }
 
-    QRect lineRect(r.x() + horizontalMargin * 3, vscroll, r.width() - 2 * horizontalMargin, fm.height());
+private:
+    MvdResetEdit *q;
+};
 
-    p.setPen(pal.color(QPalette::Disabled, QPalette::Text));
-    p.drawText(lineRect, d->placeHolder);
+
+MvdResetEdit::MvdResetEdit(QWidget *parent) :
+    MvdClearEdit(parent),
+    d(new Private(this))
+{
+}
+
+MvdResetEdit::~MvdResetEdit()
+{
+    delete d;
+}
+
+void MvdResetEdit::on_buttonClicked()
+{
+    if (d->state == Private::ResetButton)
+        setText(d->defaultValue);
+    else clear();
+}
+
+
+/*! Sets a string that will be set when the reset button is clicked.
+    The string will be initialized the first time you call setText()
+    so it's usually not necessary to call this method.
+*/
+void MvdResetEdit::setDefaultValue(const QString &s)
+{
+    if (d->defaultValue == s && d->defaultValueSet)
+        return;
+
+    d->defaultValue = s;
+    d->defaultValueSet = true;
+
+    if (text() == d->defaultValue)
+        d->setState(Private::ClearButton);
+    else d->setState(Private::ResetButton);
+}
+
+//! Returns the default value string, if any.
+QString MvdResetEdit::defaultValue() const
+{
+    return d->defaultValue;
+}
+
+void MvdResetEdit::setTextCalled()
+{
+    MvdLineEdit::setTextCalled();
+
+    if (!d->defaultValueSet)
+        setDefaultValue(text());
+}
+
+void MvdResetEdit::updateButton(const QString &text)
+{
+    button()->setVisible(true);
+    if (d->defaultValueSet) {
+        const bool hasDefault = text == d->defaultValue;
+        d->setState(hasDefault ? Private::ClearButton : Private::ResetButton);
+        if (d->defaultValue.trimmed().isEmpty() && text.trimmed().isEmpty())
+            button()->setVisible(false);
+    } else {
+        MvdClearEdit::updateButton(text);
+        d->setState(Private::ClearButton);
+    }
 }

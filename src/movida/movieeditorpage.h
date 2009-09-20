@@ -48,6 +48,14 @@ public:
         setMovieImpl(mMovie);
     }
 
+    MvdMovieCollection *collection() const {
+        return mCollection;
+    }
+
+    void setCollection(MvdMovieCollection *c) {
+        mCollection = c;
+    }
+
     /*!
         Stores the current values in a movie object.
         The default implementation always returns true.

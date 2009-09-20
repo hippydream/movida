@@ -64,7 +64,7 @@ MpiBlue::MpiBlue(QObject *parent) :
     parameters.insert("plugins/blue/script-signature", "movida blue plugin script");
     parameters.insert("plugins/blue/http-date", "ddd, dd MMM yyyy");
     parameters.insert("plugins/blue/http-time", "hh:mm:ss UTC");
-    MvdCore::registerParameters(parameters);
+    Movida::core().registerParameters(parameters);
 }
 
 MpiBlue::~MpiBlue()
@@ -110,12 +110,14 @@ QList<MvdPluginInterface::PluginAction> MpiBlue::actions() const
     a.helpText = tr("Import movies from the Internet or from common file formats.");
     a.name = "import";
     a.type = MvdPluginInterface::ImportAction;
+    a.shortcuts = QList<QKeySequence>() << QKeySequence(tr("Ctrl+I"));
     list << a;
 
     a.text = tr("Movida export wizard");
     a.helpText = tr("Exports movies to common file formats.");
     a.name = "export";
     a.type = MvdPluginInterface::ExportAction;
+    a.shortcuts = QList<QKeySequence>() << QKeySequence(tr("Ctrl+X"));
     list << a;
 
     a.text = tr("Reload import engines");
@@ -130,6 +132,7 @@ QList<MvdPluginInterface::PluginAction> MpiBlue::actions() const
 
 void MpiBlue::actionTriggeredImplementation(const QString &name, const QStringList &parameters)
 {
+    Q_UNUSED(parameters);
     if (name == QLatin1String("import")) {
         MpiMovieImport mi(parent() ? parent() : this);
         mi.run(mEngines);
@@ -535,7 +538,7 @@ MpiBlue::ScriptStatus MpiBlue::isValidScriptFile(QTemporaryFile *tempFile, bool 
 //! \internal
 MpiBlue::ScriptStatus MpiBlue::isValidScriptFile(QTextStream &stream)
 {
-    QString signature = MvdCore::parameter("plugins/blue/script-signature").toString();
+    QString signature = Movida::core().parameter("plugins/blue/script-signature").toString();
 
     QString line;
     bool valid = false;

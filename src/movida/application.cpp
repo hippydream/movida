@@ -34,6 +34,7 @@
 #include <QtCore/QTranslator>
 #include <QtCore/QtGlobal>
 #include <QtGui/QMessageBox>
+#include <QtGui/QSessionManager>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleFactory>
 
@@ -188,9 +189,9 @@ int MvdApplication::init()
     processEvents();
 
     if (MvdApplication::UseGui) {
-        MvdLogger::setUseHtml(true);
+        // MvdLogger::setUseHtml(true);
 
-        if (!MvdCore::initCore()) {
+        if (!Movida::core().isInitialized()) {
             QMessageBox::warning(0, MVD_CAPTION, tr("Failed to initialize the application.\nPlease see the log file for details."));
             return MVD_ERROR_INIT;
         }
@@ -413,4 +414,11 @@ void MvdApplication::showHeader()
     ts << QString("%1 %2").arg(tr("Documentation") + ":", descwidth).arg("http://movida.42cows.org/help"); endl(ts);
     ts << QString("%1 %2").arg(tr("Download") + ":",          descwidth).arg("http://movida.42cows.org/download"); endl(ts);
     endl(ts);
+}
+
+void MvdApplication::commitData(QSessionManager &manager)
+{
+    QApplication::commitData(manager);
+
+    //! \todo Save session
 }

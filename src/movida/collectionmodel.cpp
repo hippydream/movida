@@ -68,6 +68,12 @@ public:
                 return data.toInt() < o.data.toInt();
             else if (data.type() == QVariant::Bool)
                 return (int)data.toBool() < (int)o.data.toBool();
+            else if (data.type() == QVariant::DateTime)
+                return data.toDateTime() < o.data.toDateTime();
+            else if (data.type() == QVariant::Date)
+                return data.toDate() < o.data.toDate();
+            else if (data.type() == QVariant::Time)
+                return data.toTime() < o.data.toTime();
 
             return false;
         }
@@ -520,8 +526,13 @@ QVariant MvdCollectionModel::data(const QModelIndex &index, int role) const
         return movie.posterPath(d->collection);
     }
 
+    if (role == Movida::FilterRole) // For future use
+        role = Qt::DisplayRole;
+
     // Skip unhandled roles
-    if (role != Qt::DisplayRole && role != Movida::SmartViewDisplayRole && role != Movida::RawDataRole)
+    if (   role != Qt::DisplayRole
+        && role != Movida::SmartViewDisplayRole 
+        && role != Movida::SortRole)
         return QVariant();
 
     if (row >= d->movies.size())
@@ -535,7 +546,7 @@ QVariant MvdCollectionModel::data(const QModelIndex &index, int role) const
             return d->dataList(movie.actorIDs(), Movida::PersonRole, role);
 
         case Movida::ColorModeAttribute:
-            if (role == Movida::RawDataRole)
+            if (role == Movida::SortRole)
                 return (int)movie.colorMode();
             else return movie.colorModeString();
 
@@ -570,7 +581,7 @@ QVariant MvdCollectionModel::data(const QModelIndex &index, int role) const
             return movie.rating();
 
         case Movida::RunningTimeAttribute:
-            if (role == Movida::RawDataRole)
+            if (role == Movida::SortRole)
                 return movie.runningTime();
             else return movie.runningTimeString();
 
@@ -594,8 +605,9 @@ QVariant MvdCollectionModel::data(const QModelIndex &index, int role) const
 
         case Movida::DateImportedAttribute:
         {
-            QString s = MvdCore::parameter("mvdcore/extra-attributes/import-date").toString();
-            return movie.extendedAttribute(s).toDateTime().toString(Qt::DefaultLocaleShortDate);
+            QString s = Movida::core().parameter("mvdcore/extra-attributes/import-date").toString();
+            QDateTime dt = movie.extendedAttribute(s).toDateTime();
+            if (role == Movida::SortRole) return dt; else return dt.toString(Qt::DefaultLocaleShortDate);
         }
 
         default:
@@ -664,8 +676,10 @@ void MvdCollectionModel::movieAdded(mvdid id)
 {
     int row = d->movies.size();
 
-    insertRows(row, 1);
-    d->movies[row] = id;
+    beginInsertRows(QModelIndex(), row, row);
+    d->movies.insert(row, id);
+    endInsertRows();
+
     emit dataChanged(createIndex(row, 0), createIndex(row, columnCount() - 1));
 }
 
@@ -766,10 +780,14 @@ QStringList MvdCollectionModel::mimeTypes() const
     // Supported mime types for data import
     QStringList types;
 
-    types << MvdCore::parameter("movida/mime/movie-attributes").toString();
+    types << Movida::core().parameter("movida/mime/movie-attributes").toString();
     types << "text/uri-list";
+    types << "image/png";
+    types << "image/bmp";
+    types << "image/jpeg";
+    types << "image/jpg";
     // types << "text/plain";
-    // types << MvdCore::parameter("movida/mime/movie").toString();
+    // types << Movida::core().parameter("movida/mime/movie").toString();
 
     return types;
 }
@@ -799,7 +817,7 @@ QMimeData *MvdCollectionModel::mimeData(const QModelIndexList &indexes) const
             if (title.isEmpty()) title = movie.originalTitle();
             titles.append(title);
             if (!movie.imdbId().isEmpty()) {
-                urls.append(MvdCore::parameter("movida/imdb-movie-url").toString().arg(movie.imdbId()));
+                urls.append(Movida::core().parameter("movida/imdb-movie-url").toString().arg(movie.imdbId()));
             }
         }
 
@@ -807,7 +825,7 @@ QMimeData *MvdCollectionModel::mimeData(const QModelIndexList &indexes) const
         stream << text;
     }
 
-    mimeData->setData(MvdCore::parameter("movida/mime/movie").toString(), encodedData);
+    mimeData->setData(Movida::core().parameter("movida/mime/movie").toString(), encodedData);
 
     qSort(titles);
     mimeData->setText(titles.join(QLatin1String("\r\n")));
@@ -851,13 +869,14 @@ bool MvdCollectionModel::dropMimeData(const QMimeData *data,
     if (!posterUrls.isEmpty()) {
         // Import movie poster
         QUrl posterUrl = posterUrls.at(0);
-        Q_ASSERT(QMetaObject::invokeMethod(Movida::MainWindow, "setMoviePoster", Qt::QueuedConnection,
-                Q_ARG(quint32, movieId), Q_ARG(QUrl, posterUrl)));
+        bool res = QMetaObject::invokeMethod(Movida::MainWindow, "setMoviePoster", Qt::QueuedConnection,
+            Q_ARG(quint32, movieId), Q_ARG(QUrl, posterUrl));
+        Q_ASSERT_X(res, "MvdCollectionModel", "Failed to invoke MvdMainWindow::setMoviePoster()");
 
         dropAccepted = true;
     }
 
-    QByteArray attributeData = data->data(MvdCore::parameter("movida/mime/movie-attributes").toString());
+    QByteArray attributeData = data->data(Movida::core().parameter("movida/mime/movie-attributes").toString());
     if (!attributeData.isNull()) {
 
         QStringList raw = QString::fromLatin1(attributeData).split(QLatin1Char(','), QString::SkipEmptyParts);

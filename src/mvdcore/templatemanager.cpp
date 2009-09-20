@@ -165,7 +165,7 @@ QString MvdTemplateManager::movieToXml(const MvdMovie &movie,
 
     s = movie.imdbId();
     if (!s.isEmpty()) {
-        s = MvdCore::parameter("mvdcore/imdb-movie-url").toString().arg(s);
+        s = Movida::core().parameter("mvdcore/imdb-movie-url").toString().arg(s);
         xml.append(QString("\t<imdb-url>%1</imdb-url>\n").arg(s));
     }
 
@@ -493,8 +493,8 @@ bool MvdTemplateManager::collectionToHtmlFile(MvdMovieCollection *collection,
     QString name = collection ?
                    collection->metaData(MvdMovieCollection::NameInfo) : QString();
     xml.writeOpenTag("collection-info",
-        MvdXmlWriter::Attribute("movies", QString::number(collection ? collection->count() : 0)),
-        MvdXmlWriter::Attribute("name", name)
+        MvdAttribute("movies", QString::number(collection ? collection->count() : 0)),
+        MvdAttribute("name", name)
         );
 
     if (collection) {

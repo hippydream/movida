@@ -43,13 +43,45 @@
 */
 
 
+class MvdMovieEditor::Private
+{
+public:
+    Private(MvdMovieEditor *p, MvdMovieCollection *c) :
+        mCollection(c),
+        mMovieId(MvdNull),
+        initialized(false),
+        q(p)
+    {
+        Q_ASSERT(c);
+    }
+
+    inline bool confirmDiscardMovie();
+
+    MvdMovieCollection *mCollection;
+    mvdid mMovieId;
+
+    QPushButton *mPreviousButton;
+    QPushButton *mNextButton;
+    QPushButton *mOkButton;
+    QPushButton *mCancelButton;
+    QPushButton *mHelpButton;
+
+    bool initialized;
+
+private:
+    MvdMovieEditor *q;
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
 /*!
     Creates a new dialog for editing of movie descriptions.
 */
 MvdMovieEditor::MvdMovieEditor(MvdMovieCollection *c, QWidget *parent) :
     MvdMultiPageDialog(parent),
-    mCollection(c),
-    mMovieId(MvdNull)
+    d(new Private(this, c))
 {
     setWindowTitle(tr("%1 Editor", "Movie editor title").arg(QCoreApplication::applicationName()));
 
@@ -59,63 +91,90 @@ MvdMovieEditor::MvdMovieEditor(MvdMovieCollection *c, QWidget *parent) :
     QStyle *s = style();
 
     QDialogButtonBox *box = MvdMultiPageDialog::buttonBox();
-    mHelpButton = box->addButton(QDialogButtonBox::Help);
-    mHelpButton->setIcon(s->standardIcon(QStyle::SP_DialogHelpButton));
-    mHelpButton->setText(tr("&Help"));
-    mHelpButton->setEnabled(false);
+    d->mHelpButton = box->addButton(QDialogButtonBox::Help);
+    d->mHelpButton->setIcon(s->standardIcon(QStyle::SP_DialogHelpButton));
+    d->mHelpButton->setText(tr("&Help"));
+    d->mHelpButton->setEnabled(false);
 
-    mPreviousButton = box->addButton(tr("&Previous"), QDialogButtonBox::ActionRole);
-    mPreviousButton->setIcon(s->standardIcon(QStyle::SP_ArrowLeft));
-    mPreviousButton->setEnabled(false);
+    d->mPreviousButton = box->addButton(tr("&Previous"), QDialogButtonBox::ActionRole);
+    d->mPreviousButton->setIcon(s->standardIcon(QStyle::SP_ArrowLeft));
+    d->mPreviousButton->setEnabled(false);
 
-    mNextButton = box->addButton(tr("&Next"), QDialogButtonBox::ActionRole);
-    mNextButton->setIcon(s->standardIcon(QStyle::SP_ArrowRight));
-    mNextButton->setEnabled(false);
+    d->mNextButton = box->addButton(tr("&Next"), QDialogButtonBox::ActionRole);
+    d->mNextButton->setIcon(s->standardIcon(QStyle::SP_ArrowRight));
+    d->mNextButton->setEnabled(false);
 
-    mOkButton = box->addButton(QDialogButtonBox::Ok);
-    mOkButton->setIcon(s->standardIcon(QStyle::SP_DialogOkButton));
-    mOkButton->setText(tr("&OK"));
+    d->mOkButton = box->addButton(QDialogButtonBox::Ok);
+    d->mOkButton->setIcon(s->standardIcon(QStyle::SP_DialogOkButton));
+    d->mOkButton->setText(tr("&OK"));
 
-    mCancelButton = box->addButton(QDialogButtonBox::Cancel);
-    mCancelButton->setIcon(s->standardIcon(QStyle::SP_DialogCancelButton));
-    mCancelButton->setText(tr("&Cancel"));
-
-    MvdMovieEditorPage *page;
-
-    page = new MvdMainInfoPage(c, this);
-    mPages.append(page);
-    addPage(page);
-
-    page = new MvdExtendedInfoPage(c, this);
-    mPages.append(page);
-    addPage(page);
-
-    page = new MvdCrewPage(c, this);
-    mPages.append(page);
-    addPage(page);
-
-    page = new MvdNotesPage(c, this);
-    mPages.append(page);
-    addPage(page);
-
-    page = new MvdLinksPage(c, this);
-    mPages.append(page);
-    addPage(page);
+    d->mCancelButton = box->addButton(QDialogButtonBox::Cancel);
+    d->mCancelButton->setIcon(s->standardIcon(QStyle::SP_DialogCancelButton));
+    d->mCancelButton->setText(tr("&Cancel"));
 
     connect(box, SIGNAL(rejected()), this, SLOT(cancelTriggered()));
     connect(box, SIGNAL(accepted()), this, SLOT(storeTriggered()));
 
-    connect(mPreviousButton, SIGNAL(clicked()), this, SIGNAL(previousRequested()));
-    connect(mNextButton, SIGNAL(clicked()), this, SIGNAL(nextRequested()));
+    connect(d->mPreviousButton, SIGNAL(clicked()), this, SIGNAL(previousRequested()));
+    connect(d->mNextButton, SIGNAL(clicked()), this, SIGNAL(nextRequested()));
 
     connect(this, SIGNAL(currentPageChanged(MvdMPDialogPage *)), this, SLOT(currentPageChanged(MvdMPDialogPage *)));
-
-    // layout()->setSizeConstraint(QLayout::SetFixedSize);
 }
 
-QSize MvdMovieEditor::sizeHint() const
+MvdMovieEditor::~MvdMovieEditor()
 {
-    return QDialog::sizeHint();
+    delete d;
+}
+
+bool MvdMovieEditor::event(QEvent *e)
+{
+    return MvdMultiPageDialog::event(e);
+}
+
+void MvdMovieEditor::showEvent(QShowEvent *e)
+{
+    initialize();
+    MvdMultiPageDialog::showEvent(e);
+}
+
+void MvdMovieEditor::initialize()
+{
+    if (!d->initialized) {
+        loadPages();
+        d->initialized = true;
+    }
+}
+
+MvdMovieCollection *MvdMovieEditor::collection() const
+{
+    return d->mCollection;
+}
+
+void MvdMovieEditor::loadPages()
+{
+    addPage(new MvdMainInfoPage(d->mCollection, this));
+    addPage(new MvdExtendedInfoPage(d->mCollection, this));
+    addPage(new MvdCrewPage(d->mCollection, this));
+    addPage(new MvdNotesPage(d->mCollection, this));
+    addPage(new MvdLinksPage(d->mCollection, this));
+}
+
+int MvdMovieEditor::addPage(MvdMPDialogPage *page)
+{
+    if (MvdMovieEditorPage *p = dynamic_cast<MvdMovieEditorPage *>(page))
+        return addPage(p);
+    return -1;
+}
+
+int MvdMovieEditor::addPage(MvdMovieEditorPage *page)
+{
+    if (!page)
+        return -1;
+
+    page->setParent(this);
+    page->setCollection(d->mCollection);
+
+    return MvdMultiPageDialog::addPage(page);
 }
 
 /*!
@@ -125,23 +184,27 @@ QSize MvdMovieEditor::sizeHint() const
 */
 bool MvdMovieEditor::setMovie(mvdid id, bool confirmIfModified)
 {
-    if (mCollection == 0)
-        return false;
+    initialize();
 
     if (confirmIfModified && isModified()) {
-        if (!confirmDiscardMovie())
+        if (!d->confirmDiscardMovie())
             return false;
     }
 
-    MvdMovie movie = mCollection->movie(id);
+    MvdMovie movie = d->mCollection->movie(id);
+    if (!movie.isValid())
+        return false;
 
-    for (int i = 0; i < mPages.size(); ++i) {
-        MvdMovieEditorPage *p = mPages.at(i);
-        p->setMovie(movie);
-        p->setModified(false);
+    const int pc = pageCount();
+    for (int i = 0; i < pc; ++i) {
+        MvdMovieEditorPage *p = dynamic_cast<MvdMovieEditorPage *>(pageAt(i));
+        if (p) {
+            p->setMovie(movie);
+            p->setModified(false);
+        }
     }
 
-    mMovieId = id;
+    d->mMovieId = id;
 
     return true;
 }
@@ -151,12 +214,12 @@ bool MvdMovieEditor::setMovie(mvdid id, bool confirmIfModified)
 */
 mvdid MvdMovieEditor::movieId() const
 {
-    return mMovieId;
+    return d->mMovieId;
 }
 
 void MvdMovieEditor::cancelTriggered()
 {
-    bool discard = confirmDiscardMovie();
+    bool discard = d->confirmDiscardMovie();
 
     if (!discard)
         return;
@@ -168,27 +231,27 @@ void MvdMovieEditor::cancelTriggered()
     \internal Returns true if the movie is not modified or asks the user
     if the changes should be discarded or stored otherwise.
 */
-bool MvdMovieEditor::confirmDiscardMovie()
+bool MvdMovieEditor::Private::confirmDiscardMovie()
 {
-    if (discardChanges())
+    if (q->discardChanges())
         return true;
 
-    bool modified = isModified();
+    bool modified = q->isModified();
     bool discard = true;
 
     //! \todo validate first
     if (modified) {
-        bool valid = isValid();
-        QString msg = valid ?
-                      tr("Movie modified. Save or discard changes?")
-                      : tr("Required data is missing. Discard changes?");
+        bool valid = q->isValid();
+        QString msg = valid
+            ? MvdMovieEditor::tr("Movie modified. Save or discard changes?")
+            : MvdMovieEditor::tr("Required data is missing. Discard changes?");
 
         int res = valid ?
-                  MvdMessageBox::question(this, tr("Movie Editor"), msg, MvdMessageBox::Save | MvdMessageBox::Discard | MvdMessageBox::Cancel)
-                  : MvdMessageBox::question(this, tr("Movie Editor"), msg, MvdMessageBox::Discard | MvdMessageBox::Cancel);
+          MvdMessageBox::question(q, MvdMovieEditor::tr("Movie Editor"), msg, MvdMessageBox::Save | MvdMessageBox::Discard | MvdMessageBox::Cancel)
+          : MvdMessageBox::question(q, MvdMovieEditor::tr("Movie Editor"), msg, MvdMessageBox::Discard | MvdMessageBox::Cancel);
 
         if (res == MvdMessageBox::Save)
-            discard = storeMovie();
+            discard = q->storeMovie();
         else if (res == MvdMessageBox::Cancel)
             discard = false;
     }
@@ -199,7 +262,7 @@ bool MvdMovieEditor::confirmDiscardMovie()
 //! \internal \todo Handle ESC key
 void MvdMovieEditor::closeEvent(QCloseEvent *e)
 {
-    bool discard = confirmDiscardMovie();
+    bool discard = d->confirmDiscardMovie();
 
     if (discard) {
         reject();
@@ -211,16 +274,14 @@ void MvdMovieEditor::closeEvent(QCloseEvent *e)
 
 void MvdMovieEditor::storeTriggered()
 {
-    if (mCollection == 0)
-        return;
-
     bool modified = false;
 
-    if (mMovieId == 0)
+    if (d->mMovieId == MvdNull)
         modified = true;
     else {
-        for (int i = 0; !modified && i < mPages.size(); ++i)
-            modified = mPages.at(i)->isModified();
+        const int pc = pageCount();
+        for (int i = 0; !modified && i < pc; ++i)
+            modified = pageAt(i)->isModified();
     }
 
     if (modified)
@@ -234,19 +295,24 @@ void MvdMovieEditor::storeTriggered()
 bool MvdMovieEditor::storeMovie()
 {
     MvdMovie movie;
+    if (d->mMovieId != MvdNull)
+        movie = d->mCollection->movie(d->mMovieId);
 
-    for (int i = 0; i < mPages.size(); ++i) {
-        MvdMovieEditorPage *p = mPages.at(i);
-        if (!p->store(movie)) {
-            //! \todo either show the alert box AFTER changing page or replace it with a status message bar in the widget.
-            showPage(p);
-            return false;
-        } else p->setModified(false);
+    const int pc = pageCount();
+    for (int i = 0; i < pc; ++i) {
+        MvdMovieEditorPage *p = dynamic_cast<MvdMovieEditorPage *>(pageAt(i));
+        if (p) {
+            if (!p->store(movie)) {
+                //! \todo either show the alert box AFTER changing page or replace it with a status message bar in the widget.
+                showPage(p);
+                return false;
+            } else p->setModified(false);
+        }
     }
 
-    if (mMovieId == MvdNull)
-        mMovieId = mCollection->addMovie(movie);
-    else mCollection->updateMovie(mMovieId, movie);
+    if (d->mMovieId == MvdNull)
+        d->mMovieId = d->mCollection->addMovie(movie);
+    else d->mCollection->updateMovie(d->mMovieId, movie);
 
     return true;
 }
@@ -256,8 +322,9 @@ bool MvdMovieEditor::isModified() const
 {
     bool modified = false;
 
-    for (int i = 0; !modified && i < mPages.size(); ++i)
-        modified = mPages.at(i)->isModified();
+    const int pc = pageCount();
+    for (int i = 0; !modified && i < pc; ++i)
+        modified = pageAt(i)->isModified();
 
     return modified;
 }
@@ -267,9 +334,9 @@ bool MvdMovieEditor::isValid() const
 {
     bool valid = true;
 
-    for (int i = 0; valid && i < mPages.size(); ++i) {
-        const MvdMovieEditorPage *p = mPages.at(i);
-        if (!p->isValid())
+    const int pc = pageCount();
+    for (int i = 0; valid && i < pc; ++i) {
+        if (!pageAt(i)->isValid())
             valid = false;
     }
     return valid;
@@ -278,13 +345,13 @@ bool MvdMovieEditor::isValid() const
 //! Enables or disables the "previous movie" button.
 void MvdMovieEditor::setPreviousEnabled(bool enabled)
 {
-    mPreviousButton->setEnabled(enabled);
+    d->mPreviousButton->setEnabled(enabled);
 }
 
 //! Enables or disables the "next movie" button.
 void MvdMovieEditor::setNextEnabled(bool enabled)
 {
-    mNextButton->setEnabled(enabled);
+    d->mNextButton->setEnabled(enabled);
 }
 
 //! Enables or disables the Ok button.
@@ -294,7 +361,7 @@ void MvdMovieEditor::validationStateChanged(MvdMPDialogPage *page)
     Q_UNUSED(page);
 
     bool valid = isValid();
-    mOkButton->setEnabled(valid);
+    d->mOkButton->setEnabled(valid);
 }
 
 //! Enables or disables the some UI elements.
