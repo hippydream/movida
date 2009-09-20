@@ -53,6 +53,60 @@ public:
         bool neg;
     };
 
+    void addPlainTextQuery(const QString &s) {
+        Q_ASSERT(!s.isEmpty());
+        
+        QString pattern;
+
+        bool foundQuote = false;
+        const QChar* uc_begin = s.unicode();
+        const QChar* uc_end = uc_begin + s.length();
+        const QChar* c = uc_begin;
+        while (c != uc_end) {
+            if (*c == '\"') {
+                if (foundQuote) {
+                    foundQuote = false;
+                    if (!pattern.isEmpty()) {
+                        if (!mPlainStrings.contains(pattern)) {
+                            mPlainStrings.append(pattern);
+                        }
+                        pattern.clear();
+                    }
+                } else foundQuote = true;
+            } else if (c->isSpace()) {
+                if (foundQuote)
+                    pattern.append(*c);
+                else {
+                    if (!pattern.isEmpty()) {
+                        if (!mPlainStrings.contains(pattern)) {
+                            mPlainStrings.append(pattern);
+                        }
+                        pattern.clear();
+                    }
+                }
+            } else {
+                pattern.append(*c);
+            }
+            ++c;
+        }
+
+        if (!pattern.isEmpty()) {
+            if (foundQuote) {
+                QStringList l = pattern.split(QRegExp("\\s"), QString::SkipEmptyParts);
+                for (int i = 0; i < l.size(); ++i) {
+                    QString s = l.at(i);
+                    if (!mPlainStrings.contains(s)) {
+                        mPlainStrings.append(s);
+                    }
+                }
+            } else {
+                if (!mPlainStrings.contains(pattern)) {
+                    mPlainStrings.append(pattern);
+                }
+            }
+        }
+    }
+
     bool rebuildPatterns();
     void optimizeNewPatterns();
 
@@ -198,10 +252,14 @@ bool MvdFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
     if (id == MvdNull)
         return false;
     
+    QTime t;
+    t.start();
+
     // Test plain text query parts
     bool accept = d->plainTextFilter(id, sourceRow);
-    if (!accept)
+    if (!accept) {
         return false;
+    }
 
     // Test function parts
     QList<Private::Function>::ConstIterator fun_begin = d->mFunctions.constBegin();
@@ -209,8 +267,9 @@ bool MvdFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
     while (fun_begin != fun_end) {
         const Private::Function& fun = *fun_begin;
         bool match = d->testFunction(sourceRow, sourceParent, fun);
-        if (!match)
+        if (!match) {
             return false;
+        }
         ++fun_begin;
     }
 
@@ -258,9 +317,16 @@ Qt::SortOrder MvdFilterProxyModel::sortOrder() const
 */
 bool MvdFilterProxyModel::setFilterAdvancedString(const QString &q)
 {
+    if (d->mQuery == q)
+        return true;
+
+    QTime t;
+    t.start();
     d->mQuery = q.trimmed();
     bool res = d->rebuildPatterns();
     invalidateFilter();
+    
+    qDebug("setFilterAdvancedString() took %d ms for pattern %s", t.elapsed(), qPrintable(q));
     return res;
 }
 
@@ -511,12 +577,15 @@ bool MvdFilterProxyModel::Private::rebuildPatterns()
         offset += frx.matchedLength() + s.length();
 
         s = s.trimmed();
-        if (!s.isEmpty() && !mPlainStrings.contains(s))
-            mPlainStrings.append(s);
+        if (!s.isEmpty()) {
+            addPlainTextQuery(s);
+        }
     }
 
     QString s = mQuery.right(mQuery.length() - offset).trimmed();
-    if (!s.isEmpty() && !mPlainStrings.contains(s)) mPlainStrings.append(s);
+    if (!s.isEmpty()) {
+        addPlainTextQuery(s);
+    }
 
     optimizeNewPatterns();
     return true;
