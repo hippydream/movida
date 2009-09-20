@@ -74,7 +74,6 @@ void MvdSmartView::init()
     setDragEnabled(true);
     setAcceptDrops(true);
 
-    setSelectionMode(QAbstractItemView::ExtendedSelection);
     setModelColumn(0);
     setItemDelegate(new MvdSmartViewDelegate(this));
     setUniformItemSizes(true);

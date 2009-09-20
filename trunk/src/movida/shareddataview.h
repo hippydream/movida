@@ -36,7 +36,9 @@ signals:
 
 protected:
     virtual void startDrag(Qt::DropActions supportedActions);
-    virtual void mouseDoubleClickEvent(QMouseEvent *e);
+
+protected slots:
+    virtual void onItemActivated(const QModelIndex &index);
 };
 
 #endif // MVD_SHAREDDATAVIEW_H

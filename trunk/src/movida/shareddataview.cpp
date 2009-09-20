@@ -31,10 +31,16 @@
 
 MvdSharedDataView::MvdSharedDataView(QWidget *parent) :
     MvdTreeView(parent)
-{ }
+{
+    setSelectionBehavior(SelectRows);
+    setSelectionMode(ExtendedSelection);
+
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(onItemActivated(QModelIndex)));
+}
 
 MvdSharedDataView::~MvdSharedDataView()
-{ }
+{
+}
 
 void MvdSharedDataView::startDrag(Qt::DropActions supportedActions)
 {
@@ -122,17 +128,15 @@ void MvdSharedDataView::startDrag(Qt::DropActions supportedActions)
     }
 }
 
-void MvdSharedDataView::mouseDoubleClickEvent(QMouseEvent *e)
+void MvdSharedDataView::onItemActivated(const QModelIndex &index)
 {
-    MvdSharedDataModel *m = dynamic_cast<MvdSharedDataModel *>(model());
-    QModelIndex index = indexAt(e->pos());
-
-    if (!m || !index.isValid())
+    if (!index.isValid())
         return;
 
     mvdid id = index.data(Movida::IdRole).toUInt();
     if (id == MvdNull)
         return;
 
-    emit itemActivated(id, e->modifiers() != Qt::ControlModifier);
+    Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+    emit itemActivated(id, mods != Qt::ControlModifier);
 }
