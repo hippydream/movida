@@ -131,11 +131,14 @@ void MvdMainWindow::Private::setupUi()
     mSmartView = new MvdSmartView(q);
     mSmartView->setObjectName("movie-smart-view");
     mSmartView->setModel(mFilterModel);
+    mSmartView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    mSmartView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     mSmartView->setEditTriggers(editTriggers);
 
     mTreeView = new MvdMovieTreeView(q);
     mTreeView->setObjectName("movie-tree-view");
     mTreeView->setModel(mFilterModel);
+    mTreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     mTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     mTreeView->setDragEnabled(true);
     mTreeView->setEditTriggers(editTriggers);
