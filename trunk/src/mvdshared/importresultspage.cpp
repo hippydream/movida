@@ -366,7 +366,8 @@ void MvdImportResultsPage::resultsSelectionChanged()
         else showMessage(tr("%1 of %2 matches have been selected for import.", "Found results. # of selected messages is given for plural form.", selectedMatches).arg(selectedMatches).arg(matches), MovidaShared::InfoMessage);
     } else {
         showMessage(text, MovidaShared::InfoMessage);
-        Q_ASSERT(QMetaObject::invokeMethod(this, "ensureItemVisible", Qt::QueuedConnection));
+        bool res = QMetaObject::invokeMethod(this, "ensureItemVisible", Qt::QueuedConnection);
+        Q_ASSERT_X(res, "MvdImportResultsPage", "Failed to invoke MvdImportResultsPage::ensureItemVisible()");
     }
 
     if (selectedMatches != lastSelectedMatches) {

@@ -27,6 +27,7 @@
 #include "movie.h"
 #include "pathresolver.h"
 #include "settings.h"
+#include "utils.h"
 #include "xmlwriter.h"
 #include "zip.h"
 
@@ -70,13 +71,13 @@ public:
 
     inline void writeDocumentRoot(MvdXmlWriter *xml, int itemCount);
 
-    inline void writePersonList(MvdXmlWriter *xml, const QList<MvdRoleItem> &data);
-    inline void writePersonList(MvdXmlWriter *xml, const QList<mvdid> &data);
-
-    inline void writeUrlList(MvdXmlWriter *xml, const QList<MvdUrl> &data);
-
+    void writePersonList(MvdXmlWriter *xml, const QList<MvdRoleItem> &data);
+    void writePersonList(MvdXmlWriter *xml, const QList<mvdid> &data);
+    void writeUrlList(MvdXmlWriter *xml, const QList<MvdUrl> &data);
     void writeIdList(MvdXmlWriter *xml, const QList<mvdid> &data, const QString &tag);
-    inline void writeStringList(MvdXmlWriter *xml, const QStringList &data, const QString &tag);
+    void writeStringList(MvdXmlWriter *xml, const QStringList &data, const QString &tag);
+    void writeDataList(MvdXmlWriter *xml, const QHash<QString, QVariant> &data, 
+        const QString &tag, const QString &attributeTag);
 
     QObject *progressReceiver;
     QString progressMember;
@@ -235,6 +236,27 @@ void MvdCollectionSaver::Private::writeStringList(MvdXmlWriter *xml,
         xml->writeTaggedString(tag, data.at(i));
 }
 
+/*!
+    \internal Writes out a list of name-value attributes.
+
+    \verbatim
+    <$TAG name="string">variantToString</$TAG>
+    \endverbatim
+*/
+void MvdCollectionSaver::Private::writeDataList(MvdXmlWriter *xml,
+    const QHash<QString, QVariant> &data, const QString &tag, 
+    const QString &attributeTag)
+{
+    QHash<QString, QVariant>::ConstIterator begin = data.constBegin();
+    QHash<QString, QVariant>::ConstIterator end = data.constEnd();
+    while (begin != end) {
+        const QString key = begin.key();
+        const QString val = Movida::variantToString(begin.value());
+        xml->writeTaggedString(tag, val, MvdAttribute(attributeTag, key));
+        ++begin;
+    }
+}
+
 /************************************************************************
     MvdCollectionSaver
  *************************************************************************/
@@ -266,6 +288,8 @@ MvdCollectionSaver::StatusCode MvdCollectionSaver::save(MvdMovieCollection *coll
         if (mmcFilename.isEmpty())
             return InvalidFileError;
     }
+
+    //! \todo Implement some kind of backup copy support
 
     MvdZip zipper;
     MvdZip::ErrorCode zerr = zipper.createArchive(mmcFilename);
@@ -432,53 +456,61 @@ MvdCollectionSaver::StatusCode MvdCollectionSaver::save(MvdMovieCollection *coll
             if (movie.hasSpecialTagEnabled(Movida::SpecialTag))
                 xml->writeTaggedString("special", "true");
 
-            xml->writeOpenTag("cast");
             QList<MvdRoleItem> persons = movie.actors();
-            if (!persons.isEmpty())
+            if (!persons.isEmpty()) {
+                xml->writeOpenTag("cast");
                 d->writePersonList(xml, persons);
-            xml->writeCloseTag("cast");
+                xml->writeCloseTag("cast");
+            }
 
-            xml->writeOpenTag("crew");
             persons = movie.crewMembers();
-            if (!persons.isEmpty())
+            if (!persons.isEmpty()) {
+                xml->writeOpenTag("crew");
                 d->writePersonList(xml, persons);
-            xml->writeCloseTag("crew");
+                xml->writeCloseTag("crew");
+            }
 
-            xml->writeOpenTag("directors");
             QList<mvdid> ids = movie.directors();
-            if (!ids.isEmpty())
+            if (!ids.isEmpty()) {
+                xml->writeOpenTag("directors");
                 d->writePersonList(xml, ids);
-            xml->writeCloseTag("directors");
+                xml->writeCloseTag("directors");
+            }
 
-            xml->writeOpenTag("producers");
             ids = movie.producers();
-            if (!ids.isEmpty())
+            if (!ids.isEmpty()) {
+                xml->writeOpenTag("producers");
                 d->writePersonList(xml, ids);
-            xml->writeCloseTag("producers");
+                xml->writeCloseTag("producers");
+            }
 
-            xml->writeOpenTag("genres");
             ids = movie.genres();
-            if (!ids.isEmpty())
+            if (!ids.isEmpty()) {
+                xml->writeOpenTag("genres");
                 d->writeIdList(xml, ids, "genre");
-            xml->writeCloseTag("genres");
+                xml->writeCloseTag("genres");
+            }
 
-            xml->writeOpenTag("countries");
             ids = movie.countries();
-            if (!ids.isEmpty())
+            if (!ids.isEmpty()) {
+                xml->writeOpenTag("countries");
                 d->writeIdList(xml, ids, "country");
-            xml->writeCloseTag("countries");
+                xml->writeCloseTag("countries");
+            }
 
-            xml->writeOpenTag("languages");
             ids = movie.languages();
-            if (!ids.isEmpty())
+            if (!ids.isEmpty()) {
+                xml->writeOpenTag("languages");
                 d->writeIdList(xml, ids, "language");
-            xml->writeCloseTag("languages");
+                xml->writeCloseTag("languages");
+            }
 
-            xml->writeOpenTag("tags");
             ids = movie.tags();
-            if (!ids.isEmpty())
+            if (!ids.isEmpty()) {
+                xml->writeOpenTag("tags");
                 d->writeIdList(xml, ids, "tag");
-            xml->writeCloseTag("tags");
+                xml->writeCloseTag("tags");
+            }
 
             Movida::ColorMode cmode = movie.colorMode();
             if (cmode != Movida::UnknownColorMode)
@@ -493,16 +525,24 @@ MvdCollectionSaver::StatusCode MvdCollectionSaver::save(MvdMovieCollection *coll
             }
 
             QStringList list = movie.specialContents();
-            xml->writeOpenTag("special-contents");
-            if (!list.isEmpty())
+            if (!list.isEmpty()) {
+                xml->writeOpenTag("special-contents");
                 d->writeStringList(xml, list, "item");
-            xml->writeCloseTag("special-contents");
+                xml->writeCloseTag("special-contents");
+            }
 
             //! \todo regenerate name if there are possible name clashes (iow. poster filename = HASH.PROG_ID but no other filed named HASH exists any more)
             QString poster = movie.poster();
             if (!poster.isEmpty()) {
                 xml->writeTaggedString("poster", poster);
                 persistentData.removeAll(poster.prepend("images/"));
+            }
+
+            QHash<QString, QVariant> extra = movie.extendedAttributes();
+            if (!extra.isEmpty()) {
+                xml->writeOpenTag(QLatin1String("extended-attributes"));
+                d->writeDataList(xml, extra, QLatin1String("attribute"), QLatin1String("name"));
+                xml->writeCloseTag(QLatin1String("extended-attributes"));
             }
 
             xml->writeCloseTag("movie");

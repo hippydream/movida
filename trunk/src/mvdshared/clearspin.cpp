@@ -20,6 +20,8 @@
 
 #include "clearspin.h"
 
+#include "lineedit.h"
+
 #include <QtGui/QApplication>
 #include <QtGui/QPainter>
 #include <QtGui/QStyle>
@@ -49,12 +51,17 @@ public:
 
     QToolButton *clearButton;
     QSize pixmapSize;
+
+    QSize cachedSizeHint;
+    QString cachedSpecialText;
 };
 
 MvdClearSpin::MvdClearSpin(QWidget *parent) :
     QSpinBox(parent),
     d(new Private)
 {
+    setLineEdit(new MvdLineEdit(this));
+
     QPixmap pixmap(":/images/clear-edit.png");
 
     d->pixmapSize = pixmap.size();
@@ -74,13 +81,73 @@ MvdClearSpin::MvdClearSpin(QWidget *parent) :
     setStyleSheet(QString("QSpinBox { padding-right: %1; }").arg(d->pixmapSize.width() + 2 * ::spacing() + 1));
 }
 
+void MvdClearSpin::setRange(int min, int max)
+{
+    d->cachedSizeHint = QSize();
+    QSpinBox::setRange(min, max);
+}
+
+bool MvdClearSpin::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::FontChange:
+    case QEvent::StyleChange:
+    d->cachedSizeHint = QSize();
+    break;
+    default: ;
+    }
+
+    return QSpinBox::event(event);
+}
+
 QSize MvdClearSpin::sizeHint() const
 {
-    QSize sz = QSpinBox::sizeHint();
+    // Same as QAbstractSpinBox::sizeHint() but using QApplication's QStyle
+    // to avoid issues with the style sheet style (it will often return a 
+    // smaller size)
 
-    //        sz.rwidth() += d->pixmapSize.width() + 2 * ::spacing();
-    //        sz.setHeight(qMax(sz.height(), d->pixmapSize.height()));
-    return sz;
+    // setSpecialValueText() is not virtual so we use a trick to reset
+    // the cached size hint when the specialValueText has been changed
+    if (d->cachedSizeHint.isEmpty() || d->cachedSpecialText != specialValueText()) {
+        
+        ensurePolished();
+
+        const QFontMetrics fm(fontMetrics());
+        int h = lineEdit()->sizeHint().height();
+        int w = 0;
+        QString s;
+        s = prefix() + textFromValue(minimum()) + suffix() + QLatin1Char(' ');
+        s.truncate(18);
+        w = qMax(w, fm.width(s));
+        s = prefix() + textFromValue(maximum()) + suffix() + QLatin1Char(' ');
+        s.truncate(18);
+        w = qMax(w, fm.width(s));
+        if (specialValueText().size()) {
+            s = specialValueText();
+            w = qMax(w, fm.width(s));
+        }
+        w += 2; // cursor blinking space
+
+        QStyleOptionSpinBox opt;
+        initStyleOption(&opt);
+        QSize hint(w, h);
+        QSize extra(35, 6);
+        opt.rect.setSize(hint + extra);
+        extra += hint - QApplication::style()->subControlRect(QStyle::CC_SpinBox, &opt,
+            QStyle::SC_SpinBoxEditField, this).size();
+        // get closer to final result by repeating the calculation
+        opt.rect.setSize(hint + extra);
+        extra += hint - QApplication::style()->subControlRect(QStyle::CC_SpinBox, &opt,
+            QStyle::SC_SpinBoxEditField, this).size();
+        hint += extra;  
+
+        opt.rect = rect();
+        d->cachedSizeHint = QApplication::style()->sizeFromContents(QStyle::CT_SpinBox, &opt, hint, this)
+            .expandedTo(QApplication::globalStrut());
+        d->cachedSizeHint.rwidth() += d->pixmapSize.width() + 2 * ::spacing() + 2;
+        d->cachedSpecialText = specialValueText();
+    }
+    return d->cachedSizeHint;
 }
 
 void MvdClearSpin::resizeEvent(QResizeEvent *e)
@@ -93,7 +160,7 @@ void MvdClearSpin::resizeEvent(QResizeEvent *e)
     QRect r = style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxEditField, this);
     d->clearButton->move(
         r.right(),
-        (int)ceil((r.height() - d->pixmapSize.height()) / 2.0) + ::spacing()
+        (int)ceil((r.height() - d->pixmapSize.height()) / 2.0)
         );
 }
 

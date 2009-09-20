@@ -347,6 +347,11 @@ void MvdTemplateCache::deregisterCollection(QObject *o)
     }
 }
 
+QString MvdTemplateCache::cacheDirectory() const
+{
+    return d->cacheDir;
+}
+
 //! Convenience method to access the MvdTemplateCache singleton.
 MvdTemplateCache &Movida::tcache()
 {

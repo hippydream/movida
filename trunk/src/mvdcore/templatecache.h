@@ -39,6 +39,8 @@ public:
     QString movieData(int id);
     void clearCachedMovieData(int id);
 
+    QString cacheDirectory() const;
+
 private slots:
     void invalidateMovie(mvdid id);
     void invalidateCollection();

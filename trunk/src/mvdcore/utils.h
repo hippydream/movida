@@ -25,11 +25,56 @@
 
 #include <QtCore/QString>
 #include <QtCore/QVariant>
+#include <QtGui/QStandardItemModel>
 
 namespace Movida {
 MVD_EXPORT QStringList splitArgs(const QString &s, int idx);
 MVD_EXPORT QVariant stringToVariant(const QString &s);
 MVD_EXPORT QString variantToString(const QVariant &v);
+
+template <typename T>
+T variantValue(const QVariant &v, T defaultValue) {
+    return v.isNull() ? defaultValue : v.value<T>();
 }
+
+
+/*! Simple functor using QString::localeAwareCompare().
+
+    Sample usage:
+    QStringList list;
+    qSort(list.begin(), list.end(), LocaleAwareSorter());
+*/
+struct LocaleAwareSorter {
+    inline bool operator()(const QString &a, const QString &b) const {
+        return QString::localeAwareCompare(a, b) < 0;
+    }
+};
+
+MVD_EXPORT QString normalized(const QString &s);
+MVD_EXPORT QString &normalize(QString &s);
+
+} // Movida namespace
+
+
+/////////////////////////////////////////////////////////////////////
+
+
+class MVD_EXPORT MvdNormalizedItemModel : public QStandardItemModel
+{
+    Q_OBJECT
+
+public:
+    explicit MvdNormalizedItemModel(QObject *parent = 0);
+    MvdNormalizedItemModel(int rows, int columns, QObject *parent = 0);
+    virtual ~MvdNormalizedItemModel();
+
+    virtual QModelIndexList match(const QModelIndex &start, int role,
+        const QVariant &value, int hits = 1,
+        Qt::MatchFlags flags =
+        Qt::MatchFlags(Qt::MatchStartsWith|Qt::MatchWrap)) const;
+
+protected:
+    virtual bool compare(const QVariant &a, const QVariant &b) const;
+};
 
 #endif // MVD_UTILS_H

@@ -21,6 +21,7 @@
 #ifndef MVD_MOVIEMASSEDITOR_H
 #define MVD_MOVIEMASSEDITOR_H
 
+#include "movieeditor.h"
 #include "ui_moviemasseditor.h"
 
 #include "mvdcore/movie.h"
@@ -31,31 +32,34 @@
 class MvdMovieCollection;
 class QCloseEvent;
 
-class MvdMovieMassEditor : public QDialog, protected Ui::MvdMovieMassEditor
+class MvdMovieMassEditor : public MvdMovieEditor
 {
     Q_OBJECT
 
 public:
     MvdMovieMassEditor(MvdMovieCollection *c, QWidget *parent = 0);
+    virtual ~MvdMovieMassEditor();
 
-    bool setMovies(const QList<mvdid> &ids);
+    bool setMovies(const QList<mvdid> &ids, bool confirmIfModified = false);
+    QList<mvdid> movieIds() const;
+
+    //bool isModified() const;
+    //bool isValid() const;
 
 public slots:
     bool storeMovies();
 
 protected:
+    virtual void loadPages();
     virtual void closeEvent(QCloseEvent *e);
 
-private slots:
-    void cancelTriggered();
-    void storeTriggered();
-    void linkActivated(const QString &url);
-    void ratingHovered(int);
-    void updateUi();
+protected slots:
+    virtual void validationStateChanged(MvdMPDialogPage *page);
+    virtual void modifiedStateChanged(MvdMPDialogPage *page);
 
 private:
-    MvdMovieCollection *mCollection;
-    QList<mvdid> mMovieIds;
+    class Private;
+    Private* d;
 };
 
 #endif // MVD_MOVIEMASSEDITOR_H

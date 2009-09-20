@@ -27,7 +27,7 @@
 #include <QtGui/QTextLayout>
 #include <QtGui/QTextOption>
 
-class QListView;
+class MvdSmartView;
 
 class MvdSmartViewDelegate : public QItemDelegate
 {
@@ -41,7 +41,7 @@ public:
         LargeItemSize
     };
 
-    MvdSmartViewDelegate(QObject *parent = 0);
+    MvdSmartViewDelegate(MvdSmartView *parent = 0);
 
     void setItemSize(ItemSize size = MediumItemSize);
     ItemSize itemSize() const;
@@ -104,7 +104,7 @@ private:
     QIcon mSeenIcon;
     mutable QTextLayout mTextLayout;
     mutable QTextOption mTextOption;
-    QListView *mView;
+    MvdSmartView *mView;
 
     // Metrics - anything else can be computed easily starting with these values
     QSize mSize; // Whole item

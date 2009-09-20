@@ -23,6 +23,7 @@
 #include "mvdcore/core.h"
 
 #include <QtGui/QFont>
+#include <QtGui/QImage>
 #include <QtGui/QPainter>
 #include <QtGui/QPixmap>
 #include <QtGui/QPixmapCache>
@@ -42,6 +43,8 @@ const int PosterTextPadding = 2;
 
 const int SharedDataPadding = 2;
 
+const qreal DragAndDropOpacity = 0.75;
+
 bool comparePixmapByWidth(const QPixmap *p1, const QPixmap *p2)
 {
     return p1->width() > p2->width();
@@ -51,20 +54,18 @@ bool comparePixmapByWidth(const QPixmap *p1, const QPixmap *p2)
 
 QPixmap MvdGrafx::moviesDragPixmap(const QStringList &imagePaths, QString message, QFont font)
 {
-    QSize cachedSize = MvdCore::parameter("movida/movie-poster/cached-size").toSize();
+    QSize cachedSize = Movida::core().parameter("movida/movie-poster/cached-size").toSize();
 
     if (cachedSize.isNull()) {
         cachedSize.setHeight(75);
         cachedSize.setWidth((int)(PosterAspectRatio * 75));
     }
 
-    QPixmap pm;
-
     QList<QPixmap *> pixmaps;
     int posterAreaW = 0;
     int posterAreaH = 0;
 
-    const int MaxPosters = MvdCore::parameter("movida/d&d/max-pixmaps").toInt();
+    const int MaxPosters = Movida::core().parameter("movida/d&d/max-pixmaps").toInt();
 
     foreach(QString s, imagePaths)
     {
@@ -132,11 +133,12 @@ QPixmap MvdGrafx::moviesDragPixmap(const QStringList &imagePaths, QString messag
         posterAreaH += (textBR.height() - PosterDisplacement);
     }
 
-    pm = QPixmap(posterAreaW, posterAreaH);
-    pm.fill(Qt::transparent);
-
-    QPainter painter(&pm);
-
+    QImage img(posterAreaW, posterAreaH, QImage::Format_ARGB32_Premultiplied);
+    img.fill(qRgba(0,0,0,0));
+    
+    QPainter painter(&img);
+    painter.setOpacity(::DragAndDropOpacity);
+    
     QPen pen = painter.pen();
     pen.setWidth(Border);
     pen.setColor(QColor("#222222")); //! \todo Style d&d pixmaps
@@ -189,7 +191,7 @@ QPixmap MvdGrafx::moviesDragPixmap(const QStringList &imagePaths, QString messag
 
     qDeleteAll(pixmaps);
 
-    return pm;
+    return QPixmap::fromImage(img);
 }
 
 QPixmap MvdGrafx::sharedDataDragPixmap(const QString &values, QFont font)
@@ -229,10 +231,11 @@ QPixmap MvdGrafx::sharedDataDragPixmap(const QString &values, QFont font)
     int areaW = textRect.width() + 2 * Border + 2 * SharedDataPadding;
     int areaH = textRect.height() + 2 * Border + 2 * SharedDataPadding;
 
-    QPixmap pm(areaW, areaH);
-    pm.fill(Qt::transparent);
+    QImage img(areaW, areaH, QImage::Format_ARGB32_Premultiplied);
+    img.fill(qRgba(0,0,0,0));
 
-    QPainter painter(&pm);
+    QPainter painter(&img);
+    painter.setOpacity(::DragAndDropOpacity);
 
     painter.setBrush(Qt::white);
     QPen pen = painter.pen();
@@ -245,5 +248,25 @@ QPixmap MvdGrafx::sharedDataDragPixmap(const QString &values, QFont font)
 
     textLayout.draw(&painter, QPointF(SharedDataPadding + Border, SharedDataPadding + Border));
 
-    return pm;
+    return QPixmap::fromImage(img);
+}
+
+void MvdGrafx::setImageTransparency(QImage& image, int alpha)
+{
+    const int height = image.height();
+    for (int l = 0; l < height; l++) {
+        QRgb *line = reinterpret_cast<QRgb *>(image.scanLine(l));
+        QRgb *lineEnd = line + image.width();
+        for ( ; line < lineEnd; line++) {
+            const QRgb rgba = *line;
+            *line = qRgba(qRed(rgba), qGreen(rgba), qBlue(rgba), alpha);
+            /*
+            int destAlpha = mvd_div_255(alpha * qAlpha(*line));
+            *line = ((destAlpha << 24)
+            | (mvd_div_255(qRed(*line) * alpha) << 16)
+            | (mvd_div_255(qGreen(*line) * alpha) << 8)
+            | (mvd_div_255(qBlue(*line) * alpha)));
+            */
+        }
+    }
 }

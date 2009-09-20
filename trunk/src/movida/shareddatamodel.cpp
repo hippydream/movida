@@ -475,6 +475,6 @@ QMimeData *MvdSharedDataModel::mimeData(const QModelIndexList &indexes) const
         }
     }
 
-    mimeData->setData(MvdCore::parameter("movida/mime/movie-attributes").toString(), ids.toLatin1());
+    mimeData->setData(Movida::core().parameter("movida/mime/movie-attributes").toString(), ids.toLatin1());
     return mimeData;
 }

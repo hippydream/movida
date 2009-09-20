@@ -375,8 +375,9 @@ void MvdImportDialog::pageChanged(int id)
 
         case Private::FinalPage:
         {
-            Q_ASSERT(QMetaObject::invokeMethod(d->finalPage, "importMovies", Qt::QueuedConnection,
-                    Q_ARG(MvdMovieDataList, d->summaryPage->movies())));
+            bool res = QMetaObject::invokeMethod(d->finalPage, "importMovies", Qt::QueuedConnection,
+                Q_ARG(MvdMovieDataList, d->summaryPage->movies()));
+            Q_ASSERT_X(res, "MvdImportDialog", "Failed to invoke MvdImportFinalPage::importMovies()");
         } break;
 
         default:

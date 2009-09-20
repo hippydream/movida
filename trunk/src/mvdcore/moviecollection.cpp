@@ -248,13 +248,13 @@ void MvdMovieCollection::setMetaData(MetaDataType ci, const QString &val)
         case DataPathInfo:
             if (!d->dataPath.isEmpty())
                 Movida::paths().removeDirectoryTree(d->dataPath);
-            d->dataPath = val;
+            d->dataPath = MvdCore::toLocalFilePath(val, true);
             break;
 
         case TempPathInfo:
             if (!d->tempPath.isEmpty())
                 Movida::paths().removeDirectoryTree(d->tempPath);
-            d->tempPath = val;
+            d->tempPath = MvdCore::toLocalFilePath(val, true);
             break;
 
         case NotesInfo:
@@ -274,7 +274,7 @@ void MvdMovieCollection::setMetaData(MetaDataType ci, const QString &val)
     Generates a new data path if the data path is requested but none has been
     set yet.
 */
-QString MvdMovieCollection::metaData(MetaDataType ci) const
+QString MvdMovieCollection::metaData(MetaDataType ci, bool dontCreateDirs) const
 {
     switch (ci) {
         case NameInfo:
@@ -290,17 +290,18 @@ QString MvdMovieCollection::metaData(MetaDataType ci) const
             return d->website;
 
         case DataPathInfo:
-            if (d->dataPath.isEmpty()) {
+            if (d->dataPath.isEmpty() && !dontCreateDirs) {
                 MvdMovieCollection *that = const_cast<MvdMovieCollection *>(this);
                 that->detach();
-                d->dataPath = Movida::paths().generateTempDir().append("persistent");
+                d->dataPath = Movida::paths().generateTempDir().append("persistent") + QDir::separator();
                 QDir dir;
-                dir.mkpath(d->dataPath + "/images/");
+                const QString imgPath = d->dataPath + "images" + QDir::separator();
+                dir.mkpath(imgPath);
             }
             return d->dataPath;
 
         case TempPathInfo:
-            if (d->tempPath.isEmpty()) {
+            if (d->tempPath.isEmpty() && !dontCreateDirs) {
                 MvdMovieCollection *that = const_cast<MvdMovieCollection *>(this);
                 that->detach();
                 d->tempPath = Movida::paths().generateTempDir();
@@ -337,7 +338,7 @@ MvdMovie MvdMovieCollection::movie(mvdid id) const
 
     The collection will automatically update references to shared items.
 */
-mvdid MvdMovieCollection::addMovie(const MvdMovie &movie)
+mvdid MvdMovieCollection::addMovie(MvdMovie &movie)
 {
     if (!movie.isValid())
         return MvdNull;
@@ -370,13 +371,14 @@ mvdid MvdMovieCollection::addMovie(const MvdMovie &movie)
             bool found = false;
 
             // Look if year already exists to avoid duplicate entries!
-            for (MvdMovieCollection::Private::QuickLookupList::Iterator qllIterator = qll.begin();
-                 qllIterator != qll.end(); ++qllIterator) {
-                if (*qllIterator == releasedInt) {
-                    (*qllIterator).ref++;
+            MvdMovieCollection::Private::QuickLookupList::Iterator qll_begin = qll.begin();
+            MvdMovieCollection::Private::QuickLookupList::Iterator qll_end = qll.end();
+            while (qll_begin != qll_end && !found) {
+                if (*qll_begin == releasedInt) {
+                    (*qll_begin).ref++;
                     found = true;
-                    break;
                 }
+                ++qll_begin;
             }
 
             if (!found)
@@ -387,6 +389,11 @@ mvdid MvdMovieCollection::addMovie(const MvdMovie &movie)
             d->quickLookupTable.insert(title, ql);
         }
     }
+
+    // Set import date-time if missing
+    const QString _importDate = Movida::core().parameter("mvdcore/extra-attributes/import-date").toString();
+    if (!movie.hasExtendedAttribute(_importDate))
+        movie.setExtendedAttribute(_importDate, QDateTime::currentDateTime());
 
     mvdid movie_id = d->id++;
     d->movies.insert(movie_id, movie);
@@ -400,6 +407,10 @@ mvdid MvdMovieCollection::addMovie(const MvdMovie &movie)
 
     __COLLECTION_CHANGED
     emit movieAdded(movie_id);
+
+    // Need a better way to report the loading status to the GUI. This is terribly slow!
+    // QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+
     return movie_id;
 }
 
@@ -855,8 +866,8 @@ QString MvdMovieCollection::addImage(const QString &path,
     } else {
         // Check if the file is already part of the collection's persistent data storage
         QFileInfo info(path);
-        QString thisFilePath = MvdCore::toLocalFilePath(info.absolutePath(), true);
-        QString storagePath = MvdCore::toLocalFilePath(d->dataPath + "/images/", true);
+        QString thisFilePath = Movida::core().toLocalFilePath(info.absolutePath(), true);
+        QString storagePath = Movida::core().toLocalFilePath(d->dataPath + "/images/", true);
 #ifdef Q_OS_WIN
         if (!QString::compare(thisFilePath, storagePath, Qt::CaseInsensitive))
 #else
@@ -878,7 +889,7 @@ QString MvdMovieCollection::addImage(const QString &path,
 
     // Process image if necessary
     if (category == MoviePosterImage) {
-        int maxKB = MvdCore::parameter("mvdcore/max-poster-kb").toInt();
+        int maxKB = Movida::core().parameter("mvdcore/max-poster-kb").toInt();
 
         QFileInfo fi(path);
         if (fi.size() > maxKB) {
@@ -888,7 +899,7 @@ QString MvdMovieCollection::addImage(const QString &path,
             if (pm.isNull())
                 return QString();
 
-            QSize maxSize = MvdCore::parameter("mvdcore/max-poster-size").toSize();
+            QSize maxSize = Movida::core().parameter("mvdcore/max-poster-size").toSize();
             pm = pm.scaled(maxSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
             if (!pm.save(d->dataPath + "/images/" + internalName, "PNG")) {

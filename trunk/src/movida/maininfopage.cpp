@@ -53,15 +53,15 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection *c, MvdMovieEditor *parent) 
 {
     setupUi(this);
 
-    int w = MvdCore::parameter("movida/poster-default-width").toInt();
-    qreal ar = MvdCore::parameter("movida/poster-aspect-ratio").toDouble();
+    int w = Movida::core().parameter("movida/poster-default-width").toInt();
+    qreal ar = Movida::core().parameter("movida/poster-aspect-ratio").toDouble();
     int h = int(w / ar);
     Ui::MvdMainInfoPage::poster->setFixedSize(w, h);
 
     Ui::MvdMainInfoPage::ratingLabel->setIcon(QIcon(":/images/rating.svgz"));
 
-    quint8 maxRating = MvdCore::parameter("mvdcore/max-rating").toUInt();
-    quint16 maxRuntime = MvdCore::parameter("mvdcore/max-running-time").toUInt();
+    quint8 maxRating = Movida::core().parameter("mvdcore/max-rating").toUInt();
+    quint16 maxRuntime = Movida::core().parameter("mvdcore/max-running-time").toUInt();
 
     Ui::MvdMainInfoPage::ratingLabel->setMaximum(maxRating);
 
@@ -72,7 +72,7 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection *c, MvdMovieEditor *parent) 
 
     QDate date = QDate::currentDate();
 
-    int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
+    int minYear = Movida::core().parameter("mvdcore/min-movie-year").toUInt() - 1;
 
     mDefaultYear = minYear;
 
@@ -106,7 +106,7 @@ MvdMainInfoPage::MvdMainInfoPage(MvdMovieCollection *c, MvdMovieEditor *parent) 
     markAsLoaned->setIcon(QIcon(":/images/loaned.svgz"));
 
     // Set max length for line edits
-    int maxInputLength = MvdCore::parameter("mvdcore/max-edit-length").toInt();
+    int maxInputLength = Movida::core().parameter("mvdcore/max-edit-length").toInt();
     Ui::MvdMainInfoPage::title->setMaxLength(maxInputLength);
     Ui::MvdMainInfoPage::originalTitle->setMaxLength(maxInputLength);
     Ui::MvdMainInfoPage::storageID->setMaxLength(maxInputLength);
@@ -176,7 +176,7 @@ void MvdMainInfoPage::setMovieImpl(const MvdMovie &movie)
     markAsLoaned->setChecked(movie.hasSpecialTagEnabled(Movida::LoanedTag));
     mDefaultSpecialTags = movie.specialTags();
 
-    int minYear = MvdCore::parameter("mvdcore/min-movie-year").toUInt() - 1;
+    int minYear = Movida::core().parameter("mvdcore/min-movie-year").toUInt() - 1;
 
     QString s = movie.year();
     mDefaultYear = s.isEmpty() ? minYear : s.toUShort();
@@ -311,7 +311,7 @@ void MvdMainInfoPage::setMoviePoster(const QString &path)
 
         if (!path.isEmpty()) {
             //posterStatus->setText(tr("Failed"));
-            mStatusTimer->start(MvdCore::parameter("movida/message-timeout-ms").toUInt());
+            mStatusTimer->start(Movida::core().parameter("movida/message-timeout-ms").toUInt());
             return;
         }
     }

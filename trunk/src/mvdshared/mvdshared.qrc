@@ -4,6 +4,7 @@
 		<file alias="document-save.svgz">images/actions/document-save.svgz</file>
 		<!-- MISC -->
 		<file alias="clear-edit.png">images/misc/clear-edit.png</file>
+		<file alias="reset-edit.png">images/misc/reset-edit.png</file>
 		<file alias="bold.svgz">images/misc/format-text-bold.svgz</file>
 		<file alias="italic.svgz">images/misc/format-text-italic.svgz</file>
 		<file alias="underline.svgz">images/misc/format-text-underline.svgz</file>

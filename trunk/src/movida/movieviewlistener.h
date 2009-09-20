@@ -23,6 +23,7 @@
 
 #include <QtCore/QObject>
 
+class MvdMainWindow;
 class QAbstractItemView;
 
 class MvdMovieViewListener : public QObject
@@ -30,12 +31,14 @@ class MvdMovieViewListener : public QObject
     Q_OBJECT
 
 public:
-    MvdMovieViewListener(QObject *parent = 0);
+    MvdMovieViewListener(MvdMainWindow *parent);
 
     void registerView(QAbstractItemView *view);
 
-protected:
-    bool eventFilter(QObject *, QEvent *);
+    virtual bool eventFilter(QObject *, QEvent *);
+
+private:
+    MvdMainWindow *mMainWindow;
 };
 
 #endif // MVD_MOVIEVIEWLISTENER_H

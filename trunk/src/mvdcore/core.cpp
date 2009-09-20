@@ -21,6 +21,7 @@
 #include "core.h"
 
 #include "logger.h"
+#include "moviecollection.h"
 #include "pathresolver.h"
 #include "plugininterface.h"
 #include "settings.h"
@@ -32,7 +33,9 @@
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QLibrary>
 #include <QtCore/QLocale>
+#include <QtCore/QMutex>
 #include <QtCore/QProcess>
 #include <QtCore/QRegExp>
 #include <QtCore/QSize>
@@ -43,7 +46,11 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <stdexcept>
 
+#define MVD_CORE_CHECK Q_ASSERT_X(mInstance->mCoreInitOk != InitFailed,\
+           "MvdCore::instance()",\
+           "Internal error: Movida Core failed to initialize.");
 
 using namespace Movida;
 
@@ -53,6 +60,8 @@ using namespace Movida;
 
     \brief Application core: initialization and utility methods.
 */
+
+Q_GLOBAL_STATIC(QMutex, MvdCoreLock)
 
 namespace {
 
@@ -95,7 +104,9 @@ class MvdCore::Private
 {
 public:
     //! \internal
-    Private()
+    Private(MvdCore *p) :
+        mCollection(0),
+        q(p)
     {
         parameters.insert("mvdcore/max-rating", 5);
         parameters.insert("mvdcore/max-running-time", 999);
@@ -128,36 +139,248 @@ public:
         Movida::registerMessageHandler(defaultMessageHandler);
     }
 
+    ~Private()
+    {
+        unloadPlugins();
+    }
+
+    void loadPlugins();
+    void loadPluginsFromDir(const QString &path);
+    void unloadPlugins();
+
+    void createNewCollection()
+    {
+        if (mCollection) {
+            delete mCollection;
+        }
+
+        mCollection = new MvdMovieCollection();
+    }
+
+    MvdMovieCollection* mCollection;
+    QList<MvdPluginInterface *> mPlugins;
     QHash<QString, QVariant> parameters;
+
+private:
+    MvdCore *q;
 };
 
-//! \internal
-MvdCore::Private *MvdCore::d = 0;
+//! \internal Loads plugins from all the available plugin dirs.
+void MvdCore::Private::loadPlugins()
+{
+    unloadPlugins();
+
+    QString path = paths().resourcesDir(Movida::UserScope).append("Plugins");
+    loadPluginsFromDir(path);
+    path = paths().resourcesDir(Movida::SystemScope).append("Plugins");
+    if (!path.isEmpty())
+        loadPluginsFromDir(path);
+
+    q->pluginsLoaded();
+}
+
+//! \internal Loads plugins from the given plugins dir.
+void MvdCore::Private::loadPluginsFromDir(const QString &path)
+{
+    QDir pluginDir(path);
+
+#if defined (Q_WS_WIN)
+    QString ext = "*.dll";
+    QString prefix = "mpi";
+#elif defined (Q_WS_MAC)
+    QString ext = "*.dylib";
+    QString prefix = "libmpi";
+#else
+    QString ext = "*.so";
+    QString prefix = "libmpi";
+#endif
+
+    QFileInfoList list = pluginDir.entryInfoList(QStringList() << ext);
+    for (int i = 0; i < list.size(); ++i) {
+        QFileInfo &fi = list[i];
+        QString name = fi.completeBaseName();
+
+        if (!name.startsWith(prefix))
+            continue;
+
+        QLibrary myLib(fi.absoluteFilePath());
+        if (!myLib.load()) {
+            eLog() << QString("Failed to load %1 (reason: %2)")
+                .arg(fi.absoluteFilePath()).arg(myLib.errorString());
+            continue;
+        }
+
+        iLog() << "Checking plugin " << fi.absoluteFilePath();
+
+        typedef MvdPluginInterface * (*PluginInterfaceF)(QObject *);
+        PluginInterfaceF pluginInterfaceF = (PluginInterfaceF)myLib.resolve("pluginInterface");
+        if (!pluginInterfaceF)
+            continue;
+
+        MvdPluginInterface *iface = pluginInterfaceF(q);
+        if (!iface)
+            continue;
+
+        MvdPluginInterface::PluginInfo info = iface->info();
+        if (info.uniqueId.trimmed().isEmpty()) {
+            wLog() << "Discarding plugin with no unique ID.";
+            continue;
+        } else if (info.uniqueId.indexOf('/') != -1) {
+            wLog() << QString("Discarding plugin with invalid unique ID: ").append(info.uniqueId.trimmed());
+            continue;
+        }
+
+        bool discard = false;
+        foreach (MvdPluginInterface * plug, mPlugins) {
+            const QString s = plug->info().uniqueId.trimmed();
+            if (s == info.uniqueId.trimmed()) {
+                discard = true;
+                break;
+            }
+        }
+
+        if (discard) {
+            wLog() << QString("Discarding plugin with duplicate ID '%1'.").arg(info.uniqueId);
+            continue;
+        }
+
+        if (info.name.trimmed().isEmpty()) {
+            wLog() << "Discarding plugin with no name.";
+            continue;
+        }
+
+        iLog() << QString("Loading '%1' plugin.").arg(info.uniqueId);
+
+        QString dataStorePath = paths().resourcesDir(Movida::UserScope).append("Plugins/").append(fi.completeBaseName());
+        if (!QFile::exists(dataStorePath)) {
+            QDir d;
+            if (!d.mkpath(dataStorePath)) {
+                eLog() << "Failed to create user data store for plugin: " << dataStorePath;
+                continue;
+            }
+        }
+
+        dataStorePath = MvdCore::toLocalFilePath(dataStorePath, true);
+        iface->setDataStore(dataStorePath, Movida::UserScope);
+        iLog() << QString("'%1' plugin user data store: ").arg(info.name).append(dataStorePath);
+
+        // Create global data store
+        dataStorePath = paths().resourcesDir(Movida::SystemScope);
+        if (!dataStorePath.isEmpty()) {
+            dataStorePath.append("Plugins/").append(fi.completeBaseName());
+            bool ok = true;
+            if (!QFile::exists(dataStorePath)) {
+                QDir d;
+                if (!d.mkpath(dataStorePath)) {
+                    wLog() << "Failed to create global data store for plugin: " << dataStorePath;
+                    ok = false;
+                }
+            } else ok = true;
+
+            if (ok) {
+                dataStorePath = MvdCore::toLocalFilePath(dataStorePath, true);
+                iface->setDataStore(dataStorePath, Movida::SystemScope);
+                iLog() << QString("'%1' plugin system data store: ").arg(info.name).append(dataStorePath);
+            }
+        }
+
+        bool pluginOk = iface->init();
+        if (pluginOk) {
+            iLog() << QString("'%1' plugin initialized.").arg(info.name);
+            mPlugins.append(iface);
+        } else {
+            wLog() << QString("Failed to initialize '%1' plugin.").arg(info.name);
+            delete iface;
+        }
+    }
+}
+
+//! \internal Unloads plugins and frees used memory.
+void MvdCore::Private::unloadPlugins()
+{
+    if (mPlugins.isEmpty())
+        return;
+
+    while (!mPlugins.isEmpty()) {
+        MvdPluginInterface *p = mPlugins.takeFirst();
+        iLog() << QLatin1String("Unloading plugin: ") << p->info().name;
+        p->unload();
+        delete p;
+    }
+
+    q->pluginsUnloaded();
+}
+
 
 /************************************************************************
     MvdCore
  *************************************************************************/
 
+/*!
+    Convenience method to access the MvdCore singleton.
+*/
+MvdCore &Movida::core()
+{
+    return MvdCore::instance();
+}
+
 //! \internal
-bool MvdCore::MvdCoreInitOk = false;
-MvdPluginContext *MvdCore::PluginContext = 0;
+volatile MvdCore *MvdCore::mInstance = 0;
+//! \internal
+bool MvdCore::mDestroyed = false;
+
+namespace {
+    //! \internal
+    const qint8 InitPending = -1;
+    const qint8 InitSuccess = 0;
+    const qint8 InitFailed = 1;
+}
+
+//! \internal
+qint8 MvdCore::mCoreInitOk = InitPending;
 
 /*!
-    Possibly call this from the main() routine. It will attempt to initialize
-    any required directories, files and libraries.
-    Exit if the method returns an error. Running Movida if some error occurs
-    may lead to an unpredictable behavior.
-    Subsequent calls to this method have no effect, they simply return the
-    exit status of the first initialization.
+    Returns the application's unique MvdCore.
 */
-bool MvdCore::initCore()
+MvdCore &MvdCore::instance()
 {
-    if (d != 0)
-        return MvdCoreInitOk;
+    if (!mInstance) {
+        QMutexLocker locker(MvdCoreLock());
+        if (!mInstance) {
+            if (mDestroyed) throw std::runtime_error("Core: access to dead reference");
+            create();
+        }
+    }
+
+    if (mInstance->mCoreInitOk == InitPending) {
+        // First call to instance()
+        ((MvdCore &) * mInstance).initialize();
+    }
+
+    return (MvdCore &) * mInstance;
+}
+
+MvdCore::MvdCore() :
+    d(0)
+{
+
+}
+
+void MvdCore::initialize()
+{
+    Q_ASSERT(mCoreInitOk == InitPending);
+    mCoreInitOk = InitFailed;
 
     // Pre-initialize MvdPathResolver to create missing application directories
     if (!paths().isInitialized())
-        return false;
+        return;
+
+    //! \todo check library versions?
+
+    // Init libxml2
+    xmlSetStructuredErrorFunc(NULL, Movida::xmlStructuredErrorHandler);
+
+    mCoreInitOk = InitSuccess;
 
     QString appPaths;
     appPaths.append(MVD_LINEBREAK).append("  Log file: ").append(paths().logFile());
@@ -167,15 +390,88 @@ bool MvdCore::initCore()
     appPaths.append(MVD_LINEBREAK).append("  Temporary directory: ").append(paths().tempDir());
     iLog() << "MvdCore: Application paths:" << appPaths;
 
-    d = new Private;
+    d = new Private(this);
+    d->createNewCollection();
 
-    //! \todo check library versions?
+    d->loadPlugins();
+}
 
-    // Init libxml2
-    xmlSetStructuredErrorFunc(NULL, Movida::xmlStructuredErrorHandler);
+//! Destructor.
+MvdCore::~MvdCore()
+{
+    delete d;
+    mInstance = 0;
+    mDestroyed = true;
+    mCoreInitOk = InitFailed;
+}
 
-    MvdCoreInitOk = true;
-    return true;
+void MvdCore::create()
+{
+    // Local static members are instantiated as soon
+    // as this function is entered for the first time
+    // (Scott Meyers singleton)
+    static MvdCore instance;
+
+    mInstance = &instance;
+}
+
+/*!
+    Call this from the main() routine in order to know if there has been
+    some initialization error (e.g. missing required directories, files or libraries).
+    Exit if the method returns false. Running Movida if some error occurs
+    may lead to an unpredictable behavior.
+*/
+bool MvdCore::isInitialized() const
+{
+    return mCoreInitOk == InitSuccess;
+}
+
+MvdMovieCollection *MvdCore::createNewCollection()
+{
+    MVD_CORE_CHECK
+    d->createNewCollection();
+    emit collectionCreated(d->mCollection);
+    return d->mCollection;
+}
+
+MvdMovieCollection *MvdCore::currentCollection() const
+{
+    MVD_CORE_CHECK
+    Q_ASSERT(d->mCollection);
+    return d->mCollection;
+}
+
+//! \internal
+MvdPluginContext *MvdCore::PluginContext = 0;
+
+int MvdCore::pluginCount() const
+{
+    MVD_CORE_CHECK
+    return d->mPlugins.size();
+}
+
+MvdPluginInterface *MvdCore::plugin(int index) const
+{
+    MVD_CORE_CHECK
+    return d->mPlugins.value(index);
+}
+
+QList<MvdPluginInterface *> MvdCore::plugins() const
+{
+    MVD_CORE_CHECK
+    return d->mPlugins;
+}
+
+MvdPluginInterface *MvdCore::findPlugin(const QString &id) const
+{
+    MVD_CORE_CHECK
+    foreach(MvdPluginInterface * iface, d->mPlugins)
+    {
+        if (iface->id() == id) {
+            return iface;
+        }
+    }
+    return 0;
 }
 
 /*!
@@ -185,6 +481,7 @@ bool MvdCore::initCore()
 */
 void MvdCore::loadStatus()
 {
+    MVD_CORE_CHECK
     // Load application preferences. Set defaults and overwrite with user settings.
     Q_UNUSED(settings());
 }
@@ -196,9 +493,14 @@ void MvdCore::loadStatus()
 */
 void MvdCore::storeStatus()
 {
-    Q_ASSERT(d);
+    if (!d)
+        return;
+
+    MVD_CORE_CHECK
+
     delete d;
     d = 0;
+
     Movida::paths().removeDirectoryTree(Movida::paths().tempDir());
 }
 
@@ -217,7 +519,7 @@ void MvdCore::storeStatus()
 */
 QVariant MvdCore::parameter(const QString &name)
 {
-    Q_ASSERT(d);
+    MVD_CORE_CHECK
 
     QHash<QString, QVariant>::ConstIterator it = d->parameters.find(name);
     if (it != d->parameters.constEnd())
@@ -235,7 +537,7 @@ QVariant MvdCore::parameter(const QString &name)
 */
 void MvdCore::registerParameters(const QHash<QString, QVariant> &p)
 {
-    Q_ASSERT(d);
+    MVD_CORE_CHECK
     d->parameters.unite(p);
 }
 
@@ -515,18 +817,99 @@ QString MvdCore::locateApplication(QString name, LocateOptions options)
 //! Returns the value of an environment variable.
 QString MvdCore::env(const QString &s, Qt::CaseSensitivity cs)
 {
-    QRegExp rx(QString("^%1=(.*)$").arg(s));
+    QString key = s.trimmed();
+    if (key.isEmpty())
+        return QString();
 
-    rx.setCaseSensitivity(cs);
+    if (cs == Qt::CaseInsensitive)
+        key = key.toLower();
 
-    QStringList envList = QProcess::systemEnvironment();
-    for (int i = 0; i < envList.size(); ++i) {
-        QString e = envList.at(i);
-        if (rx.exactMatch(e))
-            return rx.cap(1);
+    static const QStringList sysEnv = QProcess::systemEnvironment();
+    static QHash<QString, QString> envMap;
+    static QHash<QString, QString> envMapCS;
+    static bool envMapLoaded = false;
+    if (!envMapLoaded) {
+        envMapLoaded = true;
+        for (int i = 0; i < sysEnv.size(); ++i) {
+            const QString& s = sysEnv.at(i);
+            const int idx = s.indexOf(QLatin1String("="));
+            QString k, v;
+            if (idx < 0) {
+                k = s;
+            } else {
+                k = s.left(idx);
+                v = s.right(s.length() - idx - 1);
+            }
+            envMap.insert(k.toLower(), v);
+            envMapCS.insert(k, v);
+        }
     }
 
-    return QString();
+    QHash<QString, QString>& map = cs == Qt::CaseSensitive ? envMapCS : envMap;
+    QHash<QString, QString>::ConstIterator it = map.find(key);
+    if (it == map.constEnd())
+        return QString();
+    return it.value();
+}
+
+/*! Returns a sanitized string that can be used as a file path.
+    This method doesn't use file system or OS specific functions, but
+    simply removes all except a couple of special characters (e.g. underscores).
+
+    Code is based on http://www.devtrends.com/index.php/invalid-filename-characters/
+*/
+QString& MvdCore::sanitizePath(QString &path)
+{
+    QString safe = path.trimmed().simplified();
+
+    // Replace white space and hyphens
+    safe.replace(QRegExp("[\\s-\\x2D"), QLatin1String("_"));
+
+    // Remove illegal characters
+    QRegExp rx("[~#%&\\*{}\\\\:<>\\?/\\|\"]");
+    safe.replace(rx, QString());
+
+    // Remove remaining illegal characters
+    const QChar* uc_begin = safe.unicode();
+    const QChar* uc_end = uc_begin + safe.length();
+    int p = 0;
+    const QChar* c = uc_begin;
+    while (c != uc_end) {
+        if (!c->isPrint()) {
+            safe.replace(p, 1, QString());
+        }
+        ++p;
+        ++c;
+    }
+    
+    // Remove trailing dots
+    while (safe.startsWith("."))
+        safe.remove(0, 1);
+    while (safe.endsWith("."))
+        safe.remove(safe.length() - 1, 1);
+
+    // Shorten
+    QString suffix;
+    int dot = safe.lastIndexOf(QLatin1String("."));
+    if (dot != -1) {
+        suffix = safe.right(safe.length() - dot);
+    }
+    const int max_len = 97 - suffix.length();
+    if (safe.length() > max_len) {
+        safe.truncate(max_len);
+        safe.append(QLatin1String("..."));
+        safe.append(suffix);
+    }
+
+    path = safe;
+    return path;
+}
+
+QString MvdCore::sanitizedPath(const QString &path)
+{
+    QString p = path;
+    sanitizePath(p);
+    return p;
 }
 
 //! Cleans a file path and replaces path separators with the separators used on the current platform.
@@ -535,6 +918,15 @@ QString MvdCore::toLocalFilePath(QString s, bool considerDirectory)
     s = QDir::toNativeSeparators(QDir::cleanPath(s));
     if (considerDirectory && !s.endsWith(QDir::separator()))
         s.append(QDir::separator());
+    return s;
+}
+
+//! Cleans a file path and replaces path separators with forward slashes ('/') used by Qt.
+QString MvdCore::toQtFilePath(QString s, bool considerDirectory)
+{
+    s = QDir::fromNativeSeparators(QDir::cleanPath(s));
+    if (considerDirectory && !s.endsWith("/"))
+        s.append("/");
     return s;
 }
 
@@ -548,11 +940,12 @@ void MvdCore::replaceEnvVariables(QString &s)
 #else
     QRegExp rx("$(\\w*)");
 #endif
+   
     QString out;
     int pos = rx.indexIn(s);
     while (pos >= 0) {
         QString var = rx.cap(1);
-        QString val = QString::fromLatin1(::getenv(var.toLatin1().constData()));
+        QString val = env(var);
         s.replace(pos, rx.matchedLength(), val);
         pos = rx.indexIn(s, pos + 1);
     }
@@ -577,7 +970,7 @@ bool MvdCore::isValidYear(QString s)
     if (!ok)
         return false;
 
-    int minY = MvdCore::parameter("mvdcore/min-movie-year").toInt();
+    int minY = Movida::core().parameter("mvdcore/min-movie-year").toInt();
     int maxY = QDate::currentDate().year();
 
     return !(n< minY || n > maxY);

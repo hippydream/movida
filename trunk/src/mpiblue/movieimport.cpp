@@ -432,8 +432,8 @@ QString MpiMovieImport::scriptDate(const QString &name) const
     QFileInfo fi(script);
     QDateTime dt = fi.lastModified().toTimeSpec(Qt::UTC);
     QLocale locale(QLocale::English, QLocale::UnitedStates);
-    QString date = locale.toString(dt.date(), MvdCore::parameter("plugins/blue/http-date").toString());
-    QString time = locale.toString(dt.time(), MvdCore::parameter("plugins/blue/http-time").toString());
+    QString date = locale.toString(dt.date(), Movida::core().parameter("plugins/blue/http-date").toString());
+    QString time = locale.toString(dt.time(), Movida::core().parameter("plugins/blue/http-time").toString());
     return date.append(" ").append(time);
 }
 
@@ -546,23 +546,27 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
         if (mCurrentState == FetchingMoviePosterState) {
             mImportDialog->setErrorType(MvdImportDialog::NetworkError);
             mImportResult = MvdImportDialog::MoviePosterFailed;
-            Q_ASSERT(QMetaObject::invokeMethod(this, "processMoviePoster", Qt::QueuedConnection));
+            bool res = QMetaObject::invokeMethod(this, "processMoviePoster", Qt::QueuedConnection);
+            Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::processMoviePoster()");
         } else if (mCurrentState == FetchingResultsScriptState || mCurrentState == FetchingImportScriptState) {
             MpiBlue::Engine *engine = mRegisteredEngines.value(mCurrentEngine);
             engine->scriptsFetched = true;
             engine->updateUrl.clear(); // Avoid to perform another update attempt.
             mCurrentState = NoState;
-            Q_ASSERT(QMetaObject::invokeMethod(this, "search", Qt::QueuedConnection,
+            bool res = QMetaObject::invokeMethod(this, "search", Qt::QueuedConnection,
                     Q_ARG(QString, mCurrentQuery),
-                    Q_ARG(int, mCurrentEngine)));
+                    Q_ARG(int, mCurrentEngine));
+            Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::search()");
         } else if (mCurrentState == FetchingMovieDataState) {
             mImportDialog->setErrorType(MvdImportDialog::NetworkError);
             mImportResult = MvdImportDialog::MovieDataFailed;
-            Q_ASSERT(QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection));
+            bool res = QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection);
+            Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::processNextImport()");
         } else {
             mImportDialog->setErrorType(MvdImportDialog::NetworkError);
             mImportResult = MvdImportDialog::CriticalError;
-            Q_ASSERT(QMetaObject::invokeMethod(this, "done", Qt::QueuedConnection));
+            bool res = QMetaObject::invokeMethod(this, "done", Qt::QueuedConnection);
+            Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::done()");
         }
         return;
     }
@@ -590,27 +594,32 @@ void MpiMovieImport::httpRequestFinished(int id, bool error)
 
     QString s = mTempFile->fileName();
 
+    bool res;
     switch (mCurrentState) {
         case FetchingResultsScriptState:
         case FetchingImportScriptState:
-            Q_ASSERT(QMetaObject::invokeMethod(this, "search", Qt::QueuedConnection,
+            res = QMetaObject::invokeMethod(this, "search", Qt::QueuedConnection,
                 Q_ARG(QString, mCurrentQuery),
-                Q_ARG(int, mCurrentEngine)));
+                Q_ARG(int, mCurrentEngine));
+            Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::search()");
             break;
 
         case FetchingResultsState:
             mImportDialog->setNextSearchStep(); // Step 2
-            Q_ASSERT(QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection));
+            res = QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection);
+            Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::processResponseFile()");
             break;
 
         case FetchingMovieDataState:
             mImportDialog->setNextImportStep(); // Step 1
-            Q_ASSERT(QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection));
+            res = QMetaObject::invokeMethod(this, "processResponseFile", Qt::QueuedConnection);
+            Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::processResponseFile()");
             break;
 
         case FetchingMoviePosterState:
             mImportDialog->setNextImportStep(); // Step 3
-            Q_ASSERT(QMetaObject::invokeMethod(this, "processMoviePoster", Qt::QueuedConnection));
+            res = QMetaObject::invokeMethod(this, "processMoviePoster", Qt::QueuedConnection);
+            Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::processMoviePoster()");
             break;
 
         default:
@@ -930,10 +939,11 @@ void MpiMovieImport::processResultsFile(const QString &path)
 
     if (!mQueryQueue.isEmpty()) {
         mCurrentQuery = mQueryQueue.takeFirst();
-        Q_ASSERT(QMetaObject::invokeMethod(this, "performSearch", Qt::QueuedConnection,
+        bool res = QMetaObject::invokeMethod(this, "performSearch", Qt::QueuedConnection,
                 Q_ARG(QString, mCurrentQuery),
                 Q_ARG(MpiBlue::Engine *, mRegisteredEngines[mCurrentEngine]),
-                Q_ARG(int, mCurrentEngine)));
+                Q_ARG(int, mCurrentEngine));
+        Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::performSearch()");
     } else {
 
         mImportDialog->showMessage(tr("Done."));
@@ -1079,7 +1089,8 @@ void MpiMovieImport::processMovieDataFile(const QString &path)
 
     if (!res) {
         mImportDialog->showMessage(tr("Discarding invalid movie data."));
-        Q_ASSERT(QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection));
+        bool res = QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection);
+        Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::processNextImport()");
         return;
     }
 
@@ -1125,7 +1136,8 @@ void MpiMovieImport::completeJob()
     mImportDialog->addMovieData(result.data);
     mSearchResults.remove(mCurrentImportJob);
 
-    Q_ASSERT(QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection));
+    bool res = QMetaObject::invokeMethod(this, "processNextImport", Qt::QueuedConnection);
+    Q_ASSERT_X(res, "MpiMovieImport", "Failed to invoke MpiMovieImport::processNextImport()");
 }
 
 //! Returns true if the search result contains all required values and possibly sets the data source for cached sources.

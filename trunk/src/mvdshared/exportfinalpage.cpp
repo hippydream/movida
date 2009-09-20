@@ -178,7 +178,8 @@ void MvdExportFinalPage::restartWizardToggled()
 bool MvdExportFinalPage::validatePage()
 {
     if (ui.restartWizard->isChecked()) {
-        Q_ASSERT(QMetaObject::invokeMethod(wizard(), "restart", Qt::QueuedConnection));
+        bool res = QMetaObject::invokeMethod(wizard(), "restart", Qt::QueuedConnection);
+        Q_ASSERT_X(res, "MvdExportFinalPage", "Failed to invoke QWizard::restart()");
         return false;
     }
 

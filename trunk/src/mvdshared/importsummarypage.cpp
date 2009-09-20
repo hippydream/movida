@@ -160,6 +160,7 @@ void MvdImportSummaryPage::cleanupPage()
 //! Updates the job preview area with the current job.
 void MvdImportSummaryPage::visibleJobChanged()
 {
+    //! \todo There must be some bug causing previousVisibleJob to be > jobs.size sometimes
     Q_ASSERT(currentVisibleJob >= 0 && currentVisibleJob < jobs.size());
 
     // Store current status (if any)
@@ -175,7 +176,7 @@ void MvdImportSummaryPage::visibleJobChanged()
         job.browserViewId = ui.jobPreview->cacheMovieData(job.data);
     }
 
-    ui.jobPreview->showMovieData(job.browserViewId);
+    ui.jobPreview->showCachedMovie(job.browserViewId);
 
     ui.nextResult->setControlEnabled(nextResultId, currentVisibleJob < jobs.size() - 1);
     ui.previousResult->setControlEnabled(previousResultId, currentVisibleJob > 0);

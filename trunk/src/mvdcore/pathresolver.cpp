@@ -293,7 +293,7 @@ MvdPathResolver::Private::Private()
     //// 3. log file
 
     QString log = this->resourcesDirUser;
-    log.append("MovidaLog.html");
+    log.append("Movida.log");
     qDebug() << "MvdPathResolver: writing log to" << log << ".";
     this->logFile = log;
 
@@ -471,7 +471,7 @@ QString MvdPathResolver::generateTempDir() const
     do {
         count++;
         uuid = QUuid::createUuid().toString().replace("{", "").replace("}", "");
-        path = tempDir().append(uuid).append("/");
+        path = tempDir().append(uuid).append(QDir::separator());
         QDir dir(path);
         if (!dir.exists()) {
             dir.mkpath(path);
@@ -483,7 +483,7 @@ QString MvdPathResolver::generateTempDir() const
         Q_ASSERT_X(false, "MvdPathResolver::generateTempDir()", "Failed to generate a unique filename.");
     }
 
-    return MvdCore::toLocalFilePath(path, true);
+    return path;
 }
 
 /*!

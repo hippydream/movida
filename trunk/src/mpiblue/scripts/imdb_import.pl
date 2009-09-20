@@ -25,6 +25,7 @@
 # 2009-07-27: Fixed most regular expressions
 # 2009-07-28: Fixed most regular expressions to work with different result pages
 # 2009-07-28: Fixed parsing of rating
+# 2009-09-06: Fixed parsing of rating and potentially hanging while loops
 
 # TODO trivia, notes, keywords?
 # TODO localized title
@@ -94,7 +95,7 @@ $rxPosterSizeReplace = '_SX600_SY600_';
 $rxId = '^\s*<link rel="canonical" href="http://www.imdb.com/title/tt('.$rxImdbId.')/" />';
 # <b>User Rating:</b>
 $rxRating = '<h5>User Rating:</h5>';
-$rxRatingStop = 'votes</a>\s*$';
+$rxRatingStop = 'votes\)?</(?:a|small)>\s*$';
 # <b>8.6/10</b>
 $rxRatingEx = '<b>([0-9.]{1,3})/10</b>';
 # <h3>Overview</h3>
@@ -156,6 +157,7 @@ $rxStop = '<div class="comment">';
 # GO!
 while (<F_IN>) {
 	next if /^(\s)*$/; # skip blank lines
+	last if eof F_IN;
 	chomp;
 	
 	if (!$hasTitle and /$rxTitle/i) {
@@ -180,7 +182,11 @@ while (<F_IN>) {
 	} elsif (!$hasRating and /$rxRating/i) {
 		$_ = <F_IN>;
 		$line = $_;
-		while (!(m/$rxRatingStop/i)) { $_ = <F_IN>; $line .= $_; } # Join lines
+		while (!(m/$rxRatingStop/i)) { # Join lines
+			$_ = <F_IN>;
+			$line .= $_;
+			last if eof F_IN;
+		}
 		if ($line =~ /$rxRatingEx/i) {
 			print F_OUT "\t\t<rating maximum=\"$imdbMaxRating\">$1</rating>\n";
 		}
@@ -195,7 +201,7 @@ while (<F_IN>) {
 	
 	if (!$hasDirectors and /$rxDirectors/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
+		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
 		print F_OUT "\t\t<directors>\n";
 		while (m/$rxDirectorsEx/ig) {
 			$id = $1;
@@ -207,7 +213,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasWriters and /$rxWriters/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
+		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
 		print F_OUT "\t\t<crew>\n";
 		while (m/$rxWritersEx/ig) {
 			$id = $1;
@@ -219,7 +225,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasGenres and /$rxGenres/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
+		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
 		print F_OUT "\t\t<genres>\n";
 		while (m/$rxGenresEx/ig) {
 			$name = XmlEscape($1);
@@ -230,7 +236,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasPlot and /$rxPlot/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
+		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
 		if (/$rxPlotEx/i) {
 			($plot = $1) =~ s/<.*?>//g;
 			print F_OUT "\t\t<plot><![CDATA[$plot]]></plot>\n";
@@ -260,7 +266,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasRunningTime and /$rxRunningTime/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
+		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
 		if (/$rxRunningTimeEx/i) {
 			print F_OUT "\t\t<running-time>$1</running-time>\n";
 		}
@@ -268,10 +274,10 @@ while (<F_IN>) {
 		
 	}  elsif (!$hasCountries and /$rxCountries/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
+		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
 		print F_OUT "\t\t<countries>\n";
 		$line = $_;
-		while (!(m/$rxCountriesStop/i)) { $_ = <F_IN>; $line .= $_; } # Join lines
+		while (!(m/$rxCountriesStop/i)) { $_ = <F_IN>; $line .= $_; last if eof F_IN; } # Join lines
 		while ($line =~ m/$rxCountriesEx/ig) {
 			$name = XmlEscape($1);
 			print F_OUT "\t\t\t<country>$name</country>\n";
@@ -281,10 +287,10 @@ while (<F_IN>) {
 		
 	} elsif (!$hasLanguages and /$rxLanguages/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
+		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
 		print F_OUT "\t\t<languages>\n";
 		$line = $_;
-		while (!(m/$rxLanguagesStop/i)) { $_ = <F_IN>; $line .= $_; } # Join lines
+		while (!(m/$rxLanguagesStop/i)) { $_ = <F_IN>; $line .= $_; last if eof F_IN; } # Join lines
 		while ($line =~ m/$rxLanguagesEx/ig) {
 			$name = XmlEscape($1);
 			print F_OUT "\t\t\t<language>$name</language>\n";
@@ -294,9 +300,9 @@ while (<F_IN>) {
 		
 	} elsif (!$hasColor and /$rxColor/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; } # skip blank lines
+		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
 		$line = $_;
-		while (!(m/$rxColorStop/i)) { $_ = <F_IN>; $line .= $_; } # Join lines
+		while (!(m/$rxColorStop/i)) { $_ = <F_IN>; $line .= $_; last if eof F_IN; } # Join lines
 		if ($line =~ /$rxColorEx/i) {
 			if ($1 =~ /color/i) {
 				$color = "color";

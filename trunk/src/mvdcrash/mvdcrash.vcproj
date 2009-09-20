@@ -45,7 +45,7 @@
 				AdditionalOptions="-Zm200 -w34100 -w34189 -Zm200 -w34100 -w34189 -w34100 -w34189"
 				Optimization="4"
 				AdditionalIncludeDirectories="&quot;$(QTDIR)\include\QtCore&quot;,&quot;$(QTDIR)\include\QtGui&quot;,&quot;$(QTDIR)\include&quot;,&quot;..\..\src&quot;,&quot;..\..\src\3rdparty&quot;,&quot;..\..\src\3rdparty\iconv&quot;,&quot;$(QTDIR)\include\ActiveQt&quot;,&quot;..\..\tmp\win32\debug\mvdcrash\moc&quot;,&quot;d:\blue\src\movida\trunk\src\mvdcrash\..\..\tmp\win32\debug\mvdcrash\\ui&quot;,$(QTDIR)\mkspecs\default"
-				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_DLL,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT"
+				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_DLL,QT_GUI_LIB,QT_CORE_LIB,QT_THREAD_SUPPORT,_MVD_DEBUG"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
 				RuntimeLibrary="3"

@@ -46,22 +46,22 @@ MvdExtendedInfoPage::MvdExtendedInfoPage(MvdMovieCollection *c, MvdMovieEditor *
 {
     setupUi(this);
 
-    genres->setDataSource(Movida::GenreRole);
+    genres->setDataRole(Movida::GenreRole);
     genres->setMovieCollection(c);
     connect(genres, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
     connect(genres, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
-    countries->setDataSource(Movida::CountryRole);
+    countries->setDataRole(Movida::CountryRole);
     countries->setMovieCollection(c);
     connect(countries, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
     connect(countries, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
-    languages->setDataSource(Movida::LanguageRole);
+    languages->setDataRole(Movida::LanguageRole);
     languages->setMovieCollection(c);
     connect(languages, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
     connect(languages, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 
-    tags->setDataSource(Movida::TagRole);
+    tags->setDataRole(Movida::TagRole);
     tags->setMovieCollection(c);
     connect(tags, SIGNAL(modifiedStatusChanged(bool)), this, SLOT(updateModifiedStatus()));
     connect(tags, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
@@ -98,16 +98,16 @@ QIcon MvdExtendedInfoPage::icon()
 void MvdExtendedInfoPage::setMovieImpl(const MvdMovie &movie)
 {
     genres->setMovie(movie);
-    genres->setDataSource(Movida::GenreRole);
+    genres->setDataRole(Movida::GenreRole);
 
     countries->setMovie(movie);
-    countries->setDataSource(Movida::CountryRole);
+    countries->setDataRole(Movida::CountryRole);
 
     languages->setMovie(movie);
-    languages->setDataSource(Movida::LanguageRole);
+    languages->setDataRole(Movida::LanguageRole);
 
     tags->setMovie(movie);
-    tags->setDataSource(Movida::TagRole);
+    tags->setDataRole(Movida::TagRole);
 }
 
 bool MvdExtendedInfoPage::store(MvdMovie &movie)

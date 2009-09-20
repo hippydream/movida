@@ -133,7 +133,7 @@ void MvdLinksPage::setMovieImpl(const MvdMovie &movie)
 */
 void MvdLinksPage::imdbIdChanged(const QString &text)
 {
-    QString pattern = MvdCore::parameter("mvdcore/imdb-id-regexp").toString();
+    QString pattern = Movida::core().parameter("mvdcore/imdb-id-regexp").toString();
     QRegExp rx(pattern);
 
     imdbButton->setEnabled(rx.exactMatch(text));
@@ -144,7 +144,7 @@ void MvdLinksPage::imdbIdChanged(const QString &text)
 */
 void MvdLinksPage::openImdbPage()
 {
-    QString url = MvdCore::parameter("movida/imdb-movie-url").toString();
+    QString url = Movida::core().parameter("movida/imdb-movie-url").toString();
 
     QDesktopServices::openUrl(url.arg(imdbInput->text()));
 }
@@ -154,7 +154,7 @@ bool MvdLinksPage::store(MvdMovie &movie)
     //! \todo Consider doing some basic URL validation here.
     movie.setUrls(urls());
 
-    QString pattern = MvdCore::parameter("mvdcore/imdb-id-regexp").toString();
+    QString pattern = Movida::core().parameter("mvdcore/imdb-id-regexp").toString();
     QRegExp rx(pattern);
     QString imdb = imdbInput->text();
 

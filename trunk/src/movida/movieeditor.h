@@ -39,6 +39,9 @@ class MvdMovieEditor : public MvdMultiPageDialog
 
 public:
     MvdMovieEditor(MvdMovieCollection *c, QWidget *parent = 0);
+    virtual ~MvdMovieEditor();
+
+    MvdMovieCollection *collection() const;
 
     bool setMovie(mvdid id, bool confirmIfModified = false);
     mvdid movieId() const;
@@ -46,7 +49,7 @@ public:
     bool isModified() const;
     bool isValid() const;
 
-    virtual QSize sizeHint() const;
+    virtual int addPage(MvdMovieEditorPage *page);
 
 public slots:
     void setPreviousEnabled(bool enabled);
@@ -58,7 +61,12 @@ signals:
     void nextRequested();
 
 protected:
+    virtual void loadPages();
+    virtual bool event(QEvent *e);
+    virtual void showEvent(QShowEvent *e);
     virtual void closeEvent(QCloseEvent *e);
+
+    void initialize();
 
 protected slots:
     virtual void validationStateChanged(MvdMPDialogPage *page);
@@ -70,21 +78,10 @@ private slots:
     void currentPageChanged(MvdMPDialogPage *page);
 
 private:
-    inline bool confirmDiscardMovie();
+    virtual int addPage(MvdMPDialogPage *p);
 
-    QList<MvdMovieEditorPage *> mPages;
-    MvdMovieCollection *mCollection;
-    mvdid mMovieId;
-
-    QPushButton *mPreviousButton;
-    QPushButton *mNextButton;
-    QPushButton *mOkButton;
-    QPushButton *mCancelButton;
-    QPushButton *mHelpButton;
-
-    int mResetPageId;
-    int mResetAllId;
-    int mStoreChangesId;
+    class Private;
+    Private* d;
 };
 
 #endif // MVD_MOVIEEDITOR_H

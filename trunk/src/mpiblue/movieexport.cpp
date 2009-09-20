@@ -166,7 +166,8 @@ void MpiMovieExport::showCsvConfigurationDlg()
 void MpiMovieExport::exportToCsv(QIODevice *out, const MvdExportDialog::ExportRequest &req) const
 {
     MvdPluginContext *ctx = MvdCore::pluginContext();
-    MvdMovieCollection *c = ctx->collection;
+    MvdMovieCollection *c = Movida::core().currentCollection();
+    Q_ASSERT(c);
 
     QList<mvdid> selected;
 
@@ -200,7 +201,8 @@ void MpiMovieExport::exportToCsv(QIODevice *out, const MvdExportDialog::ExportRe
 void MpiMovieExport::exportToMovidaXml(QIODevice *out, const MvdExportDialog::ExportRequest &req) const
 {
     MvdPluginContext *ctx = MvdCore::pluginContext();
-    MvdMovieCollection *c = ctx->collection;
+    MvdMovieCollection *c = Movida::core().currentCollection();
+    Q_ASSERT(c);
 
     QList<mvdid> selected;
 

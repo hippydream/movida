@@ -22,22 +22,21 @@
 #define MVD_EXPANDINGLINEEDIT_H
 
 #include "sharedglobal.h"
+#include "lineedit.h"
 
-#include <QtGui/QLineEdit>
-
-class MVD_EXPORT_SHARED MvdExpandingLineEdit : public QLineEdit
+class MVD_EXPORT_SHARED MvdExpandingLineEdit : public MvdLineEdit
 {
     Q_OBJECT
 
 public:
-    MvdExpandingLineEdit(QWidget * parent = 0);
-    MvdExpandingLineEdit(const QString &contents, QWidget * parent = 0);
+    MvdExpandingLineEdit(QWidget *parent = 0);
+    MvdExpandingLineEdit(const QString &contents, QWidget *parent = 0);
 
 public slots:
     void resizeToContents();
 
 private:
-    int originalWidth;
+    int mOriginalWidth;
 };
 
 #endif // MVD_EXPANDINGLINEEDIT_H

@@ -103,6 +103,7 @@
 #endif
 
 /* Windows platform with GNU compiler (Mingw) */
+#if 0
 #if defined(_WIN32) && defined(__MINGW32__)
   #undef XMLPUBFUN
   #undef XMLPUBVAR
@@ -124,6 +125,19 @@
   #if !defined _REENTRANT
     #define _REENTRANT
   #endif
+#endif
+#else
+#if defined(_WIN32) && defined(__MINGW32__)
+  #undef XMLPUBVAR
+  #ifdef __cplusplus
+    #define XMLPUBVAR extern
+  #else
+    #define XMLPUBVAR
+  #endif
+  #if !defined _REENTRANT
+    #define _REENTRANT
+  #endif
+#endif
 #endif
 
 /* Cygwin platform, GNU compiler */

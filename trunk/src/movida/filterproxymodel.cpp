@@ -26,63 +26,192 @@
 #include "mvdcore/movie.h"
 #include "mvdcore/moviecollection.h"
 #include "mvdcore/shareddata.h"
+#include "mvdcore/utils.h"
+
+#include <QtCore/QCache>
+
+class MvdFilterProxyModel::Private
+{
+public:
+    Private(MvdFilterProxyModel *p) :
+        mInvalidQuery(false),
+        mPlainTextAppended(false),
+        q(p)
+    {
+
+    }
+
+    struct Function {
+        Function(Movida::FilterFunction ff, const QStringList &p, bool negated) :
+            type(ff),
+            parameters(p),
+            neg(negated)
+        { }
+
+        Movida::FilterFunction type;
+        QStringList parameters;
+        bool neg;
+    };
+
+    bool rebuildPatterns();
+    void optimizeNewPatterns();
+
+    bool plainTextFilter(mvdid id, int sourceRow);
+    bool testFunction(int sourceRow, const QModelIndex &sourceParent,
+        const Function &function) const;
+    inline QList<mvdid> idList(const QStringList &sl) const;
+    QString textForMovie(mvdid id, int sourceRow);
+
+    QList<Movida::MovieAttribute> mMovieAttributes;
+    int mSortColumn;
+    Qt::SortOrder mSortOrder;
+
+    QString mQuery;
+    bool mInvalidQuery;
+    QList<Function> mFunctions;
+    QStringList mPlainStrings, mOldPlainStrings;
+
+    QCache<mvdid, QString> mTextCache;
+
+    // Optimization tricks
+    bool mPlainTextAppended;
+    QList<mvdid> mPlainTextFailedMatches;
+
+private:
+    MvdFilterProxyModel *q;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 
 //! Creates a new filter proxy that defaults to a quick search on the movie title attribute (localized and original).
 MvdFilterProxyModel::MvdFilterProxyModel(QObject *parent) :
     QSortFilterProxyModel(parent),
-    mInvalidQuery(false)
+    d(new Private(this))
 {
-    mMovieAttributes << Movida::TitleAttribute << Movida::OriginalTitleAttribute
+    d->mMovieAttributes << Movida::TitleAttribute << Movida::OriginalTitleAttribute
                      << Movida::DirectorsAttribute << Movida::CastAttribute // Producers are not so relevant - avoid bloating search results
                      << Movida::YearAttribute // Numeric values - won't bloat search results
                      << Movida::TagsAttribute;
-    mSortColumn = (int)Movida::TitleAttribute;
-    mSortOrder = Qt::AscendingOrder;
+    d->mSortColumn = (int)Movida::TitleAttribute;
+    d->mSortOrder = Qt::AscendingOrder;
+}
+
+MvdFilterProxyModel::~MvdFilterProxyModel()
+{
+    delete d;
+}
+
+void MvdFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
+{
+    QAbstractItemModel* old_model = this->sourceModel();
+    if (old_model) {
+        disconnect(old_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(onSourceDataChanged(QModelIndex,QModelIndex)));
+        disconnect(sourceModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+            this, SLOT(onSourceRowsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(old_model, SIGNAL(destroyed(QObject*)),
+            this, SLOT(onSourceModelDestroyed(QObject*)));
+    }
+
+    if (sourceModel) {
+        connect(sourceModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(onSourceDataChanged(QModelIndex,QModelIndex)));
+        connect(sourceModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(onSourceDataChanged(QModelIndex,QModelIndex)));
+        connect(sourceModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+            this, SLOT(onSourceRowsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(old_model, SIGNAL(destroyed(QObject*)),
+            this, SLOT(onSourceModelDestroyed(QObject*)));
+    }
+
+    QSortFilterProxyModel::setSourceModel(sourceModel);
+}
+
+void MvdFilterProxyModel::onSourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    int row = topLeft.row();
+    int end = bottomRight.row();
+    while (row >= 0 && row <= end) {
+        QModelIndex index = sourceModel()->index(row, 0);
+        bool ok;
+        mvdid id = (mvdid) index.data(Movida::IdRole).toInt(&ok);
+        if (ok && id != MvdNull) {
+            d->mTextCache.remove(id);
+            d->mPlainTextFailedMatches.removeOne(id);
+        }
+        ++row;
+    }
+}
+
+void MvdFilterProxyModel::onSourceRowsAboutToBeRemoved(const QModelIndex &, int row, int end)
+{
+    while (row >= 0 && row <= end) {
+        QModelIndex index = sourceModel()->index(row, 0);
+        bool ok;
+        mvdid id = (mvdid) index.data(Movida::IdRole).toInt(&ok);
+        if (ok && id != MvdNull) {
+            d->mTextCache.remove(id);
+            d->mPlainTextFailedMatches.removeOne(id);
+        }
+        ++row;
+    }
+}
+
+void MvdFilterProxyModel::onSourceModelDestroyed(QObject*)
+{
+    d->mTextCache.clear();
+    d->mPlainTextFailedMatches.clear();
 }
 
 void MvdFilterProxyModel::setQuickFilterAttributes(const QByteArray &alist)
 {
-    mMovieAttributes.clear();
+    d->mMovieAttributes.clear();
     for (int i = 0; i < alist.size(); ++i)
-        mMovieAttributes << (Movida::MovieAttribute)alist.at(i);
+        d->mMovieAttributes << (Movida::MovieAttribute)alist.at(i);
+    d->mTextCache.clear();
 }
 
 QByteArray MvdFilterProxyModel::quickFilterAttributes() const
 {
-    QByteArray ba(mMovieAttributes.size(), '\0');
+    QByteArray ba(d->mMovieAttributes.size(), '\0');
 
-    for (int i = 0; i < mMovieAttributes.size(); ++i)
-        ba[i] = (const char)mMovieAttributes.at(i);
+    for (int i = 0; i < d->mMovieAttributes.size(); ++i)
+        ba[i] = (const char)d->mMovieAttributes.at(i);
     return ba;
 }
 
 bool MvdFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    if (mInvalidQuery)
+    if (d->mInvalidQuery)
         return false;
 
-    Qt::CaseSensitivity cs = filterCaseSensitivity();
+    if (d->mPlainStrings.isEmpty() && d->mFunctions.isEmpty())
+        return true;
 
-    foreach(QString s, mPlainStrings)
-    {
-        bool match = false;
+    QModelIndex index = sourceModel()->index(sourceRow, 0);
+    
+    bool ok;
+    mvdid id = (mvdid) index.data(Movida::IdRole).toInt(&ok);
+    Q_ASSERT_X(ok, "MvdFilterProxyModel", "filterAcceptsRow(): invalid source row.");
 
-        for (int i = 0; i < mMovieAttributes.size() && !match; ++i) {
-            QModelIndex index = sourceModel()->index(sourceRow, (int)mMovieAttributes.at(i), sourceParent);
-            match = sourceModel()->data(index).toString().contains(s, cs);
-        }
+    if (id == MvdNull)
+        return false;
+    
+    // Test plain text query parts
+    bool accept = d->plainTextFilter(id, sourceRow);
+    if (!accept)
+        return false;
 
+    // Test function parts
+    QList<Private::Function>::ConstIterator fun_begin = d->mFunctions.constBegin();
+    QList<Private::Function>::ConstIterator fun_end = d->mFunctions.constEnd();
+    while (fun_begin != fun_end) {
+        const Private::Function& fun = *fun_begin;
+        bool match = d->testFunction(sourceRow, sourceParent, fun);
         if (!match)
             return false;
-    }
-
-    foreach(Function f, mFunctions)
-    {
-        bool match = false;
-
-        match = testFunction(sourceRow, sourceParent, f);
-        if (!match)
-            return false;
+        ++fun_begin;
     }
 
     return true;
@@ -96,15 +225,15 @@ void MvdFilterProxyModel::sortByAttribute(Movida::MovieAttribute attr, Qt::SortO
 
 void MvdFilterProxyModel::sort(int column, Qt::SortOrder order)
 {
-    mSortColumn = column;
-    mSortOrder = order;
+    d->mSortColumn = column;
+    d->mSortOrder = order;
     QSortFilterProxyModel::sort(column, order);
     emit sorted();
 }
 
 int MvdFilterProxyModel::sortColumn() const
 {
-    return mSortColumn;
+    return d->mSortColumn;
 }
 
 Movida::MovieAttribute MvdFilterProxyModel::sortAttribute() const
@@ -114,190 +243,223 @@ Movida::MovieAttribute MvdFilterProxyModel::sortAttribute() const
 
 Qt::SortOrder MvdFilterProxyModel::sortOrder() const
 {
-    return mSortOrder;
+    return d->mSortOrder;
 }
 
-bool MvdFilterProxyModel::testFunction(int sourceRow, const QModelIndex &sourceParent,
+/*!
+    Sets a query string to be used for advanced pattern matching.
+
+    The string can contain both plain text strings and filter functions
+    of the form @FUNCTION_NAME(PARAMETERS). For a list of supported functions,
+    please refer to the Movida::FilterFunction enum.
+
+    Returns false if the string contains invalid filter functions.
+    \todo Check function parameters.
+*/
+bool MvdFilterProxyModel::setFilterAdvancedString(const QString &q)
+{
+    d->mQuery = q.trimmed();
+    bool res = d->rebuildPatterns();
+    invalidateFilter();
+    return res;
+}
+
+//! Returns the current string used for advanced pattern matching.
+QString MvdFilterProxyModel::filterAdvancedString() const
+{
+    return d->mQuery;
+}
+
+bool MvdFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    return QSortFilterProxyModel::lessThan(left, right);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
+bool MvdFilterProxyModel::Private::testFunction(int sourceRow, const QModelIndex &sourceParent,
     const Function &function) const
 {
     switch (function.type) {
         case Movida::MovieIdFilter:
-        {
-            QList<mvdid> ids = idList(function.parameters);
-            if (ids.isEmpty()) return false;
+            {
+                QList<mvdid> ids = idList(function.parameters);
+                if (ids.isEmpty()) return false;
 
-            QModelIndex index = sourceModel()->index(sourceRow, (int)Movida::TitleAttribute, sourceParent);
-            mvdid currentId = index.data(Movida::IdRole).toUInt();
+                QModelIndex index = q->sourceModel()->index(sourceRow, (int)Movida::TitleAttribute, sourceParent);
+                mvdid currentId = index.data(Movida::IdRole).toUInt();
 
-            return ids.contains(currentId) != function.neg;
+                return ids.contains(currentId) != function.neg;
 
-        } break;
+            } break;
 
         case Movida::SharedDataIdFilter:
-        {
-            QList<mvdid> ids = idList(function.parameters);
-            if (ids.isEmpty()) return false;
-
-            QModelIndex index = sourceModel()->index(sourceRow, (int)Movida::TitleAttribute, sourceParent);
-            mvdid currentMovieId = index.data(Movida::IdRole).toUInt();
-
-            MvdCollectionModel *m = dynamic_cast<MvdCollectionModel *>(this->sourceModel());
-            Q_ASSERT(m);
-
-            const MvdMovieCollection *c = m->movieCollection();
-            if (!c) return false;
-
-            MvdMovie mov = c->movie(currentMovieId);
-            QString x = mov.validTitle();
-
-            MvdSharedData &sd = c->sharedData();
-
-            bool match = true;
-            foreach(mvdid id, ids)
             {
-                MvdSdItem item = sd.item(id);
+                QList<mvdid> ids = idList(function.parameters);
+                if (ids.isEmpty()) return false;
 
-                match = item.movies.contains(currentMovieId);
-                if (!match) break;
-            }
+                QModelIndex index = q->sourceModel()->index(sourceRow, (int)Movida::TitleAttribute, sourceParent);
+                mvdid currentMovieId = index.data(Movida::IdRole).toUInt();
 
-            return match != function.neg;
+                MvdCollectionModel *m = dynamic_cast<MvdCollectionModel *>(q->sourceModel());
+                Q_ASSERT(m);
 
-        } break;
+                const MvdMovieCollection *c = m->movieCollection();
+                if (!c) return false;
+
+                MvdMovie mov = c->movie(currentMovieId);
+                QString x = mov.validTitle();
+
+                MvdSharedData &sd = c->sharedData();
+
+                bool match = true;
+                foreach(mvdid id, ids)
+                {
+                    MvdSdItem item = sd.item(id);
+
+                    match = item.movies.contains(currentMovieId);
+                    if (!match) break;
+                }
+
+                return match != function.neg;
+
+            } break;
 
         case Movida::MarkAsSeenFilter:
-        {
-            QModelIndex index = sourceModel()->index(sourceRow, (int)Movida::SeenAttribute, sourceParent);
-            bool seen = index.data().toBool();
-            return seen != function.neg;
+            {
+                QModelIndex index = q->sourceModel()->index(sourceRow, (int)Movida::SeenAttribute, sourceParent);
+                bool seen = index.data().toBool();
+                return seen != function.neg;
 
-        } break;
+            } break;
 
         case Movida::MarkAsLoanedFilter:
-        {
-            QModelIndex index = sourceModel()->index(sourceRow, (int)Movida::LoanedAttribute, sourceParent);
-            bool loaned = index.data().toBool();
-            return loaned != function.neg;
+            {
+                QModelIndex index = q->sourceModel()->index(sourceRow, (int)Movida::LoanedAttribute, sourceParent);
+                bool loaned = index.data().toBool();
+                return loaned != function.neg;
 
-        } break;
+            } break;
 
         case Movida::MarkAsSpecialFilter:
-        {
-            QModelIndex index = sourceModel()->index(sourceRow, (int)Movida::SpecialAttribute, sourceParent);
-            bool spec = index.data().toBool();
-            return spec != function.neg;
+            {
+                QModelIndex index = q->sourceModel()->index(sourceRow, (int)Movida::SpecialAttribute, sourceParent);
+                bool spec = index.data().toBool();
+                return spec != function.neg;
 
-        } break;
+            } break;
 
         case Movida::RatingFilter:
-        {
-            if (function.parameters.isEmpty())
-                return false;
+            {
+                if (function.parameters.isEmpty())
+                    return false;
 
-            QModelIndex index = sourceModel()->index(sourceRow, (int)Movida::RatingAttribute, sourceParent);
-            int rating = index.data(Movida::RawDataRole).toInt();
+                QModelIndex index = q->sourceModel()->index(sourceRow, (int)Movida::RatingAttribute, sourceParent);
+                int rating = index.data(Movida::SortRole).toInt();
 
-            QString x = function.parameters.first();
-            QRegExp rx("\\s*([<>=]?)\\s*(\\d)\\s*");
-            if (rx.indexIn(x) < 0)
-                return false;
+                QString x = function.parameters.first();
+                QRegExp rx("\\s*([<>=]?)\\s*(\\d)\\s*");
+                if (rx.indexIn(x) < 0)
+                    return false;
 
-            enum { Lt, Gt, Eq } op = Eq;
-            int n;
+                enum { Lt, Gt, Eq } op = Eq;
+                int n;
 
-            if (rx.numCaptures() == 2) {
-                op = rx.cap(1) == QLatin1String("<") ? Lt : rx.cap(1) == QLatin1String(">") ? Gt : Eq;
-                n = rx.cap(2).toInt();
-            } else n = rx.cap(1).toInt();
+                if (rx.numCaptures() == 2) {
+                    op = rx.cap(1) == QLatin1String("<") ? Lt : rx.cap(1) == QLatin1String(">") ? Gt : Eq;
+                    n = rx.cap(2).toInt();
+                } else n = rx.cap(1).toInt();
 
-            bool match;
-            if (op == Lt)
-                match = rating < n;
-            else if (op == Gt)
-                match = rating > n;
-            else
-                match = rating == n;
+                bool match;
+                if (op == Lt)
+                    match = rating < n;
+                else if (op == Gt)
+                    match = rating > n;
+                else
+                    match = rating == n;
 
-            return match != function.neg;
+                return match != function.neg;
 
-        } break;
+            } break;
 
         case Movida::RunningTimeFilter:
-        {
-            if (function.parameters.isEmpty())
-                return false;
-
-            QModelIndex index = sourceModel()->index(sourceRow, (int)Movida::RunningTimeAttribute, sourceParent);
-            int rt = index.data(Movida::RawDataRole).toUInt();
-            int min = -1;
-            QString op;
-
-            QString s = function.parameters.first();
-            QRegExp rx("\\s*([<>=])?(\\d{1,3})\\s*m?\\s*");
-            if (rx.exactMatch(s)) {
-                if (rx.numCaptures() == 2) {
-                    op = rx.cap(1);
-                    min = rx.cap(2).toInt();
-                }
-            } else {
-                QString hm("(\\d{1,3})\\s*h(?:\\s*(\\d+)\\s*m?)?"); // 1h 20m OR 1h 20 OR 1h
-                QString qm("(\\d{1,3})\\s*'(?:\\s*(\\d+)\\s*(?:'')?)?"); // 1' 10'' OR 1' 10
-                QString dm("(\\d{1})[\\.:](\\d{1,2})"); // 1.20 or 1:20
-                rx.setPattern(QString("\\s*([<>=])?\\s*(?:(?:%1)|(?:%2)|(?:%3))\\s*")
-                        .arg(hm).arg(qm).arg(dm)
-                    );
-                if (!rx.exactMatch(s))
+            {
+                if (function.parameters.isEmpty())
                     return false;
-                QStringList captures;
-                QStringList rxCaptures = rx.capturedTexts();
-                rxCaptures.removeAt(0); // First item is the whole match
-                foreach(QString cap, rxCaptures)
-                if (!cap.isEmpty())
-                    captures.append(cap);
 
-                if (captures.size() == 1) {
-                    QString s = captures.at(0);
-                    if (s.isEmpty())
-                        return false;
-                    if (s.at(0).isNumber())
-                        min = s.toInt() * 60; // hours
-                    else return false; // only <>= operator
-                } else if (captures.size() == 2) {
-                    QString s = captures.at(0);
-                    if (s.isEmpty())
-                        return false;
-                    if (s.at(0).isNumber()) {
-                        min = captures.at(0).toInt() * 60; // hours
-                        min += captures.at(1).toInt(); // minutes
-                    } else {
-                        op = s;
-                        min = captures.at(1).toInt() * 60; // hours
+                QModelIndex index = q->sourceModel()->index(sourceRow, (int)Movida::RunningTimeAttribute, sourceParent);
+                int rt = index.data(Movida::SortRole).toUInt();
+                int min = -1;
+                QString op;
+
+                QString s = function.parameters.first();
+                QRegExp rx("\\s*([<>=])?(\\d{1,3})\\s*m?\\s*");
+                if (rx.exactMatch(s)) {
+                    if (rx.numCaptures() == 2) {
+                        op = rx.cap(1);
+                        min = rx.cap(2).toInt();
                     }
-                } else if (captures.size() == 3) {
-                    op = captures.at(0);
-                    min = captures.at(1).toInt() * 60; // hours
-                    min += captures.at(2).toInt(); // minutes
+                } else {
+                    QString hm("(\\d{1,3})\\s*h(?:\\s*(\\d+)\\s*m?)?"); // 1h 20m OR 1h 20 OR 1h
+                    QString qm("(\\d{1,3})\\s*'(?:\\s*(\\d+)\\s*(?:'')?)?"); // 1' 10'' OR 1' 10
+                    QString dm("(\\d{1})[\\.:](\\d{1,2})"); // 1.20 or 1:20
+                    rx.setPattern(QString("\\s*([<>=])?\\s*(?:(?:%1)|(?:%2)|(?:%3))\\s*")
+                        .arg(hm).arg(qm).arg(dm)
+                        );
+                    if (!rx.exactMatch(s))
+                        return false;
+                    QStringList captures;
+                    QStringList rxCaptures = rx.capturedTexts();
+                    rxCaptures.removeAt(0); // First item is the whole match
+                    foreach(QString cap, rxCaptures)
+                        if (!cap.isEmpty())
+                            captures.append(cap);
+
+                    if (captures.size() == 1) {
+                        QString s = captures.at(0);
+                        if (s.isEmpty())
+                            return false;
+                        if (s.at(0).isNumber())
+                            min = s.toInt() * 60; // hours
+                        else return false; // only <>= operator
+                    } else if (captures.size() == 2) {
+                        QString s = captures.at(0);
+                        if (s.isEmpty())
+                            return false;
+                        if (s.at(0).isNumber()) {
+                            min = captures.at(0).toInt() * 60; // hours
+                            min += captures.at(1).toInt(); // minutes
+                        } else {
+                            op = s;
+                            min = captures.at(1).toInt() * 60; // hours
+                        }
+                    } else if (captures.size() == 3) {
+                        op = captures.at(0);
+                        min = captures.at(1).toInt() * 60; // hours
+                        min += captures.at(2).toInt(); // minutes
+                    }
                 }
-            }
 
-            if (min < 0)
-                return false;
+                if (min < 0)
+                    return false;
 
 
-            enum { Lt, Gt, Eq } _op = Eq;
-            _op = op == QLatin1String("<") ? Lt : rx.cap(1) == QLatin1String(">") ? Gt : Eq;
+                enum { Lt, Gt, Eq } _op = Eq;
+                _op = op == QLatin1String("<") ? Lt : rx.cap(1) == QLatin1String(">") ? Gt : Eq;
 
-            bool match;
-            if (_op == Lt)
-                match = rt < min;
-            else if (_op == Gt)
-                match = rt > min;
-            else
-                match = rt == min;
+                bool match;
+                if (_op == Lt)
+                    match = rt < min;
+                else if (_op == Gt)
+                    match = rt > min;
+                else
+                    match = rt == min;
 
-            return match != function.neg;
+                return match != function.neg;
 
-        } break;
+            } break;
 
         default:
             ;
@@ -307,11 +469,13 @@ bool MvdFilterProxyModel::testFunction(int sourceRow, const QModelIndex &sourceP
 }
 
 //! Returns true if filter is empty or does not contain invalid filter functions.
-bool MvdFilterProxyModel::rebuildPatterns()
+bool MvdFilterProxyModel::Private::rebuildPatterns()
 {
     mFunctions.clear();
+    mOldPlainStrings = mPlainStrings;
     mPlainStrings.clear();
     mInvalidQuery = false;
+    mPlainTextAppended = false;
 
     if (mQuery.isEmpty())
         return true;
@@ -354,43 +518,128 @@ bool MvdFilterProxyModel::rebuildPatterns()
     QString s = mQuery.right(mQuery.length() - offset).trimmed();
     if (!s.isEmpty() && !mPlainStrings.contains(s)) mPlainStrings.append(s);
 
+    optimizeNewPatterns();
     return true;
 }
 
-/*!
-    Sets a query string to be used for advanced pattern matching.
-
-    The string can contain both plain text strings and filter functions
-    of the form @FUNCTION_NAME(PARAMETERS). For a list of supported functions,
-    please refer to the Movida::FilterFunction enum.
-
-    Returns false if the string contains invalid filter functions.
-    \todo Check function parameters.
-*/
-bool MvdFilterProxyModel::setFilterAdvancedString(const QString &q)
+//! Attempts to perform some optimization steps after the search patterns have changed.
+void MvdFilterProxyModel::Private::optimizeNewPatterns()
 {
-    mQuery = q.trimmed();
-    bool res = rebuildPatterns();
-    invalidateFilter();
-    return res;
+    bool plainTextAppended = false;
+    if (!mOldPlainStrings.isEmpty()) {
+        plainTextAppended = true;
+        QStringList::ConstIterator begin = mPlainStrings.constBegin();
+        QStringList::ConstIterator end = mPlainStrings.constEnd();
+        while (begin != end && plainTextAppended) {
+            const QString& s = *begin;
+            QStringList::ConstIterator old_begin = mOldPlainStrings.constBegin();
+            QStringList::ConstIterator old_end = mOldPlainStrings.constEnd();
+            while (old_begin != old_end && plainTextAppended) {
+                QString old_s = *old_begin;
+                plainTextAppended = s.startsWith(old_s);
+                ++old_begin;
+            }
+            
+            ++begin;
+        }
+    }
+
+    mPlainTextAppended = plainTextAppended;
+    if (!mPlainTextAppended)
+        mPlainTextFailedMatches.clear();
 }
 
-//! Returns the current string used for advanced pattern matching.
-QString MvdFilterProxyModel::filterAdvancedString() const
-{
-    return mQuery;
-}
 
 //! Convenience method, converts a list of string IDs to mvdids.
-QList<mvdid> MvdFilterProxyModel::idList(const QStringList &sl) const
+QList<mvdid> MvdFilterProxyModel::Private::idList(const QStringList &sl) const
 {
     QList<mvdid> ids;
     bool ok;
-    foreach(QString s, sl)
-    {
-        mvdid id = s.toUInt(&ok);
 
-        if (ok) ids << id;
+    QStringList::ConstIterator begin = sl.constBegin();
+    QStringList::ConstIterator end = sl.constEnd();
+    while (begin != end) {
+        const QString& s = *begin;
+        mvdid id = s.toUInt(&ok);
+        if (ok)
+            ids.append(id);
+        ++begin;
     }
     return ids;
 }
+
+/*!
+    Returns the text that has to be searched for the given movie.
+    This method is used only for text searches (i.e. not for search functions).
+    A cache contains the text that needs to be searched for a given movie and
+    which has been built by using the attributes specified by setMovieAttributes().
+*/
+QString MvdFilterProxyModel::Private::textForMovie(mvdid id, int sourceRow)
+{
+    QString* cachedText = mTextCache.object(id);
+    if (cachedText)
+        return *cachedText;
+
+    QString title;
+    bool titleAdded = false;
+
+    // Build and cache the text for the given movie
+    QString text;
+    QList<Movida::MovieAttribute>::ConstIterator att_begin = mMovieAttributes.constBegin();
+    QList<Movida::MovieAttribute>::ConstIterator att_end = mMovieAttributes.constEnd();
+    while (att_begin != att_end) {
+        bool skip = false;
+        Movida::MovieAttribute att = *att_begin;
+        QModelIndex index = q->sourceModel()->index(sourceRow, (int)att, QModelIndex());
+        QString att_text = q->sourceModel()->data(index).toString();
+        if (!titleAdded && (att == Movida::TitleAttribute || att == Movida::OriginalTitleAttribute)) {
+            titleAdded = true;
+            title = att_text;
+        } else if (titleAdded && (att == Movida::TitleAttribute || att == Movida::OriginalTitleAttribute)) {
+            // Check duplicate titles to shorten the search string
+            if (title == att_text)
+                skip = true;
+        }
+        if (!skip)
+            text.append(att_text).append(QChar(QChar::LineSeparator));
+        ++att_begin;
+    }
+
+    Movida::normalize(text);
+    mTextCache.insert(id, new QString(text));
+
+    return text;
+}
+
+bool MvdFilterProxyModel::Private::plainTextFilter(mvdid id, int sourceRow)
+{
+    if (mPlainTextAppended) {
+        // Look for the previous match
+        if (mPlainTextFailedMatches.contains(id))
+            return false;
+    }
+
+    //    Qt::CaseSensitivity cs = filterCaseSensitivity();
+
+    QStringList::ConstIterator begin = mPlainStrings.constBegin();
+    QStringList::ConstIterator end = mPlainStrings.constEnd();
+    while (begin != end) {
+        QString queryPattern = *begin;
+        Movida::normalize(queryPattern);
+
+        bool match = false;
+
+        QString targetString = textForMovie(id, sourceRow);
+        match = targetString.contains(queryPattern, q->filterCaseSensitivity());
+
+        if (!match) {
+            mPlainTextFailedMatches.append(id);
+            return false;
+        }
+
+        ++begin;
+    }
+
+    return true;
+}
+

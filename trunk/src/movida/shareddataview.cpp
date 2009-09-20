@@ -38,7 +38,7 @@ MvdSharedDataView::~MvdSharedDataView()
 
 void MvdSharedDataView::startDrag(Qt::DropActions supportedActions)
 {
-    const int MaxValues = MvdCore::parameter("movida/d&d/max-values").toInt();
+    const int MaxValues = Movida::core().parameter("movida/d&d/max-values").toInt();
 
     MvdSharedDataModel *m = dynamic_cast<MvdSharedDataModel *>(model());
 

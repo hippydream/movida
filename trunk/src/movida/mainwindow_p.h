@@ -32,6 +32,18 @@
 #ifndef MVD_MAINWINDOW_P_H
 #define MVD_MAINWINDOW_P_H
 
+#include "mainwindow.h"
+
+#include "mvdcore/core.h"
+
+#include <QtCore/QList>
+#include <QtCore/QObject>
+#include <QtCore/QPointer>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QVariant>
+#include <QtCore/QVector>
+#include <QtGui/QSyntaxHighlighter>
+
 class MvdBrowserView;
 class MvdCollectionModel;
 class MvdDockWidget;
@@ -51,19 +63,12 @@ class MvdSmartView;
 class QAction;
 class QHttp;
 class QMenu;
+class QRegExp;
 class QStackedWidget;
 class QTemporaryFile;
+class QTextCharFormat;
 class QTimer;
 class QToolBar;
-
-#include "mainwindow.h"
-
-#include "mvdcore/core.h"
-
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QVariant>
 
 using namespace Movida;
 
@@ -74,12 +79,10 @@ class MvdMainWindow::Private : public QObject
 
 public:
     Private(MvdMainWindow * p) :
-        mCollection(0),
         mMovieModel(0),
         mSelectionModel(0),
         mSharedDataModel(0),
         mMovieEditor(0),
-        mPlugins(),
         mHttp(0),
         mPendingRemoteRequests(),
         mFilterWidget(0),
@@ -110,7 +113,6 @@ public:
         mA_CollAddMovie(0),
         mA_CollRemMovie(0),
         mA_CollEdtMovie(0),
-        mA_CollMedMovie(0),
         mA_CollDupMovie(0),
         mA_CollMeta(0),
         mA_ToolSdEditor(0),
@@ -154,19 +156,16 @@ public:
     void retranslateUi();
     void setupConnections();
 
+    void loadPlugins();
+
+    void updateActionTexts(int);
     void updateBrowserView();
     void updateViewSortMenu();
-
-    void createNewCollection();
 
     void updateCaption();
 
     mvdid movieIndexToId(const QModelIndex &index) const;
     QModelIndex movieIdToIndex(mvdid id) const;
-
-    void loadPlugins();
-    void loadPluginsFromDir(const QString &path);
-    void unloadPlugins();
 
     void registerMessageHandler()
     { Movida::registerMessageHandler(mainWindowMessageHandler); }
@@ -181,7 +180,7 @@ public:
 
     void dispatchMessage(Movida::MessageType t, const QString &m);
 
-    bool closeCollection();
+    bool closeCollection(bool silent = false, bool *error = 0);
 
     void setMoviePoster(quint32 movieId, const QUrl &url);
 
@@ -191,8 +190,12 @@ public slots:
 
     void collectionMetaDataChanged(int t);
     void collectionModified();
+    void movieAdded(mvdid id);
     void movieChanged(mvdid id);
 
+    void collectionCreated(MvdMovieCollection* c);
+
+    void pluginsUnloaded();
     void pluginActionTriggered();
 
     // Shared Data panel D&D
@@ -207,7 +210,7 @@ public slots:
     void openRecentFile(QAction *a);
     bool collectionLoaderCallback(int state, const QVariant &data);
     bool loadCollectionDlg();
-    bool saveCollectionDlg();
+    bool saveCollectionDlg(bool silent = false);
 
     void addRecentFile(const QString &file);
 
@@ -222,16 +225,19 @@ public slots:
 
     void httpRequestFinished(int id, bool error);
 
+    void escape();
+
+protected:
+    void timerEvent(QTimerEvent *e);
+
 public:
     // The current movie collection
-    MvdMovieCollection *mCollection;
     MvdCollectionModel *mMovieModel;
     MvdRowSelectionModel *mSelectionModel;
     MvdSharedDataModel *mSharedDataModel;
 
-    QPointer<MvdMovieEditor> mMovieEditor;
-
-    QList<MvdPluginInterface *> mPlugins;
+    QSharedPointer<MvdMovieEditor> mMovieEditor;
+    QSharedPointer<MvdMovieEditor> mMovieMassEditor; //! \todo Use mMovieMassEditor
 
     // For various HTTP requests.
     struct RemoteRequest {
@@ -296,7 +302,6 @@ public:
     QAction *mA_CollAddMovie;
     QAction *mA_CollRemMovie;
     QAction *mA_CollEdtMovie;
-    QAction *mA_CollMedMovie;
     QAction *mA_CollDupMovie;
     QAction *mA_CollMeta;
 
@@ -342,8 +347,38 @@ public:
     MvdDockWidget *mDetailsDock;
     MvdDockWidget *mSharedDataDock;
 
+private slots:
+#ifdef _MVD_DEBUG
+    void openTempDir();
+    void showPersistentMessage();
+    void showTemporaryMessage();
+#endif
+
 private:
     MvdMainWindow *q;
+};
+
+/////////////////////////////////////////////////////////////
+
+class MvdLogSyntaxHighlighter : public QSyntaxHighlighter
+{
+    Q_OBJECT
+
+public:
+    MvdLogSyntaxHighlighter(QTextDocument *parent = 0);
+
+protected:
+    virtual void highlightBlock(const QString &text);
+
+private:
+    struct HighlightingRule
+    {
+     QRegExp pattern;
+     QTextCharFormat format;
+    };
+
+    static QVector<HighlightingRule> mHighlightingRules;
+    static bool mRulesInitialized;
 };
 
 #endif // MVD_MAINWINDOW_P_H

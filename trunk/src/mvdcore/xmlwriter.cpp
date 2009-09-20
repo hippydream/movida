@@ -238,9 +238,9 @@ void MvdXmlWriter::writeString(const QString &string)
 }
 
 //! Convenience method.
-void MvdXmlWriter::writeOpenTag(const QString &name, const Attribute &a1, const Attribute &a2, const Attribute &a3)
+void MvdXmlWriter::writeOpenTag(const QString &name, const MvdAttribute &a1, const MvdAttribute &a2, const MvdAttribute &a3)
 {
-    AttributeMap a;
+    MvdAttributeMap a;
 
     if (!a1.first.isEmpty())
         a.insert(a1.first, a1.second);
@@ -256,7 +256,7 @@ void MvdXmlWriter::writeOpenTag(const QString &name, const Attribute &a1, const 
     \p attrs hash.
     Example: \verbatim <itemName attr1="value1"> \endverbatim
 */
-void MvdXmlWriter::writeOpenTag(const QString &name, const AttributeMap &attrs)
+void MvdXmlWriter::writeOpenTag(const QString &name, const MvdAttributeMap &attrs)
 {
     if (!d->pauseIndent)
         for (int i = 0; i < d->indentLevel; ++i)
@@ -288,9 +288,9 @@ void MvdXmlWriter::writeCloseTag(const QString &name)
 }
 
 //! Convenience method.
-void MvdXmlWriter::writeAtomTag(const QString &name, const Attribute &a1, const Attribute &a2, const Attribute &a3)
+void MvdXmlWriter::writeAtomTag(const QString &name, const MvdAttribute &a1, const MvdAttribute &a2, const MvdAttribute &a3)
 {
-    AttributeMap a;
+    MvdAttributeMap a;
 
     if (!a1.first.isEmpty())
         a.insert(a1.first, a1.second);
@@ -305,7 +305,7 @@ void MvdXmlWriter::writeAtomTag(const QString &name, const Attribute &a1, const 
     Writes an atom named \p name with attributes from hash \p attrs.
     Example: \verbatim <itemName attr1="value1"/> \endverbatim
 */
-void MvdXmlWriter::writeAtomTag(const QString &name, const AttributeMap &attrs)
+void MvdXmlWriter::writeAtomTag(const QString &name, const MvdAttributeMap &attrs)
 {
     if (!d->pauseIndent)
         for (int i = 0; i < d->indentLevel; ++i)
@@ -321,9 +321,9 @@ void MvdXmlWriter::writeAtomTag(const QString &name, const AttributeMap &attrs)
 
 //! Convenience method.
 void MvdXmlWriter::writeTaggedString(const QString &name, const QString &string,
-    const Attribute &a1, const Attribute &a2, const Attribute &a3)
+    const MvdAttribute &a1, const MvdAttribute &a2, const MvdAttribute &a3)
 {
-    AttributeMap a;
+    MvdAttributeMap a;
 
     if (!a1.first.isEmpty())
         a.insert(a1.first, a1.second);
@@ -340,7 +340,7 @@ void MvdXmlWriter::writeTaggedString(const QString &name, const QString &string,
     \verbatim <itemName attr1="value1">Some funny text</itemName> \endverbatim
 */
 void MvdXmlWriter::writeTaggedString(const QString &name, const QString &string,
-    const AttributeMap &attrs)
+    const MvdAttributeMap &attrs)
 {
     if (d->skipEmptyTags && string.isEmpty())
         return;
@@ -358,9 +358,9 @@ void MvdXmlWriter::writeTaggedString(const QString &name, const QString &string,
 
 //! Convenience method.
 void MvdXmlWriter::writeCDataString(const QString &name, const QString &string,
-    const Attribute &a1, const Attribute &a2, const Attribute &a3)
+    const MvdAttribute &a1, const MvdAttribute &a2, const MvdAttribute &a3)
 {
-    AttributeMap a;
+    MvdAttributeMap a;
 
     if (!a1.first.isEmpty())
         a.insert(a1.first, a1.second);
@@ -377,7 +377,7 @@ void MvdXmlWriter::writeCDataString(const QString &name, const QString &string,
     \verbatim <itemName attr1="value1"><![CDATA[Some funny text]]></itemName> \endverbatim
 */
 void MvdXmlWriter::writeCDataString(const QString &name, const QString &string,
-    const AttributeMap &attrs)
+    const MvdAttributeMap &attrs)
 {
     if (d->skipEmptyTags && string.isEmpty())
         return;

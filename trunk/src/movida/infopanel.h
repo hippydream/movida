@@ -35,27 +35,39 @@ public:
     MvdInfoPanel(QWidget *parent = 0);
     virtual ~MvdInfoPanel();
 
-    void setText(const QString &s);
-    QString text() const;
+    void setPersistentMessage(const QString &s);
+    QString persistentMessage() const;
 
+    void showPersistentMessage(const QString &s);
     void showTemporaryMessage(const QString &s, int milliseconds = 3000);
 
-    void setVisible(bool v);
+    enum WidgetPosition {
+        WidgetAtTop, WidgetAtBottom
+    };
 
-public slots:
-    void closeImmediately();
+    WidgetPosition widgetPosition() const;
+    void setWidgetPosition(WidgetPosition wp);
+    
+    void showWithEffect();
+    void closeWithEffect();
 
 signals:
     void closedByUser();
 
+protected:
+    virtual bool event(QEvent *e);
+
 private slots:
-    void do_closeImmediately();
-    void resetPermanentText();
+    void closeRequest();
+    void timeout();
 
 private:
-    QPixmap mInfoIcon;
-    QString mPermanentText;
-    bool mHideOnTemporaryMessageTimeout;
+    // Make private to force using show*Message() and close() and avoid
+    // confusion
+    void setVisible(bool v);
+
+    class Private;
+    Private *d;
 };
 
 #endif // MVD_INFOPANEL_H

@@ -40,6 +40,11 @@ public:
     virtual int addPage(MvdMPDialogPage *p);
     virtual void showPage(MvdMPDialogPage *p);
 
+    MvdMPDialogPage *pageAt(int index) const;
+    int indexOf(MvdMPDialogPage *page) const;
+    QList<MvdMPDialogPage *> pages() const;
+    int pageCount() const;
+
     virtual MvdMPDialogPage *currentPage() const;
     virtual int currentIndex() const;
 

@@ -31,7 +31,9 @@
 #endif
 #include <libxml/xmlerror.h>
 
+class MvdMovieCollection;
 class MvdPluginContext;
+class MvdPluginInterface;
 
 namespace Movida {
 enum MessageType {
@@ -59,8 +61,11 @@ public:
     QString parameter;
 };
 
-class MVD_EXPORT MvdCore
+
+class MVD_EXPORT MvdCore : public QObject
 {
+    Q_OBJECT
+
 public:
     enum LocateOption {
         NoLocateOption = 0x00, IncludeApplicationPath = 0x01
@@ -70,20 +75,40 @@ public:
     };
     Q_DECLARE_FLAGS(LocateOptions, LocateOption)
 
-    static bool initCore();
-    static void loadStatus();
-    static void storeStatus();
+    static MvdCore &instance();
 
-    static QVariant parameter(const QString &name);
-    static void registerParameters(const QHash<QString, QVariant> &p);
+    bool isInitialized() const;
+    void loadStatus();
+    void storeStatus();
+
+    MvdMovieCollection *createNewCollection();
+    MvdMovieCollection *currentCollection() const;
+
+    QVariant parameter(const QString &name);
+    void registerParameters(const QHash<QString, QVariant> &p);
+
+    int pluginCount() const;
+    MvdPluginInterface *plugin(int index) const;
+    MvdPluginInterface *findPlugin(const QString &id) const;
+    QList<MvdPluginInterface *> plugins() const;
+
+signals:
+    void pluginsLoaded();
+    void pluginsUnloaded();
+    void collectionCreated(MvdMovieCollection* c);
+
+public:
+    //////////////////////////////////////////
+    // Static utility methods
+    //////////////////////////////////////////
 
     static mvdid atoid(const char *c, bool *ok = 0);
 
     static QString replaceNewLine(QString text);
 
     static QByteArray toLatin1PercentEncoding(const QString &input,
-    const QByteArray &exclude = QByteArray(),
-    const QByteArray &include = QByteArray());
+        const QByteArray &exclude = QByteArray(),
+        const QByteArray &include = QByteArray());
 
     static QString decodeXmlEntities(const char *s);
     static QString decodeXmlEntities(QString s);
@@ -96,7 +121,12 @@ public:
     static QString env(const QString &s, Qt::CaseSensitivity cs = Qt::CaseInsensitive);
 
     static void replaceEnvVariables(QString &s);
+
+    static QString& sanitizePath(QString &path);
+    static QString sanitizedPath(const QString &path);
+
     static QString toLocalFilePath(QString s, bool considerDirectory = false);
+    static QString toQtFilePath(QString s, bool considerDirectory = false);
     static QString fixedFilePath(QString s);
 
     static bool isValidYear(QString s);
@@ -108,15 +138,28 @@ public:
 #endif
 
 private:
+    MvdCore();
+    MvdCore(const MvdCore &);
+    MvdCore &operator=(const MvdCore &);
+    virtual ~MvdCore();
+
+    void initialize();
+    static void create();
+    static volatile MvdCore *mInstance;
+    static bool mDestroyed;
+    static qint8 mCoreInitOk;
+
+    friend class Private;
     class Private;
-    static Private *d;
-    static bool MvdCoreInitOk;
+    Private *d;
+
     static MvdPluginContext *PluginContext;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(MvdCore::LocateOptions)
 
 namespace Movida {
 void xmlStructuredErrorHandler(void *userData, xmlErrorPtr error);
+extern MVD_EXPORT MvdCore &core();
 }
 
 #endif // MVD_CORE_H

@@ -55,7 +55,8 @@ public:
 
     void showMovie(mvdid id);
     void showMovies(const QList<mvdid> &ids);
-    void showMovieData(int id);
+
+    void showCachedMovie(int id);
 
 public slots:
     void clear();
@@ -73,6 +74,9 @@ protected:
     QWebFrame *frame() const;
     QWebPage *page() const;
     QWebView *webView() const;
+
+protected slots:
+    void movieChanged(mvdid id);
 
 private:
     class Private;
