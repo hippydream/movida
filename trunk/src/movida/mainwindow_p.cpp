@@ -174,6 +174,7 @@ void MvdMainWindow::Private::setupUi()
     mSharedDataEditor = new MvdSharedDataEditor;
     mSharedDataEditor->setModel(mSharedDataModel);
     mSharedDataDock->setWidget(mSharedDataEditor);
+    connect(mSharedDataEditor, SIGNAL(itemActivated(int,bool)), this, SLOT(sharedDataEditorActivated(int,bool)));
 
     mFilterWidget = new MvdFilterWidget;
     mFilterWidget->setVisible(false);
@@ -692,6 +693,7 @@ void MvdMainWindow::Private::setupConnections()
 
     connect(mFilterWidget, SIGNAL(hideRequest()), q, SLOT(resetFilter()));
     connect(mFilterWidget, SIGNAL(caseSensitivityChanged()), this, SLOT(filter()));
+    connect(mFilterWidget, SIGNAL(booleanOperatorChanged()), this, SLOT(filter()));
     connect(mFilterWidget->editor(), SIGNAL(textChanged(QString)), this, SLOT(filter(QString)));
 
     connect(mHideFilterTimer, SIGNAL(timeout()), mFilterWidget, SLOT(hide()));
@@ -1033,6 +1035,7 @@ void MvdMainWindow::Private::cleanUp()
         p.setValue("movida/appearance/main-window-pos", q->pos());
     }
     p.setValue("movida/quick-filter/case-sensitive", mFilterWidget->caseSensitivity() == Qt::CaseSensitive);
+    p.setValue("movida/quick-filter/use-or-operator", mFilterWidget->booleanOperator() == Movida::OrOperator);
     if (mMainViewStack->currentWidget() == mTreeView)
         p.setValue("movida/view-mode", "tree");
     else p.setValue("movida/view-mode", "smart");
@@ -1189,8 +1192,10 @@ void MvdMainWindow::Private::filter(QString s)
     bool nothingToFilter = true;
     bool hasText = !mFilterWidget->editor()->text().trimmed().isEmpty();
     Qt::CaseSensitivity cs = mFilterWidget->caseSensitivity();
+    Movida::BooleanOperator op = mFilterWidget->booleanOperator();
 
     mFilterModel->setFilterCaseSensitivity(cs);
+    mFilterModel->setFilterOperator(op);
     bool syntaxError = !mFilterModel->setFilterAdvancedString(s);
     if (syntaxError) {
         mFilterWidget->setMessage(MvdFilterWidget::SyntaxErrorWarning);
@@ -1805,6 +1810,11 @@ void MvdMainWindow::Private::escape()
         q->resetFilter();
         return;
     }
+}
+
+void MvdMainWindow::Private::sharedDataEditorActivated(int id, bool replace)
+{
+    q->filterWidget()->applySharedDataFilter(QString::number(id), replace);
 }
 
 

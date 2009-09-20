@@ -52,6 +52,9 @@ public:
     void setCaseSensitivity(Qt::CaseSensitivity cs);
     Qt::CaseSensitivity caseSensitivity() const;
 
+    void setBooleanOperator(Movida::BooleanOperator op);
+    Movida::BooleanOperator booleanOperator() const;
+
     void applySharedDataFilter(const QString &itemIds, bool replaceFilter);
 
     bool isEmpty() const;
@@ -66,6 +69,7 @@ protected:
 signals:
     void hideRequest();
     void caseSensitivityChanged();
+    void booleanOperatorChanged();
 
 private:
     Message mMessage;

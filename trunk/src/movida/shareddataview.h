@@ -31,6 +31,9 @@ public:
     MvdSharedDataView(QWidget *parent = 0);
     virtual ~MvdSharedDataView();
 
+signals:
+    void itemActivated(int id, bool replace);
+
 protected:
     virtual void startDrag(Qt::DropActions supportedActions);
     virtual void mouseDoubleClickEvent(QMouseEvent *e);

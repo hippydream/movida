@@ -92,6 +92,11 @@ enum ColorMode { Color, BlackWhite, UnknownColorMode };
 enum Tag { NoTag = 0, SeenTag = 2, LoanedTag = 4, SpecialTag = 8 };
 Q_DECLARE_FLAGS(Tags, Tag);
 
+enum BooleanOperator {
+    AndOperator = 0,
+    OrOperator
+};
+
 // In movie.cpp
 extern QString colorModeToString(ColorMode m);
 extern ColorMode colorModeFromString(QString s);

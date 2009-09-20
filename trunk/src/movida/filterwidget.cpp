@@ -55,6 +55,7 @@ MvdFilterWidget::MvdFilterWidget(QWidget *parent) :
 
     connect(closeButton, SIGNAL(clicked()), this, SIGNAL(hideRequest()));
     connect(caseSensitive, SIGNAL(stateChanged(int)), this, SIGNAL(caseSensitivityChanged()));
+    connect(useOrOperator, SIGNAL(stateChanged(int)), this, SIGNAL(booleanOperatorChanged()));
 }
 
 QLineEdit *MvdFilterWidget::editor() const
@@ -110,6 +111,19 @@ void MvdFilterWidget::setCaseSensitivity(Qt::CaseSensitivity cs)
 Qt::CaseSensitivity MvdFilterWidget::caseSensitivity() const
 {
     return caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive;
+}
+
+/*!
+    Calling this method will not emit the booleanOperatorChanged() signal.
+*/
+void MvdFilterWidget::setBooleanOperator(Movida::BooleanOperator op)
+{
+    useOrOperator->setChecked(op == Movida::OrOperator);
+}
+
+Movida::BooleanOperator MvdFilterWidget::booleanOperator() const
+{
+    return useOrOperator->isChecked() ? Movida::OrOperator : Movida::AndOperator;
 }
 
 void MvdFilterWidget::dragEnterEvent(QDragEnterEvent *e)

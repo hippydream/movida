@@ -185,6 +185,9 @@ MvdMainWindow::MvdMainWindow(QWidget *parent) :
         ? Qt::CaseSensitive : Qt::CaseInsensitive);
     d->mFilterModel->setQuickFilterAttributes(p.value("movida/quick-filter/attributes").toByteArray());
 
+    d->mFilterWidget->setBooleanOperator(p.value("movida/quick-filter/use-or-operator").toBool()
+        ? Movida::OrOperator : Movida::AndOperator);
+
     // a new empty collection is always open at startup
     d->mA_FileNew->setDisabled(true);
     d->mA_FileSave->setDisabled(true);
@@ -244,6 +247,13 @@ void MvdMainWindow::cleanUp()
 void MvdMainWindow::keyPressEvent(QKeyEvent *e)
 {
     if (d->mFilterWidget->hasFocus() || d->mFilterWidget->editor()->hasFocus()) {
+        QMainWindow::keyPressEvent(e);
+        return;
+    }
+
+    QAbstractItemView* focusView = dynamic_cast<QAbstractItemView*>(QApplication::focusWidget());
+    if (focusView && focusView != currentMovieView()) {
+        // Don't steel focus to itemviews other than the movie view
         QMainWindow::keyPressEvent(e);
         return;
     }

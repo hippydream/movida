@@ -86,7 +86,7 @@ void MpiMovieImport::run(const QList<MpiBlue::Engine *> &engines)
     mImportDialog->setImportSteps(4);
     // [update scripts], results downloaded, results parsed
     mImportDialog->setSearchSteps(3);
-    mImportDialog->setWindowModality(Qt::WindowModal);
+    mImportDialog->setWindowModality(Qt::ApplicationModal);
     mImportDialog->exec();
 }
 

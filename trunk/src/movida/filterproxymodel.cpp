@@ -36,6 +36,7 @@ public:
     Private(MvdFilterProxyModel *p) :
         mInvalidQuery(false),
         mPlainTextAppended(false),
+        mOperator(Movida::AndOperator),
         q(p)
     {
 
@@ -92,6 +93,7 @@ public:
 
         if (!pattern.isEmpty()) {
             if (foundQuote) {
+                pattern = pattern.trimmed();
                 QStringList l = pattern.split(QRegExp("\\s"), QString::SkipEmptyParts);
                 for (int i = 0; i < l.size(); ++i) {
                     QString s = l.at(i);
@@ -111,6 +113,7 @@ public:
     void optimizeNewPatterns();
 
     bool plainTextFilter(mvdid id, int sourceRow);
+    bool functionFilter(mvdid id, int sourceRow, const QModelIndex &sourceParent);
     bool testFunction(int sourceRow, const QModelIndex &sourceParent,
         const Function &function) const;
     inline QList<mvdid> idList(const QStringList &sl) const;
@@ -130,6 +133,8 @@ public:
     // Optimization tricks
     bool mPlainTextAppended;
     QList<mvdid> mPlainTextFailedMatches;
+
+    Movida::BooleanOperator mOperator;
 
 private:
     MvdFilterProxyModel *q;
@@ -252,28 +257,37 @@ bool MvdFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
     if (id == MvdNull)
         return false;
     
-    QTime t;
-    t.start();
+    bool hasMatch = false;
 
     // Test plain text query parts
-    bool accept = d->plainTextFilter(id, sourceRow);
-    if (!accept) {
-        return false;
+    if (!d->mPlainStrings.isEmpty()) {
+        bool match = d->plainTextFilter(id, sourceRow);
+        if (d->mOperator == Movida::AndOperator) {
+            if (!match)
+                return false; // Return at first failure
+        } else {
+            if (match)
+                return true; // Return at first success
+        }
+        if (match)
+            hasMatch = true;
     }
 
     // Test function parts
-    QList<Private::Function>::ConstIterator fun_begin = d->mFunctions.constBegin();
-    QList<Private::Function>::ConstIterator fun_end = d->mFunctions.constEnd();
-    while (fun_begin != fun_end) {
-        const Private::Function& fun = *fun_begin;
-        bool match = d->testFunction(sourceRow, sourceParent, fun);
-        if (!match) {
-            return false;
+    if (!d->mFunctions.isEmpty()) {
+        bool match = d->functionFilter(id, sourceRow, sourceParent);
+        if (d->mOperator == Movida::AndOperator) {
+            if (!match)
+                return false; // Return at first failure
+        } else {
+            if (match)
+                return true; // Return at first success
         }
-        ++fun_begin;
+        if (match)
+            hasMatch = true;
     }
 
-    return true;
+    return hasMatch;
 }
 
 //! Convenience method only.
@@ -305,6 +319,36 @@ Qt::SortOrder MvdFilterProxyModel::sortOrder() const
     return d->mSortOrder;
 }
 
+void MvdFilterProxyModel::setFilterCaseSensitivity(Qt::CaseSensitivity cs)
+{
+    if (cs == filterCaseSensitivity())
+        return;
+
+    d->mPlainTextAppended = false;
+    d->mPlainTextFailedMatches.clear();
+    QSortFilterProxyModel::setFilterCaseSensitivity(cs);
+}
+
+Qt::CaseSensitivity MvdFilterProxyModel::filterCaseSensitivity() const
+{
+    return QSortFilterProxyModel::filterCaseSensitivity(); 
+}
+
+void MvdFilterProxyModel::setFilterOperator(Movida::BooleanOperator op)
+{
+    if (d->mOperator == op)
+        return;
+    d->mOperator = op;
+    d->mPlainTextAppended = false;
+    d->mPlainTextFailedMatches.clear();
+    invalidateFilter();
+}
+
+Movida::BooleanOperator MvdFilterProxyModel::filterOperator() const
+{
+    return d->mOperator;
+}
+
 /*!
     Sets a query string to be used for advanced pattern matching.
 
@@ -320,13 +364,10 @@ bool MvdFilterProxyModel::setFilterAdvancedString(const QString &q)
     if (d->mQuery == q)
         return true;
 
-    QTime t;
-    t.start();
     d->mQuery = q.trimmed();
     bool res = d->rebuildPatterns();
     invalidateFilter();
     
-    qDebug("setFilterAdvancedString() took %d ms for pattern %s", t.elapsed(), qPrintable(q));
     return res;
 }
 
@@ -595,7 +636,7 @@ bool MvdFilterProxyModel::Private::rebuildPatterns()
 void MvdFilterProxyModel::Private::optimizeNewPatterns()
 {
     bool plainTextAppended = false;
-    if (!mOldPlainStrings.isEmpty()) {
+    if (!mOldPlainStrings.isEmpty() && mFunctions.isEmpty()) {
         plainTextAppended = true;
         QStringList::ConstIterator begin = mPlainStrings.constBegin();
         QStringList::ConstIterator end = mPlainStrings.constEnd();
@@ -684,31 +725,62 @@ bool MvdFilterProxyModel::Private::plainTextFilter(mvdid id, int sourceRow)
 {
     if (mPlainTextAppended) {
         // Look for the previous match
-        if (mPlainTextFailedMatches.contains(id))
+        if (mOperator == Movida::AndOperator && mPlainTextFailedMatches.contains(id))
             return false;
     }
 
     //    Qt::CaseSensitivity cs = filterCaseSensitivity();
 
+
+    bool hasMatches = false;
     QStringList::ConstIterator begin = mPlainStrings.constBegin();
     QStringList::ConstIterator end = mPlainStrings.constEnd();
     while (begin != end) {
         QString queryPattern = *begin;
         Movida::normalize(queryPattern);
 
-        bool match = false;
-
         QString targetString = textForMovie(id, sourceRow);
-        match = targetString.contains(queryPattern, q->filterCaseSensitivity());
+        bool match = targetString.contains(queryPattern, q->filterCaseSensitivity());
 
         if (!match) {
             mPlainTextFailedMatches.append(id);
-            return false;
+        } else hasMatches = true;
+
+        if (mOperator == Movida::AndOperator) {
+            if (!match)
+                return false; // Return at first failure
+        } else {
+            if (match)
+                return true; // Return at first success
         }
 
         ++begin;
     }
 
-    return true;
+    return hasMatches;
 }
 
+bool MvdFilterProxyModel::Private::functionFilter(mvdid id, int sourceRow, 
+    const QModelIndex &sourceParent)
+{
+    bool hasMatches = false;
+    QList<Private::Function>::ConstIterator fun_begin = mFunctions.constBegin();
+    QList<Private::Function>::ConstIterator fun_end = mFunctions.constEnd();
+    while (fun_begin != fun_end) {
+        const Private::Function& fun = *fun_begin;
+        bool match = testFunction(sourceRow, sourceParent, fun);
+        if (mOperator == Movida::AndOperator) {
+            if (!match)
+                return false; // Return at first failure
+        } else {
+            if (match)
+                return true; // Return at first success
+        }
+        if (match)
+            hasMatches = true;
+
+        ++fun_begin;
+    }
+
+    return hasMatches;
+}

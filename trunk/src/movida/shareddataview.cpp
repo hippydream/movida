@@ -134,5 +134,5 @@ void MvdSharedDataView::mouseDoubleClickEvent(QMouseEvent *e)
     if (id == MvdNull)
         return;
 
-    Movida::MainWindow->filterWidget()->applySharedDataFilter(QString::number(id), true);
+    emit itemActivated(id, e->modifiers() != Qt::ControlModifier);
 }
