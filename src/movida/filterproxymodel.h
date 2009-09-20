@@ -41,6 +41,12 @@ public:
     Movida::MovieAttribute sortAttribute() const;
     Qt::SortOrder sortOrder() const;
 
+    void setFilterCaseSensitivity(Qt::CaseSensitivity cs);
+    Qt::CaseSensitivity filterCaseSensitivity() const;
+
+    void setFilterOperator(Movida::BooleanOperator op);
+    Movida::BooleanOperator filterOperator() const;
+
     void sortByAttribute(Movida::MovieAttribute attribute, Qt::SortOrder order = Qt::AscendingOrder);
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 

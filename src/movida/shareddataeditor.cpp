@@ -75,6 +75,8 @@ void MvdSharedDataEditor::init()
 
     Ui::MvdSharedDataEditor::view->setDragEnabled(true);
     Ui::MvdSharedDataEditor::view->setAcceptDrops(true);
+
+    connect(Ui::MvdSharedDataEditor::view, SIGNAL(itemActivated(int,bool)), this, SIGNAL(itemActivated(int,bool)));
 }
 
 //! \internal

@@ -18,7 +18,8 @@
 
 # CHANGES:
 # 2008-03-20: Movie results section was no longer being located; fixed parsing of movies with a /I after the prod. year.
-# 2000-03-26: Fixed regular expressions
+# 2008-03-26: Fixed regular expressions
+# 2009-09-20: Fixed regular expressions to detect start of contents; fixed redirect detection
 
 # subroutines
 %XmlEntities = (
@@ -72,11 +73,12 @@ print F_OUT "<movida-movie-results version=\"1\">\n";
 # currently seven digits
 $rxImdbId = '\d{7}';
 
+$rxContents = '^\s*<div\s* id="main"\s*>';
+
 # the next line tries to detect "no results" pages:
 # NO RESULTS: <link rel="stylesheet" type="text/css" href="none_files/consumersite.css">
 # MULTIPLE RESULTS: <link rel="stylesheet" type="text/css" href="multi_files/consumersite.css">
 # MULTIPLE RESULTS (alternative): <link rel="stylesheet" type="text/css" href="http://i.imdb.com/images/css2/consumersite.css">
-$rxContents = '^//-->\s*$';
 $rxResultsPageType = '^<p(.+)\s*$';
 $rxResultsPageTypeNoResults = '^>$';
 
@@ -86,9 +88,6 @@ $rxResultsPageTypeNoResults = '^>$';
 $rxPageType = '^<title>(.*)</title>\s*$';
 $rxPageTypeNoRedirect = '\s*IMDb\s*Title\s*Search\s*';
 
-# this is a good pattern to speed up parsing. there is no useful data before this point.
-$rxDataStart = '^\s*</table>';
-
 # results are grouped. possible groups:
 # <p><b>Popular Titles</b> (Displaying 4 Results)<table> ..... </table>
 # <p><b>Titles (Exact Matches)</b> (Displaying 1 Result)<table> ..... </table>
@@ -96,7 +95,7 @@ $rxDataStart = '^\s*</table>';
 # <p><b>Titles (Approx Matches)</b> (Displaying 17 Results)<table> ..... </table>
 # 
 # $1 = group name, $s = group size, $3 = group contents
-$rxGroup = '<p><b>(?:Titles \()?(.*?)\)?</b>\s*\(Displaying (\d*) Results?\)<table>(.*?)</table>';
+$rxGroup = '<p><b>(?:Titles\s*\()?(.*?)\)?</b>\s*\(Displaying (\d*) Results?\)<table>(.*?)</table>';
 
 # $1 = id, $2 = title, $3 = year, $4 = optional aka
 $rxMatch  = '<tr>.*?\?link=/title/tt('.$rxImdbId.')[^>]*>'; # IMDb ID
@@ -134,14 +133,29 @@ while (<F_IN>) {
 			}
 			$hasPageType = 1;
 		}
-		next;
+		
+		if (!$isMoviePage) {
+			next;
+		}
+	}
+	
+	if ($isMoviePage) {
+		# movie data page
+		print F_OUT "\t\t<result>\n";
+		print F_OUT "\t\t\t<source type=\"cached\"/>\n";
+		print F_OUT "\t\t\t<title>$movieTitle</title>\n";
+		print F_OUT "\t\t\t<year>$movieYear</year>\n";
+		print F_OUT "\t\t</result>\n";
+		last;
 	}
 	
 	# jump to the contents section
-	if (!$isMoviePage and !$hasContents) {
-		if (/$rxContents/i) {
-			$hasContents = 1;
-		}
+	if (!$hasContents) {
+	    if (/$rxContents/i) {
+		$hasContents = 1;
+	    } else {
+		next;
+	    }
 	}
 	
 	# now look for the results page type
@@ -152,76 +166,60 @@ while (<F_IN>) {
 				last;
 			}
 			$hasResultsPageType = 1;
-		}
-		next;
-	}
-
-	if ($isMoviePage) {
-		# movie data page
-		print F_OUT "\t\t<result>\n";
-		print F_OUT "\t\t\t<source type=\"cached\"/>\n";
-		print F_OUT "\t\t\t<title>$movieTitle</title>\n";
-		print F_OUT "\t\t\t<year>$movieYear</year>\n";
-		print F_OUT "\t\t</result>\n";
-		last;
-
-	} else {
-		# results page
-		if (/$rxDataStart/i) {
-			$_ = <F_IN>;
-			$hasMovieData = 1;
-		}
-		
-		if ($hasMovieData) {
-			while (m/$rxGroup/ig) {
-				$name = XmlEscape($1);
-				print F_OUT "\t<group name=\"$name\">\n";
-				$group = $3;
-				while ($group =~ m/$rxMatch/ig) {
-					# $1 = id, $2 = title, $3 = year, $4 = optional raw aka
-					if ($4) {
-						$akaRaw = $4;
-						$aka = '';
-						if ($akaRaw =~ /$rxMovieType/i) {
-							if ($movieType = $MovieTypeDescriptions{lc($1)}) {
-								$aka .= $movieType;
-							}
-						}
-						
-						$firstAka = 1;
-						while ($akaRaw =~ m/$rxAka/ig) {
-							if ($firstAka) {
-								unless ($aka eq '') {
-									$aka .= '<br><br>';
-								}
-								$aka .= "Alternative titles:";
-								$firstAka = 0;
-							}
-							$myAka = $1;
-							$myAka =~ s/\<[^\<]+\>//g; # Strip HTML tags from AKA
-							$aka .= "<br>".$myAka;
-						}
-						
-						$aka = XmlEscape($aka);
-					}
-					
-					$id = $1;
-					$title = XmlEscape($2);
-					$year = $3;
-					print F_OUT "\t\t<result>\n";
-					print F_OUT "\t\t\t<source type=\"remote\"/>\n";
-					print F_OUT "\t\t\t<title>$title</title>\n";
-					print F_OUT "\t\t\t<year>$year</year>\n";
-					if ($aka) {
-						print F_OUT "\t\t\t<notes>$aka</notes>\n";
-					}
-					print F_OUT "\t\t\t<url>http://us.imdb.com/title/tt$id/</url>\n";
-					print F_OUT "\t\t</result>\n";
-				}
-				print F_OUT "\t</group>\n";
-			}
+		} else {
+			# Important: do not skip this line if it is a results page:
+			# it will contain the first group of results.
 			next;
 		}
+	}
+
+	# results page
+	while (m/$rxGroup/ig) {
+		$name = XmlEscape($1);
+		print F_OUT "\t<group name=\"$name\">\n";
+		$group = $3;
+		while ($group =~ m/$rxMatch/ig) {
+			# $1 = id, $2 = title, $3 = year, $4 = optional raw aka
+			if ($4) {
+				$akaRaw = $4;
+				$aka = '';
+				if ($akaRaw =~ /$rxMovieType/i) {
+					if ($movieType = $MovieTypeDescriptions{lc($1)}) {
+						$aka .= $movieType;
+					}
+				}
+				
+				$firstAka = 1;
+				while ($akaRaw =~ m/$rxAka/ig) {
+					if ($firstAka) {
+						unless ($aka eq '') {
+							$aka .= '<br><br>';
+						}
+						$aka .= "Alternative titles:";
+						$firstAka = 0;
+					}
+					$myAka = $1;
+					$myAka =~ s/\<[^\<]+\>//g; # Strip HTML tags from AKA
+					$aka .= "<br>".$myAka;
+				}
+				
+				$aka = XmlEscape($aka);
+			}
+			
+			$id = $1;
+			$title = XmlEscape($2);
+			$year = $3;
+			print F_OUT "\t\t<result>\n";
+			print F_OUT "\t\t\t<source type=\"remote\"/>\n";
+			print F_OUT "\t\t\t<title>$title</title>\n";
+			print F_OUT "\t\t\t<year>$year</year>\n";
+			if ($aka) {
+				print F_OUT "\t\t\t<notes>$aka</notes>\n";
+			}
+			print F_OUT "\t\t\t<url>http://us.imdb.com/title/tt$id/</url>\n";
+			print F_OUT "\t\t</result>\n";
+		}
+		print F_OUT "\t</group>\n";
 	}
 }
 

@@ -227,6 +227,8 @@ public slots:
 
     void escape();
 
+    void sharedDataEditorActivated(int id, bool replace);
+
 protected:
     void timerEvent(QTimerEvent *e);
 

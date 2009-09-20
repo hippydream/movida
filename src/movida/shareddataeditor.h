@@ -45,6 +45,7 @@ public:
     QAbstractItemView *view() const;
 
 signals:
+    void itemActivated(int id, bool replace);
     void contextMenuRequested(const QModelIndex &index);
 
 protected:

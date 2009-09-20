@@ -74,7 +74,7 @@ void MpiMovieExport::run()
     movidaXmlEngine.urlFilter = tr("XML Files (*.xml);;All Files (*.*)");
     mMovidaXmlEngineId = mExportDialog->registerEngine(movidaXmlEngine);
 
-    mExportDialog->setWindowModality(Qt::WindowModal);
+    mExportDialog->setWindowModality(Qt::ApplicationModal);
     mExportDialog->exec();
 }
 
