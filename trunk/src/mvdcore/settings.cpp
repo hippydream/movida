@@ -498,3 +498,9 @@ MvdSettings::Status MvdSettings::status() const
     }
     return NoError;
 }
+
+//! Emits an explicitChange() signal.
+void MvdSettings::emitExplicitChangeSignal()
+{
+    emit explicitChange();
+}

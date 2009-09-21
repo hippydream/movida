@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="mvdcore"
-	ProjectGUID="{119CD80F-DBC3-38B5-8203-75A4FC029A83}"
+	ProjectGUID="{30044428-0DB6-3572-AEB3-AF48F67159F2}"
 	Keyword="Qt4VSv1.0"
 	>
 	<Platforms>
@@ -252,6 +252,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\naturalcompare.cpp"
+				>
+			</File>
+			<File
 				RelativePath="pathresolver.cpp"
 				>
 			</File>
@@ -452,6 +456,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\naturalcompare.h"
+				>
+			</File>
+			<File
 				RelativePath="pathresolver.h"
 				>
 			</File>
@@ -488,6 +496,28 @@
 			<File
 				RelativePath="settings.h"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="MOC settings.h"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -D_MVD_DEBUG -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\debug\mvdcore\moc&quot; -I&quot;d:\blue\src\movida\trunk\src\mvdcore\..\..\tmp\win32\debug\mvdcore\\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 settings.h -o ..\..\tmp\win32\debug\mvdcore\moc\moc_settings.cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;settings.h"
+						Outputs="..\..\tmp\win32\debug\mvdcore\moc\moc_settings.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="MOC settings.h"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DMVD_BUILD_CORE_DLL -D_MVD_DEBUG -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_THREAD_SUPPORT -I&quot;$(QTDIR)\include\QtCore&quot; -I&quot;$(QTDIR)\include\QtGui&quot; -I&quot;$(QTDIR)\include&quot; -I&quot;..\..\src&quot; -I&quot;..\..\src\3rdparty&quot; -I&quot;..\..\src\3rdparty\iconv&quot; -I&quot;$(QTDIR)\include\ActiveQt&quot; -I&quot;..\..\tmp\win32\release\mvdcore\moc&quot; -I&quot;d:\blue\src\movida\trunk\src\mvdcore\..\..\tmp\win32\debug\mvdcore\\ui&quot; -I$(QTDIR)\mkspecs\default -D_MSC_VER=1400 -DWIN32 settings.h -o ..\..\tmp\win32\release\mvdcore\moc\moc_settings.cpp&#x0D;&#x0A;"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;settings.h"
+						Outputs="..\..\tmp\win32\release\mvdcore\moc\moc_settings.cpp"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="shareddata.h"
@@ -742,6 +772,30 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\tmp\win32\release\mvdcore\moc\moc_settings.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tmp\win32\debug\mvdcore\moc\moc_settings.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\tmp\win32\release\mvdcore\moc\moc_shareddata.cpp"
 				>
 				<FileConfiguration
@@ -766,10 +820,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\release\mvdcore\moc\moc_templatecache.cpp"
+				RelativePath="..\..\tmp\win32\debug\mvdcore\moc\moc_templatecache.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -778,10 +832,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\tmp\win32\debug\mvdcore\moc\moc_templatecache.cpp"
+				RelativePath="..\..\tmp\win32\release\mvdcore\moc\moc_templatecache.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
