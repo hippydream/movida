@@ -27,8 +27,10 @@
 
 class QSettings;
 
-class MVD_EXPORT MvdSettings
+class MVD_EXPORT MvdSettings : public QObject
 {
+    Q_OBJECT
+
 public:
     enum Status {
         NoError = 0,
@@ -57,6 +59,14 @@ public:
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
 
     Status status() const;
+
+    void emitExplicitChangeSignal();
+
+signals:
+    /*! Emitted explicitly to notify interested objects that the settings have 
+        been changed. This signal is usually emitted after using a settings dialog.
+    */
+    void explicitChange();
 
 private:
     MvdSettings();

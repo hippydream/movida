@@ -9,6 +9,7 @@ HEADERS += \
 	movie.h \
 	moviecollection.h \
 	moviedata.h \
+	naturalcompare.h \
 	pathresolver.h \
 	plugininterface.h \
 	sditem.h \
@@ -33,6 +34,7 @@ SOURCES += \
 	movie.cpp \
 	moviecollection.cpp \
 	moviedata.cpp \
+	naturalcompare.cpp \
 	pathresolver.cpp \
 	plugininterface.cpp \
 	settings.cpp \
