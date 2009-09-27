@@ -69,6 +69,7 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QStatusBar>
+#include <QtGui/QStyleFactory>
 #include <QtGui/QToolBar>
 #include <QtNetwork/QHttp>
 
@@ -92,6 +93,9 @@ Q_DECLARE_METATYPE(::PluginAction);
 
 void MvdMainWindow::Private::setupUi()
 {
+    QStyle *baseStyle = QApplication::style();
+    QApplication::setStyle(new MvdProxyStyle(baseStyle));
+
 #ifdef Q_OS_MAC
     setUnifiedTitleAndToolBarOnMac(true);
 #endif
@@ -1824,6 +1828,84 @@ void MvdMainWindow::Private::escape()
 void MvdMainWindow::Private::sharedDataEditorActivated(int id, bool replace)
 {
     q->filterWidget()->applySharedDataFilter(QString::number(id), replace);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
+MvdProxyStyle::MvdProxyStyle(QStyle *baseStyle) :
+    mBaseStyle(0)
+{
+    Q_ASSERT(baseStyle);
+    mBaseStyle = QStyleFactory::create(baseStyle->objectName());
+    Q_ASSERT(mBaseStyle);
+}
+
+void MvdProxyStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+        const QWidget *w) const
+{
+    mBaseStyle->drawPrimitive(pe, opt, p, w);
+}
+
+void MvdProxyStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+    const QWidget *w) const
+{
+    mBaseStyle->drawControl(element, opt, p, w);
+}
+
+QRect MvdProxyStyle::subElementRect(SubElement r, const QStyleOption *opt, const QWidget *widget) const
+{
+    return mBaseStyle->subElementRect(r, opt, widget);
+}
+
+void MvdProxyStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
+    const QWidget *w) const
+{
+    mBaseStyle->drawComplexControl(cc, opt, p, w);
+}
+
+QSize MvdProxyStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
+    const QSize &contentsSize, const QWidget *widget) const
+{
+    return mBaseStyle->sizeFromContents(ct, opt, contentsSize, widget);
+}
+
+int MvdProxyStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, const QWidget *widget) const
+{
+    return mBaseStyle->pixelMetric(pm, option, widget);
+}
+
+int MvdProxyStyle::styleHint(StyleHint stylehint, const QStyleOption *opt,
+    const QWidget *widget, QStyleHintReturn* returnData) const
+{
+    if (stylehint == QStyle::SH_ItemView_ActivateItemOnSingleClick)
+        return 0;
+    return mBaseStyle->styleHint(stylehint, opt, widget, returnData);
+}
+
+QStyle::SubControl MvdProxyStyle::hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
+    const QPoint &pt, const QWidget *widget) const
+{
+    return mBaseStyle->hitTestComplexControl(cc, opt, pt, widget);
+}
+
+QRect MvdProxyStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
+    SubControl sc, const QWidget *widget) const
+{
+    return mBaseStyle->subControlRect(cc, opt, sc, widget);
+}
+
+QPixmap MvdProxyStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
+        const QWidget *widget) const
+{
+    return mBaseStyle->standardPixmap(standardPixmap, opt, widget);
+}
+
+QPixmap MvdProxyStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
+        const QStyleOption *opt) const
+{
+    return mBaseStyle->generatedIconPixmap(iconMode, pixmap, opt);
 }
 
 

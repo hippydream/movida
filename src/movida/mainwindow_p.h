@@ -42,6 +42,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QVariant>
 #include <QtCore/QVector>
+#include <QtGui/QStyle>
 #include <QtGui/QSyntaxHighlighter>
 
 class MvdBrowserView;
@@ -381,6 +382,40 @@ private:
 
     static QVector<HighlightingRule> mHighlightingRules;
     static bool mRulesInitialized;
+};
+
+/////////////////////////////////////////////////////////////
+
+class MvdProxyStyle : public QStyle
+{
+    Q_OBJECT
+
+public:
+    MvdProxyStyle(QStyle *baseStyle);
+
+    virtual void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+        const QWidget *w = 0) const;
+    virtual void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+        const QWidget *w = 0) const;
+    virtual QRect subElementRect(SubElement r, const QStyleOption *opt, const QWidget *widget = 0) const;
+    virtual void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
+        const QWidget *w = 0) const;
+    virtual QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
+        const QSize &contentsSize, const QWidget *widget = 0) const;
+    virtual int pixelMetric(PixelMetric pm, const QStyleOption *option = 0, const QWidget *widget = 0) const;
+    virtual int styleHint(StyleHint stylehint, const QStyleOption *opt = 0,
+        const QWidget *widget = 0, QStyleHintReturn* returnData = 0) const;
+    virtual SubControl hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
+        const QPoint &pt, const QWidget *widget = 0) const;
+    virtual QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
+        SubControl sc, const QWidget *widget = 0) const;
+    virtual QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt = 0,
+        const QWidget *widget = 0) const;
+    virtual QPixmap generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
+        const QStyleOption *opt) const;
+
+private:
+    QPointer<QStyle> mBaseStyle;
 };
 
 #endif // MVD_MAINWINDOW_P_H
