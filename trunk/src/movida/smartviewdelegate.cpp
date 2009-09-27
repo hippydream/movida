@@ -180,6 +180,7 @@ void MvdSmartViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     bool hasFocus =  option.state & QStyle::State_HasFocus;
     bool isEnabled = option.state & QStyle::State_Enabled; //! Find a better way to render during load time
     bool isActive = option.state & QStyle::State_Active;
+    bool hasMouseOver = option.state & QStyle::State_MouseOver;
     int ctrlIndex = -1;
     Control hoveredCtrl = hoveredControl(option.rect, &ctrlIndex);
 
@@ -211,7 +212,7 @@ void MvdSmartViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->setRenderHint(QPainter::TextAntialiasing, true);
 
-    QColor borderColor = isSelected ? BorderColor.darker() : BorderColor;
+    QColor borderColor = isSelected ? BorderColor.darker() : hasMouseOver ? BorderColor.darker(120) : BorderColor;
 
     //////////////////////////////////////////////////////////////////////////
     // Draw item border & background
@@ -226,8 +227,13 @@ void MvdSmartViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
     QPalette::ColorGroup cg = isEnabled ? isActive ? QPalette::Normal : QPalette::Inactive : QPalette::Disabled;
     brush = option.palette.brush(cg, isSelected ? QPalette::Highlight : QPalette::Base);
-    if (hasFocus)
+    if (hasFocus) {
         brush.setColor(brush.color().lighter(110));
+    }
+    if (hasMouseOver && !isSelected) {
+        brush = option.palette.brush(cg, QPalette::Highlight);
+        brush.setColor(brush.color().lighter(180));
+    }
     painter->fillRect(option.rect, brush);
 
     // Disable AA to fix a rendering issue with the dashed focus rectangle
@@ -664,8 +670,12 @@ bool MvdSmartViewDelegate::hasMouseOver(const QRect &itemRect) const
 }
 
 //! \internal
-MvdSmartViewDelegate::Control MvdSmartViewDelegate::hoveredControl(const QRect &itemRect, int *index) const
+MvdSmartViewDelegate::Control MvdSmartViewDelegate::hoveredControl(const QRect &itemRect, int *index,
+    bool* isItemHovered) const
 {
+    if (isItemHovered)
+        *isItemHovered = false;
+
     if (QApplication::mouseButtons())
         return NoControl;
 
@@ -675,6 +685,9 @@ MvdSmartViewDelegate::Control MvdSmartViewDelegate::hoveredControl(const QRect &
     QPoint p = mView->mapFromGlobal(QCursor::pos());
     if (!itemRect.contains(p))
         return NoControl;
+
+    if (isItemHovered)
+        *isItemHovered = true;
 
     // Compute controls area
     QRect rIconArea(itemRect.x() + Padding, itemRect.y() + Padding, mIconSize.width(), mIconSize.height());

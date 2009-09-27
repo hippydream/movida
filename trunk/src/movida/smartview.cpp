@@ -80,6 +80,9 @@ void MvdSmartView::init()
     setFlow(QListView::LeftToRight);
     setResizeMode(QListView::Adjust);
     setMouseTracking(true);
+    viewport()->setMouseTracking(true);
+    setAttribute(Qt::WA_Hover);
+    viewport()->setAttribute(Qt::WA_Hover);
     setContentsMargins(0,0,0,20);
 }
 
