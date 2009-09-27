@@ -106,6 +106,7 @@ QSize MvdMovieTreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, con
     QSize sz = QItemDelegate::sizeHint(option, index);
     int w = sz.width();
     int h = sz.height();
+    h += 2;
 
     if (index.column() == Movida::RatingAttribute) {
         int maxRating = Movida::core().parameter("mvdcore/max-rating").toInt();

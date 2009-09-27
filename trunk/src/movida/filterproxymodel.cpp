@@ -25,6 +25,8 @@
 
 #include "mvdcore/movie.h"
 #include "mvdcore/moviecollection.h"
+#include "mvdcore/naturalcompare.h"
+#include "mvdcore/settings.h"
 #include "mvdcore/shareddata.h"
 #include "mvdcore/utils.h"
 
@@ -56,7 +58,7 @@ public:
 
     void addPlainTextQuery(const QString &s) {
         Q_ASSERT(!s.isEmpty());
-        
+
         QString pattern;
 
         bool foundQuote = false;
@@ -148,17 +150,22 @@ MvdFilterProxyModel::MvdFilterProxyModel(QObject *parent) :
     QSortFilterProxyModel(parent),
     d(new Private(this))
 {
-    d->mMovieAttributes << Movida::TitleAttribute << Movida::OriginalTitleAttribute
-                     << Movida::DirectorsAttribute << Movida::CastAttribute // Producers are not so relevant - avoid bloating search results
-                     << Movida::YearAttribute // Numeric values - won't bloat search results
-                     << Movida::TagsAttribute;
-    d->mSortColumn = (int)Movida::TitleAttribute;
-    d->mSortOrder = Qt::AscendingOrder;
+    MvdSettings& s = Movida::settings();
+    connect(&s, SIGNAL(explicitChange()), this, SLOT(reloadSettings()));
+    reloadSettings();
 }
 
 MvdFilterProxyModel::~MvdFilterProxyModel()
 {
     delete d;
+}
+
+void MvdFilterProxyModel::reloadSettings()
+{
+    MvdSettings& s = Movida::settings();
+    setQuickFilterAttributes(s.value("movida/quick-filter/attributes").toByteArray());
+    d->mSortColumn = s.value("movida/quick-filter/sort-attribute").toInt();
+    d->mSortOrder = (Qt::SortOrder) s.value("movida/quick-filter/sort-order").toInt();
 }
 
 void MvdFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
@@ -180,7 +187,7 @@ void MvdFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
             this, SLOT(onSourceDataChanged(QModelIndex,QModelIndex)));
         connect(sourceModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
             this, SLOT(onSourceRowsAboutToBeRemoved(QModelIndex,int,int)));
-        connect(old_model, SIGNAL(destroyed(QObject*)),
+        connect(sourceModel, SIGNAL(destroyed(QObject*)),
             this, SLOT(onSourceModelDestroyed(QObject*)));
     }
 
@@ -249,14 +256,14 @@ bool MvdFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
         return true;
 
     QModelIndex index = sourceModel()->index(sourceRow, 0);
-    
+
     bool ok;
     mvdid id = (mvdid) index.data(Movida::IdRole).toInt(&ok);
     Q_ASSERT_X(ok, "MvdFilterProxyModel", "filterAcceptsRow(): invalid source row.");
 
     if (id == MvdNull)
         return false;
-    
+
     bool hasMatch = false;
 
     // Test plain text query parts
@@ -331,7 +338,7 @@ void MvdFilterProxyModel::setFilterCaseSensitivity(Qt::CaseSensitivity cs)
 
 Qt::CaseSensitivity MvdFilterProxyModel::filterCaseSensitivity() const
 {
-    return QSortFilterProxyModel::filterCaseSensitivity(); 
+    return QSortFilterProxyModel::filterCaseSensitivity();
 }
 
 void MvdFilterProxyModel::setFilterOperator(Movida::BooleanOperator op)
@@ -367,7 +374,7 @@ bool MvdFilterProxyModel::setFilterAdvancedString(const QString &q)
     d->mQuery = q.trimmed();
     bool res = d->rebuildPatterns();
     invalidateFilter();
-    
+
     return res;
 }
 
@@ -379,7 +386,35 @@ QString MvdFilterProxyModel::filterAdvancedString() const
 
 bool MvdFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    return QSortFilterProxyModel::lessThan(left, right);
+    const int role = sortRole();
+    QVariant l = (left.model() ? left.model()->data(left, role) : QVariant());
+    QVariant r = (right.model() ? right.model()->data(right, role) : QVariant());
+    switch (l.type()) {
+    case QVariant::Invalid:
+        return (r.type() == QVariant::Invalid);
+    case QVariant::Int:
+        return l.toInt() < r.toInt();
+    case QVariant::UInt:
+        return l.toUInt() < r.toUInt();
+    case QVariant::LongLong:
+        return l.toLongLong() < r.toLongLong();
+    case QVariant::ULongLong:
+        return l.toULongLong() < r.toULongLong();
+    case QVariant::Double:
+        return l.toDouble() < r.toDouble();
+    case QVariant::Char:
+        return l.toChar() < r.toChar();
+    case QVariant::Date:
+        return l.toDate() < r.toDate();
+    case QVariant::Time:
+        return l.toTime() < r.toTime();
+    case QVariant::DateTime:
+        return l.toDateTime() < r.toDateTime();
+    case QVariant::String:
+    default:
+        return Movida::naturalCompare(l.toString(), r.toString(), sortCaseSensitivity()) < 0;
+    }
+    return false;
 }
 
 
@@ -649,7 +684,7 @@ void MvdFilterProxyModel::Private::optimizeNewPatterns()
                 plainTextAppended = s.startsWith(old_s);
                 ++old_begin;
             }
-            
+
             ++begin;
         }
     }
@@ -760,7 +795,7 @@ bool MvdFilterProxyModel::Private::plainTextFilter(mvdid id, int sourceRow)
     return hasMatches;
 }
 
-bool MvdFilterProxyModel::Private::functionFilter(mvdid id, int sourceRow, 
+bool MvdFilterProxyModel::Private::functionFilter(mvdid id, int sourceRow,
     const QModelIndex &sourceParent)
 {
     bool hasMatches = false;

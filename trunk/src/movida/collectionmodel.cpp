@@ -86,7 +86,10 @@ public:
         q(c),
         collection(0),
         sortOrder(Qt::AscendingOrder),
-        sortAttribute(Movida::TitleAttribute) { }
+        sortAttribute(Movida::TitleAttribute),
+        leaveInitialSymbolsWhenSorting(false)
+    {
+    }
 
     MvdSharedData &smd(mvdid id) const;
 
@@ -94,6 +97,7 @@ public:
     void sort(Movida::MovieAttribute attribute, Qt::SortOrder order);
 
     bool setSharedData(const QList<mvdid> &ids, mvdid movieId);
+    QVariant data(const QModelIndex &index, int role) const;
 
     MvdCollectionModel *q;
 
@@ -101,6 +105,9 @@ public:
     QList<mvdid> movies;
     Qt::SortOrder sortOrder;
     Movida::MovieAttribute sortAttribute;
+
+    // Don't strip non-letter/number characters from the beginning of the string when sorting
+    bool leaveInitialSymbolsWhenSorting;
 };
 
 //! \internal Converts a list of IMDb IDs to a list of semi-colon separated strings
@@ -402,9 +409,9 @@ bool MvdCollectionModel::Private::setSharedData(const QList<mvdid> &ids, mvdid m
     return true;
 }
 
-/************************************************************************
-   MvdCollectionModel
- *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+
 
 /*!
     Creates a new empty model. A movie collection needs to be set for the item
@@ -413,7 +420,11 @@ bool MvdCollectionModel::Private::setSharedData(const QList<mvdid> &ids, mvdid m
 MvdCollectionModel::MvdCollectionModel(QObject *parent) :
     QAbstractTableModel(parent),
     d(new Private(this))
-{ }
+{
+    MvdSettings& s = Movida::settings();
+    connect(&s, SIGNAL(explicitChange()), this, SLOT(reloadSettings()));
+    reloadSettings();
+}
 
 /*!
     Creates a new model for the specified movie collection.
@@ -498,32 +509,62 @@ Qt::ItemFlags MvdCollectionModel::flags(const QModelIndex &index) const
 */
 QVariant MvdCollectionModel::data(const QModelIndex &index, int role) const
 {
-    if (d->movies.isEmpty())
+    QVariant v = d->data(index, role);
+    if (v.isNull())
+        return v;
+
+    if (role == Movida::SortRole && v.type() == QVariant::String) {
+        QString s = v.toString();
+        if (!d->leaveInitialSymbolsWhenSorting) {
+            // Strip any non-word char from the beginning of the string
+            const QChar* uc_begin = s.unicode();
+            const QChar* uc_end = uc_begin + s.length();
+            int p = 0;
+            const QChar* c = uc_begin;
+            while (c != uc_end) {
+                if (c->isLetterOrNumber()) {
+                    break;
+                }
+                ++c;
+                ++p;
+            }
+            if (p)
+                s.remove(0, p);
+        }
+        return s;
+    }
+
+    return v;
+}
+
+QVariant MvdCollectionModel::Private::data(const QModelIndex &index, int role) const
+{
+    if (movies.isEmpty())
         return QVariant();
 
     int row = index.row();
     int col = index.column();
 
-    if (row < 0 || row > (d->movies.size() - 1) || col < 0)
+    if (row < 0 || row > (movies.size() - 1) || col < 0)
         return QVariant();
 
     if (role == (int)Movida::IdRole)
-        return d->movies.at(row);
+        return movies.at(row);
 
     if (role == (int)Movida::UniqueDisplayRole) {
-        mvdid id = d->movies.at(row);
+        mvdid id = movies.at(row);
         if (id == 0)
             return QVariant();
-        MvdMovie movie = d->collection->movie(id);
+        MvdMovie movie = collection->movie(id);
         return movie.validTitle();
     }
 
     if (role == Movida::MoviePosterRole && col == 0) {
-        mvdid id = d->movies.at(row);
+        mvdid id = movies.at(row);
         if (id == MvdNull)
             return QVariant();
-        MvdMovie movie = d->collection->movie(id);
-        return movie.posterPath(d->collection);
+        MvdMovie movie = collection->movie(id);
+        return movie.posterPath(collection);
     }
 
     if (role == Movida::FilterRole) // For future use
@@ -535,15 +576,15 @@ QVariant MvdCollectionModel::data(const QModelIndex &index, int role) const
         && role != Movida::SortRole)
         return QVariant();
 
-    if (row >= d->movies.size())
+    if (row >= movies.size())
         return QVariant();
 
-    mvdid id = d->movies.at(row);
-    MvdMovie movie = d->collection->movie(id);
+    mvdid id = movies.at(row);
+    MvdMovie movie = collection->movie(id);
 
     switch ((Movida::MovieAttribute)col) {
         case Movida::CastAttribute:
-            return d->dataList(movie.actorIDs(), Movida::PersonRole, role);
+            return dataList(movie.actorIDs(), Movida::PersonRole, role);
 
         case Movida::ColorModeAttribute:
             if (role == Movida::SortRole)
@@ -551,28 +592,28 @@ QVariant MvdCollectionModel::data(const QModelIndex &index, int role) const
             else return movie.colorModeString();
 
         case Movida::CountriesAttribute:
-            return d->dataList(movie.countries(), Movida::CountryRole, role);
+            return dataList(movie.countries(), Movida::CountryRole, role);
 
         case Movida::CrewAttribute:
-            return d->dataList(movie.crewMemberIDs(), Movida::PersonRole, role);
+            return dataList(movie.crewMemberIDs(), Movida::PersonRole, role);
 
         case Movida::DirectorsAttribute:
-            return d->dataList(movie.directors(), Movida::PersonRole, role);
+            return dataList(movie.directors(), Movida::PersonRole, role);
 
         case Movida::GenresAttribute:
-            return d->dataList(movie.genres(), Movida::GenreRole, role);
+            return dataList(movie.genres(), Movida::GenreRole, role);
 
         case Movida::ImdbIdAttribute:
             return movie.imdbId();
 
         case Movida::LanguagesAttribute:
-            return d->dataList(movie.languages(), Movida::LanguageRole, role);
+            return dataList(movie.languages(), Movida::LanguageRole, role);
 
         case Movida::OriginalTitleAttribute:
             return movie.originalTitle();
 
         case Movida::ProducersAttribute:
-            return d->dataList(movie.producers(), Movida::PersonRole, role);
+            return dataList(movie.producers(), Movida::PersonRole, role);
 
         case Movida::YearAttribute:
             return movie.year();
@@ -589,7 +630,7 @@ QVariant MvdCollectionModel::data(const QModelIndex &index, int role) const
             return movie.storageId();
 
         case Movida::TagsAttribute:
-            return d->dataList(movie.tags(), Movida::TagRole, role);
+            return dataList(movie.tags(), Movida::TagRole, role);
 
         case Movida::TitleAttribute:
             return movie.title();
@@ -896,4 +937,11 @@ bool MvdCollectionModel::dropMimeData(const QMimeData *data,
     }
 
     return true;
+}
+
+void MvdCollectionModel::reloadSettings()
+{
+    MvdSettings& s = Movida::settings();
+    d->leaveInitialSymbolsWhenSorting = 
+        s.value("movida/movie-model/sorting/no-strip-simbols", QVariant(false)).toBool();
 }

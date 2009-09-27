@@ -80,6 +80,7 @@ void MvdSmartView::init()
     setFlow(QListView::LeftToRight);
     setResizeMode(QListView::Adjust);
     setMouseTracking(true);
+    setContentsMargins(0,0,0,20);
 }
 
 void MvdSmartView::setSelectionModel(QItemSelectionModel *selectionModel)
@@ -96,6 +97,11 @@ void MvdSmartView::keyPressEvent(QKeyEvent *e)
                 e->isAutoRepeat(), e->count()));
         e->accept();
     } else MvdListView::keyPressEvent(e);
+}
+
+void MvdSmartView::resizeEvent(QResizeEvent *e)
+{
+    MvdListView::resizeEvent(e);
 }
 
 bool MvdSmartView::event(QEvent *e)

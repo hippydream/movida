@@ -105,13 +105,6 @@ MvdMainWindow::MvdMainWindow(QWidget *parent) :
 
     MVD_WINDOW_ICON
 
-    d->mMovieModel = new MvdCollectionModel(this);
-    d->mSharedDataModel = new MvdSharedDataModel(Movida::PersonRole, this);
-
-    d->setupUi();
-    d->setupConnections();
-
-
     // Set some GUI related constants
     QHash<QString, QVariant> parameters;
     parameters.insert("movida/maximum-recent-files", 10);
@@ -132,6 +125,14 @@ MvdMainWindow::MvdMainWindow(QWidget *parent) :
     MvdSettings &p = Movida::settings();
 
     // Set default settings
+    QByteArray defaultFilterAttributes(6, '\0');
+    defaultFilterAttributes[0] = (const char) Movida::TitleAttribute;
+    defaultFilterAttributes[1] = (const char) Movida::OriginalTitleAttribute;
+    defaultFilterAttributes[2] = (const char) Movida::DirectorsAttribute;
+    defaultFilterAttributes[3] = (const char) Movida::CastAttribute;
+    defaultFilterAttributes[4] = (const char) Movida::YearAttribute;
+    defaultFilterAttributes[5] = (const char) Movida::TagsAttribute;
+
     p.setDefaultValue("movida/maximum-recent-files", 5);
     p.setDefaultValue("movida/confirm-delete-movie", true);
     p.setDefaultValue("movida/directories/remember", true);
@@ -139,11 +140,20 @@ MvdMainWindow::MvdMainWindow(QWidget *parent) :
     p.setDefaultValue("movida/use-history", true);
     p.setDefaultValue("movida/max-history-items", 20);
     p.setDefaultValue("movida/quick-filter/case-sensitive", false);
-    p.setDefaultValue("movida/quick-filter/attributes", d->mFilterModel->quickFilterAttributes());
+    p.setDefaultValue("movida/quick-filter/attributes", defaultFilterAttributes);
+    p.setDefaultValue("movida/quick-filter/sort-attribute", (int) Movida::TitleAttribute);
+    p.setDefaultValue("movida/quick-filter/sort-order", (int) Qt::AscendingOrder);
     p.setDefaultValue("movida/effects/bars", true);
     p.setDefaultValue("movida/view-mode", "smart");
     p.setDefaultValue("movida/smart-view/item-size", "medium");
     p.setDefaultValue("movida/movie-view/wheel-up-magnifies", true);
+
+    // Setup UI and collection
+    d->mMovieModel = new MvdCollectionModel(this);
+    d->mSharedDataModel = new MvdSharedDataModel(Movida::PersonRole, this);
+
+    d->setupUi();
+    d->setupConnections();
 
     // Initialize core library && load user settings
     QStringList recentFiles = p.value("movida/recent-files").toStringList();

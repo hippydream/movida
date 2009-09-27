@@ -66,6 +66,7 @@ protected slots:
     virtual void onSourceDataChanged(const QModelIndex &, const QModelIndex &);
     virtual void onSourceRowsAboutToBeRemoved(const QModelIndex &, int, int);
     virtual void onSourceModelDestroyed(QObject*);
+    virtual void reloadSettings();
 
 private:
     class Private;
