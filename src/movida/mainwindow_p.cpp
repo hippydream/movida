@@ -124,9 +124,10 @@ void MvdMainWindow::Private::setupUi()
     mFilterModel->setFilterRole(Movida::FilterRole);
     mFilterModel->setSortRole(Movida::SortRole);
 
-    const QAbstractItemView::EditTriggers editTriggers =
-        (QAbstractItemView::EditTriggers)
-        QAbstractItemView::AllEditTriggers & ~QAbstractItemView::CurrentChanged;
+    QAbstractItemView::EditTriggers editTriggers =
+        (QAbstractItemView::EditTriggers) QAbstractItemView::AllEditTriggers;
+    editTriggers &= ~QAbstractItemView::CurrentChanged;
+    editTriggers &= ~QAbstractItemView::SelectedClicked;
 
     mSmartView = new MvdSmartView(q);
     mSmartView->setObjectName("movie-smart-view");
@@ -178,6 +179,11 @@ void MvdMainWindow::Private::setupUi()
     mSharedDataEditor->setModel(mSharedDataModel);
     mSharedDataDock->setWidget(mSharedDataEditor);
     connect(mSharedDataEditor, SIGNAL(itemActivated(int,bool)), this, SLOT(sharedDataEditorActivated(int,bool)));
+
+    QAbstractItemView *sharedDataEditorView = mSharedDataEditor->view();
+    sharedDataEditorView->setEditTriggers(editTriggers);
+    sharedDataEditorView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    sharedDataEditorView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     mFilterWidget = new MvdFilterWidget;
     mFilterWidget->setVisible(false);
@@ -782,29 +788,29 @@ void MvdMainWindow::Private::updateActionTexts(int count)
     action_count = Movida::variantValue(mA_CollEdtMovie->property("_mvd_count"), 0);
     if (action_count != count) {
         QString text, shortInfo;
-        
-        text = count > 1 
+
+        text = count > 1
             ? MvdMainWindow::tr("&Edit selected movies", "", count)
             : MvdMainWindow::tr("&Edit selected movie");
-        shortInfo = count > 1 
+        shortInfo = count > 1
             ? MvdMainWindow::tr("Open a dialog to edit the selected movies", "", count)
             : MvdMainWindow::tr("Open a dialog to edit the selected movie");
         mA_CollEdtMovie->setText(text);
         mA_CollEdtMovie->setStatusTip(shortInfo);
 
-        text = count > 1 
+        text = count > 1
             ? MvdMainWindow::tr("&Delete selected movies", "", count)
             : MvdMainWindow::tr("&Delete selected movie");
-        shortInfo = count > 1 
+        shortInfo = count > 1
             ? MvdMainWindow::tr("Delete the selected movies from the collection", "", count)
             : MvdMainWindow::tr("Delete the selected movie from the collection");
         mA_CollRemMovie->setText(text);
         mA_CollRemMovie->setStatusTip(shortInfo);
 
-        text = count > 1 
+        text = count > 1
             ? MvdMainWindow::tr("&Edit selected movies", "", count)
             : MvdMainWindow::tr("&Edit selected movie");
-        shortInfo = count > 1 
+        shortInfo = count > 1
             ? MvdMainWindow::tr("Open a dialog to edit the selected movies", "", count)
             : MvdMainWindow::tr("Open a dialog to edit the selected movie");
         mA_CollEdtMovie->setText(text);
@@ -1483,7 +1489,7 @@ void MvdMainWindow::Private::showMovieContextMenu(const QModelIndex &index)
 
     /// Selected movie(s)
     QModelIndexList selected = mSelectionModel->selectedRows();
-    
+
     if (selected.size() == 1) {
 
         mvdid currentId = movieIndexToId(selected.at(0));
@@ -1491,7 +1497,7 @@ void MvdMainWindow::Private::showMovieContextMenu(const QModelIndex &index)
         if (movie.isValid()) {
             if (!menu.isEmpty())
                 menu.addSeparator();
-            
+
             /*QString title = q->fontMetrics().elidedText(movie.validTitle(), Qt::ElideMiddle, 300);
             editCurrent = menu.addAction(MvdMainWindow::tr("Edit \"%1\"", "Edit movie").arg(title));
             deleteCurrent = menu.addAction(MvdMainWindow::tr("Delete \"%1\"", "Delete movie").arg(title));*/

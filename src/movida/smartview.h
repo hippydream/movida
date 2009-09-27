@@ -51,6 +51,7 @@ signals:
 protected:
     bool event(QEvent *e);
     void keyPressEvent(QKeyEvent *e);
+    void resizeEvent(QResizeEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
     void startDrag(Qt::DropActions supportedActions);
     void dragEnterEvent(QDragEnterEvent *e);

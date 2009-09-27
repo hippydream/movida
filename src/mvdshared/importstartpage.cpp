@@ -96,6 +96,8 @@ MvdImportStartPage::MvdImportStartPage(QWidget *parent) :
         completer->setCaseSensitivity(Qt::CaseInsensitive);
         queryInput->setCompleter(completer);
     }
+
+    queryInput->setFocus();
 }
 
 //! See MvdImportDialog::registerEngine(const MvdSearchEngine&)

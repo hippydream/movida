@@ -89,7 +89,7 @@ private slots:
     void movieChanged(mvdid);
     void collectionCleared();
     void removeCollection() { setMovieCollection(0); }
-
+    void reloadSettings();
 };
 
 #endif // MVD_COLLECTIONMODEL_H
