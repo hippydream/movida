@@ -502,23 +502,36 @@ bool MvdFilterProxyModel::Private::testFunction(int sourceRow, const QModelIndex
                 int rating = index.data(Movida::SortRole).toInt();
 
                 QString x = function.parameters.first();
-                QRegExp rx("\\s*([<>=]?)\\s*(\\d)\\s*");
+                QRegExp rx("\\s*([<>=]?[=]?)\\s*(\\d)\\s*");
                 if (rx.indexIn(x) < 0)
                     return false;
 
-                enum { Lt, Gt, Eq } op = Eq;
+                enum { Lt, LtEq, Gt, GtEq, Eq } op = Eq;
                 int n;
 
                 if (rx.numCaptures() == 2) {
-                    op = rx.cap(1) == QLatin1String("<") ? Lt : rx.cap(1) == QLatin1String(">") ? Gt : Eq;
+                    const QString op_s = rx.cap(1);
+                    op = op_s == QLatin1String("<")
+                         ? Lt
+                         : op_s == QLatin1String("<=")
+                         ? LtEq
+                         : op_s == QLatin1String(">")
+                         ? Gt
+                         : op_s == QLatin1String(">=")
+                         ? GtEq
+                         : Eq;
                     n = rx.cap(2).toInt();
                 } else n = rx.cap(1).toInt();
 
                 bool match;
                 if (op == Lt)
                     match = rating < n;
+                if (op == LtEq)
+                    match = rating <= n;
                 else if (op == Gt)
                     match = rating > n;
+                else if (op == GtEq)
+                    match = rating >= n;
                 else
                     match = rating == n;
 

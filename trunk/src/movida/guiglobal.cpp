@@ -330,7 +330,7 @@ QRegExp Movida::filterFunctionRegExp(FilterFunction ff)
         }
 
         case RatingFilter:
-            return QRegExp(QLatin1String("\\s*[<>=]?\\s*\\d{1}\\s*"));
+            return QRegExp(QLatin1String("\\s*[<>=]?[=]?\\s*\\d{1}\\s*"));
 
         default:
             ;
