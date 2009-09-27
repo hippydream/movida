@@ -119,7 +119,7 @@ private:
     QSizeF doTextLayout(int lineWidth, int maxHeight, int *lineCount = 0) const;
     void rebuildDefaultIcon();
     inline bool hasMouseOver(const QRect &itemRect) const;
-    inline Control hoveredControl(const QRect &itemRect, int *index) const;
+    inline Control hoveredControl(const QRect &itemRect, int *index, bool* isItemHovered = 0) const;
 };
 
 #endif // MVD_SMARTVIEWDELEGATE_H
