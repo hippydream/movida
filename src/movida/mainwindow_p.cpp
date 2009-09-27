@@ -122,7 +122,6 @@ void MvdMainWindow::Private::setupUi()
     // Share filter proxy model
     mFilterModel = new MvdFilterProxyModel(q);
     mFilterModel->setSourceModel(mMovieModel);
-    mFilterModel->setDynamicSortFilter(true);
     mFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     mFilterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     mFilterModel->setFilterRole(Movida::FilterRole);
