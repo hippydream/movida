@@ -1310,7 +1310,7 @@ bool MvdMainWindow::Private::collectionLoaderCallback(int state, const QVariant 
 
     } else if (state == MvdCollectionLoader::ProgressInfo) {
 
-        int percent = data.toInt();
+        //int percent = data.toInt();
 
     }
 
@@ -1466,7 +1466,7 @@ void MvdMainWindow::Private::addRecentFile(const QString &file)
     mA_FileOpenLast->setDisabled(list.isEmpty());
 }
 
-void MvdMainWindow::Private::showMovieContextMenu(const QModelIndex &index)
+void MvdMainWindow::Private::showMovieContextMenu(const QModelIndex &/*index*/)
 {
     //! \todo Refactor menu in order to use application wide actions
 
@@ -1475,20 +1475,12 @@ void MvdMainWindow::Private::showMovieContextMenu(const QModelIndex &index)
     Q_ASSERT(senderWidget);
 
     QMenu menu;
-    QAction *editCurrent = 0;
-    QAction *editSelected = 0;
-    QAction *deleteCurrent = 0;
-    QAction *deleteSelected = 0;
 
-    const bool currentIsSelected = false;
+    //const bool currentIsSelected = false;
     const bool hasMovies = !core().currentCollection()->isEmpty();
     const bool hasVisibleMovies = mFilterModel->rowCount();
 
-//! \todo Delete/edit movie menu must be singular+plural
-//! \todo Merge MassEdit menu action with Edit
-//! \todo Mass editor special flag combos must use checked = on/off if all movies have (don't have) that flag
-//! \todo Remove accidentally added mass editor code using QInputDialog
-//! \todo Complete mass editor
+//! \todo Complete multiple movie editor
 
     /// Selected movie(s)
     QModelIndexList selected = mSelectionModel->selectedRows();
@@ -1839,6 +1831,11 @@ MvdProxyStyle::MvdProxyStyle(QStyle *baseStyle) :
     Q_ASSERT(baseStyle);
     mBaseStyle = QStyleFactory::create(baseStyle->objectName());
     Q_ASSERT(mBaseStyle);
+}
+
+MvdProxyStyle::~MvdProxyStyle()
+{
+    delete mBaseStyle;
 }
 
 void MvdProxyStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,

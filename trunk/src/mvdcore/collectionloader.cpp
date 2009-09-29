@@ -164,7 +164,10 @@ void MvdCollectionLoader::Private::parseSharedItem(xmlDocPtr doc, xmlNodePtr nod
             continue;
         }
 
-        QString data = MVD_QSTR(xmlNodeListGetString(doc, n->xmlChildrenNode, 1)).trimmed();
+        attr = xmlNodeListGetString(doc, n->xmlChildrenNode, 1);
+        QString data = MVD_QSTR(attr).trimmed();
+        if (attr)
+            xmlFree(attr);
 
         if (!xmlStrcmp(n->name, (const xmlChar *)"value"))
             item.value = data;
@@ -867,7 +870,7 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(MvdMovieCollection *co
 
             if (currentNode == "movies") {
                 const char *str = (const char *)xmlNodeListGetString(doc, infoNode->xmlChildrenNode, 1);
-                if (str != 0) {
+                if (str) {
                     info.expectedMovieCount = MvdCore::atoid(str);
                     xmlFree((void *)str);
                 }
@@ -875,7 +878,10 @@ MvdCollectionLoader::StatusCode MvdCollectionLoader::load(MvdMovieCollection *co
                 continue;
             }
 
-            QString val = MVD_QSTR(xmlNodeListGetString(doc, infoNode->xmlChildrenNode, 1));
+            xmlChar* attr = xmlNodeListGetString(doc, infoNode->xmlChildrenNode, 1);
+            QString val = MVD_QSTR(attr);
+            if (attr)
+                xmlFree(attr);
             info.metadata.insert(currentNode, val);
 
             infoNode = infoNode->next;

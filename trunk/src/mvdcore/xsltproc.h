@@ -34,6 +34,7 @@ public:
 
     MvdXsltProc();
     MvdXsltProc(const QString &xslpath);
+    virtual ~MvdXsltProc();
 
     bool isOk() const;
 

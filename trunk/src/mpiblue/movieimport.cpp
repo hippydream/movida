@@ -56,6 +56,9 @@ MpiMovieImport::MpiMovieImport(QObject *parent) :
 MpiMovieImport::~MpiMovieImport()
 {
     reset();
+
+    if (mTempFile)
+        deleteTemporaryFile(&mTempFile, true);
 }
 
 //! Entry point for the "imdb-import" action.
@@ -949,6 +952,8 @@ void MpiMovieImport::processResultsFile(const QString &path)
         mImportDialog->showMessage(tr("Done."));
         mImportDialog->done(mImportResult);
     }
+
+    xmlFreeDoc(doc);
 }
 
 //! Parses search result nodes, possibly using recursion on <group> nodes.
@@ -1001,20 +1006,28 @@ bool MpiMovieImport::parseSearchResults(xmlDocPtr doc, xmlNodePtr node, const QS
                 }
             } else if (!xmlStrcmp(resultNode->name, (const xmlChar *)"title")) {
                 xmlChar *text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-                if (text)
+                if (text) {
                     result.data.title = MvdCore::decodeXmlEntities(QString::fromUtf8((const char *)text).trimmed());
+                    xmlFree(text);
+                }
             } else if (!xmlStrcmp(resultNode->name, (const xmlChar *)"year")) {
                 xmlChar *text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-                if (text)
+                if (text) {
                     result.data.year = QString::fromLatin1((const char *)text).trimmed();
+                    xmlFree(text);
+                }
             } else if (!xmlStrcmp(resultNode->name, (const xmlChar *)"url")) {
                 xmlChar *text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-                if (text)
+                if (text) {
                     result.dataSource = QString::fromLatin1((const char *)text).trimmed();
+                    xmlFree(text);
+                }
             } else if (!xmlStrcmp(resultNode->name, (const xmlChar *)"notes")) {
                 xmlChar *text = xmlNodeListGetString(doc, resultNode->xmlChildrenNode, 1);
-                if (text)
+                if (text) {
                     notes = MvdCore::decodeXmlEntities(QString::fromUtf8((const char *)text).trimmed());
+                    xmlFree(text);
+                }
             }
 
             resultNode = resultNode->next;
