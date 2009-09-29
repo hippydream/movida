@@ -82,6 +82,8 @@ void MpiBlue::unload()
     if (!mTempDir.isEmpty()) {
         Movida::paths().removeDirectoryTree(mTempDir);
     }
+
+    qDeleteAll(mEngines);
 }
 
 QString MpiBlue::lastError() const
@@ -206,6 +208,7 @@ void MpiBlue::loadEnginesFromFile(const QString &path)
     if (xmlStrcmp(node->name, (const xmlChar *)"mpi-blue-engines")) {
         eLog() << QString("MpiBlue: Not a valid engines.xml file.").append(path);
         xmlFree(node);
+        xmlFreeDoc(doc);
         return;
     }
 

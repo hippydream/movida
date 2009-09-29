@@ -274,7 +274,7 @@ void MvdMainWindow::keyPressEvent(QKeyEvent *e)
 
     bool hasModifier = !(key & Qt::Key_AltGr) &&
         !(
-           e->modifiers() == Qt::NoModifier 
+           e->modifiers() == Qt::NoModifier
         || e->modifiers() == Qt::AltModifier
         || e->modifiers() &  Qt::ShiftModifier);
 
@@ -670,7 +670,7 @@ void MvdMainWindow::showLog()
 */
 void MvdMainWindow::addMovie()
 {
-    QSharedPointer<MvdMovieEditor> editor = 
+    QSharedPointer<MvdMovieEditor> editor =
         QSharedPointer<MvdMovieEditor>(new MvdMovieEditor(core().currentCollection(), this));
     editor->exec();
 
@@ -719,7 +719,7 @@ void MvdMainWindow::duplicateCurrentMovie()
 void MvdMainWindow::editMovie(const QModelIndex &index)
 {
     mvdid id = movieIndexToId(index);
-    bool resetRequired = false;
+    //bool resetRequired = false;
 
     if (d->mMovieEditor.isNull()) {
         d->mMovieEditor = QSharedPointer<MvdMovieEditor>(new MvdMovieEditor(core().currentCollection(), this));
@@ -777,7 +777,7 @@ void MvdMainWindow::editSelectedMovies()
     if (list.isEmpty()) {
         return;
     }
-    
+
     if (list.size() == 1) {
         editMovie(list.at(0));
     } else {
@@ -789,7 +789,7 @@ void MvdMainWindow::massEditSelectedMovies()
 {
     QList<mvdid> ids = selectedMovies();
     if (ids.size() > 1) {
-        QSharedPointer<MvdMovieMassEditor> editor = 
+        QSharedPointer<MvdMovieMassEditor> editor =
             QSharedPointer<MvdMovieMassEditor>(new MvdMovieMassEditor(core().currentCollection(), this));
         editor->setMovies(ids);
         editor->exec();
@@ -866,7 +866,7 @@ void MvdMainWindow::showMovieContextMenu(const QModelIndex &index)
 void MvdMainWindow::showCollectionMeta()
 {
     //! Handle read-only collections
-    QSharedPointer<MvdCollectionMetaEditor> editor = 
+    QSharedPointer<MvdCollectionMetaEditor> editor =
         QSharedPointer<MvdCollectionMetaEditor>(new MvdCollectionMetaEditor(this));
     editor->setCollection(core().currentCollection());
     editor->exec();
@@ -890,7 +890,7 @@ void MvdMainWindow::showFilterWidget()
     d->mFilterWidget->editor()->selectAll();
     d->mHideFilterTimer->stop();
 
-    const bool useEffects = settings().value("movida/effects/bars").toBool();
+    //const bool useEffects = settings().value("movida/effects/bars").toBool();
     if (/*useEffects*/false) { // Effects are broken
         Movida::scrollEffect(d->mFilterWidget, MvdEffects::DownScroll, Movida::DefaultWidgetEffectDuration);
     } else {
@@ -900,7 +900,7 @@ void MvdMainWindow::showFilterWidget()
 
 void MvdMainWindow::showSharedDataEditor()
 {
-    QSharedPointer<MvdSharedDataEditor> editor = 
+    QSharedPointer<MvdSharedDataEditor> editor =
         QSharedPointer<MvdSharedDataEditor>(new MvdSharedDataEditor(this));
     editor->setModel(d->mSharedDataModel);
     editor->setWindowModality(Qt::ApplicationModal);

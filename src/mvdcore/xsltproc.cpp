@@ -93,16 +93,24 @@ class MvdXsltProc::Private
 {
 public:
     Private();
+    ~Private()
+    {
+        if (stylesheet) {
+            xsltFreeStylesheet(stylesheet);
+        }
+    }
+
     bool loadXslt(const QString &path);
-    xmlDocPtr applyStylesheet(xmlDocPtr doc,
-    const MvdXsltProc::ParameterList &params) const;
+    xmlDocPtr applyStylesheet(xmlDocPtr doc, const MvdXsltProc::ParameterList &params) const;
 
     xsltStylesheetPtr stylesheet;
+    xmlDocPtr stylesheetDoc;
 };
 
 //! \internal
 MvdXsltProc::Private::Private() :
-    stylesheet(0)
+    stylesheet(0),
+    stylesheetDoc(0)
 {
     // init libxslt
     xmlSubstituteEntitiesDefault(1);
@@ -115,6 +123,7 @@ bool MvdXsltProc::Private::loadXslt(const QString &path)
     if (stylesheet) {
         xsltFreeStylesheet(stylesheet);
         stylesheet = 0;
+        stylesheetDoc = 0;
     }
 
     QFile file(path);
@@ -129,15 +138,19 @@ bool MvdXsltProc::Private::loadXslt(const QString &path)
         return false;
     }
 
-    xmlDocPtr doc = xmlParseMemory(buffer.data(), buffer.size());
-    if (!doc) {
+    stylesheetDoc = xmlParseMemory(buffer.data(), buffer.size());
+    if (!stylesheetDoc) {
         eLog() << "MvdXsltProc: Invalid XML file: " << path;
         return false;
     }
 
-    stylesheet = xsltParseStylesheetDoc(doc);
-    if (!stylesheet)
+    stylesheet = xsltParseStylesheetDoc(stylesheetDoc);
+    if (!stylesheet) {
+        xmlFree(stylesheetDoc);
+        stylesheetDoc = 0;
         eLog() << "MvdXsltProc: Invalid XSL file: " << path;
+    }
+
     return stylesheet;
 }
 
@@ -189,14 +202,21 @@ xmlDocPtr MvdXsltProc::Private::applyStylesheet(xmlDocPtr doc,
     Creates an invalid xsl processor. An XSL file needs to be set before
     you can use it.
 */
-MvdXsltProc::MvdXsltProc()
-{ }
+MvdXsltProc::MvdXsltProc() :
+    d(new Private)
+{
+}
 
 //! Creates a xsl processor for the specified XSL file.
 MvdXsltProc::MvdXsltProc(const QString &xslpath) :
     d(new Private)
 {
     d->loadXslt(xslpath);
+}
+
+MvdXsltProc::~MvdXsltProc()
+{
+    delete d;
 }
 
 //! Returns true if the processor is valid (a stylesheet has been correctly loaded).
@@ -223,18 +243,26 @@ QString MvdXsltProc::processText(const QString &txt, const ParameterList &params
     if (!doc)
         return QString();
 
-    xmlDocPtr res = d->applyStylesheet(doc, params);
-    if (!res)
+    xmlDocPtr sDoc = d->applyStylesheet(doc, params);
+    xmlFreeDoc(doc);
+
+    if (!sDoc) {
         return QString();
+    }
 
     xmlChar *outString = NULL;
     int outStringLength = 0;
 
-    xsltSaveResultToString(&outString, &outStringLength, res, d->stylesheet);
+    xsltSaveResultToString(&outString, &outStringLength, sDoc, d->stylesheet);
     if (!outString || !outStringLength)
         return QString();
 
-    return QString::fromUtf8(reinterpret_cast<const char *>(outString), outStringLength);
+    QString s = QString::fromUtf8(reinterpret_cast<const char *>(outString), outStringLength);
+    xmlFree(outString);
+
+    xmlFreeDoc(sDoc);
+
+    return s;
 }
 
 //! Applies XSL transformations to the file using the previously loaded stylesheet.
@@ -247,18 +275,25 @@ QString MvdXsltProc::processFile(const QString &file, const ParameterList &param
     if (!doc)
         return QString();
 
-    xmlDocPtr res = d->applyStylesheet(doc, params);
-    if (!res)
+    xmlDocPtr sDoc = d->applyStylesheet(doc, params);
+    xmlFreeDoc(doc);
+
+    if (!sDoc)
         return QString();
 
     xmlChar *outString = NULL;
     int outStringLength = 0;
 
-    xsltSaveResultToString(&outString, &outStringLength, res, d->stylesheet);
+    xsltSaveResultToString(&outString, &outStringLength, sDoc, d->stylesheet);
     if (!outString || !outStringLength)
         return QString();
 
-    return QString::fromUtf8(reinterpret_cast<const char *>(outString), outStringLength);
+    QString s = QString::fromUtf8(reinterpret_cast<const char *>(outString), outStringLength);
+    xmlFree(outString);
+
+    xmlFreeDoc(sDoc);
+
+    return s;
 }
 
 //! Applies XSL transformations to the text using the previously loaded stylesheet and writes the result to a device.
@@ -274,8 +309,10 @@ bool MvdXsltProc::processTextToDevice(const QString &txt, QIODevice *dev,
     if (!doc)
         return false;
 
-    xmlDocPtr res = d->applyStylesheet(doc, params);
-    if (!res)
+    xmlDocPtr sDoc = d->applyStylesheet(doc, params);
+    xmlFreeDoc(doc);
+
+    if (!sDoc)
         return false;
 
     QTextStream stream(dev);
@@ -284,10 +321,11 @@ bool MvdXsltProc::processTextToDevice(const QString &txt, QIODevice *dev,
         MvdXslt::writeToTextStream, (xmlOutputCloseCallback) MvdXslt::closeTextStream, &stream, 0);
     outp->written = 0;
 
-    xsltSaveResultTo(outp, res, d->stylesheet);
+    xsltSaveResultTo(outp, sDoc, d->stylesheet);
     xmlOutputBufferFlush(outp);
-    xmlFreeDoc(res);
+    xmlOutputBufferClose(outp);
 
+    xmlFreeDoc(sDoc);
     return true;
 }
 
@@ -302,8 +340,10 @@ bool MvdXsltProc::processFileToDevice(const QString &file, QIODevice *dev,
     if (!doc)
         return false;
 
-    xmlDocPtr res = d->applyStylesheet(doc, params);
-    if (!res)
+    xmlDocPtr sDoc = d->applyStylesheet(doc, params);
+    xmlFreeDoc(doc);
+
+    if (!sDoc)
         return false;
 
     QTextStream *stream = new QTextStream(dev);
@@ -312,9 +352,11 @@ bool MvdXsltProc::processFileToDevice(const QString &file, QIODevice *dev,
         MvdXslt::writeToTextStream, (xmlOutputCloseCallback) MvdXslt::closeTextStream, &stream, 0);
     outp->written = 0;
 
-    xsltSaveResultTo(outp, res, d->stylesheet);
+    xsltSaveResultTo(outp, sDoc, d->stylesheet);
     xmlOutputBufferFlush(outp);
-    xmlFreeDoc(res);
+    xmlOutputBufferClose(outp);
+
+    xmlFreeDoc(sDoc);
 
     delete stream;
     return true;

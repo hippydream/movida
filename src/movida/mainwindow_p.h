@@ -392,6 +392,7 @@ class MvdProxyStyle : public QStyle
 
 public:
     MvdProxyStyle(QStyle *baseStyle);
+    virtual ~MvdProxyStyle();
 
     virtual void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
         const QWidget *w = 0) const;
