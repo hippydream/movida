@@ -26,6 +26,7 @@
 # 2009-07-28: Fixed most regular expressions to work with different result pages
 # 2009-07-28: Fixed parsing of rating
 # 2009-09-06: Fixed parsing of rating and potentially hanging while loops
+# 2009-12-27: Fixed parsing of various elements where a info-content div was added
 
 # TODO trivia, notes, keywords?
 # TODO localized title
@@ -201,7 +202,7 @@ while (<F_IN>) {
 	
 	if (!$hasDirectors and /$rxDirectors/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
+		while (/^(?:(?:\s*)|(?:\s*<div .*info-content.*))$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank & invalid lines
 		print F_OUT "\t\t<directors>\n";
 		while (m/$rxDirectorsEx/ig) {
 			$id = $1;
@@ -213,7 +214,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasWriters and /$rxWriters/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
+		while (/^(?:(?:\s*)|(?:\s*<div .*info-content.*))$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank & invalid lines
 		print F_OUT "\t\t<crew>\n";
 		while (m/$rxWritersEx/ig) {
 			$id = $1;
@@ -225,7 +226,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasGenres and /$rxGenres/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
+		while (/^(?:(?:\s*)|(?:\s*<div .*info-content.*))$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank & invalid lines
 		print F_OUT "\t\t<genres>\n";
 		while (m/$rxGenresEx/ig) {
 			$name = XmlEscape($1);
@@ -236,7 +237,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasPlot and /$rxPlot/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
+		while (/^(?:(?:\s*)|(?:\s*<div .*info-content.*))$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank & invalid lines
 		if (/$rxPlotEx/i) {
 			($plot = $1) =~ s/<.*?>//g;
 			print F_OUT "\t\t<plot><![CDATA[$plot]]></plot>\n";
@@ -266,7 +267,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasRunningTime and /$rxRunningTime/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
+		while (/^(?:(?:\s*)|(?:\s*<div .*info-content.*))$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank & invalid lines
 		if (/$rxRunningTimeEx/i) {
 			print F_OUT "\t\t<running-time>$1</running-time>\n";
 		}
@@ -274,7 +275,7 @@ while (<F_IN>) {
 		
 	}  elsif (!$hasCountries and /$rxCountries/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
+		while (/^(?:(?:\s*)|(?:\s*<div .*info-content.*))$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank & invalid lines
 		print F_OUT "\t\t<countries>\n";
 		$line = $_;
 		while (!(m/$rxCountriesStop/i)) { $_ = <F_IN>; $line .= $_; last if eof F_IN; } # Join lines
@@ -287,7 +288,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasLanguages and /$rxLanguages/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
+		while (/^(?:(?:\s*)|(?:\s*<div .*info-content.*))$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank & invalid lines
 		print F_OUT "\t\t<languages>\n";
 		$line = $_;
 		while (!(m/$rxLanguagesStop/i)) { $_ = <F_IN>; $line .= $_; last if eof F_IN; } # Join lines
@@ -300,7 +301,7 @@ while (<F_IN>) {
 		
 	} elsif (!$hasColor and /$rxColor/i) {
 		$_ = <F_IN>;
-		while (/^(\s)*$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank lines
+		while (/^(?:(?:\s*)|(?:\s*<div .*info-content.*))$/) { $_ = <F_IN>; last if eof F_IN; } # skip blank & invalid lines
 		$line = $_;
 		while (!(m/$rxColorStop/i)) { $_ = <F_IN>; $line .= $_; last if eof F_IN; } # Join lines
 		if ($line =~ /$rxColorEx/i) {
